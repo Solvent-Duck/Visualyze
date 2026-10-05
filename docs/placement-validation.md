@@ -27,6 +27,39 @@ The GPU examples require the native macOS graphical desktop and save screenshots
 
 The expansion proof drives the native keyboard path: it requests reorganization during initial loading, selects the supplied database, expands it into tables, and asserts that neighboring rendered positions and the established camera remain exactly unchanged. It passed on the reference machine, and its screenshot was inspected. The standalone sketch proof also passed. One earlier native run captured successfully but hung in Bevy render teardown; that process was stopped and is not counted as a successful exit. The later repair and successful graphical runs are recorded below.
 
+## Held-out cohort v1, October 5
+
+The first fresh held-out cohort ([selection](../private/layout/evaluation/holdout-v1/SELECTION.md))
+has eight independently authored synthetic cases: CRUD clinic, cross-region
+research catalog, parcel event fan-out, museum tables, compiler code lens,
+regional deployment lens, disconnected islands with parallel claims, and a
+water-control pipeline. Before scoring, both snapshot cases failed contract
+validation because the generator omitted the root scope's `system` subtype. The
+generator was corrected without changing topology, views or bundle bytes; the
+correction, one intentional duplicate-claim warning and final hashes are in
+[validation.json](../private/layout/evaluation/holdout-v1/validation.json).
+
+[The combined manifest](../private/layout/evaluation/quality5-holdout-v1.json)
+adds these cases to the unchanged v3 training/development cases under the
+unchanged quality5 profile. A new [training run](measurements/quality5-holdout-v1-training-2026-10-05.json)
+and [freeze](../private/layout/evaluation/quality5-holdout-v1.lock.json) were
+committed before any scored run. The [development](measurements/quality5-holdout-v1-development-2026-10-05.json)
+and [held-out](measurements/quality5-holdout-v1-held-out-2026-10-05.json) passes
+are all valid: 64 development and 32 held-out layouts, with no failures.
+
+Lowest held-out structural cost (lower is better): Floorplan in six cases
+(research, parcel, museum, regional ledger, islands, water control) and Layered
+in two (clinic, compiler workspace). Constrained and Treemap won none. On
+development views the split is Layered 9, Floorplan 7. Held-out median headless
+solve time was 38–40 ms for Layered/Floorplan and 19–20 ms for
+Constrained/Treemap, with a maximum of 79 ms.
+
+These scores use the provisional, uncalibrated coefficients. They show that the
+engine produces valid layouts on unseen declared inputs and how candidates rank
+under the current proxy. They do not establish readability, comprehension or
+calibrated quality. Any engine change made after inspecting these results turns
+this cohort into development evidence; later held-out claims need a new cohort.
+
 ## Durable group and reference pins, October 4
 
 Composed state version six records display ancestry separately from supplied
@@ -1231,4 +1264,4 @@ Pre-register sample size, exclusion criteria, task-level success thresholds, and
 
 Implemented and tested at scoped checkpoints: private headless solver/router with ordered scope ports and bounded routing feedback; comparative harness and reduced exact oracles; CRUD/distributed fixtures; descendant boundary aggregation and child/relationship paging; provider visual-group traversal; native search, selected-region semantic zoom and group controls; stable repair/local persistence; typed bundle provider; explicit real Rust source producer; production native display; and headless scale measurements through one million entities.
 
-Implemented in additional tests: automatic grouping from a bounded 128-peer window, distinct logical/code/deployment lenses, transactional explicit-file revision publication, recovery from disappearing suggested focus, accepted-layout migration across known quality profiles, bounded dimension fallback, and opt-in lexical source identities. Persistence-enabled production measurements now complement the earlier persistence-disabled proofs. Bounded parent presentation envelopes, independently cached canonical interiors and the quantitative original-renderer control are implemented at the newer checkpoints above. Still incomplete: group continuity across arbitrary topology changes, broader dense-region performance/readability coverage, broader topology and cross-context override semantics, broader cross-frame recovery and routing-space enlargement, repeated cold-start and normal-persistence latency gates, GPU presentation measurements, weight calibration and fresh held-out evaluation, and human comprehension gates. Direct phase/cache instrumentation, bounded durable dismissals and diagnostic neighborhood retention are now implemented as recorded above. Expanded Details intentionally overlays the lower view; collapse it with F1 to restore the full assembly. The default remains the previous renderer. See [ADR 0006](decisions/0006-placement-engine.md) for technical boundaries. The overall plan is not complete.
+Implemented in additional tests: automatic grouping from a bounded 128-peer window, distinct logical/code/deployment lenses, transactional explicit-file revision publication, recovery from disappearing suggested focus, accepted-layout migration across known quality profiles, bounded dimension fallback, and opt-in lexical source identities. Persistence-enabled production measurements now complement the earlier persistence-disabled proofs. Bounded parent presentation envelopes, independently cached canonical interiors and the quantitative original-renderer control are implemented at the newer checkpoints above. Still incomplete: group continuity across arbitrary topology changes, broader dense-region performance/readability coverage, broader topology and cross-context override semantics, broader cross-frame recovery and routing-space enlargement, repeated cold-start and normal-persistence latency gates, GPU presentation measurements, weight calibration (holdout-v1 is scored under provisional weights), and human comprehension gates. Direct phase/cache instrumentation, bounded durable dismissals and diagnostic neighborhood retention are now implemented as recorded above. Expanded Details intentionally overlays the lower view; collapse it with F1 to restore the full assembly. The default remains the previous renderer. See [ADR 0006](decisions/0006-placement-engine.md) for technical boundaries. The overall plan is not complete.

@@ -10,8 +10,13 @@ not human calibration or the product release gate.
 development views. It includes the seven historical snapshot overviews, expanded
 nested scopes, logical/code/deployment views, database expansion, inference and
 messaging regions, and a second page from a declared 160-table database. Cases
-used during development are explicitly **not held out**. There is no fresh
-held-out cohort in this checkpoint.
+used during development are explicitly **not held out**.
+
+`quality5-holdout-v1.json` adds the first fresh held-out cohort
+([`holdout-v1/`](holdout-v1/SELECTION.md)) to those unchanged cases. It was
+validated, frozen as `quality5-holdout-v1.lock.json` after a new training run,
+and scored once on 2026-10-05; reports are in `docs/measurements/`. Any engine
+change after that run makes holdout-v1 development evidence.
 
 Each comparison uses the same projection for Layered, Floorplan, Constrained and
 Treemap. Actual bounds, route points, semantic membership, metrics, diagnostics,
