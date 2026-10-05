@@ -760,7 +760,7 @@ pub fn project(model: &Architecture, view: &ViewState) -> Result<Projection, Lay
     groups.sort_by(|a, b| a.id.cmp(&b.id));
     let nodes: Vec<_> = nodes.into_values().collect();
     let key = projection_key(&root, &nodes, &edges, view);
-    Ok(Projection {
+    let mut projection = Projection {
         key,
         model_id: snapshot.model_id.clone(),
         revision: snapshot.revision,
@@ -773,7 +773,12 @@ pub fn project(model: &Architecture, view: &ViewState) -> Result<Projection, Lay
         suggested_groups: groups,
         references,
         diagnostics,
-    })
+    };
+    // Advisory only; diagnostics are not part of the projection key.
+    projection
+        .diagnostics
+        .extend(crate::noise::visual_noise(&projection).advisory());
+    Ok(projection)
 }
 
 fn child_index(items: &BTreeMap<String, Item>) -> BTreeMap<String, Vec<String>> {

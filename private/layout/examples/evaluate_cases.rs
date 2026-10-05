@@ -11,6 +11,7 @@ use std::{
 use visualyze_layout::{
     Algorithm, LAYOUT_VERSION, LayoutRequest, LayoutSolution, Projection, QUALITY_VERSION,
     QualityProfile, measure,
+    noise::visual_noise,
     projection::{LayoutPolicy, ViewState, project},
     provider_projection::{ProviderViewRequest, project_provider},
     quality::{NORMALIZATION, SCORING_WEIGHTS, ScoringWeights},
@@ -325,6 +326,7 @@ fn evaluate(case: &Case) -> Result<Value, Box<dyn std::error::Error>> {
         json!({"case": case, "model_id": graph.model_id, "revision": graph.revision,
         "projection_key": graph.key, "completeness": completeness,
         "normalization_scale": normalization_scale,
+        "visual_noise": visual_noise(&graph),
         "indexing_ms": indexing_ms, "projection_ms": projection_ms, "results": rows}),
     )
 }

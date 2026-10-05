@@ -185,6 +185,11 @@ pub fn project_provider(
                 .insert(format!("view:peer-budget:{parent}"), note);
         }
     }
+    // Advisory only, on the final graph; diagnostics are not part of the key.
+    result
+        .graph
+        .diagnostics
+        .extend(crate::noise::visual_noise(&result.graph).advisory());
     Ok(result)
 }
 

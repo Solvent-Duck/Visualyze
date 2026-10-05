@@ -4,6 +4,7 @@ pub mod assembly;
 pub mod assembly_plan;
 pub mod composed;
 pub mod metrics;
+pub mod noise;
 pub mod oracle;
 pub mod persistence;
 pub mod projection;
