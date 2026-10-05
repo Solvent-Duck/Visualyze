@@ -1,0 +1,513 @@
+{
+  "version": 1,
+  "id": "quality5-holdout-v1-2026-10-05",
+  "description": "The quality5-development-v3 training and development cases, unchanged, plus the independently authored holdout-v1 cohort (eight held_out cases). The profile is the existing frozen quality5 profile with no coefficient change. This manifest, its fixtures and source identities are frozen through a new training run before the first scored held-out evaluation. Held-out results are reported, not used for tuning; any later engine change makes this cohort development evidence.",
+  "profile": {
+    "algorithms": [
+      "Layered",
+      "Floorplan",
+      "Constrained",
+      "Treemap"
+    ],
+    "continuity": "reported separately; no predecessor in initial-placement cases",
+    "layout_version": 2,
+    "normalization": "preferred-solid-volume-cuberoot-v1",
+    "normalization_equations": {
+      "aspect": "max enclosing dimension / min enclosing dimension - 1",
+      "compactness": "cbrt(enclosing volume / reference_volume)",
+      "congestion": "shared_lane_length/reference_length + crossing_points/max(1,displayed edge count)",
+      "distortion": "sum(L1(actual_size,preferred_size) / reference_length for solids)",
+      "length": "actual orthogonal routed length / reference_length",
+      "occlusion": "min(1,pairwise projected solid overlap / total projected solid area) across XY/XZ/YZ",
+      "reference_length": "max(1,cbrt(reference_volume))",
+      "reference_volume": "max(1,sum(preferred_width*preferred_height*preferred_depth for projected solids))"
+    },
+    "projection": {
+      "automatic_groups": true,
+      "group_target": 32,
+      "load_focus_detail": true,
+      "max_children": 32,
+      "max_references": 64,
+      "max_relation_records": 4096,
+      "peer_ceiling": 64,
+      "visible_budget": 250
+    },
+    "quality_version": 5,
+    "solver": {
+      "clearance": 2,
+      "feedback_candidates": 4,
+      "gap": 12,
+      "movement_weight": 0.08,
+      "routed_candidates": 8,
+      "size_candidates": 28
+    },
+    "weights": {
+      "aspect_ratio": 1.5,
+      "bends": 0.3,
+      "compactness": 2.0,
+      "congestion": 1.0,
+      "distortion": 0.25,
+      "occlusion": 2.0,
+      "route_length": 1.0
+    },
+    "work_budget": 32
+  },
+  "provenance": {
+    "synthetic": "Declared inputs; source records retain assumptions and omissions.",
+    "public_references": "private/layout/fixtures/SOURCES.md",
+    "historical_role": "Former held-out fixtures used during later repairs are development evidence.",
+    "held_out": "private/layout/evaluation/holdout-v1/SELECTION.md (selection) and validation.json (pre-scoring corrections and final hashes)."
+  },
+  "cases": [
+    {
+      "id": "notes-overview",
+      "path": "public/examples/notes-crud.json",
+      "format": "snapshot",
+      "role": "training",
+      "sha256": "aa3f43620b4308ea648c3f623f0250fb0ca6dad2719989d9eb7a7fa83219ff8c",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "sketch-overview",
+      "path": "public/examples/sketch-crud.json",
+      "format": "snapshot",
+      "role": "training",
+      "sha256": "d20633a69da320c13bb995afd568e7d57656d437a0f7c6b0af43b01d091b2957",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "notes-interface-expansion",
+      "path": "public/examples/notes-crud.json",
+      "format": "snapshot",
+      "role": "training",
+      "sha256": "aa3f43620b4308ea648c3f623f0250fb0ca6dad2719989d9eb7a7fa83219ff8c",
+      "view": {
+        "focus": null,
+        "expanded": [
+          "service:notes"
+        ],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "shared-saas-overview",
+      "path": "private/layout/fixtures/shared-saas.json",
+      "format": "snapshot",
+      "role": "development",
+      "sha256": "0472e702f042897dce8c0aabefb8fcb5a9a50b02f6d60ec5856f916753e1537f",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "nested-cross-scope-overview",
+      "path": "private/layout/fixtures/nested-cross-scope.json",
+      "format": "snapshot",
+      "role": "development",
+      "sha256": "0a1240b1d6d8efe9ab97a1d602cb308422d11fe34f28f9f3563ad75c9f061b93",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "fanout-peers-overview",
+      "path": "private/layout/fixtures/fanout-peers.json",
+      "format": "snapshot",
+      "role": "development",
+      "sha256": "5614b773595e81e54d497094560641639393bfd85c83a6f3f2217450496d9a9d",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "online-boutique-overview",
+      "path": "private/layout/fixtures/online-boutique.json",
+      "format": "snapshot",
+      "role": "development",
+      "sha256": "0c84db9f92564bde28bbe37bedcc70eaa52908fecf628d5a858b24184d3c5857",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "deathstar-hotel-overview",
+      "path": "private/layout/fixtures/deathstar-hotel.json",
+      "format": "snapshot",
+      "role": "development",
+      "sha256": "a677d5e0e885157425617939d28bd97c8eff13bda0bec6434005ecd57b208b6e",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "nested-expanded",
+      "path": "private/layout/fixtures/nested-cross-scope.json",
+      "format": "snapshot",
+      "role": "development",
+      "sha256": "0a1240b1d6d8efe9ab97a1d602cb308422d11fe34f28f9f3563ad75c9f061b93",
+      "view": {
+        "focus": null,
+        "expanded": [
+          "scope:commerce",
+          "scope:fulfillment",
+          "scope:shared",
+          "scope:checkout"
+        ],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "messaging-overview",
+      "path": "public/examples/data-messaging.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "bd26874d92789cc0f2f00a2042a8dbd8bbc57e3911de80d0edb2170fe986244c",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "crud",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "messaging-table-expansion",
+      "path": "public/examples/data-messaging.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "bd26874d92789cc0f2f00a2042a8dbd8bbc57e3911de80d0edb2170fe986244c",
+      "view": {
+        "focus": null,
+        "expanded": [
+          "datastore:orders"
+        ],
+        "policy": "crud",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "messaging-code",
+      "path": "public/examples/data-messaging.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "bd26874d92789cc0f2f00a2042a8dbd8bbc57e3911de80d0edb2170fe986244c",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "code",
+        "lens": "code",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "messaging-deployment",
+      "path": "public/examples/data-messaging.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "bd26874d92789cc0f2f00a2042a8dbd8bbc57e3911de80d0edb2170fe986244c",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "deployment",
+        "lens": "deployment",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "ai-logical",
+      "path": "private/layout/fixtures/distributed-ai.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "9edbdefb611879a0a0f42b3bcf743625799a2d496b72ef2f40ccede3db9e6ccb",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "crud",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "ai-inference",
+      "path": "private/layout/fixtures/distributed-ai.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "9edbdefb611879a0a0f42b3bcf743625799a2d496b72ef2f40ccede3db9e6ccb",
+      "view": {
+        "focus": "scope:inference",
+        "expanded": [],
+        "policy": "peers",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "ai-events",
+      "path": "private/layout/fixtures/distributed-ai.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "9edbdefb611879a0a0f42b3bcf743625799a2d496b72ef2f40ccede3db9e6ccb",
+      "view": {
+        "focus": "scope:events",
+        "expanded": [],
+        "policy": "pipeline",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "ai-tables",
+      "path": "private/layout/fixtures/distributed-ai.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "9edbdefb611879a0a0f42b3bcf743625799a2d496b72ef2f40ccede3db9e6ccb",
+      "view": {
+        "focus": "datastore:conversations",
+        "expanded": [],
+        "policy": "crud",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "ai-many-tables-page-2",
+      "path": "private/layout/fixtures/distributed-ai-many-tables.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "f7be008dc6a74d6624b879d21f73956309f744e8e7242e5bb27b3168ae3e6b65",
+      "view": {
+        "focus": "datastore:conversations",
+        "expanded": [],
+        "policy": "crud",
+        "lens": "logical",
+        "child_page": 1,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "ai-deployment",
+      "path": "private/layout/fixtures/distributed-ai.bundle.jsonl",
+      "format": "bundle",
+      "role": "development",
+      "sha256": "9edbdefb611879a0a0f42b3bcf743625799a2d496b72ef2f40ccede3db9e6ccb",
+      "view": {
+        "focus": null,
+        "expanded": [],
+        "policy": "deployment",
+        "lens": "deployment",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-clinic-appointments",
+      "path": "private/layout/evaluation/holdout-v1/clinic-appointments.json",
+      "format": "snapshot",
+      "role": "held_out",
+      "sha256": "887972d1acc6180444dfa922d18a455c91daf857d13002f54e6b77e3dd1baa9e",
+      "view": {
+        "focus": "scope:clinic-appointments",
+        "expanded": [],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-research-cooperative",
+      "path": "private/layout/evaluation/holdout-v1/research-cooperative.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "9559d227a363a1372301f90819d23dd7730c7e5b0bb68a594fbab4dd5916ba6e",
+      "view": {
+        "focus": "scope:research-cooperative",
+        "expanded": [
+          "scope:catalog",
+          "scope:field",
+          "scope:shared"
+        ],
+        "policy": "crud",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-parcel-events",
+      "path": "private/layout/evaluation/holdout-v1/parcel-events.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "65f087835d1ef311eec3c0e8debc07bcfb6b05ad6d4725179ac6d1004a15ea26",
+      "view": {
+        "focus": "scope:parcel-events",
+        "expanded": [],
+        "policy": "pipeline",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-museum-collections",
+      "path": "private/layout/evaluation/holdout-v1/museum-collections.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "93cc42b4ce9d69e6a088c1301c98806fcf611555237a32acf60361134e019a36",
+      "view": {
+        "focus": "scope:museum-collections",
+        "expanded": [
+          "datastore:catalog",
+          "datastore:loans"
+        ],
+        "policy": "crud",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-compiler-workspace",
+      "path": "private/layout/evaluation/holdout-v1/compiler-workspace.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "e231169b02c0b2b7c0df438b9f99770bfd895f28507df33c9d16e9d25c697c3d",
+      "view": {
+        "focus": "code_repository:compiler",
+        "expanded": [
+          "code_file:driver-core",
+          "code_file:driver-helpers",
+          "code_file:ir-core",
+          "code_file:ir-helpers",
+          "code_file:optimizer-core",
+          "code_file:optimizer-helpers",
+          "code_file:parser-core",
+          "code_file:parser-helpers",
+          "code_package:driver",
+          "code_package:ir",
+          "code_package:optimizer",
+          "code_package:parser",
+          "code_type:driver",
+          "code_type:ir",
+          "code_type:optimizer",
+          "code_type:parser"
+        ],
+        "policy": "code",
+        "lens": "code",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-regional-ledger",
+      "path": "private/layout/evaluation/holdout-v1/regional-ledger.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "2eb5cf5007d27775ca5a89627753f7b82ebc97766ba9439099cfe4b53c544d1c",
+      "view": {
+        "focus": "deployment:fleet",
+        "expanded": [
+          "deployment:east",
+          "deployment:east-a",
+          "deployment:east-b",
+          "deployment:west",
+          "deployment:west-a",
+          "deployment:west-b"
+        ],
+        "policy": "deployment",
+        "lens": "deployment",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-islands-and-claims",
+      "path": "private/layout/evaluation/holdout-v1/islands-and-claims.json",
+      "format": "snapshot",
+      "role": "held_out",
+      "sha256": "03b97775ae1bc12c857a15a508c990b8fe1079f0336049964bb029b7653512c6",
+      "view": {
+        "focus": "scope:islands-and-claims",
+        "expanded": [],
+        "policy": "peers",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-water-control",
+      "path": "private/layout/evaluation/holdout-v1/water-control.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "05150d7796f207cc02dd41d509885eb238ee95f5025ffabd220aa500ddfbd9ed",
+      "view": {
+        "focus": "scope:water-control",
+        "expanded": [
+          "datastore:history",
+          "scope:analysis",
+          "scope:operations",
+          "scope:sensors"
+        ],
+        "policy": "pipeline",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    }
+  ]
+}
