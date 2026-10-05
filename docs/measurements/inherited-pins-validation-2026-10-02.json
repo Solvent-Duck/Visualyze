@@ -1,0 +1,773 @@
+{
+  "recorded_utc": "2026-10-02T23:41:57.706972+00:00",
+  "scope": "Ancestor-owned supplied-object pins constrain descendant composed views with exact canonical coordinates and truncated anchors. Derived effective constraints remain separate from the owned registry. This does not close upward propagation, groups/references, performance or comprehension gates.",
+  "checks": [
+    {
+      "command": "cargo test --workspace --offline --locked",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-inherited-pin-final-workspace-tests.log",
+      "sha256": "5cde828680d979c67635246f14b9b469d0ed2bf190b67baba0ffade664ff3f00",
+      "totals": {
+        "passed": 418,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --offline --locked -- -D warnings",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-inherited-pin-final-clippy.log",
+      "sha256": "0e7e301bc3d97f114eeebc459145e92c7df9be6f56f877381a72ed8efae22168"
+    },
+    {
+      "command": "cargo build -p visualyze --bin visualyze --example production_smoke --example composed_pin_smoke --offline --locked",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-inherited-pin-final-native-build.log",
+      "sha256": "8296e2d6fec179f5fe039934468e5baf20004b9c7291c8866e450d48464c5434"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-inherited-pin-final-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "cargo test -p visualyze-layout --test provider_code production_navigation_preserves_group_membership_after_other_regions_fill_retention --offline --locked -- --ignored",
+      "log": "/private/tmp/visualyze-inherited-pin-retention-tests.log",
+      "sha256": "e26c9b5a6f6e22e368c13a1156de32dbc5b692c3d28992f9588738d5be178be8",
+      "totals": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      "timing_note": "Passed before the final ownership-reparenting repair; unrelated test sources unchanged. Final workspace/all-target checks cover the final repair."
+    },
+    {
+      "command": "cargo test -p visualyze --example production_smoke --offline --locked",
+      "log": "/private/tmp/visualyze-inherited-pin-helper-tests.log",
+      "sha256": "047c3e6dabaacb2eef43dda1f5fcb60d0fa0443b1b9d55bbf179a3adbe2ceb35",
+      "totals": {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0
+      },
+      "timing_note": "Passed before the final ownership-reparenting repair; unrelated test sources unchanged. Final workspace/all-target checks cover the final repair."
+    }
+  ],
+  "review": {
+    "against": "docs/measurements/routing-cache-validation-2026-10-02.json",
+    "changed_source_files": [
+      "private/layout/src/composed.rs",
+      "private/layout/src/composed/constraints.rs",
+      "private/layout/src/composed/persistence.rs",
+      "private/layout/tests/composed_persistence.rs",
+      "private/layout/tests/inherited_constraints.rs",
+      "private/runtime/examples/composed_pin_smoke.rs",
+      "private/runtime/src/composed_state_tests.rs",
+      "private/runtime/src/layout_scene.rs",
+      "private/runtime/src/native_layout.rs",
+      "rust-toolchain.toml"
+    ],
+    "findings": "Core and runtime reviewed, including an independent agent review. Found and fixed stale ownership paths silently omitting a pin reparented into the current descendant. Current supplied ancestry is checked before inheritance filtering; live reload and cold restore regressions preserve accepted scene, registry and saved file on conflict. No remaining actionable finding in reviewed scope.",
+    "state_version": 3,
+    "migration": "Versions 1 and 2 retain their original interpretation while loading, then validate/repair before writing version 3. No public contract, dependencies, layout or quality version change."
+  },
+  "pre_native_freeze": {
+    "record": {
+      "path": "/private/tmp/visualyze-inherited-pins-before-final-native.json",
+      "sha256": "41196659cf5071dc05ae587fa2027ad31c9fbeba63bb2f91418460f925249a35"
+    },
+    "captured_utc": "2026-10-02T23:33:08.692420+00:00",
+    "all_107_current_hashes_match": true
+  },
+  "source_sha256": {
+    "Cargo.lock": "ebde2964840a8ab18c73dcd04fff4eaa885bea827d5dd04b2194b62a950ea638",
+    "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+    "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+    "private/layout/examples/bundle_layout.rs": "74b3e8a7144c9bdcb4847361bceb7971b7b97fd01d2662f19606bb37083bb647",
+    "private/layout/examples/compare.rs": "4b692fe2161f06bac109ad8e71dff80428721c20c2c33bdbae2e5592b48cd67c",
+    "private/layout/examples/composed_layout.rs": "6ea8ca20b64fca821efa7f85d9d4aea1679977a8d0f95df1062a04417e8868cd",
+    "private/layout/examples/evaluate_cases.rs": "267e33a23f4843ba178c726286eb0c95f571fbd290370f7e3d99e1454ed8bebe",
+    "private/layout/examples/generate_ai_fixture.rs": "caa6d269d3f525e9bc67ad6271469d5327ecb6dbf5a76eac6961c307903425fc",
+    "private/layout/examples/production_audit.rs": "fd6a0ca965da73c57e71eca902d13f1fee3c5bbd755e59769d6bae8cec50b84a",
+    "private/layout/examples/production_pages.rs": "8c5506dbe000f1a302d1367a995b13c755cf4c7f49b32bdc441b4b67c922af51",
+    "private/layout/examples/projection_bench.rs": "829481a1af42f099a25b065c6abfe43bfcc2dedee42c3ced95b30d90b7c11ce0",
+    "private/layout/examples/scale_view_bench.rs": "89cc3231b2801b3d253d77d91f630b08dd8b2901496b963a43f16bbb2b299b72",
+    "private/layout/src/assembly.rs": "ae8d6bde981dc7e14314679d961ea793cf1af1514d2bd2b9ddfaf78a03ae9ff5",
+    "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+    "private/layout/src/composed.rs": "e42b29110ce29b52deef95d73782bfc86605a72449bd35a7eac1cf87cf8c9e53",
+    "private/layout/src/composed/cache.rs": "0b2ce54e0475c03ba1bee74212665fc6729e1ac5ab46e7d3a36922cc6e8ecf4e",
+    "private/layout/src/composed/constraints.rs": "46aa35b37f1043cfc8c339f6dd6baaf34003863c8ccbdd57532c239f848dbe18",
+    "private/layout/src/composed/persistence.rs": "77a8169549ba82a957d08ea43373dee3e2f6145fec6b9e78dbae30918c3b7d7c",
+    "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+    "private/layout/src/composed/solver.rs": "3a8ece7fc05f532790b05f7b95dd55abc8cc9c59821e425e48d182c753ac3c37",
+    "private/layout/src/composed/validation.rs": "9dce17a0fbcbe044f5a35b48b57c1a577327bdb74c80b8150dabab4ff340fba3",
+    "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+    "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+    "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+    "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+    "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+    "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+    "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+    "private/layout/src/routing.rs": "2ef8e1d8684c45ca494ced38383d0f722296746911ca7c7759fecf51353b6165",
+    "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+    "private/layout/src/solver.rs": "62f0551bbc39079c5d40bfdf4eede12fb27f3d263b09d27b3fc378dd841ce7f6",
+    "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+    "private/layout/tests/assembly.rs": "6e5211d4cded44837ff9eb217c07ce6d3e141a5e7c88cfc8a1018bc6b7797f06",
+    "private/layout/tests/assembly_plan.rs": "b80dd91b42419b6c877f1d3e5e96a82fcf096f681e439692446c4779d12be76d",
+    "private/layout/tests/canonical_route_join.rs": "6372c32fb9edaee72f62fd44b5c55cd106abc009b9575dad530526d9fea1431d",
+    "private/layout/tests/composed.rs": "345b3a56a3148b84446feaec3eb3c66ffffb6eb6a9594aa4177f18481d4f73fb",
+    "private/layout/tests/composed_cache.rs": "ef54a55d80fa1e1f38d2520785791bb77782da2d4d4f9f1c73026f9e9159789f",
+    "private/layout/tests/composed_persistence.rs": "f93ef0777457a584d66c480b0e7eb60ebfc7c6de11c7a8df89df5f4241124da5",
+    "private/layout/tests/composed_reorganization.rs": "403e25b2b8782ce4cf747ffe7f493ee542d23afa57d572a9fa0e57a4e71d9472",
+    "private/layout/tests/composed_validation.rs": "3aefc4ba410ffab765e1cba567e8f530ac49b410416571fa598739aab54534e4",
+    "private/layout/tests/distributed_system.rs": "0b94df9959245ead7e06cf5dd9df169ddb86cc1e82056610a916f643e1c6d930",
+    "private/layout/tests/durable_pins.rs": "daa57d1423f66a1584197c7912bf8b127bae4728244e322bfada6541dbe0c397",
+    "private/layout/tests/inherited_constraints.rs": "43ec5ff9a0524c304bbd2691bdab38435f5f245b839249600e0eed021a17bbc6",
+    "private/layout/tests/neighborhood_continuity.rs": "ac69f6b4531da8cd32db92316620413b134cad6f912816f583c5f55f3b24b39c",
+    "private/layout/tests/placement.rs": "0daa906851a3f472d8ff6252136661648bbe7a850c3842dc578995f47acc5af7",
+    "private/layout/tests/projection_integration.rs": "b7d2508c1d6e6a2a0cc2db2164e2b76a05df6a457db8ff4a4d47058e7ee000cb",
+    "private/layout/tests/provider_code.rs": "83da89bd79a5553290668bb756c37364aca60c08e49d58fa7b6ee674b99c91e4",
+    "private/layout/tests/route_metrics.rs": "0e0d78263c48a0434878f1f61707522afffbc392dbd3dc2839c484c8de8579b7",
+    "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9",
+    "private/layout/tests/volumetric_constraints.rs": "c5b8e429885c55ddf01ae761fa89e63460946b30a12026524db901b2e4a64d84",
+    "private/layout/tests/volumetric_packing.rs": "260ac29dae4bfd7624b4143d564a82c83ae0672715a1067b695c211c85dab0fe",
+    "private/runtime/Cargo.toml": "449706c320e581bf5b08fb512574924dcf60b038f5dce0e1aba93ccec610d2a0",
+    "private/runtime/examples/composed_pin_smoke.rs": "a0999d1919b907ea13243c6fb013cd0720f8e74c2e39b8dfa0b8fee16fd8a8e1",
+    "private/runtime/examples/connected_smoke.rs": "435e0cdbdc399eda7ddd74f85e7b346e5477a050abb48f85b95db50e2d2796a9",
+    "private/runtime/examples/large_model_smoke.rs": "283b0591189c8ef7a6d8dfa5007a2c8225de9ce27b803d69508e9c5e2d10a693",
+    "private/runtime/examples/layout_smoke.rs": "57edb790c26d3e37b7e006c43b49fa2c21dd468ef05e89dfaa17895bf3580a51",
+    "private/runtime/examples/legacy_control.rs": "17079a763cb9df57ba81449383776bd076593ac56c9b817634570cd8f30963d1",
+    "private/runtime/examples/production_smoke.rs": "c3826b728d20881ae125e61510749f10a4235547dbc6a9362a3fc11c53c54b88",
+    "private/runtime/examples/render_smoke.rs": "d27ea96935165fa4dd5523c5874f0008321f593395ba1e2077ee96fbb3594639",
+    "private/runtime/examples/support/control_geometry.rs": "2b5d5c96b1de4d9322c973628d2f0e0fb57fa10d4ce25ed1ea94c34777fe801b",
+    "private/runtime/examples/support/frame_trace.rs": "378da23da4ba8e5292232c701c09f5424264655cee4da9801ac1cdc650befdc5",
+    "private/runtime/examples/support/scripted_input.rs": "bed1e6590af46280b7d5daf46b7d575a83085cfd3940a1119c378609d27f97e8",
+    "private/runtime/src/camera.rs": "537cfa97360bea729efd9c50a55ae09753fc54063c362d15746b709f907276bc",
+    "private/runtime/src/composed_state_tests.rs": "09812992e749fef8713659e7a0e2688f1905b4f0348754eb04930420a9734512",
+    "private/runtime/src/composition.rs": "eb4eaf1acb171812c6a90f707990d758d920e1902269802fcb1db2cccb73f2d6",
+    "private/runtime/src/connections.rs": "e70e6e2c4f2fce2fd7e38554e77d2ce5b9d9bf8c3a120a0861e07de6804e684c",
+    "private/runtime/src/input.rs": "a8fb5358a1056b405284f1a811e571ebc3e25f839cf577374f1c1a72cfb51b3e",
+    "private/runtime/src/layout_geometry.rs": "a2cbd36db2bdb852f99e270f729482d6fc87af383c4705ae51177c6e082681ef",
+    "private/runtime/src/layout_input.rs": "d3f14e5fa6e8a8b8c8146a7da2041ed62599246c6c609dba2ce110759fa2d1c6",
+    "private/runtime/src/layout_scene.rs": "946437b7e2bc0b57059f6d68481cd8931cd4b099b9ec291d535044f42331346e",
+    "private/runtime/src/lib.rs": "5260244b697fc8126c2652ec63017fa37bf073fdde01e7d5f4b9133f794604d8",
+    "private/runtime/src/main.rs": "20a807dc215ab235929cbf664407919c48830df663475bf0aacda368bf79a132",
+    "private/runtime/src/native_layout.rs": "065235e47e1708adcc152df28a783a570e5173281b5e1e40580a0da349d58eac",
+    "private/runtime/src/primitives.rs": "0c5fd38c4c26a5c59a1d52f95af95d7663dfab2d27dc124668135d5e386abd60",
+    "private/runtime/src/scene.rs": "50d8808ef48a26acde5bcd7512b12ebadc69462b91cc7e96a8ccb3e6c77961c4",
+    "private/runtime/src/shutdown.rs": "5235ad891a026947b05729351e7c67c9d62feba5f5fe9f97c316b94e9520a43b",
+    "private/runtime/tests/ingestion.rs": "500eec5f93a40d4bd1b82920b1fab6ccd868fa7944e9b7bad4d2f824b54abf8c",
+    "public/tools/rust-bundle/Cargo.toml": "8dc0bf85650d69908093bbeaf0a6d37455e55a283ddd28a4bb6172e4645a14ac",
+    "public/tools/rust-bundle/src/lib.rs": "0f6207ae2093be151e951314f40a7c22c72d58f37520177e152a1cc3beccd9e2",
+    "public/tools/rust-bundle/src/main.rs": "5ef69ae356b5e35812bee18e264ecdc2e773a3aee3d43b73354ff3bee5664855",
+    "public/tools/rust-bundle/tests/fixtures/nested/Cargo.toml": "3ac7242681dff094ebd266dca4a200a06fa7d048d08a0dec8fcc6e8c2756173f",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/Cargo.toml": "16ab1bf8b22edc250395656567cd3508d3a4d70183f1b937d41495093b71c2b7",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/helpers.rs": "c24f62a0d2a14bd3dba61d3f3f8e2be5c58535d10bdb368d0f5b32c7e669a826",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/lib.rs": "3f9250d7ea14f19eb80b95567257db81758e48aecf3981b77674ce93153e768d",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/Cargo.toml": "98ecedfccf534c46b93c4c63fe97061b51bbc63c69bec30b9e14d5c491c1dc10",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/lib.rs": "4b6bf49dfecc1bd0917597d80f64a4d1e713af7ba19fc4e2ee53faa50584f43e",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/value.rs": "13b24a36be7cbbef8317059ca322623c20db7372930e475ebb46144f894be75f",
+    "public/tools/rust-bundle/tests/producer.rs": "dee02ebcf7afc265fc468a175552c2689a5c569c412abf83a3f007a283f1724f",
+    "public/tools/rust-bundle/tests/syntax_identity.rs": "e5b1c45773d35eeaefecb88d70abae8f4b91d5f746e355622dd7bf0266ab5da5",
+    "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+    "public/types/rust/examples/bundle_bench.rs": "da6de010d5baabd2c3edb7e003324e0aae3c4d8b9eeee336bedca7676e3960c2",
+    "public/types/rust/examples/index_profile.rs": "ad9cc35db0c409123a117a057d59c05f779181fa1f6f702cfffd3619e482a3a1",
+    "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+    "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+    "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+    "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+    "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+    "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+    "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+    "public/types/rust/src/provider/storage.rs": "057157a5846b614215a8c07b1d85fe372be217ff1faa48485c3d3c2d53e4c288",
+    "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+    "public/types/rust/tests/architecture.rs": "fa9a1b1ec174d6cca0edda9541dcdf7903ee5cdf69e62f6da866d04acdb83eef",
+    "public/types/rust/tests/provider.rs": "2e4ebc0bf863afa622c95616219133e5e9e8b82e5d8e633e0dc2f651a75fa155",
+    "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+  },
+  "binary_sha256": {
+    "target/debug/examples/composed_pin_smoke": "0e6012c9ea9a2890eeb77c4b2ba9d74e84c06771db2871828c04d0e8b474bdcf",
+    "target/debug/examples/production_smoke": "27ba6a3df16b885545e4d777b854a4795a134c0c9bd5934a60e9ced02bc4a53d",
+    "target/debug/visualyze": "d134d6640890483a56861a8b773b181ea859e93bfd2ee9fcbebcdca73cc073e4"
+  },
+  "native_pins": {
+    "command": "/usr/bin/time -l ./target/debug/examples/composed_pin_smoke public/examples/data-messaging.bundle.jsonl visualyze-local/production/native-inherited-pins-final-2026-10-02",
+    "exit_code": 0,
+    "report": {
+      "path": "visualyze-local/production/native-inherited-pins-final-2026-10-02/pin-report.json",
+      "sha256": "004cf241036593278f46f8472392ce988d6ce0e2ba518cbb8fd57117d61ed25a"
+    },
+    "log": {
+      "path": "/private/tmp/visualyze-inherited-pin-final-native-pins.log",
+      "sha256": "f506a16e7f2473ffd11c97a14f8220bcec7c0957e8fc50a1e3bba89eaeb80cec"
+    },
+    "peak_rss_bytes": 255639552,
+    "peak_memory_footprint_bytes": 554026160,
+    "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+    "completed_actions": 12,
+    "save_attempts": 13,
+    "save_failures": 0,
+    "save_max_ms": 10.356458,
+    "actions": [
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 2,
+        "objects": 9,
+        "owned_contexts": 0,
+        "pin_position": null,
+        "routes": 7,
+        "screenshot": false,
+        "step": 0
+      },
+      {
+        "action": "Expand(\"table:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 1
+      },
+      {
+        "action": "Pin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 2
+      },
+      {
+        "action": "Collapse(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 1,
+        "objects": 7,
+        "owned_contexts": 1,
+        "pin_position": null,
+        "routes": 6,
+        "screenshot": true,
+        "step": 3
+      },
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 4
+      },
+      {
+        "action": "Expand(\"table:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 5
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 6
+      },
+      {
+        "action": "Undo",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 7
+      },
+      {
+        "action": "Enter(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          4.470348358154297e-08,
+          -1.1999999284744263,
+          1.6000001430511475
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 8
+      },
+      {
+        "action": "Enter(\"table:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "table:orders",
+        "frames": 1,
+        "objects": 5,
+        "owned_contexts": 1,
+        "pin_position": [
+          -1.7999999523162842,
+          -1.1999999284744263,
+          -1.5999999046325684
+        ],
+        "routes": 3,
+        "screenshot": true,
+        "step": 9
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          4.470348358154297e-08,
+          -1.1999999284744263,
+          1.6000001430511475
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 10
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 11
+      }
+    ],
+    "images": [
+      {
+        "path": "visualyze-local/production/native-inherited-pins-final-2026-10-02/step-11.png",
+        "sha256": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939"
+      },
+      {
+        "path": "visualyze-local/production/native-inherited-pins-final-2026-10-02/step-2.png",
+        "sha256": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939"
+      },
+      {
+        "path": "visualyze-local/production/native-inherited-pins-final-2026-10-02/step-3.png",
+        "sha256": "e42d9335a236e08071635d5b4f679d7efa4f0d6723f8326381435dbd71a19150"
+      },
+      {
+        "path": "visualyze-local/production/native-inherited-pins-final-2026-10-02/step-7.png",
+        "sha256": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939"
+      },
+      {
+        "path": "visualyze-local/production/native-inherited-pins-final-2026-10-02/step-9.png",
+        "sha256": "b7b05a40bf3650322c60befe9e90ed29d9d18a50b7b6d9f763615fad6a5e7d0a"
+      }
+    ],
+    "saved_states": [
+      {
+        "path": "visualyze-local/production/native-inherited-pins-final-2026-10-02/state/a276425ff5e928bb.json",
+        "sha256": "e1ac1444a4f8b7a345a2410e38027fe385d3aab32e3506e7bb82412ff7e0129f"
+      }
+    ],
+    "inspected_images": [
+      "step-9.png",
+      "step-11.png"
+    ],
+    "inspection": "The column is visible in the table frame and after parent return. Small interiors and label/box occlusion remain; this does not establish comprehension.",
+    "scope": "Actual native composed display and isolated v3 persistence. Exact rendered pinned position checked across collapse/reopen/unpin/undo and parent return; exact canonical point and truncated anchors checked through database/table descent. Inheritance never copies owned registry entries. Restart and eviction have separate worker/core regressions; this process does not simulate hardware input or establish latency percentiles."
+  },
+  "native_production": {
+    "command": "/usr/bin/time -l ./target/debug/examples/production_smoke visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl visualyze-local/production/native-inherited-production-2026-10-02 --persist --composed --trace-frames --repeat-navigation --no-captures",
+    "exit_code": 0,
+    "report": {
+      "path": "visualyze-local/production/native-inherited-production-2026-10-02/native-report.json",
+      "sha256": "bb5aad71f3fa98bfcd409fc9e0e4146b886bdacb4dd31b325453b4cf3acce397"
+    },
+    "log": {
+      "path": "/private/tmp/visualyze-inherited-pin-final-native-production.log",
+      "sha256": "76415868af662a35e6840ee42b24b9a54cd587307b2fe22a70e716c63a904ddc"
+    },
+    "peak_rss_bytes": 419004416,
+    "peak_memory_footprint_bytes": 687310072,
+    "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+    "model_id": "model:788c0940ff544915",
+    "source_counts": {
+      "entities": 27117,
+      "evidence": 31319,
+      "relations": 44019
+    },
+    "source_bundle": {
+      "path": "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "sha256": "8f4d8a5f197f5381563e7c19aa81cc962f67984ff08ad621de1c189632d7286c"
+    },
+    "source_revision": "Bevy 0.18.1, f667c282dad2c1419afb5836ded22a3ec263970e",
+    "completed_actions": 38,
+    "initial_acceptance_ms": 812.8952499999999,
+    "persistence": {
+      "attempts": 33,
+      "enabled": true,
+      "failures": 0,
+      "isolated_directory": "/var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-persistence-smoke-5790-1790983993624863000",
+      "last_64_attempts_ms": [
+        8.848999999999998,
+        15.093375,
+        12.111916,
+        14.136542,
+        13.714583000000001,
+        9.677042,
+        9.6805,
+        8.654125,
+        8.319792,
+        7.293417,
+        7.997667,
+        7.035375,
+        8.263041000000001,
+        8.032625,
+        7.5836250000000005,
+        14.0325,
+        20.144375,
+        23.8665,
+        12.049249999999999,
+        9.837874999999999,
+        9.296291,
+        8.54225,
+        8.530875,
+        12.597000000000001,
+        11.070208,
+        8.606458000000002,
+        13.202375,
+        12.026125,
+        9.578084,
+        12.745209000000001,
+        11.816042000000001,
+        10.827667,
+        14.023708
+      ],
+      "max_ms": 23.8665,
+      "scope": "Synchronous main-thread state preparation and atomic save, including existing-state validation, serialization, file/directory fsync. Acceptance and frame intervals include this cost when enabled. The fresh temp directory is retained for inspection; no user state is read or written.",
+      "total_ms": 369.2354169999999
+    },
+    "saved_states": [
+      {
+        "path": "/var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-persistence-smoke-5790-1790983993624863000/6844b20809e462ac.json",
+        "sha256": "3bbc6e30e3b3e189ff01f2e2d15655991ee75e4d26419fe81290cf91f9e96bf9"
+      }
+    ],
+    "selected_steps": [
+      {
+        "acceptance_ms": 232.092125,
+        "accepted_objects": 63,
+        "accepted_routes": 191,
+        "action_started_ms": 4180.2882500000005,
+        "cached": false,
+        "child_page": 0,
+        "composition_frames": 3,
+        "elapsed_ms_including_3_settle_frames": 272.303334,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 392.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 13.458834,
+            "action_id": 22,
+            "cache_outcome": "miss",
+            "indexing_ms": 0.0,
+            "job_id": 17,
+            "observed_at_ms": 4330.34125,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 4.076749000000007,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 44.923249,
+            "publication_wait_ms": 4.373958,
+            "queued_at_ms": 4180.322667,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 3,
+            "routing_batches_reused": 0,
+            "save_ms": 20.144375,
+            "scene_build_ms": 1.9777079999999998,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 96.586292,
+            "source_lock_wait_ms": 0.000543,
+            "total_ms": 185.60537499999998,
+            "worker_finished_at_ms": 4325.967291999999,
+            "worker_queue_ms": 0.057791999999999996,
+            "worker_total_ms": 145.586833
+          }
+        ],
+        "maximum_scale_shift": 6,
+        "objects": 63,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 191,
+        "save_attempts": 17,
+        "save_total_ms": 180.61950000000002,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repository-ecs-expanded",
+        "step_index": 21,
+        "total_children": 81
+      },
+      {
+        "acceptance_ms": 118.42145900000001,
+        "accepted_objects": 28,
+        "accepted_routes": 106,
+        "action_started_ms": 4455.917125,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 135.669334,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 361.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 12.009250000000002,
+            "action_id": 23,
+            "cache_outcome": "canonical_reuse",
+            "indexing_ms": 0.0,
+            "job_id": 18,
+            "observed_at_ms": 4514.5356249999995,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 3.8592919999999964,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 39.490625,
+            "publication_wait_ms": 7.199458,
+            "queued_at_ms": 4455.965749999999,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 1,
+            "save_ms": 23.8665,
+            "scene_build_ms": 0.546125,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 7.961958,
+            "source_lock_wait_ms": 0.000417,
+            "total_ms": 94.995125,
+            "worker_finished_at_ms": 4507.336167,
+            "worker_queue_ms": 0.058125,
+            "worker_total_ms": 51.312292
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 28,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 106,
+        "save_attempts": 18,
+        "save_total_ms": 204.48600000000002,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repository-ecs-collapsed",
+        "step_index": 22,
+        "total_children": 81
+      }
+    ],
+    "final_six_acceptance_ms": [
+      40.49420799999999,
+      34.356791,
+      49.860707999999995,
+      41.037208,
+      34.869458,
+      51.780792
+    ],
+    "worker_update_intervals_ms": {
+      "max": 82.070916,
+      "median": 16.736708,
+      "p95": 32.678542,
+      "p99": 59.867333,
+      "samples": 186
+    },
+    "all_update_intervals_ms": {
+      "max": 82.070916,
+      "median": 16.621666,
+      "p95": 23.681542,
+      "p99": 41.795875,
+      "samples": 305
+    },
+    "longest_main_spans": [
+      {
+        "capture_pending": false,
+        "duration_ms": 110.251291,
+        "focused": true,
+        "frame": 2,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 360.597334
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 81.103333,
+        "focused": true,
+        "frame": 3,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 484.89279200000004
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 69.87691699999999,
+        "focused": true,
+        "frame": 20,
+        "last_action_id": 1,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 814.6115000000001
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 49.549625,
+        "focused": true,
+        "frame": 229,
+        "last_action_id": 22,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "Update",
+        "start_ms": 4330.287917
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 46.267292000000005,
+        "focused": true,
+        "frame": 237,
+        "last_action_id": 23,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "Update",
+        "start_ms": 4514.4425
+      }
+    ],
+    "surface_summary": {
+      "count": 323,
+      "dropped_spans": 0,
+      "max_ms": 16.62325
+    },
+    "measurement_scope": "Real native renderer. Original source records validated before app startup; OS bundle cache is warm. Acceptance is the first update observing the action ticket complete and loading false, before the three render-settlement frames. It includes action dispatch and worker publication, not screenshot work. Frame intervals are CPU update intervals, not GPU presentation latency. The bounded layout_job_timings records actual hit/miss/saved_exact/saved_repair decisions and matching action/revision IDs. Empty per-action layout_jobs means the action did not submit a layout job. Worker indexing, source lock wait, projection, restoration, solve and preparation residual are nonoverlapping; worker_total includes those stages. Publication wait, CPU acceptance, scene construction and save follow worker completion. These are CPU measurements and exclude deferred command application/GPU presentation. The cached step field is only an expectation; actual cache decisions are in layout_jobs. Cached geometry is compared exactly; all scenes are bounded to 250 representations."
+  },
+  "limitations": [
+    "Inherited pins are read-only in descendant views and changed at the originating view.",
+    "Child-origin pins do not yet propagate upward; visual-group/reference inheritance and arbitrary frame-topology changes remain unsupported.",
+    "Scripted ViewerActions do not prove physical OS input delivery or GPU presentation latency.",
+    "Warm-cache single native runs with isolated persistence and user previews open are regression evidence, not comparative latency percentiles.",
+    "Production source inventory is not full runtime architecture extraction.",
+    "Repository cached collapse remains over the 100 ms target; no renderer-stall fix or comprehension pass is claimed."
+  ]
+}

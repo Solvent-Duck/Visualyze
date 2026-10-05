@@ -1,0 +1,651 @@
+{
+  "recorded_utc": "2026-10-02T22:40:15.156240+00:00",
+  "scope": "Three sequential paired trials on the same pinned production bundle and hardware, alternating order. 30 projections per case per trial, no sampler during measured trials. Full-result equality asserted within each case; this is provider projection cost only, not cached navigation acceptance or GPU presentation. Existing native previews remained running. No extra read cache or memory budget is introduced.",
+  "change": "On Unix, read indexed records with FileExt::read_exact_at rather than seek plus read_exact. Other platforms keep the existing seek/read fallback. Fresh bytes, metadata revision guards, record checksums, decoding and paging remain intact.",
+  "summary": [
+    {
+      "case": "fresh_groups",
+      "samples_per_variant": 90,
+      "before_median_ms": 33.77912499999999,
+      "after_median_ms": 31.499792,
+      "median_reduction_percent": 6.747756195579354,
+      "per_trial_medians": [
+        {
+          "trial": 0,
+          "variant": "before",
+          "median_ms": 34.362792
+        },
+        {
+          "trial": 0,
+          "variant": "after",
+          "median_ms": 30.6316455
+        },
+        {
+          "trial": 1,
+          "variant": "after",
+          "median_ms": 32.102625
+        },
+        {
+          "trial": 1,
+          "variant": "before",
+          "median_ms": 34.931646
+        },
+        {
+          "trial": 2,
+          "variant": "before",
+          "median_ms": 33.26929150000001
+        },
+        {
+          "trial": 2,
+          "variant": "after",
+          "median_ms": 31.5948125
+        }
+      ]
+    },
+    {
+      "case": "retained_groups",
+      "samples_per_variant": 90,
+      "before_median_ms": 32.609375,
+      "after_median_ms": 31.380750000000003,
+      "median_reduction_percent": 3.767704839482503,
+      "per_trial_medians": [
+        {
+          "trial": 0,
+          "variant": "before",
+          "median_ms": 32.744958
+        },
+        {
+          "trial": 0,
+          "variant": "after",
+          "median_ms": 31.276104000000004
+        },
+        {
+          "trial": 1,
+          "variant": "after",
+          "median_ms": 30.9475835
+        },
+        {
+          "trial": 1,
+          "variant": "before",
+          "median_ms": 32.5723125
+        },
+        {
+          "trial": 2,
+          "variant": "before",
+          "median_ms": 32.392416499999996
+        },
+        {
+          "trial": 2,
+          "variant": "after",
+          "median_ms": 32.237208499999994
+        }
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "trial": 0,
+      "variant": "before",
+      "raw_report": "/private/tmp/visualyze-positional-before-0.json",
+      "sha256": "99dd0f8c16ad127e88476d06fcde22000320d23190ebc821f244ca8f5ee5594b",
+      "report": {
+        "cases": [
+          {
+            "case": "fresh_groups",
+            "projection_ms": [
+              39.511209,
+              38.387459,
+              37.650375,
+              36.611416,
+              37.517125,
+              35.88125,
+              36.87,
+              35.371167,
+              35.251625000000004,
+              33.807834,
+              33.060834,
+              34.91775,
+              35.159542,
+              31.370209000000003,
+              30.885375,
+              31.081125,
+              33.238625,
+              32.953792,
+              32.957708000000004,
+              33.4655,
+              39.112833,
+              34.9585,
+              56.824458,
+              39.473292,
+              33.005208,
+              32.848375,
+              33.082958000000005,
+              32.865417,
+              33.794292,
+              32.774666
+            ]
+          },
+          {
+            "case": "retained_groups",
+            "projection_ms": [
+              32.429208,
+              32.381792,
+              32.741541,
+              32.500792000000004,
+              32.748375,
+              32.554125000000006,
+              32.488083,
+              35.271166,
+              33.575624999999995,
+              32.67975,
+              32.628958,
+              32.599333,
+              32.652375,
+              32.504708,
+              32.647209000000004,
+              32.658667,
+              37.227999999999994,
+              40.525208,
+              36.760417,
+              35.259166,
+              32.966375,
+              32.619417,
+              32.621625,
+              33.691708,
+              34.402292,
+              33.149709,
+              34.682458,
+              34.276042,
+              36.158500000000004,
+              34.424791000000006
+            ]
+          }
+        ],
+        "focus": "repository:05317a01f80959f2",
+        "indexing_ms": 354.67808299999996,
+        "iterations": 30,
+        "model_id": "model:788c0940ff544915",
+        "revision": 1,
+        "scope": "Headless Code-lens provider projection only; no desktop projection memo, layout, rendering, saving or GPU measurement. Indexing is separate. Bundle OS cache may be warm. Repeated results are compared in full outside the measured interval.",
+        "source_counts": {
+          "entities": 27117,
+          "evidence": 31319,
+          "relations": 44019
+        }
+      }
+    },
+    {
+      "trial": 0,
+      "variant": "after",
+      "raw_report": "/private/tmp/visualyze-positional-after-0.json",
+      "sha256": "76bfcdf82b17323d14227de551d646307b020dec6430f536f60b9d4d404db1ff",
+      "report": {
+        "cases": [
+          {
+            "case": "fresh_groups",
+            "projection_ms": [
+              32.686042,
+              30.495084,
+              30.804584,
+              31.874584,
+              45.126833,
+              31.989583000000003,
+              31.983375000000002,
+              31.954833,
+              31.519042,
+              30.96,
+              33.197292000000004,
+              28.302208,
+              34.064875,
+              32.6225,
+              30.720999999999997,
+              33.073375,
+              30.399666,
+              29.559915999999998,
+              29.625084,
+              29.1635,
+              29.148542,
+              29.47675,
+              29.113625,
+              29.403542,
+              30.33375,
+              29.971125,
+              30.016417,
+              30.46675,
+              30.585,
+              30.678291
+            ]
+          },
+          {
+            "case": "retained_groups",
+            "projection_ms": [
+              31.534667000000002,
+              30.166917,
+              30.973666,
+              30.98025,
+              31.107666,
+              31.13275,
+              30.379709000000002,
+              29.896875,
+              29.938125,
+              30.291584,
+              31.320667000000004,
+              30.817042,
+              36.0585,
+              36.219542,
+              35.882,
+              36.415625,
+              36.839792,
+              32.775167,
+              32.077,
+              38.133584,
+              36.129666,
+              30.561958999999998,
+              30.436042,
+              32.116042,
+              31.760542,
+              31.231541,
+              31.978667,
+              31.628542000000003,
+              30.067625,
+              29.979167
+            ]
+          }
+        ],
+        "focus": "repository:05317a01f80959f2",
+        "indexing_ms": 333.185084,
+        "iterations": 30,
+        "model_id": "model:788c0940ff544915",
+        "revision": 1,
+        "scope": "Headless Code-lens provider projection only; no desktop projection memo, layout, rendering, saving or GPU measurement. Indexing is separate. Bundle OS cache may be warm. Repeated results are compared in full outside the measured interval.",
+        "source_counts": {
+          "entities": 27117,
+          "evidence": 31319,
+          "relations": 44019
+        }
+      }
+    },
+    {
+      "trial": 1,
+      "variant": "after",
+      "raw_report": "/private/tmp/visualyze-positional-after-1.json",
+      "sha256": "496f8706d05e1be5a692b834db9f1321578825374f550362dee8cb1481cd545c",
+      "report": {
+        "cases": [
+          {
+            "case": "fresh_groups",
+            "projection_ms": [
+              34.28925,
+              34.933958000000004,
+              31.757042,
+              31.307750000000002,
+              30.612458,
+              29.859792,
+              29.867708,
+              30.1185,
+              29.9875,
+              30.052125,
+              30.724209,
+              34.608584,
+              35.806666,
+              34.283500000000004,
+              32.80725,
+              31.915542,
+              30.8845,
+              30.411458,
+              31.093833,
+              31.129958,
+              33.723749999999995,
+              40.604833,
+              33.162167,
+              32.595709,
+              32.085375,
+              32.119875,
+              32.747917,
+              32.627458999999995,
+              34.374209,
+              35.841959
+            ]
+          },
+          {
+            "case": "retained_groups",
+            "projection_ms": [
+              29.718291,
+              29.164292,
+              29.513542,
+              29.455333,
+              29.706333,
+              29.518875,
+              29.419209000000002,
+              32.231708999999995,
+              34.858458,
+              32.954583,
+              31.440833,
+              31.151000000000003,
+              30.69925,
+              30.823875,
+              30.369875,
+              29.811833999999998,
+              32.440875,
+              30.868042,
+              31.071417,
+              31.027124999999998,
+              33.497875,
+              30.795916,
+              33.399208,
+              35.85575,
+              35.611167,
+              34.618458,
+              33.944416,
+              33.02625,
+              30.169708,
+              30.400958
+            ]
+          }
+        ],
+        "focus": "repository:05317a01f80959f2",
+        "indexing_ms": 346.248375,
+        "iterations": 30,
+        "model_id": "model:788c0940ff544915",
+        "revision": 1,
+        "scope": "Headless Code-lens provider projection only; no desktop projection memo, layout, rendering, saving or GPU measurement. Indexing is separate. Bundle OS cache may be warm. Repeated results are compared in full outside the measured interval.",
+        "source_counts": {
+          "entities": 27117,
+          "evidence": 31319,
+          "relations": 44019
+        }
+      }
+    },
+    {
+      "trial": 1,
+      "variant": "before",
+      "raw_report": "/private/tmp/visualyze-positional-before-1.json",
+      "sha256": "a4bb5fa5be299c549005fad9fde425833bee51eacf110c28c2cd5f9ece050be7",
+      "report": {
+        "cases": [
+          {
+            "case": "fresh_groups",
+            "projection_ms": [
+              36.807917,
+              35.697791,
+              33.255624999999995,
+              32.501333,
+              33.478375,
+              34.359459,
+              40.750292,
+              36.138292,
+              36.961292,
+              38.838041,
+              37.812,
+              36.959958,
+              38.003041,
+              37.248208,
+              38.351208,
+              32.690959,
+              31.905749999999998,
+              31.418041000000002,
+              31.754208,
+              33.475833,
+              34.398875000000004,
+              34.358582999999996,
+              33.853916999999996,
+              34.989082999999994,
+              42.815042,
+              36.089749999999995,
+              34.260459,
+              34.069625,
+              34.874209,
+              35.473875
+            ]
+          },
+          {
+            "case": "retained_groups",
+            "projection_ms": [
+              34.689708,
+              33.328375,
+              32.597500000000004,
+              34.486833000000004,
+              33.170667,
+              32.547125,
+              32.128333000000005,
+              31.665832999999996,
+              34.712374999999994,
+              32.944250000000004,
+              32.920708,
+              32.315334,
+              31.604291999999997,
+              31.845958,
+              32.820583,
+              32.521209,
+              32.598,
+              32.364791,
+              31.533709,
+              31.564,
+              32.308375,
+              32.372417,
+              32.638708,
+              32.139958,
+              31.432166999999996,
+              31.492666000000003,
+              34.025042,
+              33.935832999999995,
+              33.266749999999995,
+              34.365708000000005
+            ]
+          }
+        ],
+        "focus": "repository:05317a01f80959f2",
+        "indexing_ms": 340.906208,
+        "iterations": 30,
+        "model_id": "model:788c0940ff544915",
+        "revision": 1,
+        "scope": "Headless Code-lens provider projection only; no desktop projection memo, layout, rendering, saving or GPU measurement. Indexing is separate. Bundle OS cache may be warm. Repeated results are compared in full outside the measured interval.",
+        "source_counts": {
+          "entities": 27117,
+          "evidence": 31319,
+          "relations": 44019
+        }
+      }
+    },
+    {
+      "trial": 2,
+      "variant": "before",
+      "raw_report": "/private/tmp/visualyze-positional-before-2.json",
+      "sha256": "28bd4c20549bcee7701a65bbf240fa76b71a7ce6dfc70026a98d7c408b7d5586",
+      "report": {
+        "cases": [
+          {
+            "case": "fresh_groups",
+            "projection_ms": [
+              37.559125,
+              36.403791999999996,
+              35.448417000000006,
+              33.64975,
+              32.918083,
+              33.345958,
+              33.763957999999995,
+              33.796583,
+              32.626625,
+              35.011334,
+              33.828417,
+              33.013708,
+              32.391625,
+              32.761291,
+              33.401167,
+              33.405666000000004,
+              32.437208000000005,
+              32.229792,
+              33.729083,
+              31.248834,
+              33.089332999999996,
+              33.317125000000004,
+              32.111124999999994,
+              32.402458,
+              32.974041,
+              33.221458000000005,
+              33.364290999999994,
+              32.204125,
+              32.170167,
+              33.493042
+            ]
+          },
+          {
+            "case": "retained_groups",
+            "projection_ms": [
+              32.464875,
+              32.141458,
+              34.238208,
+              32.438291,
+              33.300083,
+              33.991583,
+              32.469125,
+              32.044208,
+              31.785334,
+              32.668083,
+              33.097584,
+              32.556875,
+              32.000792,
+              31.810791999999996,
+              31.922625000000004,
+              32.794333,
+              32.713542,
+              32.226125,
+              31.979792,
+              31.355915999999997,
+              31.816333000000004,
+              32.767625,
+              32.318667000000005,
+              32.502207999999996,
+              32.251542,
+              31.357416,
+              32.378499999999995,
+              33.005708,
+              32.326750000000004,
+              32.406333000000004
+            ]
+          }
+        ],
+        "focus": "repository:05317a01f80959f2",
+        "indexing_ms": 336.68291700000003,
+        "iterations": 30,
+        "model_id": "model:788c0940ff544915",
+        "revision": 1,
+        "scope": "Headless Code-lens provider projection only; no desktop projection memo, layout, rendering, saving or GPU measurement. Indexing is separate. Bundle OS cache may be warm. Repeated results are compared in full outside the measured interval.",
+        "source_counts": {
+          "entities": 27117,
+          "evidence": 31319,
+          "relations": 44019
+        }
+      }
+    },
+    {
+      "trial": 2,
+      "variant": "after",
+      "raw_report": "/private/tmp/visualyze-positional-after-2.json",
+      "sha256": "ff7bf43e00981892995221afb735ad345afa544bd50eca33cd19b9cd14c77b78",
+      "report": {
+        "cases": [
+          {
+            "case": "fresh_groups",
+            "projection_ms": [
+              32.505416000000004,
+              31.073041999999997,
+              33.514874999999996,
+              34.73375,
+              31.245915999999998,
+              31.421249999999997,
+              33.007166,
+              31.445375,
+              31.153,
+              31.554458,
+              31.310791,
+              31.21125,
+              31.480542,
+              30.655416000000002,
+              30.367084,
+              31.954291,
+              32.124416000000004,
+              31.635167,
+              32.001000000000005,
+              31.130958,
+              31.398374999999998,
+              31.200374999999998,
+              31.716624999999997,
+              35.218708,
+              34.433834000000004,
+              33.860625,
+              32.083542,
+              32.010999999999996,
+              31.336416999999997,
+              31.659041
+            ]
+          },
+          {
+            "case": "retained_groups",
+            "projection_ms": [
+              30.929291000000003,
+              29.73125,
+              30.678292,
+              30.328625000000002,
+              32.512958000000005,
+              35.085667,
+              34.302417,
+              33.803625,
+              32.444624999999995,
+              32.019417000000004,
+              31.789875000000002,
+              30.757708,
+              30.671916,
+              30.862750000000002,
+              30.151083,
+              32.029792,
+              33.545084,
+              34.576625,
+              33.860792000000004,
+              36.685207999999996,
+              35.607042,
+              34.661042,
+              31.654875,
+              29.988208999999998,
+              29.670334,
+              29.415084,
+              34.050083,
+              34.871249999999996,
+              34.503583,
+              34.716416
+            ]
+          }
+        ],
+        "focus": "repository:05317a01f80959f2",
+        "indexing_ms": 331.044375,
+        "iterations": 30,
+        "model_id": "model:788c0940ff544915",
+        "revision": 1,
+        "scope": "Headless Code-lens provider projection only; no desktop projection memo, layout, rendering, saving or GPU measurement. Indexing is separate. Bundle OS cache may be warm. Repeated results are compared in full outside the measured interval.",
+        "source_counts": {
+          "entities": 27117,
+          "evidence": 31319,
+          "relations": 44019
+        }
+      }
+    }
+  ],
+  "before_binary": {
+    "path": "/private/tmp/visualyze-projection-bench-before",
+    "sha256": "5652aca1cd69c346e2312f84915a5fc3090054a90e244e728ebe07da1b6aa90e"
+  },
+  "after_binary": {
+    "path": "target/debug/examples/projection_bench",
+    "sha256": "4f07fd786de28b0f9d20d8a7a1f12fcf68a46a685e3719c4f9537a639b4269e3"
+  },
+  "source_hashes": {
+    "public/types/rust/src/provider/storage.rs": "057157a5846b614215a8c07b1d85fe372be217ff1faa48485c3d3c2d53e4c288",
+    "public/types/rust/tests/provider.rs": "2e4ebc0bf863afa622c95616219133e5e9e8b82e5d8e633e0dc2f651a75fa155",
+    "private/layout/examples/projection_bench.rs": "829481a1af42f099a25b065c6abfe43bfcc2dedee42c3ced95b30d90b7c11ce0"
+  },
+  "profile": {
+    "stack_file": "/private/tmp/visualyze-projection-cpu-before.txt",
+    "sha256": "455a5557d113b6e8752b2d851cadefb7539737cfb5abd961dbd6b271d195785d",
+    "scope": "Separate 100-iteration sampled trial used only to locate costs. Aggregate stack samples include indexing and unmeasured Debug equality work. Not used in timing comparison."
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "example-object-catalog",
+  "revision": 1,
+  "system_id": "scope:app",
+  "snapshot": {
+    "id": "example-object-catalog-001",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Synthetic object catalog: one instance of every architecture kind. Independent specimens, not an assembled architecture.",
+    "omissions": [
+      "Runtime interactions, concern coverage, and deployment placements are intentionally omitted."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:app",
+      "kind": "scope",
+      "label": "Application",
+      "boundary": "internal",
+      "subtype": "system",
+      "basis": "declared"
+    },
+    {
+      "id": "client:web",
+      "kind": "client",
+      "label": "Web application",
+      "boundary": "internal",
+      "subtype": "web",
+      "basis": "declared"
+    },
+    {
+      "id": "service:api",
+      "kind": "service",
+      "label": "Application API",
+      "boundary": "internal",
+      "subtype": "application",
+      "basis": "declared"
+    },
+    {
+      "id": "store:users",
+      "kind": "datastore",
+      "label": "Users",
+      "boundary": "internal",
+      "subtype": "relational",
+      "basis": "declared",
+      "technology": [
+        "PostgreSQL"
+      ]
+    },
+    {
+      "id": "interface:api",
+      "kind": "interface",
+      "label": "Public API",
+      "boundary": "internal",
+      "subtype": "api",
+      "basis": "declared",
+      "protocol": "https"
+    },
+    {
+      "id": "concern:authentication",
+      "kind": "concern",
+      "label": "Authentication",
+      "boundary": "internal",
+      "subtype": "authentication",
+      "basis": "declared"
+    },
+    {
+      "id": "deployment:production",
+      "kind": "deployment",
+      "label": "Production",
+      "boundary": "internal",
+      "subtype": "environment",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:app-contains-web",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "client:web",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:app-contains-api",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:api",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:app-contains-users",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "store:users",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:app-contains-authentication",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "concern:authentication",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:api-exposes-interface",
+      "kind": "exposes",
+      "source": "service:api",
+      "target": "interface:api",
+      "basis": "declared"
+    }
+  ],
+  "evidence": []
+}

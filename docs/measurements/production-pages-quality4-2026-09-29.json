@@ -1,0 +1,5107 @@
+{
+  "elapsed_ms": 35096.734083999996,
+  "failed_regions": 0,
+  "layout_version": 2,
+  "model_id": "model:b459b6f69394a519",
+  "quality_version": 4,
+  "regions": [
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 17,
+      "focus": "file:0023512285bdb1fa",
+      "label": "src/loader/extensions/mod.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 14,
+          "original_reference_records_loaded": 17,
+          "projection_ms": 1.498833,
+          "relationship_page": 0,
+          "route_length": 60,
+          "routes": 10,
+          "solve_ms": 2.70475,
+          "volume": 442368.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 17
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 244,
+      "focus": "file:002fb741f5176f5d",
+      "label": "src/schedule/mod.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 80,
+          "projection_ms": 3.777917,
+          "relationship_page": 0,
+          "route_length": 372,
+          "routes": 38,
+          "solve_ms": 25.880875,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 73,
+          "projection_ms": 2.685292,
+          "relationship_page": 1,
+          "route_length": 426,
+          "routes": 41,
+          "solve_ms": 25.867917000000002,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 86,
+          "projection_ms": 2.222959,
+          "relationship_page": 2,
+          "route_length": 390,
+          "routes": 41,
+          "solve_ms": 25.758334,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 33,
+          "original_reference_records_loaded": 5,
+          "projection_ms": 0.49716599999999994,
+          "relationship_page": 3,
+          "route_length": 30,
+          "routes": 5,
+          "solve_ms": 6.1718329999999995,
+          "volume": 1244160.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 244
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 4,
+      "focus": "file:0033ef89bd1dbc7b",
+      "label": "src/render_resource/buffer_vec.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 7,
+          "original_reference_records_loaded": 4,
+          "projection_ms": 0.947584,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 0.8221660000000001,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 88,
+      "focus": "file:0066c7ebd7c004e9",
+      "label": "src/experimental/mip_generation/mod.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 27,
+          "original_reference_records_loaded": 88,
+          "projection_ms": 0.96925,
+          "relationship_page": 0,
+          "route_length": 66,
+          "routes": 11,
+          "solve_ms": 4.702999999999999,
+          "volume": 995328.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 88
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 13,
+      "focus": "file:009c66a7bbf70333",
+      "label": "src/func/registry.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 15,
+          "original_reference_records_loaded": 13,
+          "projection_ms": 0.740958,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 1.597375,
+          "volume": 442368.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 13
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 7,
+      "focus": "file:00bc9ad04f2a62c3",
+      "label": "src/rects/irect.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 9,
+          "original_reference_records_loaded": 7,
+          "projection_ms": 0.671041,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 0.973416,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 7
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 15,
+      "focus": "file:013b2ed55dbb5bd0",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 13,
+          "original_reference_records_loaded": 15,
+          "projection_ms": 0.777791,
+          "relationship_page": 0,
+          "route_length": 42,
+          "routes": 7,
+          "solve_ms": 2.17925,
+          "volume": 497664.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 15
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "file:014539d7ce38a957",
+      "label": "benches/bevy_ecs/iteration/iter_simple_foreach_sparse_set.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 7,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.8036249999999999,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.5238750000000001,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 18,
+      "focus": "file:0152d41721a5ee2c",
+      "label": "src/fxaa/node.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 5,
+          "original_reference_records_loaded": 18,
+          "projection_ms": 0.829542,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 3,
+          "solve_ms": 1.0099580000000001,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 18
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 8,
+      "focus": "file:015df882e22a7d8b",
+      "label": "src/primitives/dim3/polyline3d.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 8,
+          "original_reference_records_loaded": 8,
+          "projection_ms": 0.803084,
+          "relationship_page": 0,
+          "route_length": 24,
+          "routes": 4,
+          "solve_ms": 1.4827919999999999,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 8
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "file:021c335ddad97828",
+      "label": "examples/3d/ssr.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 18,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.6759999999999999,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 1.368167,
+          "volume": 663552.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 27,
+      "focus": "file:02c4259a45d6aa03",
+      "label": "src/msaa_writeback.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 12,
+          "original_reference_records_loaded": 27,
+          "projection_ms": 0.861458,
+          "relationship_page": 0,
+          "route_length": 42,
+          "routes": 7,
+          "solve_ms": 1.966875,
+          "volume": 497664.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 27
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 62,
+      "focus": "file:033934d22f2d2568",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 21,
+          "original_reference_records_loaded": 62,
+          "projection_ms": 0.9875,
+          "relationship_page": 0,
+          "route_length": 60,
+          "routes": 10,
+          "solve_ms": 3.463917,
+          "volume": 663552.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 62
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 5,
+      "focus": "file:03e33b8bb8eeaa39",
+      "label": "src/real.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 17,
+          "original_reference_records_loaded": 5,
+          "projection_ms": 0.685666,
+          "relationship_page": 0,
+          "route_length": 24,
+          "routes": 4,
+          "solve_ms": 2.495875,
+          "volume": 663552.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 5
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 51,
+      "focus": "file:04c116c3a22089ac",
+      "label": "src/atmosphere/environment.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 21,
+          "original_reference_records_loaded": 51,
+          "projection_ms": 0.8855,
+          "relationship_page": 0,
+          "route_length": 48,
+          "routes": 8,
+          "solve_ms": 3.329959,
+          "volume": 663552.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 51
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 108,
+      "focus": "file:05c409dafa19da08",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 38,
+          "child_page": 0,
+          "congestion": 14.726860979595536,
+          "internal_references_counted": 0,
+          "objects": 15,
+          "original_reference_records_loaded": 108,
+          "projection_ms": 1.1525,
+          "relationship_page": 0,
+          "route_length": 3476,
+          "routes": 14,
+          "solve_ms": 5.259334,
+          "volume": 134784.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 108
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 3,
+      "focus": "file:05feaa668b404633",
+      "label": "src/executor.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 6,
+          "original_reference_records_loaded": 3,
+          "projection_ms": 0.779875,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 3,
+          "solve_ms": 1.096917,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 3
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "file:06b2ba3f1443defc",
+      "label": "src/sync/once.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.7264160000000001,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.093125,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 2,
+      "focus": "file:077c1cdbb1ccae21",
+      "label": "src/panic_handler.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 2,
+          "projection_ms": 0.725292,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.147917,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 2
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 11,
+      "focus": "file:08e12bb3eec87a6e",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 7,
+          "original_reference_records_loaded": 11,
+          "projection_ms": 0.7749579999999999,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 3,
+          "solve_ms": 1.12775,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 11
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 10,
+      "focus": "file:0a152c0fe464896a",
+      "label": "src/state/resources.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 9,
+          "original_reference_records_loaded": 10,
+          "projection_ms": 0.781459,
+          "relationship_page": 0,
+          "route_length": 30,
+          "routes": 5,
+          "solve_ms": 1.642375,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 10
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 2,
+      "focus": "file:0adcf956e83c74e7",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 2,
+          "projection_ms": 0.750667,
+          "relationship_page": 0,
+          "route_length": 56,
+          "routes": 2,
+          "solve_ms": 0.22683299999999998,
+          "volume": 38304.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 2
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 2,
+      "focus": "file:0af846b10417320c",
+      "label": "tests/ui/deconstruct_moving_ptr.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 8,
+          "original_reference_records_loaded": 2,
+          "projection_ms": 0.601125,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.594333,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 2
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 27,
+      "focus": "file:0b4322d1177a7aa3",
+      "label": "src/primitives/dim3.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 29,
+          "original_reference_records_loaded": 27,
+          "projection_ms": 0.930417,
+          "relationship_page": 0,
+          "route_length": 48,
+          "routes": 8,
+          "solve_ms": 4.878833,
+          "volume": 1244160.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 27
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 11,
+      "focus": "file:0c03b0b18ecc056b",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 8,
+          "original_reference_records_loaded": 11,
+          "projection_ms": 0.6292500000000001,
+          "relationship_page": 0,
+          "route_length": 48,
+          "routes": 8,
+          "solve_ms": 1.767042,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 11
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 4,
+      "focus": "file:0c689a905b65425e",
+      "label": "src/main.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 4,
+          "projection_ms": 0.722208,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.142958,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 8,
+      "focus": "file:0d132a18e40b51e8",
+      "label": "src/compressed_image_saver.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 6,
+          "original_reference_records_loaded": 8,
+          "projection_ms": 0.5862919999999999,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 3,
+          "solve_ms": 1.098291,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 8
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 3,
+      "focus": "file:0d7539bc3186d87d",
+      "label": "src/commands/test.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 3,
+          "projection_ms": 0.73875,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 0.475542,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 3
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 35,
+      "focus": "file:0dc2d0094c7b6ee5",
+      "label": "src/menu.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 30,
+          "original_reference_records_loaded": 35,
+          "projection_ms": 1.012083,
+          "relationship_page": 0,
+          "route_length": 54,
+          "routes": 9,
+          "solve_ms": 5.394708,
+          "volume": 1492992.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 35
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 25,
+      "focus": "file:0e35301cf0753967",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 16,
+          "original_reference_records_loaded": 25,
+          "projection_ms": 0.882,
+          "relationship_page": 0,
+          "route_length": 78,
+          "routes": 13,
+          "solve_ms": 2.786,
+          "volume": 663552.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 25
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "file:0f3a9c8b936f8cb7",
+      "label": "src/event.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.710542,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.090792,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "file:0fc6f7ace1f70997",
+      "label": "tests/deref_derive/single_field_pass.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 5,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.737916,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.439875,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 54,
+      "focus": "file:10cb69685c11e8fd",
+      "label": "src/layout/mod.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 36,
+          "original_reference_records_loaded": 54,
+          "projection_ms": 0.907084,
+          "relationship_page": 0,
+          "route_length": 154,
+          "routes": 15,
+          "solve_ms": 7.603083,
+          "volume": 1492992.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 54
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 3,
+      "focus": "file:123720f2fd4bbd61",
+      "label": "tests/into_function/closure_fail.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 3,
+          "projection_ms": 0.746292,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.143958,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 3
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 50,
+      "focus": "file:14343c53b525b929",
+      "label": "src/gradient.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 34,
+          "original_reference_records_loaded": 50,
+          "projection_ms": 0.835625,
+          "relationship_page": 0,
+          "route_length": 136,
+          "routes": 12,
+          "solve_ms": 6.630625,
+          "volume": 1492992.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 50
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 15,
+      "focus": "file:1450b306337cdacc",
+      "label": "src/scene.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 7,
+          "original_reference_records_loaded": 15,
+          "projection_ms": 0.6049589999999999,
+          "relationship_page": 0,
+          "route_length": 30,
+          "routes": 5,
+          "solve_ms": 1.473958,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 15
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 26,
+      "focus": "file:14aa910b4a32024c",
+      "label": "src/mesh_picking/ray_cast/mod.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 19,
+          "original_reference_records_loaded": 26,
+          "projection_ms": 0.798208,
+          "relationship_page": 0,
+          "route_length": 66,
+          "routes": 11,
+          "solve_ms": 3.3002079999999996,
+          "volume": 1244160.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 26
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 15,
+      "focus": "file:17e20146a0f4b4b7",
+      "label": "src/pan_camera.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 11,
+          "original_reference_records_loaded": 15,
+          "projection_ms": 0.6260410000000001,
+          "relationship_page": 0,
+          "route_length": 42,
+          "routes": 7,
+          "solve_ms": 1.877084,
+          "volume": 497664.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 15
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 14,
+      "focus": "file:18414567fc2a1329",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 14,
+          "original_reference_records_loaded": 14,
+          "projection_ms": 0.851917,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 1.508791,
+          "volume": 442368.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 14
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 3,
+      "focus": "file:19bfc809d0ee6115",
+      "label": "src/io/file/file_watcher.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 9,
+          "original_reference_records_loaded": 3,
+          "projection_ms": 0.839125,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 0.965916,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 3
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 4,
+      "focus": "file:1b30208a86c929c6",
+      "label": "src/sinks.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 10,
+          "original_reference_records_loaded": 4,
+          "projection_ms": 0.836958,
+          "relationship_page": 0,
+          "route_length": 24,
+          "routes": 4,
+          "solve_ms": 1.62375,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 151,
+      "focus": "file:1b7e59222422a4be",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 30,
+          "original_reference_records_loaded": 151,
+          "projection_ms": 1.189,
+          "relationship_page": 0,
+          "route_length": 144,
+          "routes": 24,
+          "solve_ms": 6.560792,
+          "volume": 1658880.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 151
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 41,
+      "focus": "file:1c717e71adb3573f",
+      "label": "src/cluster/mod.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 26,
+          "original_reference_records_loaded": 41,
+          "projection_ms": 0.9952089999999999,
+          "relationship_page": 0,
+          "route_length": 84,
+          "routes": 14,
+          "solve_ms": 4.976583,
+          "volume": 995328.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 41
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 23,
+      "focus": "file:2004f8dde52a55dd",
+      "label": "src/oklaba.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 18,
+          "original_reference_records_loaded": 23,
+          "projection_ms": 0.863708,
+          "relationship_page": 0,
+          "route_length": 42,
+          "routes": 7,
+          "solve_ms": 2.7932080000000004,
+          "volume": 884736.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 23
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 66,
+      "focus": "file:2015f0342e7339bb",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 22,
+          "original_reference_records_loaded": 66,
+          "projection_ms": 1.033375,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 3,
+          "solve_ms": 2.995958,
+          "volume": 995328.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 66
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 20,
+      "focus": "file:211f5fc3e90f12b2",
+      "label": "src/winit_windows.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 16,
+          "original_reference_records_loaded": 20,
+          "projection_ms": 0.859,
+          "relationship_page": 0,
+          "route_length": 42,
+          "routes": 7,
+          "solve_ms": 2.518167,
+          "volume": 497664.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 20
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 5,
+      "focus": "file:2135dba555aae3c1",
+      "label": "src/map.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 7,
+          "original_reference_records_loaded": 5,
+          "projection_ms": 0.72925,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.535375,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 5
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 7,
+      "focus": "file:23eb816923f8840d",
+      "label": "src/traits.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 9,
+          "original_reference_records_loaded": 7,
+          "projection_ms": 0.7611249999999999,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 3,
+          "solve_ms": 1.26,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 7
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "file:2422c27e754c15c4",
+      "label": "src/util.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.773583,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.149042,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 6,
+      "focus": "file:25369cfad0563695",
+      "label": "src/schemas/open_rpc.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 12,
+          "original_reference_records_loaded": 6,
+          "projection_ms": 0.759916,
+          "relationship_page": 0,
+          "route_length": 30,
+          "routes": 5,
+          "solve_ms": 1.912625,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 6
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "file:25605ad2d11a939d",
+      "label": "src/main.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 1,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.703334,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.015333999999999999,
+          "volume": 5760.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "file:2588ee0f6d030175",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.650042,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.157917,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 5,
+      "focus": "file:2b91fe5c8ff8304d",
+      "label": "src/axis.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 9,
+          "original_reference_records_loaded": 5,
+          "projection_ms": 0.664,
+          "relationship_page": 0,
+          "route_length": 30,
+          "routes": 5,
+          "solve_ms": 1.581416,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 5
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 68,
+      "focus": "file:2e61da775cbf7509",
+      "label": "src/render/mod.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 44,
+          "original_reference_records_loaded": 68,
+          "projection_ms": 1.018709,
+          "relationship_page": 0,
+          "route_length": 160,
+          "routes": 16,
+          "solve_ms": 10.696000000000002,
+          "volume": 1741824.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 68
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 4,
+      "focus": "file:2f60300dd3ed28e0",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 4,
+          "projection_ms": 0.832333,
+          "relationship_page": 0,
+          "route_length": 132,
+          "routes": 3,
+          "solve_ms": 0.567542,
+          "volume": 62640.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 2,
+      "focus": "file:2fc25850af8ac53a",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 2,
+          "projection_ms": 0.610833,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 0.484833,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 2
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 5,
+      "focus": "file:30e2b29281d9a7ad",
+      "label": "src/glyph.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 8,
+          "original_reference_records_loaded": 5,
+          "projection_ms": 0.7763340000000001,
+          "relationship_page": 0,
+          "route_length": 24,
+          "routes": 4,
+          "solve_ms": 1.50875,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 5
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 2,
+      "distinct_original_references_routed": 63,
+      "focus": "file:33bd86afb4fd93b1",
+      "label": "src/primitives.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 51,
+          "original_reference_records_loaded": 63,
+          "projection_ms": 0.970208,
+          "relationship_page": 0,
+          "route_length": 172,
+          "routes": 18,
+          "solve_ms": 13.99,
+          "volume": 1741824.0
+        },
+        {
+          "bends": 0,
+          "child_page": 1,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 22,
+          "original_reference_records_loaded": 63,
+          "projection_ms": 0.76425,
+          "relationship_page": 0,
+          "route_length": 108,
+          "routes": 18,
+          "solve_ms": 4.182291,
+          "volume": 995328.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 63
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 2,
+      "focus": "file:37c18f466e9e4333",
+      "label": "src/frame_count_diagnostics_plugin.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 9,
+          "original_reference_records_loaded": 2,
+          "projection_ms": 0.745583,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 0.940958,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 2
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 2,
+      "focus": "file:389be3f9536667d9",
+      "label": "src/main.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 2,
+          "projection_ms": 0.636625,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 0.493125,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 2
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "file:4359032c160c6034",
+      "label": "src/symbol.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 7,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.754334,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.530125,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 15,
+      "focus": "file:446619c39bd7d8e8",
+      "label": "src/window.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 28,
+          "original_reference_records_loaded": 15,
+          "projection_ms": 0.9607910000000001,
+          "relationship_page": 0,
+          "route_length": 30,
+          "routes": 5,
+          "solve_ms": 4.4858329999999995,
+          "volume": 1244160.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 15
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 3,
+      "focus": "file:4cd8055e86857290",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 3,
+          "projection_ms": 0.691125,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 0.485208,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 3
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 38,
+      "focus": "file:4d69db241cd462be",
+      "label": "src/prelude.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 38,
+          "projection_ms": 0.8533339999999999,
+          "relationship_page": 0,
+          "route_length": 56,
+          "routes": 2,
+          "solve_ms": 0.234917,
+          "volume": 38304.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 38
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 63,
+      "focus": "file:4e24d326bee5543c",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 22,
+          "original_reference_records_loaded": 63,
+          "projection_ms": 0.990042,
+          "relationship_page": 0,
+          "route_length": 108,
+          "routes": 18,
+          "solve_ms": 4.136292,
+          "volume": 884736.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 63
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "file:52bcadc10e683c45",
+      "label": "tests/example_tests/import.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 2,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.718042,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.042584,
+          "volume": 27648.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 41,
+      "focus": "file:539109cbd96e4408",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 37,
+          "original_reference_records_loaded": 41,
+          "projection_ms": 0.8664999999999999,
+          "relationship_page": 0,
+          "route_length": 72,
+          "routes": 12,
+          "solve_ms": 7.592708,
+          "volume": 1548288.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 41
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "file:54cf574c2a0aa09c",
+      "label": "src/main.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.6321249999999999,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.064958,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 18,
+      "focus": "file:63c1a63e54714ef7",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 21,
+          "original_reference_records_loaded": 18,
+          "projection_ms": 0.7444160000000001,
+          "relationship_page": 0,
+          "route_length": 78,
+          "routes": 13,
+          "solve_ms": 3.6640829999999998,
+          "volume": 1244160.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 18
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "file:65bd12c1c93b9ca5",
+      "label": "src/bin/main.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.773042,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.149375,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 16,
+      "focus": "file:68ebe678bf5ee5aa",
+      "label": "src/retained.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 10,
+          "original_reference_records_loaded": 16,
+          "projection_ms": 0.648,
+          "relationship_page": 0,
+          "route_length": 54,
+          "routes": 9,
+          "solve_ms": 1.936375,
+          "volume": 442368.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 16
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 28,
+      "focus": "file:6bf33f1101e9429b",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 16,
+          "original_reference_records_loaded": 28,
+          "projection_ms": 0.869541,
+          "relationship_page": 0,
+          "route_length": 54,
+          "routes": 9,
+          "solve_ms": 2.692542,
+          "volume": 497664.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 28
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "file:6cd0aca6d2796e53",
+      "label": "src/main.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 7,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.741625,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.520417,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 15,
+      "focus": "file:87436d49cfad713c",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 11,
+          "original_reference_records_loaded": 15,
+          "projection_ms": 0.647625,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.834167,
+          "volume": 442368.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 15
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "file:b038244d0c7d06f7",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 7,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.74375,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.516584,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 454,
+      "focus": "file:b6ae9420da8c77aa",
+      "label": "src/world/mod.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 39,
+          "projection_ms": 1.069917,
+          "relationship_page": 0,
+          "route_length": 330,
+          "routes": 35,
+          "solve_ms": 25.685958,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 39,
+          "projection_ms": 0.97875,
+          "relationship_page": 1,
+          "route_length": 318,
+          "routes": 33,
+          "solve_ms": 24.689625,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 44,
+          "projection_ms": 1.095709,
+          "relationship_page": 2,
+          "route_length": 318,
+          "routes": 33,
+          "solve_ms": 24.699958000000002,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 41,
+          "projection_ms": 1.089416,
+          "relationship_page": 3,
+          "route_length": 324,
+          "routes": 34,
+          "solve_ms": 25.133958,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 48,
+          "projection_ms": 0.9871249999999999,
+          "relationship_page": 4,
+          "route_length": 324,
+          "routes": 34,
+          "solve_ms": 24.454417,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 45,
+          "projection_ms": 0.988792,
+          "relationship_page": 5,
+          "route_length": 318,
+          "routes": 33,
+          "solve_ms": 24.86275,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 40,
+          "projection_ms": 0.9981250000000002,
+          "relationship_page": 6,
+          "route_length": 318,
+          "routes": 33,
+          "solve_ms": 24.817666,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 41,
+          "projection_ms": 1.096709,
+          "relationship_page": 7,
+          "route_length": 318,
+          "routes": 33,
+          "solve_ms": 24.894790999999998,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 46,
+          "projection_ms": 1.050958,
+          "relationship_page": 8,
+          "route_length": 330,
+          "routes": 35,
+          "solve_ms": 25.030334,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 65,
+          "original_reference_records_loaded": 41,
+          "projection_ms": 0.766458,
+          "relationship_page": 9,
+          "route_length": 324,
+          "routes": 34,
+          "solve_ms": 25.633042000000003,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 60,
+          "original_reference_records_loaded": 30,
+          "projection_ms": 0.24725000000000003,
+          "relationship_page": 10,
+          "route_length": 264,
+          "routes": 28,
+          "solve_ms": 19.899625,
+          "volume": 1990656.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 454
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 3,
+      "focus": "file:b824b42dba1a5217",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 7,
+          "original_reference_records_loaded": 3,
+          "projection_ms": 0.94075,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 2,
+          "solve_ms": 0.842292,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 3
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "file:c7eb169bee48095c",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 2,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.768208,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 1,
+          "solve_ms": 0.033209,
+          "volume": 14976.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "file:d2530ea91a7f29b8",
+      "label": "src/lib.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 5,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.731791,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.123666,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "file:d34db65b0f45f9ad",
+      "label": "src/main.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.8346669999999999,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.093875,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "file:e867c10b1bd8b43d",
+      "label": "src/main.rs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 9,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.9816250000000001,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.408292,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 2,
+      "distinct_original_references_routed": 0,
+      "focus": "item:86c82b85a551c18a",
+      "label": "World",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 33,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 3.0638330000000003,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 5.745584,
+          "volume": 995328.0
+        },
+        {
+          "bends": 0,
+          "child_page": 1,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 12,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 1.011709,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.69625,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 504,
+      "focus": "package:0086a2cfe365a25e",
+      "label": "bevy_sprite_render",
+      "pages": [
+        {
+          "bends": 313,
+          "child_page": 0,
+          "congestion": 18.048013911591962,
+          "internal_references_counted": 0,
+          "objects": 34,
+          "original_reference_records_loaded": 504,
+          "projection_ms": 2.949625,
+          "relationship_page": 0,
+          "route_length": 12436,
+          "routes": 140,
+          "solve_ms": 187.94666600000002,
+          "volume": 1769472.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 504
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 16,
+      "focus": "package:099fc2af76d08fe1",
+      "label": "no_std_library",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 16,
+          "projection_ms": 1.143125,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 2,
+          "solve_ms": 0.18325,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 16
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 381,
+      "focus": "package:0c24ec98afaffa6d",
+      "label": "bevy_ui_render",
+      "pages": [
+        {
+          "bends": 289,
+          "child_page": 0,
+          "congestion": 6.874311760848334,
+          "internal_references_counted": 0,
+          "objects": 34,
+          "original_reference_records_loaded": 381,
+          "projection_ms": 1.9935,
+          "relationship_page": 0,
+          "route_length": 10480,
+          "routes": 127,
+          "solve_ms": 157.88425,
+          "volume": 1935360.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 381
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 3,
+      "distinct_original_references_routed": 67,
+      "focus": "package:0d0b235fe2a94b47",
+      "label": "bevy",
+      "pages": [
+        {
+          "bends": 12,
+          "child_page": 0,
+          "congestion": 0.14878945902644924,
+          "internal_references_counted": 1,
+          "objects": 48,
+          "original_reference_records_loaded": 68,
+          "projection_ms": 2.998625,
+          "relationship_page": 0,
+          "route_length": 574,
+          "routes": 23,
+          "solve_ms": 25.87725,
+          "volume": 1741824.0
+        },
+        {
+          "bends": 0,
+          "child_page": 1,
+          "congestion": 0.0,
+          "internal_references_counted": 14,
+          "objects": 48,
+          "original_reference_records_loaded": 54,
+          "projection_ms": 2.700125,
+          "relationship_page": 0,
+          "route_length": 178,
+          "routes": 19,
+          "solve_ms": 13.036249999999999,
+          "volume": 1741824.0
+        },
+        {
+          "bends": 0,
+          "child_page": 2,
+          "congestion": 0.0,
+          "internal_references_counted": 9,
+          "objects": 47,
+          "original_reference_records_loaded": 59,
+          "projection_ms": 2.686708,
+          "relationship_page": 0,
+          "route_length": 210,
+          "routes": 19,
+          "solve_ms": 13.022374999999998,
+          "volume": 1741824.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 68
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 4,
+      "focus": "package:0d133a5de307d647",
+      "label": "bevy_gizmos_macros",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 4,
+          "projection_ms": 0.6617500000000001,
+          "relationship_page": 0,
+          "route_length": 36,
+          "routes": 4,
+          "solve_ms": 0.5944159999999999,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 117,
+      "focus": "package:0e20871a98d1aa4d",
+      "label": "bevy_input_focus",
+      "pages": [
+        {
+          "bends": 52,
+          "child_page": 0,
+          "congestion": 1.5005639960974477,
+          "internal_references_counted": 0,
+          "objects": 18,
+          "original_reference_records_loaded": 117,
+          "projection_ms": 1.048667,
+          "relationship_page": 0,
+          "route_length": 2042,
+          "routes": 43,
+          "solve_ms": 39.969708,
+          "volume": 995328.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 117
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 2,
+      "distinct_original_references_routed": 1668,
+      "focus": "package:0e95e59ff3c9b447",
+      "label": "bevy_reflect",
+      "pages": [
+        {
+          "bends": 141,
+          "child_page": 0,
+          "congestion": 3.639086072569878,
+          "internal_references_counted": 15,
+          "objects": 65,
+          "original_reference_records_loaded": 180,
+          "projection_ms": 10.144290999999999,
+          "relationship_page": 0,
+          "route_length": 5202,
+          "routes": 93,
+          "solve_ms": 279.99475,
+          "volume": 3058560.0
+        },
+        {
+          "bends": 211,
+          "child_page": 0,
+          "congestion": 6.260180818702782,
+          "internal_references_counted": 5,
+          "objects": 65,
+          "original_reference_records_loaded": 169,
+          "projection_ms": 8.787166000000001,
+          "relationship_page": 1,
+          "route_length": 7206,
+          "routes": 101,
+          "solve_ms": 309.125,
+          "volume": 2488320.0
+        },
+        {
+          "bends": 195,
+          "child_page": 0,
+          "congestion": 4.964876305855015,
+          "internal_references_counted": 7,
+          "objects": 65,
+          "original_reference_records_loaded": 175,
+          "projection_ms": 8.513665999999999,
+          "relationship_page": 2,
+          "route_length": 6466,
+          "routes": 98,
+          "solve_ms": 306.941167,
+          "volume": 2903040.0
+        },
+        {
+          "bends": 185,
+          "child_page": 0,
+          "congestion": 5.581485652076377,
+          "internal_references_counted": 7,
+          "objects": 65,
+          "original_reference_records_loaded": 165,
+          "projection_ms": 7.564625,
+          "relationship_page": 3,
+          "route_length": 6266,
+          "routes": 93,
+          "solve_ms": 329.861416,
+          "volume": 2446848.0
+        },
+        {
+          "bends": 162,
+          "child_page": 0,
+          "congestion": 3.8447442524222826,
+          "internal_references_counted": 11,
+          "objects": 65,
+          "original_reference_records_loaded": 159,
+          "projection_ms": 6.738499999999999,
+          "relationship_page": 4,
+          "route_length": 5636,
+          "routes": 96,
+          "solve_ms": 284.290708,
+          "volume": 2446848.0
+        },
+        {
+          "bends": 176,
+          "child_page": 0,
+          "congestion": 5.665484519139422,
+          "internal_references_counted": 7,
+          "objects": 65,
+          "original_reference_records_loaded": 175,
+          "projection_ms": 6.106833,
+          "relationship_page": 5,
+          "route_length": 6312,
+          "routes": 93,
+          "solve_ms": 375.527,
+          "volume": 3058560.0
+        },
+        {
+          "bends": 213,
+          "child_page": 0,
+          "congestion": 6.059895385432042,
+          "internal_references_counted": 9,
+          "objects": 65,
+          "original_reference_records_loaded": 205,
+          "projection_ms": 5.507583,
+          "relationship_page": 6,
+          "route_length": 7164,
+          "routes": 103,
+          "solve_ms": 378.831334,
+          "volume": 2446848.0
+        },
+        {
+          "bends": 177,
+          "child_page": 0,
+          "congestion": 5.553521155404864,
+          "internal_references_counted": 8,
+          "objects": 65,
+          "original_reference_records_loaded": 163,
+          "projection_ms": 4.4494169999999995,
+          "relationship_page": 7,
+          "route_length": 6506,
+          "routes": 92,
+          "solve_ms": 357.990959,
+          "volume": 2799360.0
+        },
+        {
+          "bends": 177,
+          "child_page": 0,
+          "congestion": 5.21861790251322,
+          "internal_references_counted": 9,
+          "objects": 65,
+          "original_reference_records_loaded": 157,
+          "projection_ms": 3.785,
+          "relationship_page": 8,
+          "route_length": 6004,
+          "routes": 99,
+          "solve_ms": 286.17175,
+          "volume": 2488320.0
+        },
+        {
+          "bends": 202,
+          "child_page": 0,
+          "congestion": 5.036633581391561,
+          "internal_references_counted": 9,
+          "objects": 64,
+          "original_reference_records_loaded": 207,
+          "projection_ms": 1.705666,
+          "relationship_page": 9,
+          "route_length": 6974,
+          "routes": 112,
+          "solve_ms": 285.28787500000004,
+          "volume": 2799360.0
+        },
+        {
+          "bends": 90,
+          "child_page": 1,
+          "congestion": 1.042295355175434,
+          "internal_references_counted": 754,
+          "objects": 56,
+          "original_reference_records_loaded": 1001,
+          "projection_ms": 5.720833,
+          "relationship_page": 0,
+          "route_length": 3322,
+          "routes": 93,
+          "solve_ms": 71.22841700000001,
+          "volume": 2654208.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1755
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 193,
+      "focus": "package:0f0e7e77d017cb3c",
+      "label": "bevy_input",
+      "pages": [
+        {
+          "bends": 158,
+          "child_page": 0,
+          "congestion": 5.21499348337587,
+          "internal_references_counted": 0,
+          "objects": 25,
+          "original_reference_records_loaded": 193,
+          "projection_ms": 1.837083,
+          "relationship_page": 0,
+          "route_length": 5446,
+          "routes": 82,
+          "solve_ms": 92.49799999999999,
+          "volume": 995328.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 193
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 2,
+      "focus": "package:0f5de6fc6f586fa4",
+      "label": "build-templated-pages",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 2,
+          "projection_ms": 0.866958,
+          "relationship_page": 0,
+          "route_length": 24,
+          "routes": 2,
+          "solve_ms": 0.8007500000000001,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 2
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 34,
+      "focus": "package:1d8aebdb05e62a9e",
+      "label": "bevy_log",
+      "pages": [
+        {
+          "bends": 28,
+          "child_page": 0,
+          "congestion": 0.7323129990266755,
+          "internal_references_counted": 0,
+          "objects": 18,
+          "original_reference_records_loaded": 34,
+          "projection_ms": 0.855166,
+          "relationship_page": 0,
+          "route_length": 1046,
+          "routes": 28,
+          "solve_ms": 16.206208999999998,
+          "volume": 663552.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 34
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 4,
+      "focus": "package:24ccaad8099ea17c",
+      "label": "bevy_animation_macros",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 5,
+          "original_reference_records_loaded": 4,
+          "projection_ms": 0.706125,
+          "relationship_page": 0,
+          "route_length": 36,
+          "routes": 4,
+          "solve_ms": 0.685625,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 2,
+      "distinct_original_references_routed": 2206,
+      "focus": "package:2643bb3d77b35a64",
+      "label": "bevy_pbr",
+      "pages": [
+        {
+          "bends": 819,
+          "child_page": 0,
+          "congestion": 76.48716910059933,
+          "internal_references_counted": 12,
+          "objects": 57,
+          "original_reference_records_loaded": 2194,
+          "projection_ms": 7.416875,
+          "relationship_page": 0,
+          "route_length": 30098,
+          "routes": 307,
+          "solve_ms": 548.2239169999999,
+          "volume": 3244032.0
+        },
+        {
+          "bends": 538,
+          "child_page": 1,
+          "congestion": 34.90570914626963,
+          "internal_references_counted": 175,
+          "objects": 46,
+          "original_reference_records_loaded": 2031,
+          "projection_ms": 8.448708,
+          "relationship_page": 0,
+          "route_length": 19806,
+          "routes": 220,
+          "solve_ms": 326.528291,
+          "volume": 1382400.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 2206
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 268,
+      "focus": "package:27e5ad81ae9a43b0",
+      "label": "bevy_light",
+      "pages": [
+        {
+          "bends": 225,
+          "child_page": 0,
+          "congestion": 12.292120549511532,
+          "internal_references_counted": 0,
+          "objects": 28,
+          "original_reference_records_loaded": 268,
+          "projection_ms": 2.156333,
+          "relationship_page": 0,
+          "route_length": 7625,
+          "routes": 103,
+          "solve_ms": 108.58283300000001,
+          "volume": 1327104.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 268
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 240,
+      "focus": "package:28016a8bddc053a1",
+      "label": "bevy_picking",
+      "pages": [
+        {
+          "bends": 208,
+          "child_page": 0,
+          "congestion": 8.26199216556713,
+          "internal_references_counted": 0,
+          "objects": 32,
+          "original_reference_records_loaded": 240,
+          "projection_ms": 1.755666,
+          "relationship_page": 0,
+          "route_length": 9162,
+          "routes": 115,
+          "solve_ms": 131.707791,
+          "volume": 1769472.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 240
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 5,
+      "focus": "package:2845bb0b5d1b8185",
+      "label": "bevy_encase_derive",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 5,
+          "projection_ms": 0.9827080000000001,
+          "relationship_page": 0,
+          "route_length": 36,
+          "routes": 4,
+          "solve_ms": 0.59275,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 5
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 194,
+      "focus": "package:2a181a6093568adb",
+      "label": "bevy_utils",
+      "pages": [
+        {
+          "bends": 136,
+          "child_page": 0,
+          "congestion": 3.260071829841719,
+          "internal_references_counted": 0,
+          "objects": 34,
+          "original_reference_records_loaded": 194,
+          "projection_ms": 1.4135840000000002,
+          "relationship_page": 0,
+          "route_length": 4946,
+          "routes": 77,
+          "solve_ms": 64.302375,
+          "volume": 2073600.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 194
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 293,
+      "focus": "package:2c37225f545c4d1f",
+      "label": "bevy_gizmos",
+      "pages": [
+        {
+          "bends": 259,
+          "child_page": 0,
+          "congestion": 11.871977480625224,
+          "internal_references_counted": 0,
+          "objects": 34,
+          "original_reference_records_loaded": 293,
+          "projection_ms": 1.9728749999999997,
+          "relationship_page": 0,
+          "route_length": 8150,
+          "routes": 123,
+          "solve_ms": 163.883667,
+          "volume": 1213056.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 293
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 43,
+      "focus": "package:2d7f3da06a831e45",
+      "label": "bevy_gilrs",
+      "pages": [
+        {
+          "bends": 18,
+          "child_page": 0,
+          "congestion": 0.6958437923612835,
+          "internal_references_counted": 0,
+          "objects": 11,
+          "original_reference_records_loaded": 43,
+          "projection_ms": 1.0825,
+          "relationship_page": 0,
+          "route_length": 612,
+          "routes": 21,
+          "solve_ms": 14.296708,
+          "volume": 632448.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 43
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 106,
+      "focus": "package:33270d852f03378e",
+      "label": "bevy_tasks",
+      "pages": [
+        {
+          "bends": 59,
+          "child_page": 0,
+          "congestion": 1.3993993372711073,
+          "internal_references_counted": 0,
+          "objects": 28,
+          "original_reference_records_loaded": 106,
+          "projection_ms": 1.195667,
+          "relationship_page": 0,
+          "route_length": 1926,
+          "routes": 46,
+          "solve_ms": 37.368041,
+          "volume": 1337472.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 106
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 24,
+      "focus": "package:35a07a4e31ce4910",
+      "label": "bevy_render_macros",
+      "pages": [
+        {
+          "bends": 3,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 8,
+          "original_reference_records_loaded": 24,
+          "projection_ms": 0.872708,
+          "relationship_page": 0,
+          "route_length": 112,
+          "routes": 6,
+          "solve_ms": 3.358083,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 24
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 117,
+      "focus": "package:392cea5876497544",
+      "label": "bevy_remote",
+      "pages": [
+        {
+          "bends": 61,
+          "child_page": 0,
+          "congestion": 2.060408794196657,
+          "internal_references_counted": 0,
+          "objects": 17,
+          "original_reference_records_loaded": 117,
+          "projection_ms": 1.1559579999999998,
+          "relationship_page": 0,
+          "route_length": 1914,
+          "routes": 39,
+          "solve_ms": 25.663375,
+          "volume": 884736.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 117
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 176,
+      "focus": "package:3ad88e2e7977954b",
+      "label": "bevy_derive",
+      "pages": [
+        {
+          "bends": 52,
+          "child_page": 0,
+          "congestion": 0.8531481352860731,
+          "internal_references_counted": 0,
+          "objects": 29,
+          "original_reference_records_loaded": 176,
+          "projection_ms": 1.2661250000000002,
+          "relationship_page": 0,
+          "route_length": 1922,
+          "routes": 49,
+          "solve_ms": 38.149750000000004,
+          "volume": 933120.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 176
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 433,
+      "focus": "package:401d869776689b9b",
+      "label": "bevy_platform",
+      "pages": [
+        {
+          "bends": 220,
+          "child_page": 0,
+          "congestion": 3.3163383203708205,
+          "internal_references_counted": 0,
+          "objects": 57,
+          "original_reference_records_loaded": 433,
+          "projection_ms": 2.321083,
+          "relationship_page": 0,
+          "route_length": 9958,
+          "routes": 125,
+          "solve_ms": 217.196958,
+          "volume": 4245696.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 433
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "package:4683528b6a3cca3d",
+      "label": "errors",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 1.219083,
+          "relationship_page": 0,
+          "route_length": 6,
+          "routes": 1,
+          "solve_ms": 0.160792,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 11,
+      "focus": "package:48302fb66dbfc768",
+      "label": "bevy_mobile_example",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 11,
+          "projection_ms": 0.857834,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 2,
+          "solve_ms": 0.348042,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 11
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1,
+      "focus": "package:4837d5bdf018a702",
+      "label": "export-content",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 1,
+          "projection_ms": 0.747417,
+          "relationship_page": 0,
+          "route_length": 12,
+          "routes": 1,
+          "solve_ms": 0.09624999999999999,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 5,
+      "focus": "package:48e78b4abec2001d",
+      "label": "build-easefunction-graphs",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 5,
+          "projection_ms": 0.735208,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 2,
+          "solve_ms": 0.194208,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 5
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 5,
+      "focus": "package:49cf299eb628de7e",
+      "label": "bevy_asset_macros",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 5,
+          "projection_ms": 0.736583,
+          "relationship_page": 0,
+          "route_length": 36,
+          "routes": 4,
+          "solve_ms": 0.5862499999999999,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 5
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 3,
+      "focus": "package:4cac30d92b7d70ec",
+      "label": "compile_fail_utils",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 9,
+          "original_reference_records_loaded": 3,
+          "projection_ms": 0.763125,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 3,
+          "solve_ms": 1.4393330000000002,
+          "volume": 331776.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 3
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 211,
+      "focus": "package:51e93ef4aa09f743",
+      "label": "bevy_state",
+      "pages": [
+        {
+          "bends": 138,
+          "child_page": 0,
+          "congestion": 3.525049147993656,
+          "internal_references_counted": 0,
+          "objects": 25,
+          "original_reference_records_loaded": 211,
+          "projection_ms": 1.584458,
+          "relationship_page": 0,
+          "route_length": 4350,
+          "routes": 78,
+          "solve_ms": 84.644834,
+          "volume": 1181952.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 211
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 396,
+      "focus": "package:528dcac974662c89",
+      "label": "bevy_color",
+      "pages": [
+        {
+          "bends": 282,
+          "child_page": 0,
+          "congestion": 7.637374153991012,
+          "internal_references_counted": 0,
+          "objects": 45,
+          "original_reference_records_loaded": 396,
+          "projection_ms": 2.603208,
+          "relationship_page": 0,
+          "route_length": 8880,
+          "routes": 131,
+          "solve_ms": 187.684125,
+          "volume": 1741824.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 396
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 16,
+      "focus": "package:54340ec33bdc9de6",
+      "label": "bevy_derive_compile_fail",
+      "pages": [
+        {
+          "bends": 28,
+          "child_page": 0,
+          "congestion": 0.33514549248817255,
+          "internal_references_counted": 0,
+          "objects": 19,
+          "original_reference_records_loaded": 16,
+          "projection_ms": 1.155583,
+          "relationship_page": 0,
+          "route_length": 1074,
+          "routes": 16,
+          "solve_ms": 35.232375000000005,
+          "volume": 1382400.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 16
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 661,
+      "focus": "package:57e3e0d298162ee5",
+      "label": "bevy_app",
+      "pages": [
+        {
+          "bends": 199,
+          "child_page": 0,
+          "congestion": 7.500463146456693,
+          "internal_references_counted": 0,
+          "objects": 60,
+          "original_reference_records_loaded": 661,
+          "projection_ms": 2.9489590000000003,
+          "relationship_page": 0,
+          "route_length": 7296,
+          "routes": 120,
+          "solve_ms": 142.210584,
+          "volume": 2654208.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 661
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 234,
+      "focus": "package:5979aba03979b03d",
+      "label": "bevy_winit",
+      "pages": [
+        {
+          "bends": 130,
+          "child_page": 0,
+          "congestion": 2.769373343280312,
+          "internal_references_counted": 0,
+          "objects": 27,
+          "original_reference_records_loaded": 234,
+          "projection_ms": 1.8078750000000001,
+          "relationship_page": 0,
+          "route_length": 5266,
+          "routes": 82,
+          "solve_ms": 71.327916,
+          "volume": 1555200.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 234
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "package:5c4ab5401afe7cc8",
+      "label": "example-showcase",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 2,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.949333,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.044834,
+          "volume": 27648.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 4,
+      "focus": "package:5cd1a38eaf8e3e41",
+      "label": "bevy_android",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 5,
+          "original_reference_records_loaded": 4,
+          "projection_ms": 0.802916,
+          "relationship_page": 0,
+          "route_length": 30,
+          "routes": 4,
+          "solve_ms": 1.153791,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 37,
+      "focus": "package:5fb96d91eb4810c2",
+      "label": "bevy_a11y",
+      "pages": [
+        {
+          "bends": 8,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 11,
+          "original_reference_records_loaded": 37,
+          "projection_ms": 0.916958,
+          "relationship_page": 0,
+          "route_length": 454,
+          "routes": 18,
+          "solve_ms": 10.624291,
+          "volume": 663552.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 37
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 68,
+      "focus": "package:60a0c61dad5a76aa",
+      "label": "bevy_reflect_compile_fail",
+      "pages": [
+        {
+          "bends": 45,
+          "child_page": 0,
+          "congestion": 1.3674259485903077,
+          "internal_references_counted": 0,
+          "objects": 29,
+          "original_reference_records_loaded": 68,
+          "projection_ms": 1.1327909999999999,
+          "relationship_page": 0,
+          "route_length": 1938,
+          "routes": 24,
+          "solve_ms": 107.001083,
+          "volume": 2073600.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 68
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 201,
+      "focus": "package:66b8104c3f469af3",
+      "label": "bevy_text",
+      "pages": [
+        {
+          "bends": 108,
+          "child_page": 0,
+          "congestion": 2.096919712066108,
+          "internal_references_counted": 0,
+          "objects": 30,
+          "original_reference_records_loaded": 201,
+          "projection_ms": 1.9437499999999999,
+          "relationship_page": 0,
+          "route_length": 4322,
+          "routes": 71,
+          "solve_ms": 76.09616700000001,
+          "volume": 1555200.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 201
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 4,
+      "focus": "package:68545a9c7a8e1ee6",
+      "label": "auto_register_static",
+      "pages": [
+        {
+          "bends": 1,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 4,
+          "projection_ms": 0.961375,
+          "relationship_page": 0,
+          "route_length": 58,
+          "routes": 3,
+          "solve_ms": 1.028334,
+          "volume": 165888.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 3,
+      "focus": "package:6a0169e9bdf1e29e",
+      "label": "simple-ecs-test",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 3,
+          "original_reference_records_loaded": 3,
+          "projection_ms": 0.8497910000000001,
+          "relationship_page": 0,
+          "route_length": 18,
+          "routes": 2,
+          "solve_ms": 0.19283399999999998,
+          "volume": 55296.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 3
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 145,
+      "focus": "package:6a32174e025032d9",
+      "label": "bevy_internal",
+      "pages": [
+        {
+          "bends": 151,
+          "child_page": 0,
+          "congestion": 2.0847734875577233,
+          "internal_references_counted": 0,
+          "objects": 57,
+          "original_reference_records_loaded": 145,
+          "projection_ms": 1.318084,
+          "relationship_page": 0,
+          "route_length": 7308,
+          "routes": 108,
+          "solve_ms": 104.999291,
+          "volume": 3981312.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 145
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 146,
+      "focus": "package:72a593dd82e38ee6",
+      "label": "bevy_animation",
+      "pages": [
+        {
+          "bends": 81,
+          "child_page": 0,
+          "congestion": 0.5981736177414356,
+          "internal_references_counted": 0,
+          "objects": 26,
+          "original_reference_records_loaded": 146,
+          "projection_ms": 1.6042910000000001,
+          "relationship_page": 0,
+          "route_length": 2882,
+          "routes": 65,
+          "solve_ms": 63.844750000000005,
+          "volume": 1337472.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 146
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 517,
+      "focus": "package:7662704832b9273e",
+      "label": "bevy_post_process",
+      "pages": [
+        {
+          "bends": 355,
+          "child_page": 0,
+          "congestion": 19.92508616059609,
+          "internal_references_counted": 0,
+          "objects": 35,
+          "original_reference_records_loaded": 517,
+          "projection_ms": 2.55425,
+          "relationship_page": 0,
+          "route_length": 11718,
+          "routes": 142,
+          "solve_ms": 160.437375,
+          "volume": 1679616.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 517
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 229,
+      "focus": "package:7b44a9bfe20a622d",
+      "label": "bevy_gltf",
+      "pages": [
+        {
+          "bends": 238,
+          "child_page": 0,
+          "congestion": 6.584348379999791,
+          "internal_references_counted": 0,
+          "objects": 35,
+          "original_reference_records_loaded": 229,
+          "projection_ms": 1.78125,
+          "relationship_page": 0,
+          "route_length": 7368,
+          "routes": 112,
+          "solve_ms": 107.917834,
+          "volume": 1990656.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 229
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 2,
+      "distinct_original_references_routed": 1138,
+      "focus": "package:7d404c8d29ebeb58",
+      "label": "bevy_asset",
+      "pages": [
+        {
+          "bends": 118,
+          "child_page": 0,
+          "congestion": 1.8932688376301017,
+          "internal_references_counted": 2,
+          "objects": 65,
+          "original_reference_records_loaded": 347,
+          "projection_ms": 6.119292,
+          "relationship_page": 0,
+          "route_length": 6236,
+          "routes": 114,
+          "solve_ms": 229.660417,
+          "volume": 4147200.0
+        },
+        {
+          "bends": 152,
+          "child_page": 0,
+          "congestion": 2.39973546538173,
+          "internal_references_counted": 1,
+          "objects": 65,
+          "original_reference_records_loaded": 323,
+          "projection_ms": 4.699916999999999,
+          "relationship_page": 1,
+          "route_length": 5528,
+          "routes": 115,
+          "solve_ms": 228.044458,
+          "volume": 2446848.0
+        },
+        {
+          "bends": 79,
+          "child_page": 0,
+          "congestion": 0.8318715723381589,
+          "internal_references_counted": 2,
+          "objects": 65,
+          "original_reference_records_loaded": 157,
+          "projection_ms": 2.841875,
+          "relationship_page": 2,
+          "route_length": 3192,
+          "routes": 85,
+          "solve_ms": 130.089333,
+          "volume": 2799360.0
+        },
+        {
+          "bends": 101,
+          "child_page": 0,
+          "congestion": 1.7370217112206703,
+          "internal_references_counted": 2,
+          "objects": 65,
+          "original_reference_records_loaded": 207,
+          "projection_ms": 2.155625,
+          "relationship_page": 3,
+          "route_length": 3644,
+          "routes": 90,
+          "solve_ms": 150.281042,
+          "volume": 2446848.0
+        },
+        {
+          "bends": 49,
+          "child_page": 0,
+          "congestion": 0.43309093367779694,
+          "internal_references_counted": 1,
+          "objects": 58,
+          "original_reference_records_loaded": 96,
+          "projection_ms": 0.717042,
+          "relationship_page": 4,
+          "route_length": 1946,
+          "routes": 59,
+          "solve_ms": 131.711042,
+          "volume": 3317760.0
+        },
+        {
+          "bends": 123,
+          "child_page": 1,
+          "congestion": 3.9590089851589836,
+          "internal_references_counted": 180,
+          "objects": 46,
+          "original_reference_records_loaded": 958,
+          "projection_ms": 4.325791,
+          "relationship_page": 0,
+          "route_length": 4674,
+          "routes": 90,
+          "solve_ms": 89.963375,
+          "volume": 2211840.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1138
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 417,
+      "focus": "package:84a9bdd9770c7825",
+      "label": "bevy_mesh",
+      "pages": [
+        {
+          "bends": 322,
+          "child_page": 0,
+          "congestion": 16.3663503661714,
+          "internal_references_counted": 0,
+          "objects": 49,
+          "original_reference_records_loaded": 417,
+          "projection_ms": 2.50825,
+          "relationship_page": 0,
+          "route_length": 12121,
+          "routes": 140,
+          "solve_ms": 189.760334,
+          "volume": 2039040.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 417
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 231,
+      "focus": "package:85a8ad48233b00c2",
+      "label": "bevy_ui_widgets",
+      "pages": [
+        {
+          "bends": 162,
+          "child_page": 0,
+          "congestion": 5.171608958749286,
+          "internal_references_counted": 0,
+          "objects": 23,
+          "original_reference_records_loaded": 231,
+          "projection_ms": 2.2112920000000003,
+          "relationship_page": 0,
+          "route_length": 5120,
+          "routes": 76,
+          "solve_ms": 86.014666,
+          "volume": 967680.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 231
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 192,
+      "focus": "package:8971fabebbad86a6",
+      "label": "bevy_window",
+      "pages": [
+        {
+          "bends": 74,
+          "child_page": 0,
+          "congestion": 0.9594958222047701,
+          "internal_references_counted": 0,
+          "objects": 31,
+          "original_reference_records_loaded": 192,
+          "projection_ms": 1.875542,
+          "relationship_page": 0,
+          "route_length": 2958,
+          "routes": 62,
+          "solve_ms": 47.363667,
+          "volume": 1814400.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 192
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 4,
+      "focus": "package:8b6105820f01960e",
+      "label": "bevy_dylib",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 4,
+          "original_reference_records_loaded": 4,
+          "projection_ms": 0.940209,
+          "relationship_page": 0,
+          "route_length": 36,
+          "routes": 4,
+          "solve_ms": 0.5765,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "package:8cb74ccc54d195d8",
+      "label": "build-wasm-example",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 2,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.835125,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.044583000000000005,
+          "volume": 27648.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 519,
+      "focus": "package:8eb93c48173a5a8e",
+      "label": "bevy_feathers",
+      "pages": [
+        {
+          "bends": 502,
+          "child_page": 0,
+          "congestion": 31.687994580905045,
+          "internal_references_counted": 0,
+          "objects": 43,
+          "original_reference_records_loaded": 519,
+          "projection_ms": 2.538083,
+          "relationship_page": 0,
+          "route_length": 15646,
+          "routes": 192,
+          "solve_ms": 254.26175,
+          "volume": 1679616.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 519
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 3539,
+      "focus": "package:97aad9c4e740c9ca",
+      "label": "bevy_render",
+      "pages": [
+        {
+          "bends": 1165,
+          "child_page": 0,
+          "congestion": 129.14179130515538,
+          "internal_references_counted": 44,
+          "objects": 61,
+          "original_reference_records_loaded": 3583,
+          "projection_ms": 13.986125,
+          "relationship_page": 0,
+          "route_length": 45582,
+          "routes": 425,
+          "solve_ms": 657.518542,
+          "volume": 4055040.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 3583
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 165,
+      "focus": "package:9b9f92ff675dd8b0",
+      "label": "benches",
+      "pages": [
+        {
+          "bends": 74,
+          "child_page": 0,
+          "congestion": 1.3121204280472378,
+          "internal_references_counted": 0,
+          "objects": 40,
+          "original_reference_records_loaded": 165,
+          "projection_ms": 2.67325,
+          "relationship_page": 0,
+          "route_length": 4084,
+          "routes": 56,
+          "solve_ms": 129.02604200000002,
+          "volume": 5080320.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 165
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 82,
+      "focus": "package:a30296d8a9648822",
+      "label": "bevy_macro_utils",
+      "pages": [
+        {
+          "bends": 24,
+          "child_page": 0,
+          "congestion": 1.0905969137650733,
+          "internal_references_counted": 0,
+          "objects": 20,
+          "original_reference_records_loaded": 82,
+          "projection_ms": 1.478,
+          "relationship_page": 0,
+          "route_length": 788,
+          "routes": 21,
+          "solve_ms": 13.707417,
+          "volume": 995328.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 82
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 68,
+      "focus": "package:a383cc934033f420",
+      "label": "ci",
+      "pages": [
+        {
+          "bends": 83,
+          "child_page": 0,
+          "congestion": 2.377318747760038,
+          "internal_references_counted": 0,
+          "objects": 22,
+          "original_reference_records_loaded": 68,
+          "projection_ms": 1.2301250000000001,
+          "relationship_page": 0,
+          "route_length": 2596,
+          "routes": 44,
+          "solve_ms": 43.269209000000004,
+          "volume": 1119744.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 68
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 142,
+      "focus": "package:a5a9bc0294eac815",
+      "label": "bevy_dev_tools",
+      "pages": [
+        {
+          "bends": 109,
+          "child_page": 0,
+          "congestion": 1.4617346402670384,
+          "internal_references_counted": 0,
+          "objects": 31,
+          "original_reference_records_loaded": 142,
+          "projection_ms": 1.4098330000000001,
+          "relationship_page": 0,
+          "route_length": 4510,
+          "routes": 78,
+          "solve_ms": 70.328042,
+          "volume": 1693440.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 142
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 55,
+      "focus": "package:ac268d084f80b622",
+      "label": "bevy_audio",
+      "pages": [
+        {
+          "bends": 68,
+          "child_page": 0,
+          "congestion": 2.468712516670183,
+          "internal_references_counted": 0,
+          "objects": 15,
+          "original_reference_records_loaded": 55,
+          "projection_ms": 1.069625,
+          "relationship_page": 0,
+          "route_length": 1808,
+          "routes": 35,
+          "solve_ms": 26.5795,
+          "volume": 497664.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 55
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 13,
+      "focus": "package:bae91d32edf74bbb",
+      "label": "bevy_state_macros",
+      "pages": [
+        {
+          "bends": 2,
+          "child_page": 0,
+          "congestion": 0.27028605544181245,
+          "internal_references_counted": 0,
+          "objects": 5,
+          "original_reference_records_loaded": 13,
+          "projection_ms": 0.829875,
+          "relationship_page": 0,
+          "route_length": 72,
+          "routes": 5,
+          "solve_ms": 1.288375,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 13
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 2,
+      "distinct_original_references_routed": 194,
+      "focus": "package:bc508cd6288eaa6d",
+      "label": "bevy_reflect_derive",
+      "pages": [
+        {
+          "bends": 185,
+          "child_page": 0,
+          "congestion": 3.498313015240693,
+          "internal_references_counted": 0,
+          "objects": 35,
+          "original_reference_records_loaded": 194,
+          "projection_ms": 1.614708,
+          "relationship_page": 0,
+          "route_length": 6728,
+          "routes": 83,
+          "solve_ms": 129.44916700000002,
+          "volume": 1679616.0
+        },
+        {
+          "bends": 0,
+          "child_page": 1,
+          "congestion": 0.0,
+          "internal_references_counted": 89,
+          "objects": 4,
+          "original_reference_records_loaded": 105,
+          "projection_ms": 1.5386250000000001,
+          "relationship_page": 0,
+          "route_length": 36,
+          "routes": 5,
+          "solve_ms": 0.9969169999999999,
+          "volume": 110592.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 194
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 387,
+      "focus": "package:bcb66de37a9d8843",
+      "label": "bevy_anti_alias",
+      "pages": [
+        {
+          "bends": 192,
+          "child_page": 0,
+          "congestion": 6.197971984918725,
+          "internal_references_counted": 0,
+          "objects": 27,
+          "original_reference_records_loaded": 387,
+          "projection_ms": 2.20875,
+          "relationship_page": 0,
+          "route_length": 6294,
+          "routes": 88,
+          "solve_ms": 105.138667,
+          "volume": 884736.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 387
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 135,
+      "focus": "package:c0538729b97d404d",
+      "label": "bevy_shader",
+      "pages": [
+        {
+          "bends": 19,
+          "child_page": 0,
+          "congestion": 0.2647058823529412,
+          "internal_references_counted": 0,
+          "objects": 19,
+          "original_reference_records_loaded": 135,
+          "projection_ms": 1.459667,
+          "relationship_page": 0,
+          "route_length": 1047,
+          "routes": 34,
+          "solve_ms": 17.919458,
+          "volume": 884736.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 135
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 47,
+      "focus": "package:c395f049a51ff89f",
+      "label": "bevy_ecs_macros",
+      "pages": [
+        {
+          "bends": 5,
+          "child_page": 0,
+          "congestion": 0.4989607264930168,
+          "internal_references_counted": 0,
+          "objects": 10,
+          "original_reference_records_loaded": 47,
+          "projection_ms": 1.048834,
+          "relationship_page": 0,
+          "route_length": 335,
+          "routes": 13,
+          "solve_ms": 7.177458000000001,
+          "volume": 497664.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 47
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 208,
+      "focus": "package:c41d182e1bbe56e8",
+      "label": "bevy_transform",
+      "pages": [
+        {
+          "bends": 166,
+          "child_page": 0,
+          "congestion": 3.450229608575917,
+          "internal_references_counted": 0,
+          "objects": 39,
+          "original_reference_records_loaded": 208,
+          "projection_ms": 1.521,
+          "relationship_page": 0,
+          "route_length": 5312,
+          "routes": 93,
+          "solve_ms": 85.02066699999999,
+          "volume": 1959552.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 208
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 112,
+      "focus": "package:c6df78d5034b53f7",
+      "label": "bevy_diagnostic",
+      "pages": [
+        {
+          "bends": 63,
+          "child_page": 0,
+          "congestion": 1.3599090815327608,
+          "internal_references_counted": 0,
+          "objects": 21,
+          "original_reference_records_loaded": 112,
+          "projection_ms": 1.25625,
+          "relationship_page": 0,
+          "route_length": 2166,
+          "routes": 45,
+          "solve_ms": 39.758292,
+          "volume": 967680.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 112
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "package:cc2869e87d819a43",
+      "label": "bevy_mobile_example",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 1,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 0.74275,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.01575,
+          "volume": 5760.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 69,
+      "focus": "package:d07fcac16742af22",
+      "label": "bevy_ptr",
+      "pages": [
+        {
+          "bends": 1,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 5,
+          "original_reference_records_loaded": 69,
+          "projection_ms": 0.95825,
+          "relationship_page": 0,
+          "route_length": 72,
+          "routes": 6,
+          "solve_ms": 2.3748329999999997,
+          "volume": 221184.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 69
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 202,
+      "focus": "package:d081288c660872e1",
+      "label": "bevy_sprite",
+      "pages": [
+        {
+          "bends": 127,
+          "child_page": 0,
+          "congestion": 3.904871726445461,
+          "internal_references_counted": 0,
+          "objects": 26,
+          "original_reference_records_loaded": 202,
+          "projection_ms": 1.436083,
+          "relationship_page": 0,
+          "route_length": 4432,
+          "routes": 73,
+          "solve_ms": 59.947667,
+          "volume": 1658880.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 202
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 2,
+      "distinct_original_references_routed": 4417,
+      "focus": "package:d1c2531f3a0a9b57",
+      "label": "bevy_ecs",
+      "pages": [
+        {
+          "bends": 187,
+          "child_page": 0,
+          "congestion": 2.6884980701858785,
+          "internal_references_counted": 1,
+          "objects": 65,
+          "original_reference_records_loaded": 141,
+          "projection_ms": 17.795917000000003,
+          "relationship_page": 0,
+          "route_length": 7424,
+          "routes": 115,
+          "solve_ms": 267.097792,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 262,
+          "child_page": 0,
+          "congestion": 5.152259258730486,
+          "internal_references_counted": 4,
+          "objects": 65,
+          "original_reference_records_loaded": 178,
+          "projection_ms": 17.446165999999998,
+          "relationship_page": 1,
+          "route_length": 10102,
+          "routes": 132,
+          "solve_ms": 296.242542,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 134,
+          "child_page": 0,
+          "congestion": 1.9019565771620792,
+          "internal_references_counted": 4,
+          "objects": 65,
+          "original_reference_records_loaded": 117,
+          "projection_ms": 16.997583,
+          "relationship_page": 2,
+          "route_length": 6894,
+          "routes": 96,
+          "solve_ms": 352.28691699999996,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 202,
+          "child_page": 0,
+          "congestion": 3.1112065769979766,
+          "internal_references_counted": 7,
+          "objects": 65,
+          "original_reference_records_loaded": 142,
+          "projection_ms": 16.898083,
+          "relationship_page": 3,
+          "route_length": 8450,
+          "routes": 116,
+          "solve_ms": 291.848416,
+          "volume": 4105728.0
+        },
+        {
+          "bends": 236,
+          "child_page": 0,
+          "congestion": 3.4111866361971197,
+          "internal_references_counted": 12,
+          "objects": 65,
+          "original_reference_records_loaded": 185,
+          "projection_ms": 16.834667,
+          "relationship_page": 4,
+          "route_length": 9504,
+          "routes": 132,
+          "solve_ms": 297.08325,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 291,
+          "child_page": 0,
+          "congestion": 6.223190612329386,
+          "internal_references_counted": 5,
+          "objects": 65,
+          "original_reference_records_loaded": 168,
+          "projection_ms": 16.243334,
+          "relationship_page": 5,
+          "route_length": 10596,
+          "routes": 135,
+          "solve_ms": 309.253416,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 200,
+          "child_page": 0,
+          "congestion": 3.3918723229674415,
+          "internal_references_counted": 5,
+          "objects": 65,
+          "original_reference_records_loaded": 126,
+          "projection_ms": 15.4885,
+          "relationship_page": 6,
+          "route_length": 8132,
+          "routes": 103,
+          "solve_ms": 277.082625,
+          "volume": 2903040.0
+        },
+        {
+          "bends": 165,
+          "child_page": 0,
+          "congestion": 2.5795111057283924,
+          "internal_references_counted": 7,
+          "objects": 65,
+          "original_reference_records_loaded": 142,
+          "projection_ms": 14.770959,
+          "relationship_page": 7,
+          "route_length": 7304,
+          "routes": 111,
+          "solve_ms": 278.738083,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 191,
+          "child_page": 0,
+          "congestion": 3.550354925012864,
+          "internal_references_counted": 8,
+          "objects": 65,
+          "original_reference_records_loaded": 134,
+          "projection_ms": 14.463375000000001,
+          "relationship_page": 8,
+          "route_length": 7634,
+          "routes": 107,
+          "solve_ms": 274.81262499999997,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 201,
+          "child_page": 0,
+          "congestion": 3.1881558029087844,
+          "internal_references_counted": 6,
+          "objects": 65,
+          "original_reference_records_loaded": 145,
+          "projection_ms": 13.846625,
+          "relationship_page": 9,
+          "route_length": 9410,
+          "routes": 123,
+          "solve_ms": 263.276875,
+          "volume": 4435200.0
+        },
+        {
+          "bends": 268,
+          "child_page": 0,
+          "congestion": 4.530619328777554,
+          "internal_references_counted": 6,
+          "objects": 65,
+          "original_reference_records_loaded": 171,
+          "projection_ms": 13.669208000000001,
+          "relationship_page": 10,
+          "route_length": 10496,
+          "routes": 138,
+          "solve_ms": 331.447167,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 235,
+          "child_page": 0,
+          "congestion": 2.8000884081617166,
+          "internal_references_counted": 5,
+          "objects": 65,
+          "original_reference_records_loaded": 199,
+          "projection_ms": 13.014415999999999,
+          "relationship_page": 11,
+          "route_length": 12027,
+          "routes": 143,
+          "solve_ms": 303.712708,
+          "volume": 6145920.0
+        },
+        {
+          "bends": 214,
+          "child_page": 0,
+          "congestion": 3.4183107310339462,
+          "internal_references_counted": 7,
+          "objects": 65,
+          "original_reference_records_loaded": 144,
+          "projection_ms": 12.062291,
+          "relationship_page": 12,
+          "route_length": 8476,
+          "routes": 114,
+          "solve_ms": 337.681125,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 255,
+          "child_page": 0,
+          "congestion": 4.323990303730039,
+          "internal_references_counted": 10,
+          "objects": 65,
+          "original_reference_records_loaded": 190,
+          "projection_ms": 12.372584000000002,
+          "relationship_page": 13,
+          "route_length": 10430,
+          "routes": 147,
+          "solve_ms": 342.337083,
+          "volume": 4105728.0
+        },
+        {
+          "bends": 261,
+          "child_page": 0,
+          "congestion": 4.490660736645049,
+          "internal_references_counted": 12,
+          "objects": 65,
+          "original_reference_records_loaded": 188,
+          "projection_ms": 11.714041,
+          "relationship_page": 14,
+          "route_length": 9914,
+          "routes": 140,
+          "solve_ms": 308.981125,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 211,
+          "child_page": 0,
+          "congestion": 2.573384442067952,
+          "internal_references_counted": 7,
+          "objects": 65,
+          "original_reference_records_loaded": 157,
+          "projection_ms": 10.571125,
+          "relationship_page": 15,
+          "route_length": 8550,
+          "routes": 123,
+          "solve_ms": 336.507292,
+          "volume": 2903040.0
+        },
+        {
+          "bends": 216,
+          "child_page": 0,
+          "congestion": 3.2992869646213814,
+          "internal_references_counted": 5,
+          "objects": 65,
+          "original_reference_records_loaded": 160,
+          "projection_ms": 9.75025,
+          "relationship_page": 16,
+          "route_length": 9156,
+          "routes": 124,
+          "solve_ms": 414.535291,
+          "volume": 4435200.0
+        },
+        {
+          "bends": 155,
+          "child_page": 0,
+          "congestion": 2.886758939751096,
+          "internal_references_counted": 5,
+          "objects": 65,
+          "original_reference_records_loaded": 125,
+          "projection_ms": 9.281584,
+          "relationship_page": 17,
+          "route_length": 6980,
+          "routes": 100,
+          "solve_ms": 313.27133299999997,
+          "volume": 2820096.0
+        },
+        {
+          "bends": 198,
+          "child_page": 0,
+          "congestion": 3.101265459998931,
+          "internal_references_counted": 19,
+          "objects": 65,
+          "original_reference_records_loaded": 159,
+          "projection_ms": 8.554,
+          "relationship_page": 18,
+          "route_length": 8404,
+          "routes": 121,
+          "solve_ms": 327.41575,
+          "volume": 4105728.0
+        },
+        {
+          "bends": 194,
+          "child_page": 0,
+          "congestion": 3.272063966581832,
+          "internal_references_counted": 2,
+          "objects": 65,
+          "original_reference_records_loaded": 162,
+          "projection_ms": 8.900708,
+          "relationship_page": 19,
+          "route_length": 8150,
+          "routes": 122,
+          "solve_ms": 649.864042,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 289,
+          "child_page": 0,
+          "congestion": 4.763328862862915,
+          "internal_references_counted": 7,
+          "objects": 65,
+          "original_reference_records_loaded": 197,
+          "projection_ms": 15.055499999999999,
+          "relationship_page": 20,
+          "route_length": 11812,
+          "routes": 150,
+          "solve_ms": 638.228459,
+          "volume": 3738240.0
+        },
+        {
+          "bends": 161,
+          "child_page": 0,
+          "congestion": 2.799650213889829,
+          "internal_references_counted": 5,
+          "objects": 65,
+          "original_reference_records_loaded": 121,
+          "projection_ms": 13.917292,
+          "relationship_page": 21,
+          "route_length": 7186,
+          "routes": 102,
+          "solve_ms": 603.051,
+          "volume": 2903040.0
+        },
+        {
+          "bends": 305,
+          "child_page": 0,
+          "congestion": 5.120663473303548,
+          "internal_references_counted": 10,
+          "objects": 65,
+          "original_reference_records_loaded": 220,
+          "projection_ms": 12.826250000000002,
+          "relationship_page": 22,
+          "route_length": 11964,
+          "routes": 160,
+          "solve_ms": 694.017375,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 149,
+          "child_page": 0,
+          "congestion": 1.4040354968753528,
+          "internal_references_counted": 9,
+          "objects": 65,
+          "original_reference_records_loaded": 131,
+          "projection_ms": 10.536709,
+          "relationship_page": 23,
+          "route_length": 6560,
+          "routes": 102,
+          "solve_ms": 653.214208,
+          "volume": 3548160.0
+        },
+        {
+          "bends": 177,
+          "child_page": 0,
+          "congestion": 2.5420424647100113,
+          "internal_references_counted": 6,
+          "objects": 65,
+          "original_reference_records_loaded": 124,
+          "projection_ms": 10.115334,
+          "relationship_page": 24,
+          "route_length": 7354,
+          "routes": 100,
+          "solve_ms": 594.126584,
+          "volume": 2903040.0
+        },
+        {
+          "bends": 325,
+          "child_page": 0,
+          "congestion": 5.535309024930655,
+          "internal_references_counted": 13,
+          "objects": 65,
+          "original_reference_records_loaded": 206,
+          "projection_ms": 9.040958,
+          "relationship_page": 25,
+          "route_length": 11604,
+          "routes": 159,
+          "solve_ms": 658.796458,
+          "volume": 2695680.0
+        },
+        {
+          "bends": 255,
+          "child_page": 0,
+          "congestion": 4.298204713960919,
+          "internal_references_counted": 5,
+          "objects": 65,
+          "original_reference_records_loaded": 190,
+          "projection_ms": 7.309042,
+          "relationship_page": 26,
+          "route_length": 11446,
+          "routes": 139,
+          "solve_ms": 680.052208,
+          "volume": 4752000.0
+        },
+        {
+          "bends": 235,
+          "child_page": 0,
+          "congestion": 4.0423918746171745,
+          "internal_references_counted": 3,
+          "objects": 62,
+          "original_reference_records_loaded": 160,
+          "projection_ms": 2.9667920000000003,
+          "relationship_page": 27,
+          "route_length": 9066,
+          "routes": 129,
+          "solve_ms": 596.417792,
+          "volume": 2903040.0
+        },
+        {
+          "bends": 295,
+          "child_page": 1,
+          "congestion": 9.929006244367143,
+          "internal_references_counted": 1353,
+          "objects": 63,
+          "original_reference_records_loaded": 3200,
+          "projection_ms": 23.215083,
+          "relationship_page": 0,
+          "route_length": 13262,
+          "routes": 196,
+          "solve_ms": 609.211792,
+          "volume": 4147200.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 4549
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "package:dc463b6121fd1147",
+      "label": "gen_tests",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 0,
+          "objects": 2,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 1.965834,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.10900000000000001,
+          "volume": 27648.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 0
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 2,
+      "distinct_original_references_routed": 1260,
+      "focus": "package:dd6c3ab337554888",
+      "label": "bevy_math",
+      "pages": [
+        {
+          "bends": 162,
+          "child_page": 0,
+          "congestion": 3.6988014044611077,
+          "internal_references_counted": 2,
+          "objects": 65,
+          "original_reference_records_loaded": 223,
+          "projection_ms": 11.923124999999999,
+          "relationship_page": 0,
+          "route_length": 5868,
+          "routes": 80,
+          "solve_ms": 1069.470959,
+          "volume": 2446848.0
+        },
+        {
+          "bends": 173,
+          "child_page": 0,
+          "congestion": 4.695391734173113,
+          "internal_references_counted": 2,
+          "objects": 65,
+          "original_reference_records_loaded": 241,
+          "projection_ms": 10.239041,
+          "relationship_page": 1,
+          "route_length": 6540,
+          "routes": 92,
+          "solve_ms": 974.63675,
+          "volume": 2903040.0
+        },
+        {
+          "bends": 224,
+          "child_page": 0,
+          "congestion": 5.541168764176646,
+          "internal_references_counted": 11,
+          "objects": 65,
+          "original_reference_records_loaded": 350,
+          "projection_ms": 12.869958,
+          "relationship_page": 2,
+          "route_length": 8268,
+          "routes": 112,
+          "solve_ms": 946.0225829999999,
+          "volume": 3058560.0
+        },
+        {
+          "bends": 223,
+          "child_page": 0,
+          "congestion": 6.47561270671917,
+          "internal_references_counted": 16,
+          "objects": 65,
+          "original_reference_records_loaded": 380,
+          "projection_ms": 6.780417000000001,
+          "relationship_page": 3,
+          "route_length": 8374,
+          "routes": 116,
+          "solve_ms": 1317.6930419999999,
+          "volume": 3738240.0
+        },
+        {
+          "bends": 27,
+          "child_page": 0,
+          "congestion": 0.759635777204777,
+          "internal_references_counted": 0,
+          "objects": 46,
+          "original_reference_records_loaded": 35,
+          "projection_ms": 0.866458,
+          "relationship_page": 4,
+          "route_length": 994,
+          "routes": 21,
+          "solve_ms": 248.549125,
+          "volume": 2239488.0
+        },
+        {
+          "bends": 57,
+          "child_page": 1,
+          "congestion": 0.514582343218297,
+          "internal_references_counted": 259,
+          "objects": 48,
+          "original_reference_records_loaded": 1001,
+          "projection_ms": 8.105584,
+          "relationship_page": 0,
+          "route_length": 2118,
+          "routes": 75,
+          "solve_ms": 116.81316699999999,
+          "volume": 2985984.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1260
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 300,
+      "focus": "package:dda77190ae116592",
+      "label": "bevy_solari",
+      "pages": [
+        {
+          "bends": 262,
+          "child_page": 0,
+          "congestion": 8.320975715248444,
+          "internal_references_counted": 0,
+          "objects": 35,
+          "original_reference_records_loaded": 300,
+          "projection_ms": 3.835042,
+          "relationship_page": 0,
+          "route_length": 9478,
+          "routes": 119,
+          "solve_ms": 218.54708300000001,
+          "volume": 2488320.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 300
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 198,
+      "focus": "package:e115e5e95bce6ac0",
+      "label": "bevy_gizmos_render",
+      "pages": [
+        {
+          "bends": 92,
+          "child_page": 0,
+          "congestion": 2.8417962101155236,
+          "internal_references_counted": 0,
+          "objects": 21,
+          "original_reference_records_loaded": 198,
+          "projection_ms": 2.993333,
+          "relationship_page": 0,
+          "route_length": 3062,
+          "routes": 58,
+          "solve_ms": 75.445792,
+          "volume": 995328.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 198
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 84,
+      "focus": "package:e1dd95c556d81931",
+      "label": "bevy_time",
+      "pages": [
+        {
+          "bends": 50,
+          "child_page": 0,
+          "congestion": 0.7188725043029804,
+          "internal_references_counted": 0,
+          "objects": 22,
+          "original_reference_records_loaded": 84,
+          "projection_ms": 2.3843750000000004,
+          "relationship_page": 0,
+          "route_length": 1957,
+          "routes": 43,
+          "solve_ms": 55.495250000000006,
+          "volume": 1631232.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 84
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 1067,
+      "focus": "package:e33fd4c53e2caeae",
+      "label": "bevy_core_pipeline",
+      "pages": [
+        {
+          "bends": 643,
+          "child_page": 0,
+          "congestion": 39.23882821078238,
+          "internal_references_counted": 0,
+          "objects": 53,
+          "original_reference_records_loaded": 1067,
+          "projection_ms": 8.492334000000001,
+          "relationship_page": 0,
+          "route_length": 24193,
+          "routes": 243,
+          "solve_ms": 976.897833,
+          "volume": 2985984.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 1067
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 51,
+      "focus": "package:e77de9964a8f9ad8",
+      "label": "bevy_camera_controller",
+      "pages": [
+        {
+          "bends": 35,
+          "child_page": 0,
+          "congestion": 0.8134708978581978,
+          "internal_references_counted": 0,
+          "objects": 15,
+          "original_reference_records_loaded": 51,
+          "projection_ms": 2.277458,
+          "relationship_page": 0,
+          "route_length": 1134,
+          "routes": 28,
+          "solve_ms": 32.254375,
+          "volume": 442368.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 51
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 41,
+      "focus": "package:ef27c937bb0d8f1a",
+      "label": "bevy_ecs_compile_fail",
+      "pages": [
+        {
+          "bends": 58,
+          "child_page": 0,
+          "congestion": 1.4617199311414915,
+          "internal_references_counted": 0,
+          "objects": 32,
+          "original_reference_records_loaded": 41,
+          "projection_ms": 2.372125,
+          "relationship_page": 0,
+          "route_length": 2516,
+          "routes": 29,
+          "solve_ms": 351.315208,
+          "volume": 1534464.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 41
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 212,
+      "focus": "package:f3f70bea6296ffac",
+      "label": "bevy_scene",
+      "pages": [
+        {
+          "bends": 89,
+          "child_page": 0,
+          "congestion": 1.7112615842941092,
+          "internal_references_counted": 0,
+          "objects": 22,
+          "original_reference_records_loaded": 212,
+          "projection_ms": 3.3310000000000004,
+          "relationship_page": 0,
+          "route_length": 3160,
+          "routes": 60,
+          "solve_ms": 106.86570900000001,
+          "volume": 891648.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 212
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 488,
+      "focus": "package:f6f39f82c00eb273",
+      "label": "bevy_camera",
+      "pages": [
+        {
+          "bends": 216,
+          "child_page": 0,
+          "congestion": 4.497374616285623,
+          "internal_references_counted": 0,
+          "objects": 44,
+          "original_reference_records_loaded": 488,
+          "projection_ms": 5.1104590000000005,
+          "relationship_page": 0,
+          "route_length": 9126,
+          "routes": 130,
+          "solve_ms": 342.54075,
+          "volume": 2903040.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 488
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 665,
+      "focus": "package:f72209ba087fc2cc",
+      "label": "bevy_ui",
+      "pages": [
+        {
+          "bends": 502,
+          "child_page": 0,
+          "congestion": 43.59258201527035,
+          "internal_references_counted": 0,
+          "objects": 51,
+          "original_reference_records_loaded": 665,
+          "projection_ms": 6.952917,
+          "relationship_page": 0,
+          "route_length": 17698,
+          "routes": 192,
+          "solve_ms": 1030.010375,
+          "volume": 2239488.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 665
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 308,
+      "focus": "package:fa8a02bddc79d86f",
+      "label": "bevy_image",
+      "pages": [
+        {
+          "bends": 143,
+          "child_page": 0,
+          "congestion": 2.0574460237043555,
+          "internal_references_counted": 0,
+          "objects": 44,
+          "original_reference_records_loaded": 308,
+          "projection_ms": 8.920375,
+          "relationship_page": 0,
+          "route_length": 5976,
+          "routes": 98,
+          "solve_ms": 246.022584,
+          "volume": 3096576.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 308
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 9809,
+      "focus": "repository:05317a01f80959f2",
+      "label": "Bevy 0.18.1",
+      "pages": [
+        {
+          "bends": 583,
+          "child_page": 0,
+          "congestion": 37.53738565096885,
+          "internal_references_counted": 2750,
+          "objects": 28,
+          "original_reference_records_loaded": 4068,
+          "projection_ms": 54.531375,
+          "relationship_page": 0,
+          "route_length": 17212,
+          "routes": 227,
+          "solve_ms": 771.3165829999999,
+          "volume": 1223424.0
+        },
+        {
+          "bends": 594,
+          "child_page": 0,
+          "congestion": 29.08328699878568,
+          "internal_references_counted": 2837,
+          "objects": 28,
+          "original_reference_records_loaded": 4065,
+          "projection_ms": 33.28425,
+          "relationship_page": 1,
+          "route_length": 17914,
+          "routes": 235,
+          "solve_ms": 669.945625,
+          "volume": 1119744.0
+        },
+        {
+          "bends": 502,
+          "child_page": 0,
+          "congestion": 29.95710697117589,
+          "internal_references_counted": 1507,
+          "objects": 28,
+          "original_reference_records_loaded": 2231,
+          "projection_ms": 18.366291999999998,
+          "relationship_page": 2,
+          "route_length": 15352,
+          "routes": 203,
+          "solve_ms": 561.391792,
+          "volume": 1140480.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 16903
+    },
+    {
+      "all_reference_pages_accounted_for": true,
+      "child_pages": 1,
+      "distinct_original_references_routed": 0,
+      "focus": "scope:05317a01f80959f2",
+      "label": "Bevy 0.18.1 code view",
+      "pages": [
+        {
+          "bends": 0,
+          "child_page": 0,
+          "congestion": 0.0,
+          "internal_references_counted": 16903,
+          "objects": 2,
+          "original_reference_records_loaded": 0,
+          "projection_ms": 3.623875,
+          "relationship_page": 0,
+          "route_length": 0,
+          "routes": 0,
+          "solve_ms": 0.107,
+          "volume": 27648.0
+        }
+      ],
+      "status": "valid",
+      "supplied_references_relevant": 16903
+    }
+  ],
+  "revision": 1,
+  "scope": "All child and relationship pages of root/repository, each package and one file per package, plus explicit focus IDs. Independent raw ownership/reference oracle counts every supplied code reference per focus per child page. Internal IDs may remain a bounded sample; counts are exact. Not an exhaustive traversal of every declaration or expanded combination.",
+  "source_counts": {
+    "entities": 27117,
+    "evidence": 31319,
+    "relations": 44019
+  }
+}

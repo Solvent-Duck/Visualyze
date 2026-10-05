@@ -1,0 +1,624 @@
+{
+  "recorded_at_utc": "2026-09-30T19:19:51.737187+00:00",
+  "scope": "Four sequential headless composed-layout probes, including three views of a real production Rust source inventory. Does not establish native rendering, GPU latency or human comprehension.",
+  "conditions": {
+    "reference_machine": "Apple M5, 16 GiB, macOS 26.6.2",
+    "build": "Rust dev profile, offline locked dependencies",
+    "cold_start": "not controlled; source bundle had been accessed previously",
+    "live_previews": "existing CRUD and Bevy native processes left running",
+    "concurrent_builds": false,
+    "trials_per_view": 1
+  },
+  "build_command": "cargo build -p visualyze-layout --example composed_layout --offline --locked",
+  "run_commands": [
+    "./target/debug/examples/composed_layout public/examples/data-messaging.bundle.jsonl - crud datastore:orders table:orders",
+    "./target/debug/examples/composed_layout visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl repository:05317a01f80959f2 code package:d1c2531f3a0a9b57",
+    "./target/debug/examples/composed_layout visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl package:d1c2531f3a0a9b57 code file:b6ae9420da8c77aa",
+    "./target/debug/examples/composed_layout visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl file:b6ae9420da8c77aa code item:1a4125968da0ac7b"
+  ],
+  "production_provenance": {
+    "repository": "https://github.com/bevyengine/bevy",
+    "source_revision": "f667c282dad2c1419afb5836ded22a3ec263970e",
+    "bundle_sha256": "8f4d8a5f197f5381563e7c19aa81cc962f67984ff08ad621de1c189632d7286c"
+  },
+  "binary_sha256": "1f134ce33ae1c06e6dd4a1fc149d8136e8dfa1a44fd9911b1b703596d5d28c93",
+  "source_sha256": {
+    "Cargo.lock": "4d6af295f9b5d7a1fa95ff8f28557492d58d991cf866fbc3232bd730a4f33118",
+    "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+    "private/layout/src/assembly.rs": "d1b1afc039f62b2ef33b193aa3204a6dbbe426b072c984e205bfa05e60a4ac66",
+    "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+    "private/layout/src/solver.rs": "8daed60a5e7c0f377f698cfc98c7d04dff986663c3d2f693dbeff2cad7b4a50b",
+    "private/layout/src/routing.rs": "2ef8e1d8684c45ca494ced38383d0f722296746911ca7c7759fecf51353b6165",
+    "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+    "private/layout/src/composed.rs": "2a122320c3455889889164824fbaacd0c6ba34114e56cb01a0286b98c59538f1",
+    "private/layout/src/composed/solver.rs": "289347690b00d935dbcb26fbb822a3ebc05d0a296026384ec71226b4520b8086",
+    "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+    "private/layout/src/composed/validation.rs": "cbb34eafa82229bb59433b33910ca8abc053a912fc02a7b0059bdd2b16f688f0",
+    "private/layout/examples/composed_layout.rs": "6ea8ca20b64fca821efa7f85d9d4aea1679977a8d0f95df1062a04417e8868cd",
+    "private/layout/tests/composed.rs": "345b3a56a3148b84446feaec3eb3c66ffffb6eb6a9594aa4177f18481d4f73fb",
+    "private/layout/tests/composed_validation.rs": "e0563394a91203a543730a5b62fd8216ff5cd4d3a621f39de35c1855de9b7ebe",
+    "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9"
+  },
+  "validation": "Each run independently revalidates full composed routes, deduplicates presentation, and resolves displayed object and relationship memberships to supplied model records. Remaining projection queries are disclosed in each report.",
+  "results": [
+    {
+      "composition_version": 1,
+      "expanded": [
+        "datastore:orders",
+        "table:orders"
+      ],
+      "focus": "scope:orders",
+      "frames": [
+        "datastore:orders",
+        "scope:orders",
+        "table:orders"
+      ],
+      "model_id": "example:data-messaging",
+      "presented": {
+        "fragments": 10,
+        "objects": 12,
+        "relationships": 8
+      },
+      "probe": "headless canonical composition; no native rendering claim",
+      "projection": {
+        "complete": true,
+        "diagnostics": [
+          "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 1 relationships in this scanned slice are internal to collapsed regions (1 membership IDs resident; enter a region for records)."
+        ],
+        "objects": 12,
+        "relationships": 8,
+        "remaining_queries": 0,
+        "unrepresented_loaded_relationships": []
+      },
+      "quality": {
+        "bends": 5,
+        "canonical_frames": {
+          "datastore:orders": {
+            "aspect_ratio": 2.0,
+            "bends": 4,
+            "congestion": 0.0,
+            "crossing_points": 0,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 0.14285714285714285,
+            "route_length": 172,
+            "shared_lane_length": 0,
+            "structural_cost": 16.951038239395796,
+            "volume": 368640.0
+          },
+          "scope:orders": {
+            "aspect_ratio": 1.4736842105263157,
+            "bends": 1,
+            "congestion": 0.8122900929393124,
+            "crossing_points": 1,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 0.32142857142857145,
+            "route_length": 154,
+            "shared_lane_length": 24,
+            "structural_cost": 11.669146861915994,
+            "volume": 680960.0
+          },
+          "table:orders": {
+            "aspect_ratio": 2.0,
+            "bends": 0,
+            "congestion": 0.0,
+            "crossing_points": 0,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 0.0,
+            "route_length": 0,
+            "shared_lane_length": 0,
+            "structural_cost": 9.5,
+            "volume": 368640.0
+          }
+        },
+        "canonical_route_length": 326,
+        "maximum_scale_shift": 4,
+        "presented_route_length": 197.0,
+        "structural_cost": 38.12018510131179
+      },
+      "quality_version": 5,
+      "resident": {
+        "cached_detail_bytes": 4403,
+        "cached_detail_records": 1,
+        "estimated_index_bytes": 18674
+      },
+      "revision": 1,
+      "source_counts": {
+        "entities": 16,
+        "relationships": 23
+      },
+      "status": "valid",
+      "timing_ms": {
+        "composition": 12.680041,
+        "indexing": 0.91225,
+        "projection": 11.158958
+      },
+      "work": {
+        "allocations": {
+          "datastore:orders": 80,
+          "scope:orders": 120,
+          "table:orders": 64
+        },
+        "budget": 192,
+        "evaluations": {
+          "datastore:orders": 40,
+          "scope:orders": 61,
+          "table:orders": 32
+        },
+        "total_evaluations": 133
+      }
+    },
+    {
+      "composition_version": 1,
+      "expanded": [
+        "package:d1c2531f3a0a9b57"
+      ],
+      "focus": "repository:05317a01f80959f2",
+      "frames": [
+        "package:d1c2531f3a0a9b57",
+        "repository:05317a01f80959f2",
+        "view:suggested-group:b4d695a5a5dd423c"
+      ],
+      "model_id": "model:788c0940ff544915",
+      "presented": {
+        "fragments": 338,
+        "objects": 63,
+        "relationships": 180
+      },
+      "probe": "headless canonical composition; no native rendering claim",
+      "projection": {
+        "complete": false,
+        "diagnostics": [
+          "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 2175 relationships in this scanned slice are internal to collapsed regions (1477 membership IDs resident; enter a region for records).",
+          "package:d1c2531f3a0a9b57: More supplied children are available; this region is a bounded page.",
+          "view:suggested-group:b4d695a5a5dd423c: Opened this visual group to preserve an explicit member expansion; neighboring members keep their own detail level.",
+          "Partial region/page: 2 query continuations and 0 loaded relationships without displayed endpoints; refine or page before treating this as complete."
+        ],
+        "objects": 63,
+        "relationships": 180,
+        "remaining_queries": 2,
+        "unrepresented_loaded_relationships": []
+      },
+      "quality": {
+        "bends": 839,
+        "canonical_frames": {
+          "package:d1c2531f3a0a9b57": {
+            "aspect_ratio": 2.0,
+            "bends": 234,
+            "congestion": 6.3118349811301755,
+            "crossing_points": 176,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 1.0,
+            "route_length": 19110,
+            "shared_lane_length": 222,
+            "structural_cost": 425.882833253548,
+            "volume": 23592960.0
+          },
+          "repository:05317a01f80959f2": {
+            "aspect_ratio": 1.12,
+            "bends": 393,
+            "congestion": 8.674581523007397,
+            "crossing_points": 410,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 1.0,
+            "route_length": 11275,
+            "shared_lane_length": 344,
+            "structural_cost": 342.2795142444496,
+            "volume": 1120000.0
+          },
+          "view:suggested-group:b4d695a5a5dd423c": {
+            "aspect_ratio": 2.0,
+            "bends": 212,
+            "congestion": 26.117725650304664,
+            "crossing_points": 175,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 0.1746031746031746,
+            "route_length": 5984,
+            "shared_lane_length": 622,
+            "structural_cost": 328.5743853638067,
+            "volume": 368640.0
+          }
+        },
+        "canonical_route_length": 36369,
+        "maximum_scale_shift": 6,
+        "presented_route_length": 13069.59375,
+        "structural_cost": 1096.7367328618043
+      },
+      "quality_version": 5,
+      "resident": {
+        "cached_detail_bytes": 4621,
+        "cached_detail_records": 1,
+        "estimated_index_bytes": 39821877
+      },
+      "revision": 1,
+      "source_counts": {
+        "entities": 27117,
+        "relationships": 44019
+      },
+      "status": "valid",
+      "timing_ms": {
+        "composition": 492.604,
+        "indexing": 319.917541,
+        "projection": 39.917333
+      },
+      "work": {
+        "allocations": {
+          "package:d1c2531f3a0a9b57": 64,
+          "repository:05317a01f80959f2": 120,
+          "view:suggested-group:b4d695a5a5dd423c": 80
+        },
+        "budget": 192,
+        "evaluations": {
+          "package:d1c2531f3a0a9b57": 32,
+          "repository:05317a01f80959f2": 64,
+          "view:suggested-group:b4d695a5a5dd423c": 40
+        },
+        "total_evaluations": 136
+      }
+    },
+    {
+      "composition_version": 1,
+      "expanded": [
+        "file:b6ae9420da8c77aa"
+      ],
+      "focus": "package:d1c2531f3a0a9b57",
+      "frames": [
+        "file:b6ae9420da8c77aa",
+        "package:d1c2531f3a0a9b57",
+        "view:suggested-group:7ba5acffa5ec6253"
+      ],
+      "model_id": "model:788c0940ff544915",
+      "presented": {
+        "fragments": 32,
+        "objects": 100,
+        "relationships": 32
+      },
+      "probe": "headless canonical composition; no native rendering claim",
+      "projection": {
+        "complete": false,
+        "diagnostics": [
+          "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 0 relationships in this scanned slice are internal to collapsed regions (0 membership IDs resident; enter a region for records).",
+          "package:d1c2531f3a0a9b57: Reference-node budget reached; the next relationship page resumes the first deferred claim.",
+          "view:suggested-group:7ba5acffa5ec6253: Opened this visual group to preserve an explicit member expansion; neighboring members keep their own detail level.",
+          "Partial region/page: 2 query continuations and 0 loaded relationships without displayed endpoints; refine or page before treating this as complete.",
+          "Immediate-peer budget reserves 32 reference slots beside 32 supplied or grouped peers; deferred claims remain on relationship pages."
+        ],
+        "objects": 100,
+        "relationships": 32,
+        "remaining_queries": 2,
+        "unrepresented_loaded_relationships": []
+      },
+      "quality": {
+        "bends": 0,
+        "canonical_frames": {
+          "file:b6ae9420da8c77aa": {
+            "aspect_ratio": 2.0,
+            "bends": 0,
+            "congestion": 0.0,
+            "crossing_points": 0,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 1.0,
+            "route_length": 0,
+            "shared_lane_length": 0,
+            "structural_cost": 13.686603771064748,
+            "volume": 23592960.0
+          },
+          "package:d1c2531f3a0a9b57": {
+            "aspect_ratio": 2.44,
+            "bends": 0,
+            "congestion": 0.0,
+            "crossing_points": 0,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 1.0,
+            "route_length": 384,
+            "shared_lane_length": 0,
+            "structural_cost": 13.415168937929227,
+            "volume": 2732800.0
+          },
+          "view:suggested-group:7ba5acffa5ec6253": {
+            "aspect_ratio": 2.0,
+            "bends": 0,
+            "congestion": 0.0,
+            "crossing_points": 0,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 0.2619047619047619,
+            "route_length": 0,
+            "shared_lane_length": 0,
+            "structural_cost": 7.0634937233890165,
+            "volume": 368640.0
+          }
+        },
+        "canonical_route_length": 384,
+        "maximum_scale_shift": 6,
+        "presented_route_length": 384.0,
+        "structural_cost": 34.16526643238299
+      },
+      "quality_version": 5,
+      "resident": {
+        "cached_detail_bytes": 4569,
+        "cached_detail_records": 1,
+        "estimated_index_bytes": 39821877
+      },
+      "revision": 1,
+      "source_counts": {
+        "entities": 27117,
+        "relationships": 44019
+      },
+      "status": "valid",
+      "timing_ms": {
+        "composition": 94.699083,
+        "indexing": 307.149834,
+        "projection": 40.073499999999996
+      },
+      "work": {
+        "allocations": {
+          "file:b6ae9420da8c77aa": 64,
+          "package:d1c2531f3a0a9b57": 120,
+          "view:suggested-group:7ba5acffa5ec6253": 80
+        },
+        "budget": 192,
+        "evaluations": {
+          "file:b6ae9420da8c77aa": 32,
+          "package:d1c2531f3a0a9b57": 60,
+          "view:suggested-group:7ba5acffa5ec6253": 40
+        },
+        "total_evaluations": 132
+      }
+    },
+    {
+      "composition_version": 1,
+      "expanded": [
+        "item:1a4125968da0ac7b"
+      ],
+      "focus": "file:b6ae9420da8c77aa",
+      "frames": [
+        "file:b6ae9420da8c77aa",
+        "item:1a4125968da0ac7b"
+      ],
+      "model_id": "model:788c0940ff544915",
+      "presented": {
+        "fragments": 33,
+        "objects": 97,
+        "relationships": 33
+      },
+      "probe": "headless canonical composition; no native rendering claim",
+      "projection": {
+        "complete": false,
+        "diagnostics": [
+          "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 0 relationships in this scanned slice are internal to collapsed regions (0 membership IDs resident; enter a region for records).",
+          "file:b6ae9420da8c77aa: Reference-node budget reached; the next relationship page resumes the first deferred claim.",
+          "item:1a4125968da0ac7b: More supplied children are available; this region is a bounded page.",
+          "Partial region/page: 2 query continuations and 0 loaded relationships without displayed endpoints; refine or page before treating this as complete.",
+          "Immediate-peer budget reserves 33 reference slots beside 31 supplied or grouped peers; deferred claims remain on relationship pages."
+        ],
+        "objects": 97,
+        "relationships": 33,
+        "remaining_queries": 2,
+        "unrepresented_loaded_relationships": []
+      },
+      "quality": {
+        "bends": 0,
+        "canonical_frames": {
+          "file:b6ae9420da8c77aa": {
+            "aspect_ratio": 2.44,
+            "bends": 0,
+            "congestion": 0.0,
+            "crossing_points": 0,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 1.0,
+            "route_length": 392,
+            "shared_lane_length": 0,
+            "structural_cost": 13.526741096276256,
+            "volume": 2732800.0
+          },
+          "item:1a4125968da0ac7b": {
+            "aspect_ratio": 2.0,
+            "bends": 0,
+            "congestion": 0.0,
+            "crossing_points": 0,
+            "displacement": 0,
+            "neighborhood": {
+              "added_objects": 0,
+              "compared_neighbor_slots": 0,
+              "compared_objects": 0,
+              "excluded_frame_changes": 0,
+              "excluded_insufficient_peers": 0,
+              "excluded_reparented_objects": 0,
+              "excluded_representation_changes": 0,
+              "excluded_root_objects": 0,
+              "removed_objects": 0,
+              "retained_neighbor_slots": 0,
+              "retention": null,
+              "status": "no_previous"
+            },
+            "occlusion": 1.0,
+            "route_length": 0,
+            "shared_lane_length": 0,
+            "structural_cost": 13.579368399158986,
+            "volume": 23592960.0
+          }
+        },
+        "canonical_route_length": 392,
+        "maximum_scale_shift": 4,
+        "presented_route_length": 392.0,
+        "structural_cost": 27.10610949543524
+      },
+      "quality_version": 5,
+      "resident": {
+        "cached_detail_bytes": 4569,
+        "cached_detail_records": 1,
+        "estimated_index_bytes": 39821877
+      },
+      "revision": 1,
+      "source_counts": {
+        "entities": 27117,
+        "relationships": 44019
+      },
+      "status": "valid",
+      "timing_ms": {
+        "composition": 112.69108299999999,
+        "indexing": 314.829792,
+        "projection": 7.032
+      },
+      "work": {
+        "allocations": {
+          "file:b6ae9420da8c77aa": 144,
+          "item:1a4125968da0ac7b": 96
+        },
+        "budget": 192,
+        "evaluations": {
+          "file:b6ae9420da8c77aa": 72,
+          "item:1a4125968da0ac7b": 48
+        },
+        "total_evaluations": 120
+      }
+    }
+  ],
+  "remaining": [
+    "Native accepted-result integration",
+    "Independent interior caches",
+    "Previous-composition repair and anchor-pin migration",
+    "Cross-frame routing feedback and candidate comparison",
+    "Reversible persistence migration",
+    "Performance and comprehension release gates"
+  ]
+}

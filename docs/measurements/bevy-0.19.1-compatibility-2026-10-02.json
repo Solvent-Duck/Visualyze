@@ -1,0 +1,1975 @@
+{
+  "recorded_utc": "2026-10-03T02:26:02.205528+00:00",
+  "scope": "Isolated Bevy 0.19.1 / wgpu 29.0.4 compatibility candidate. Production repository source, dependencies, layout/cache versions, existing executable and user preview were preserved. This is not a visible-rendering, performance, comprehension or promotion gate pass.",
+  "previous_goal_turn_classification": "Progress: the prior user-requested preview turn launched the original native app with the production bundle and verified its process arguments. CUA reported the Mac locked, so that turn made no new visual-validation claim.",
+  "decision": "Retain the candidate separately; do not adopt before unlocked first-draw, resize, hide/restore, screenshot and exit-during-work checks. Continue independent group/reference pin work while native visibility is unavailable.",
+  "candidate_workspace": "/private/tmp/visualyze-bevy19-compat",
+  "reproduction_patch": {
+    "path": "docs/measurements/bevy-0.19.1-compatibility-2026-10-02.patch",
+    "sha256": "3f80e8f029ccfa6de4cf13fd41bf60855b4aeff185a779de45968cd04a714522"
+  },
+  "patch_validation": [
+    "git apply --check docs/measurements/bevy-0.19.1-compatibility-2026-10-02.patch passed against unchanged repository",
+    "git apply --reverse --check /Users/isaiahbergstrom/Visualyze/docs/measurements/bevy-0.19.1-compatibility-2026-10-02.patch passed against candidate"
+  ],
+  "migration": [
+    {
+      "path": "Cargo.lock",
+      "before_sha256": "ebde2964840a8ab18c73dcd04fff4eaa885bea827d5dd04b2194b62a950ea638",
+      "after_sha256": "3eca1946140e4d99b8a04f43990ce0ae46daace15803d87cbc0d95d1d08dec83"
+    },
+    {
+      "path": "Cargo.toml",
+      "before_sha256": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+      "after_sha256": "dbdadbeadabffeaa05efcef56ed28ea30aa06c8174953de731aabac78edb2631"
+    },
+    {
+      "path": "private/runtime/examples/support/frame_trace.rs",
+      "before_sha256": "be8505f9df292d2c2db1fb13c6f41ab12c9b1fd4eebf579639eb3ac0515143c5",
+      "after_sha256": "f41dffa84ab3cf9a771a482939b3024ce9b4608033b922d1750f790722739bfb"
+    },
+    {
+      "path": "private/runtime/examples/support/occlusion_probe.rs",
+      "before_sha256": "6c67e09975887a7cd4896949f6625493fdfa0344a589682cb242f0a3bb8e7e40",
+      "after_sha256": "13bfddfea50e9e527c1373a62e67019bdb9985805287748dc6637854f60ba83c"
+    },
+    {
+      "path": "private/runtime/examples/support/scripted_input.rs",
+      "before_sha256": "e2d3163e3a56b19d30d5a1b06a13abf7264e7a6f179b64131e1920d40260c93b",
+      "after_sha256": "65b063bd81c1165c380a85933adf6a5afbddcdced8df9227905f8e0316f57f22"
+    },
+    {
+      "path": "private/runtime/src/layout_scene.rs",
+      "before_sha256": "45347477e78dbdebcb3d37a42223babc0a658a9d67e3a876501b092e3c963252",
+      "after_sha256": "cfef67d51912e13627290b569ab1962efe0ea1665facfddb92d33442b90c31f7"
+    },
+    {
+      "path": "private/runtime/src/scene.rs",
+      "before_sha256": "50d8808ef48a26acde5bcd7512b12ebadc69462b91cc7e96a8ccb3e6c77961c4",
+      "after_sha256": "f0518215f107170e19b9ef57036ee1af680df3b3ffae58719cb847a63c7e20e5"
+    },
+    {
+      "path": "private/runtime/src/shutdown.rs",
+      "before_sha256": "5235ad891a026947b05729351e7c67c9d62feba5f5fe9f97c316b94e9520a43b",
+      "after_sha256": "6b29838be47f35f7c85e5476e3a1542f9e4f6bcb1466ac63555983f90b6b76d1"
+    }
+  ],
+  "compatibility_changes": [
+    "Pinned Bevy 0.19.1; lock resolves wgpu/wgpu-hal 29.0.4. No runtime Java/JavaScript/Python dependency added.",
+    "TextFont sizes use explicit pixel units; equivalent TextLayout constructor names. Text shaping itself is upstream-changed and still needs visual checks.",
+    "Assets::get_mut returns mutable guard, so selected-material update binds it mutably.",
+    "Synthetic MouseWheel messages use TouchPhase::Moved, matching ordinary mouse-wheel semantics.",
+    "Render diagnostic sets follow PrepareViews; parked-window ordering regression passes.",
+    "Keep custom executor-draining shutdown plugin; update deprecated test-only non-send insertion.",
+    "Headless gallery/connected fixtures initialize the new skinned-mesh asset resource required by VisibilityPlugin; all existing geometry assertions retained."
+  ],
+  "dependency_changes": [
+    {
+      "name": "accesskit",
+      "before": [
+        "0.21.1"
+      ],
+      "after": [
+        "0.24.1"
+      ]
+    },
+    {
+      "name": "accesskit_consumer",
+      "before": [
+        "0.31.0"
+      ],
+      "after": [
+        "0.35.0",
+        "0.38.0"
+      ]
+    },
+    {
+      "name": "accesskit_macos",
+      "before": [
+        "0.22.2"
+      ],
+      "after": [
+        "0.26.3"
+      ]
+    },
+    {
+      "name": "accesskit_windows",
+      "before": [
+        "0.29.2"
+      ],
+      "after": [
+        "0.32.1"
+      ]
+    },
+    {
+      "name": "accesskit_winit",
+      "before": [
+        "0.29.2"
+      ],
+      "after": [
+        "0.32.2"
+      ]
+    },
+    {
+      "name": "bevy",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_a11y",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_android",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_app",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_asset",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_asset_macros",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_camera",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_clipboard",
+      "before": [],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_color",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_core_pipeline",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_derive",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_diagnostic",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_ecs",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_ecs_macro_logic",
+      "before": [],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_ecs_macros",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_encase_derive",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_gizmos",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_gizmos_macros",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_gizmos_render",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_image",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_input",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_input_focus",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_internal",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_light",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_log",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_macro_utils",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_material",
+      "before": [],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_material_macros",
+      "before": [],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_math",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_mesh",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_mikktspace",
+      "before": [
+        "0.17.0-dev"
+      ],
+      "after": [
+        "1.0.0"
+      ]
+    },
+    {
+      "name": "bevy_pbr",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_platform",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_ptr",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_reflect",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_reflect_derive",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_render",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_render_macros",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_shader",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_sprite",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_sprite_render",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_state",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_state_macros",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_tasks",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_text",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_time",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_transform",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_ui",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_ui_render",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_utils",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_window",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bevy_winit",
+      "before": [
+        "0.18.1"
+      ],
+      "after": [
+        "0.19.1"
+      ]
+    },
+    {
+      "name": "bit-set",
+      "before": [
+        "0.8.0"
+      ],
+      "after": [
+        "0.8.0",
+        "0.9.1"
+      ]
+    },
+    {
+      "name": "bit-vec",
+      "before": [
+        "0.8.0"
+      ],
+      "after": [
+        "0.8.0",
+        "0.9.1"
+      ]
+    },
+    {
+      "name": "block",
+      "before": [
+        "0.1.6"
+      ],
+      "after": []
+    },
+    {
+      "name": "codespan-reporting",
+      "before": [
+        "0.12.0"
+      ],
+      "after": [
+        "0.12.0",
+        "0.13.1"
+      ]
+    },
+    {
+      "name": "core-foundation",
+      "before": [
+        "0.9.4",
+        "0.10.1"
+      ],
+      "after": [
+        "0.9.4"
+      ]
+    },
+    {
+      "name": "core-graphics-types",
+      "before": [
+        "0.1.3",
+        "0.2.0"
+      ],
+      "after": [
+        "0.1.3"
+      ]
+    },
+    {
+      "name": "cosmic-text",
+      "before": [
+        "0.16.0"
+      ],
+      "after": []
+    },
+    {
+      "name": "displaydoc",
+      "before": [],
+      "after": [
+        "0.2.7"
+      ]
+    },
+    {
+      "name": "font-types",
+      "before": [
+        "0.10.1",
+        "0.12.5"
+      ],
+      "after": [
+        "0.11.3",
+        "0.12.5"
+      ]
+    },
+    {
+      "name": "fontconfig-parser",
+      "before": [
+        "0.5.8"
+      ],
+      "after": []
+    },
+    {
+      "name": "fontdb",
+      "before": [
+        "0.23.0"
+      ],
+      "after": []
+    },
+    {
+      "name": "fontique",
+      "before": [],
+      "after": [
+        "0.9.0"
+      ]
+    },
+    {
+      "name": "glam",
+      "before": [
+        "0.30.10"
+      ],
+      "after": [
+        "0.32.1"
+      ]
+    },
+    {
+      "name": "gpu-alloc",
+      "before": [
+        "0.6.2"
+      ],
+      "after": []
+    },
+    {
+      "name": "gpu-alloc-types",
+      "before": [
+        "0.3.1"
+      ],
+      "after": []
+    },
+    {
+      "name": "gpu-allocator",
+      "before": [
+        "0.27.0"
+      ],
+      "after": [
+        "0.28.0"
+      ]
+    },
+    {
+      "name": "harfrust",
+      "before": [
+        "0.4.1"
+      ],
+      "after": [
+        "0.6.2"
+      ]
+    },
+    {
+      "name": "hexasphere",
+      "before": [
+        "16.0.0"
+      ],
+      "after": [
+        "18.0.0"
+      ]
+    },
+    {
+      "name": "icu_collections",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "icu_locale_core",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "icu_locale_fallback",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "icu_locale_fallback_data",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "icu_normalizer",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "icu_normalizer_data",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "icu_properties",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "icu_properties_data",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "icu_provider",
+      "before": [],
+      "after": [
+        "2.3.1"
+      ]
+    },
+    {
+      "name": "icu_segmenter",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "icu_segmenter_data",
+      "before": [],
+      "after": [
+        "2.3.0"
+      ]
+    },
+    {
+      "name": "litemap",
+      "before": [],
+      "after": [
+        "0.8.3"
+      ]
+    },
+    {
+      "name": "malloc_buf",
+      "before": [
+        "0.0.6"
+      ],
+      "after": []
+    },
+    {
+      "name": "metal",
+      "before": [
+        "0.32.0"
+      ],
+      "after": []
+    },
+    {
+      "name": "naga",
+      "before": [
+        "27.0.3"
+      ],
+      "after": [
+        "29.0.4"
+      ]
+    },
+    {
+      "name": "naga_oil",
+      "before": [
+        "0.20.0"
+      ],
+      "after": [
+        "0.22.0"
+      ]
+    },
+    {
+      "name": "objc",
+      "before": [
+        "0.2.7"
+      ],
+      "after": []
+    },
+    {
+      "name": "objc2-core-foundation",
+      "before": [],
+      "after": [
+        "0.3.2"
+      ]
+    },
+    {
+      "name": "objc2-foundation",
+      "before": [
+        "0.2.2"
+      ],
+      "after": [
+        "0.2.2",
+        "0.3.2"
+      ]
+    },
+    {
+      "name": "objc2-metal",
+      "before": [
+        "0.2.2"
+      ],
+      "after": [
+        "0.2.2",
+        "0.3.2"
+      ]
+    },
+    {
+      "name": "objc2-quartz-core",
+      "before": [
+        "0.2.2"
+      ],
+      "after": [
+        "0.2.2",
+        "0.3.2"
+      ]
+    },
+    {
+      "name": "parlance",
+      "before": [],
+      "after": [
+        "0.1.0"
+      ]
+    },
+    {
+      "name": "parley",
+      "before": [],
+      "after": [
+        "0.9.0"
+      ]
+    },
+    {
+      "name": "parley_data",
+      "before": [],
+      "after": [
+        "0.9.0"
+      ]
+    },
+    {
+      "name": "paste",
+      "before": [
+        "1.0.15"
+      ],
+      "after": []
+    },
+    {
+      "name": "potential_utf",
+      "before": [],
+      "after": [
+        "0.1.6"
+      ]
+    },
+    {
+      "name": "ppv-lite86",
+      "before": [
+        "0.2.21"
+      ],
+      "after": []
+    },
+    {
+      "name": "rand",
+      "before": [
+        "0.9.5"
+      ],
+      "after": [
+        "0.10.3"
+      ]
+    },
+    {
+      "name": "rand_chacha",
+      "before": [
+        "0.9.0"
+      ],
+      "after": []
+    },
+    {
+      "name": "rand_core",
+      "before": [
+        "0.9.5"
+      ],
+      "after": [
+        "0.10.1"
+      ]
+    },
+    {
+      "name": "rand_distr",
+      "before": [
+        "0.5.1"
+      ],
+      "after": [
+        "0.6.0"
+      ]
+    },
+    {
+      "name": "rangemap",
+      "before": [
+        "1.8.0"
+      ],
+      "after": []
+    },
+    {
+      "name": "raw-window-metal",
+      "before": [],
+      "after": [
+        "1.1.0"
+      ]
+    },
+    {
+      "name": "read-fonts",
+      "before": [
+        "0.36.0",
+        "0.41.0"
+      ],
+      "after": [
+        "0.39.2",
+        "0.41.0"
+      ]
+    },
+    {
+      "name": "roxmltree",
+      "before": [
+        "0.20.0"
+      ],
+      "after": []
+    },
+    {
+      "name": "self_cell",
+      "before": [
+        "1.3.0"
+      ],
+      "after": []
+    },
+    {
+      "name": "skrifa",
+      "before": [
+        "0.39.0",
+        "0.44.0"
+      ],
+      "after": [
+        "0.42.1",
+        "0.44.0"
+      ]
+    },
+    {
+      "name": "spirv",
+      "before": [
+        "0.3.0+sdk-1.3.268.0"
+      ],
+      "after": [
+        "0.4.0+sdk-1.4.341.0"
+      ]
+    },
+    {
+      "name": "synstructure",
+      "before": [],
+      "after": [
+        "0.14.0"
+      ]
+    },
+    {
+      "name": "taffy",
+      "before": [
+        "0.9.2"
+      ],
+      "after": [
+        "0.10.1"
+      ]
+    },
+    {
+      "name": "tinystr",
+      "before": [],
+      "after": [
+        "0.8.4"
+      ]
+    },
+    {
+      "name": "ttf-parser",
+      "before": [
+        "0.25.1"
+      ],
+      "after": []
+    },
+    {
+      "name": "unicode-bidi",
+      "before": [
+        "0.3.18"
+      ],
+      "after": []
+    },
+    {
+      "name": "unicode-linebreak",
+      "before": [
+        "0.1.5"
+      ],
+      "after": []
+    },
+    {
+      "name": "unicode-script",
+      "before": [
+        "0.5.8"
+      ],
+      "after": []
+    },
+    {
+      "name": "utf8_iter",
+      "before": [],
+      "after": [
+        "1.0.4"
+      ]
+    },
+    {
+      "name": "weak-table",
+      "before": [],
+      "after": [
+        "0.3.2"
+      ]
+    },
+    {
+      "name": "web-task",
+      "before": [],
+      "after": [
+        "1.1.3"
+      ]
+    },
+    {
+      "name": "wgpu",
+      "before": [
+        "27.0.1"
+      ],
+      "after": [
+        "29.0.4"
+      ]
+    },
+    {
+      "name": "wgpu-core",
+      "before": [
+        "27.0.3"
+      ],
+      "after": [
+        "29.0.4"
+      ]
+    },
+    {
+      "name": "wgpu-core-deps-apple",
+      "before": [
+        "27.0.0"
+      ],
+      "after": [
+        "29.0.4"
+      ]
+    },
+    {
+      "name": "wgpu-core-deps-windows-linux-android",
+      "before": [
+        "27.0.0"
+      ],
+      "after": [
+        "29.0.4"
+      ]
+    },
+    {
+      "name": "wgpu-hal",
+      "before": [
+        "27.0.4"
+      ],
+      "after": [
+        "29.0.4"
+      ]
+    },
+    {
+      "name": "wgpu-naga-bridge",
+      "before": [],
+      "after": [
+        "29.0.4"
+      ]
+    },
+    {
+      "name": "wgpu-types",
+      "before": [
+        "27.0.1"
+      ],
+      "after": [
+        "29.0.4"
+      ]
+    },
+    {
+      "name": "windows",
+      "before": [
+        "0.58.0",
+        "0.61.3"
+      ],
+      "after": [
+        "0.62.2"
+      ]
+    },
+    {
+      "name": "windows-collections",
+      "before": [
+        "0.2.0"
+      ],
+      "after": [
+        "0.3.2"
+      ]
+    },
+    {
+      "name": "windows-core",
+      "before": [
+        "0.58.0",
+        "0.61.2"
+      ],
+      "after": [
+        "0.62.2"
+      ]
+    },
+    {
+      "name": "windows-future",
+      "before": [
+        "0.2.1"
+      ],
+      "after": [
+        "0.3.2"
+      ]
+    },
+    {
+      "name": "windows-implement",
+      "before": [
+        "0.58.0",
+        "0.60.2"
+      ],
+      "after": [
+        "0.60.2"
+      ]
+    },
+    {
+      "name": "windows-interface",
+      "before": [
+        "0.58.0",
+        "0.59.3"
+      ],
+      "after": [
+        "0.59.3"
+      ]
+    },
+    {
+      "name": "windows-link",
+      "before": [
+        "0.1.3",
+        "0.2.1"
+      ],
+      "after": [
+        "0.2.1"
+      ]
+    },
+    {
+      "name": "windows-numerics",
+      "before": [
+        "0.2.0"
+      ],
+      "after": [
+        "0.3.1"
+      ]
+    },
+    {
+      "name": "windows-result",
+      "before": [
+        "0.2.0",
+        "0.3.4"
+      ],
+      "after": [
+        "0.4.1"
+      ]
+    },
+    {
+      "name": "windows-strings",
+      "before": [
+        "0.1.0",
+        "0.4.2"
+      ],
+      "after": [
+        "0.5.1"
+      ]
+    },
+    {
+      "name": "windows-threading",
+      "before": [
+        "0.1.0"
+      ],
+      "after": [
+        "0.2.1"
+      ]
+    },
+    {
+      "name": "writeable",
+      "before": [],
+      "after": [
+        "0.6.4"
+      ]
+    },
+    {
+      "name": "yoke",
+      "before": [],
+      "after": [
+        "0.8.3"
+      ]
+    },
+    {
+      "name": "yoke-derive",
+      "before": [],
+      "after": [
+        "0.8.4"
+      ]
+    },
+    {
+      "name": "zerofrom",
+      "before": [],
+      "after": [
+        "0.1.8"
+      ]
+    },
+    {
+      "name": "zerofrom-derive",
+      "before": [],
+      "after": [
+        "0.1.8"
+      ]
+    },
+    {
+      "name": "zerotrie",
+      "before": [],
+      "after": [
+        "0.2.5"
+      ]
+    },
+    {
+      "name": "zerovec",
+      "before": [],
+      "after": [
+        "0.11.8"
+      ]
+    },
+    {
+      "name": "zerovec-derive",
+      "before": [],
+      "after": [
+        "0.11.6"
+      ]
+    }
+  ],
+  "environment": {
+    "os": "macOS 26.6.2 (25G83)",
+    "rustc": "1.96.0 (ac68faa20 2026-05-25)",
+    "machine_reference": "Same Apple M5 / 16 GiB host recorded in presentation-probes-2026-10-02.json; hardware sysctl re-query was denied by the ordinary sandbox. OS/toolchain reread successfully.",
+    "desktop": "CUA reported the Mac locked before and after the two native runs. No unlock response arrived; no physical input, resize, restore or screenshot was performed. Visibility was not observed continuously. Original user preview remained separate and untouched.",
+    "profiling": "dev profile opt-level 1, dependency opt-level 2, debug 0; first native process for this candidate followed by one repeat, fresh isolated layout state each. No external sampler or simultaneous Cargo work in either native run. OS/GPU caches were not reset."
+  },
+  "production_model": {
+    "bundle": {
+      "path": "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "sha256": "8f4d8a5f197f5381563e7c19aa81cc962f67984ff08ad621de1c189632d7286c"
+    },
+    "source_revision": "f667c282dad2c1419afb5836ded22a3ec263970e",
+    "model_id": "model:788c0940ff544915",
+    "model_revision": 1,
+    "scope": "Bevy 0.18.1 syntax source inventory (27,117 entities / 44,019 relations / 31,319 evidence), distinct from the tested Bevy 0.19.1 renderer. Not inferred runtime architecture."
+  },
+  "checks": [
+    {
+      "cwd": "/private/tmp/visualyze-bevy19-compat",
+      "command": "cargo check -p visualyze --all-targets --offline --locked",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-check-migrated2.log",
+        "sha256": "cf07ebd74bc4ef4c43fdc5f8cb8b929e2c32161ddfcef43d06a157e2b1f9a04a"
+      },
+      "scope_note": "This all-target compilation preceded the headless scene-fixture resource repair; the subsequent full tests, all-target Clippy and native build validate the final candidate."
+    },
+    {
+      "cwd": "/private/tmp/visualyze-bevy19-compat",
+      "command": "cargo test -p visualyze --lib --offline --locked",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-runtime-tests.log",
+        "sha256": "09b1187b7417ec9d13da18bbe6fafc919fba4d7a3fe4475a63b28b439ec86be6"
+      }
+    },
+    {
+      "cwd": "/private/tmp/visualyze-bevy19-compat",
+      "command": "cargo test --workspace --offline --locked",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-tests-final.log",
+        "sha256": "21cc8b9a9e9733a515126b01030059cd20a44b953819ac9bc31c30fdfb2e4317"
+      }
+    },
+    {
+      "cwd": "/private/tmp/visualyze-bevy19-compat",
+      "command": "cargo test -p visualyze --example production_smoke --offline --locked",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-helper-tests.log",
+        "sha256": "88083fa653330140b112055ced2d84ce42a7b49cea86ab4cf34078f743b5b61c"
+      }
+    },
+    {
+      "cwd": "/private/tmp/visualyze-bevy19-compat",
+      "command": "cargo test -p visualyze-layout --test provider_code production_navigation_preserves_group_membership_after_other_regions_fill_retention --offline --locked -- --ignored --exact",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-production-continuity-final.log",
+        "sha256": "07e608a705b0f437fb5f550faeac9a0dbd30143eea664917677cb2f790f9dd4c"
+      }
+    },
+    {
+      "cwd": "/private/tmp/visualyze-bevy19-compat",
+      "command": "cargo clippy --workspace --all-targets --offline --locked -- -D warnings",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-clippy.log",
+        "sha256": "fcf066c4b4f4de40fc30dd0f1b073ca729f60c2d5bbdc492b7502371639126c6"
+      }
+    },
+    {
+      "cwd": "/private/tmp/visualyze-bevy19-compat",
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "cwd": "/private/tmp/visualyze-bevy19-compat",
+      "command": "cargo build -p visualyze --bin visualyze --examples --offline --locked",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-build.log",
+        "sha256": "4b72fa2d17013127276a55a06d124f9df93fd5bfb42252422071046faac5d3af"
+      }
+    }
+  ],
+  "workspace_tests": {
+    "passed": 450,
+    "failed": 0,
+    "ignored_by_default": 1,
+    "explicit_ignored_test_passed": true,
+    "helper_tests_passed": 15
+  },
+  "resolved_failures": [
+    {
+      "stage": "initial API migration",
+      "evidence": {
+        "path": "/private/tmp/visualyze-bevy19-check.log",
+        "sha256": "4d154f0aef2057cf296ab46d3345dc7514e2c0621d66004e1b1bf7b50895eefb"
+      },
+      "resolution": "FontSize, text constructor, wheel phase and render-set migration; wrapper subsequently aligned to 0.19.1."
+    },
+    {
+      "stage": "mutable material guard",
+      "evidence": {
+        "path": "/private/tmp/visualyze-bevy19-check-migrated.log",
+        "sha256": "22f3c385de92d5d9400243aaa40dff3fa3f04f2802c1b07bc72ef449e8e51f6e"
+      },
+      "resolution": "Bind Assets::get_mut guard mutably."
+    },
+    {
+      "stage": "first workspace run",
+      "evidence": {
+        "path": "/private/tmp/visualyze-bevy19-tests.log",
+        "sha256": "ce1863c786639fa574cb1c72738abb5a5d0ca0813735e0bf526dffbff497539d"
+      },
+      "resolution": "121 runtime tests passed, two headless scene tests lacked Assets<SkinnedMeshInverseBindposes>. Added required fixture resource; full 450-test rerun passes."
+    },
+    {
+      "stage": "explicit production continuity setup",
+      "evidence": {
+        "path": "/private/tmp/visualyze-bevy19-production-continuity.log",
+        "sha256": "88bdee6bcb9dd5006d804e64137874f6dc143f37ece1881fc2ff783691371b75"
+      },
+      "resolution": "Input validation correctly rejected a temporary symlink. Replaced only that newly created candidate fixture link with a regular copy of the same production input; unchanged test passes."
+    }
+  ],
+  "native_runs": [
+    {
+      "label": "first",
+      "process": {
+        "args": [
+          "/private/tmp/visualyze-bevy19-compat/target/debug/examples/production_smoke",
+          "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-bevy19-locked-2026-10-02",
+          "--composed",
+          "--persist",
+          "--trace-frames",
+          "--no-captures",
+          "--repeat-navigation"
+        ],
+        "desktop": "CUA reported locked before run; no visible-frame claim",
+        "timed_out": false,
+        "pid": 16875,
+        "returncode": 0,
+        "elapsed_seconds": 16.047181082999998
+      },
+      "report": {
+        "path": "visualyze-local/production/native-bevy19-locked-2026-10-02/native-report.json",
+        "sha256": "1152f8dd412e900990643d2d8a9b2d430db7b70f231db41b890a5bff6853119d"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-native-locked.log",
+        "sha256": "8a2918dea6d1b8513e5d3d0a2bf8fc282fe3d630500cf6e802c50bf973f2ca28"
+      },
+      "source_counts": {
+        "entities": 27117,
+        "evidence": 31319,
+        "relations": 44019
+      },
+      "actions": 38,
+      "saves": 33,
+      "save_failures": 0,
+      "captures": 0,
+      "initial_acceptance_ms": 2707.241416,
+      "repository_collapse_acceptance_ms": 116.437833,
+      "max_render_join_ms": 4499.285833,
+      "max_surface_bracket_ms": 1.621042,
+      "surface_samples": 304,
+      "main_dropped_spans": 0,
+      "surface_dropped_spans": 0,
+      "occlusion_notifications": []
+    },
+    {
+      "label": "repeat",
+      "process": {
+        "args": [
+          "/private/tmp/visualyze-bevy19-compat/target/debug/examples/production_smoke",
+          "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-bevy19-locked-repeat-2026-10-02",
+          "--composed",
+          "--persist",
+          "--trace-frames",
+          "--no-captures",
+          "--repeat-navigation"
+        ],
+        "desktop": "Last CUA observation locked; no visible-frame claim",
+        "timed_out": false,
+        "pid": 17051,
+        "returncode": 0,
+        "elapsed_seconds": 7.336909166
+      },
+      "report": {
+        "path": "visualyze-local/production/native-bevy19-locked-repeat-2026-10-02/native-report.json",
+        "sha256": "78bc6116ed89e227b3df407b596960988d06ff18d2fea612e92dfed4c547238f"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-bevy19-native-locked-repeat.log",
+        "sha256": "c5b61f4d51970b6733d823a35a0cdd33fab7578c3020d3e8af98000542e935c6"
+      },
+      "source_counts": {
+        "entities": 27117,
+        "evidence": 31319,
+        "relations": 44019
+      },
+      "actions": 38,
+      "saves": 33,
+      "save_failures": 0,
+      "captures": 0,
+      "initial_acceptance_ms": 571.940791,
+      "repository_collapse_acceptance_ms": 99.32000000000001,
+      "max_render_join_ms": 121.183291,
+      "max_surface_bracket_ms": 1.1805839999999999,
+      "surface_samples": 332,
+      "main_dropped_spans": 0,
+      "surface_dropped_spans": 0,
+      "occlusion_notifications": []
+    }
+  ],
+  "identical_semantic_action_fields_between_native_runs": [
+    "step",
+    "focus",
+    "objects",
+    "routes",
+    "accepted_objects",
+    "accepted_routes",
+    "child_page",
+    "relation_page",
+    "total_children",
+    "original_routed_relations",
+    "composition_frames",
+    "selected_relation",
+    "selected_relation_members"
+  ],
+  "native_interpretation": [
+    "Both native processes completed all 38 scripted architecture actions, 33 successful isolated saves and clean exit; built-in exact cached-geometry checks remained active.",
+    "The first run\u2019s maximum render join was 4499 ms (frame 4); the repeat maximum was 121 ms. A cold/warm effect is plausible, not established. No exclusive CPU/GPU stack attribution was collected.",
+    "The maximum acquisition scheduling brackets were 1.62 and 1.18 ms, but there were no occlusion notifications and the desktop was locked. The acquisition guard can skip drawing, so these times prove neither visible presentation nor a fix for prior unlocked intermittent pauses.",
+    "Repository collapse acceptance was 116.44 and 99.32 ms. Two uncontrolled CPU observations do not close the <100 ms navigation target.",
+    "Each process warned that a Destroyed event for an unknown winit window was skipped during exit; both returned 0 without a timeout. No startup/active-work close action was exercised."
+  ],
+  "upstream_source_identity": [
+    {
+      "path": "/Users/isaiahbergstrom/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wgpu-hal-29.0.4/src/metal/surface.rs",
+      "sha256": "748c5349bb68319d433ed2d7c2c27055e632f27196acfdfa857b279d8ed7bae2"
+    },
+    {
+      "path": "/Users/isaiahbergstrom/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bevy_render-0.19.1/src/view/window/mod.rs",
+      "sha256": "ffc2a15c94840d703d78070309498398d21b1bdcb1937db200ce2aa9a5c8c0d8"
+    },
+    {
+      "path": "/Users/isaiahbergstrom/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bevy_render-0.19.1/src/lib.rs",
+      "sha256": "bfd9fb558db99b1c1e3ed0b25a5b10fe6bd11b740e1bc9acb958b1521d0bb174"
+    },
+    {
+      "path": "/Users/isaiahbergstrom/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bevy_render-0.19.1/src/pipelined_rendering.rs",
+      "sha256": "b6d8747280e66028416bb7b52b25a3457be156b7936a5872bbad920f51f00e34"
+    },
+    {
+      "path": "/Users/isaiahbergstrom/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bevy_camera-0.19.1/src/visibility/mod.rs",
+      "sha256": "a100645a33d31cf5949bcf0c0045309bdf6777563523847aa449ecdacc82454c"
+    },
+    {
+      "path": "/Users/isaiahbergstrom/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bevy_text-0.19.1/src/text.rs",
+      "sha256": "ee75d6bc88ad45d1fffabbd36312cb855d09ebdc1b45caaa942e9e983b4f5028"
+    },
+    {
+      "path": "/Users/isaiahbergstrom/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/bevy_input-0.19.1/src/mouse.rs",
+      "sha256": "bc8e4fcd14b8f2905b7e087d48e81d759a851e17967cb516769b15beed9305c7"
+    }
+  ],
+  "upstream_source_findings": [
+    "wgpu-hal checks NSWindow occlusion state before Metal nextDrawable and returns Occluded. It still has no seen-visible startup guard in this version.",
+    "prepare_windows handles CurrentSurfaceTexture::Occluded without a texture and skips windows without a writing camera except initial presentation.",
+    "RenderRecovery can skip First/Render while not ready. Missing/short surface brackets are not presentation evidence; initialization/recovery also enters the extract callback.",
+    "Pipelined channel destructor still waits for render world; retain the application shutdown drain."
+  ],
+  "pending_native_checks": [
+    {
+      "command": "./target/debug/examples/render_smoke --model public/examples/objects.json",
+      "reason": "Mac locked; require visible gallery and label inspection."
+    },
+    {
+      "command": "./target/debug/examples/connected_smoke --model public/examples/notes-crud.json",
+      "reason": "Mac locked; require geometry/connector pixel check plus visible labels."
+    },
+    {
+      "command": "./target/debug/examples/layout_smoke --model public/examples/sketch-crud.json --layout floorplan",
+      "reason": "Mac locked; require the assembled CRUD image and top/side inspection."
+    },
+    {
+      "command": "./target/debug/examples/production_smoke /Users/isaiahbergstrom/Visualyze/visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl /tmp/visualyze-bevy19-visible-production --composed --persist --trace-frames --await-occlusion-cycle",
+      "reason": "Mac locked; resize only the verification window, minimize/restore, inspect visible rendering, then check captures/backing dimensions and normal exit."
+    },
+    {
+      "command": "./target/debug/examples/large_model_smoke /Users/isaiahbergstrom/Visualyze/visualyze-local/production/million-scale.bundle.jsonl /tmp/visualyze-bevy19-visible-worker-close",
+      "reason": "Mac locked; close only the scale-verification window while indexing/loading is visibly active and verify bounded clean shutdown."
+    }
+  ],
+  "remaining_comparison": "After functional visible checks, repeat controlled default-presentation production hide/restore trials three times with fresh output folders. Do not compare locked no-capture samples with earlier uncontrolled unlocked measurements as an improvement ratio.",
+  "source_identity": {
+    "unchanged_repository_files": {
+      "private/README.md": "9c8b4b2a5d272946dcab6101673a686de6b8aa607063c0edb9f90d6a2c17debb",
+      "private/packaging/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+      "private/runtime/Cargo.toml": "449706c320e581bf5b08fb512574924dcf60b038f5dce0e1aba93ccec610d2a0",
+      "private/visual-fixtures/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "private/assets/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "private/runtime/tests/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "private/runtime/tests/ingestion.rs": "500eec5f93a40d4bd1b82920b1fab6ccd868fa7944e9b7bad4d2f824b54abf8c",
+      "private/runtime/examples/composed_pin_smoke.rs": "9194a4656c4641b5d6917e49673332f356c3523d8b610bfb5c8e9ad2a12b3395",
+      "private/runtime/examples/layout_smoke.rs": "57edb790c26d3e37b7e006c43b49fa2c21dd468ef05e89dfaa17895bf3580a51",
+      "private/runtime/examples/production_smoke.rs": "ed98473ad3f6b2f6fce52da591b6377f8cf745c5f7ba0c9555465f340a662b8b",
+      "private/runtime/examples/connected_smoke.rs": "435e0cdbdc399eda7ddd74f85e7b346e5477a050abb48f85b95db50e2d2796a9",
+      "private/runtime/examples/large_model_smoke.rs": "283b0591189c8ef7a6d8dfa5007a2c8225de9ce27b803d69508e9c5e2d10a693",
+      "private/runtime/examples/legacy_control.rs": "17079a763cb9df57ba81449383776bd076593ac56c9b817634570cd8f30963d1",
+      "private/runtime/examples/render_smoke.rs": "d27ea96935165fa4dd5523c5874f0008321f593395ba1e2077ee96fbb3594639",
+      "private/runtime/src/native_layout.rs": "2932073683b84c9fd69e5744cc09544a3ce94984a9bc24f03d324c0d3f167c95",
+      "private/runtime/src/scene.rs": "50d8808ef48a26acde5bcd7512b12ebadc69462b91cc7e96a8ccb3e6c77961c4",
+      "private/runtime/src/shutdown.rs": "5235ad891a026947b05729351e7c67c9d62feba5f5fe9f97c316b94e9520a43b",
+      "private/runtime/src/primitives.rs": "0c5fd38c4c26a5c59a1d52f95af95d7663dfab2d27dc124668135d5e386abd60",
+      "private/runtime/src/connections.rs": "e70e6e2c4f2fce2fd7e38554e77d2ce5b9d9bf8c3a120a0861e07de6804e684c",
+      "private/runtime/src/layout_input.rs": "d3f14e5fa6e8a8b8c8146a7da2041ed62599246c6c609dba2ce110759fa2d1c6",
+      "private/runtime/src/lib.rs": "5260244b697fc8126c2652ec63017fa37bf073fdde01e7d5f4b9133f794604d8",
+      "private/runtime/src/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "private/runtime/src/composed_state_tests.rs": "0a7c8601ead7e379b4e242e0f317ad987f4ec8f6851ecd74cc916f87e2691076",
+      "private/runtime/src/layout_scene.rs": "45347477e78dbdebcb3d37a42223babc0a658a9d67e3a876501b092e3c963252",
+      "private/runtime/src/layout_geometry.rs": "a2cbd36db2bdb852f99e270f729482d6fc87af383c4705ae51177c6e082681ef",
+      "private/runtime/src/composition.rs": "eb4eaf1acb171812c6a90f707990d758d920e1902269802fcb1db2cccb73f2d6",
+      "private/runtime/src/main.rs": "20a807dc215ab235929cbf664407919c48830df663475bf0aacda368bf79a132",
+      "private/runtime/src/input.rs": "a8fb5358a1056b405284f1a811e571ebc3e25f839cf577374f1c1a72cfb51b3e",
+      "private/runtime/src/camera.rs": "537cfa97360bea729efd9c50a55ae09753fc54063c362d15746b709f907276bc",
+      "private/runtime/examples/support/control_geometry.rs": "2b5d5c96b1de4d9322c973628d2f0e0fb57fa10d4ce25ed1ea94c34777fe801b",
+      "private/runtime/examples/support/frame_trace.rs": "be8505f9df292d2c2db1fb13c6f41ab12c9b1fd4eebf579639eb3ac0515143c5",
+      "private/runtime/examples/support/presentation_probe.rs": "c4c54c26d4773ee0ea102a9b6a98d252b860482f956900403ea95d999042c5ef",
+      "private/runtime/examples/support/scripted_input.rs": "e2d3163e3a56b19d30d5a1b06a13abf7264e7a6f179b64131e1920d40260c93b",
+      "private/runtime/examples/support/occlusion_probe.rs": "6c67e09975887a7cd4896949f6625493fdfa0344a589682cb242f0a3bb8e7e40",
+      "private/layout/tests/composed_reorganization.rs": "aff26b135ad2add94f3b4c5022302a2e8203309266470bf2385d131e41c145d5",
+      "private/layout/tests/composed_cache.rs": "ef54a55d80fa1e1f38d2520785791bb77782da2d4d4f9f1c73026f9e9159789f",
+      "private/layout/tests/composed_recovery.rs": "6bdd2122ef89af61fff01fa49631c971559875ab1f9719154e71c87169eaf920",
+      "private/layout/tests/durable_pins.rs": "a025f6ce550146612c006bdd28430e5ccfb18700ed9c818bf07e34ca26583114",
+      "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9",
+      "private/layout/tests/projection_integration.rs": "b7d2508c1d6e6a2a0cc2db2164e2b76a05df6a457db8ff4a4d47058e7ee000cb",
+      "private/layout/tests/composed_validation.rs": "bf96f0a3ca5cc9d76e718ca782caa6d075b043f86f57b404bf90a4c59d731c0a",
+      "private/layout/tests/provider_code.rs": "83da89bd79a5553290668bb756c37364aca60c08e49d58fa7b6ee674b99c91e4",
+      "private/layout/tests/neighborhood_continuity.rs": "ac69f6b4531da8cd32db92316620413b134cad6f912816f583c5f55f3b24b39c",
+      "private/layout/tests/composed_feedback.rs": "f1a19726776b2bd206962f542f22d7c9861d6005151fda188170a46703338ea2",
+      "private/layout/tests/composed.rs": "f101163d7b59551b37879be5307ed9b4d7410c74b557d00d5b08e0ee303273b7",
+      "private/layout/tests/volumetric_packing.rs": "260ac29dae4bfd7624b4143d564a82c83ae0672715a1067b695c211c85dab0fe",
+      "private/layout/tests/composed_persistence.rs": "1c1d062e7c04196d153af0380066ddd24866feceb9ef3a9a091d5371a242a27e",
+      "private/layout/tests/distributed_system.rs": "0b94df9959245ead7e06cf5dd9df169ddb86cc1e82056610a916f643e1c6d930",
+      "private/layout/tests/volumetric_constraints.rs": "c5b8e429885c55ddf01ae761fa89e63460946b30a12026524db901b2e4a64d84",
+      "private/layout/tests/route_metrics.rs": "0e0d78263c48a0434878f1f61707522afffbc392dbd3dc2839c484c8de8579b7",
+      "private/layout/tests/placement.rs": "0daa906851a3f472d8ff6252136661648bbe7a850c3842dc578995f47acc5af7",
+      "private/layout/tests/inherited_constraints.rs": "5143d7ec21a33a66501b63877b23e513b7bdc867243a194b68834e3f68cc91a4",
+      "private/layout/tests/assembly_plan.rs": "b80dd91b42419b6c877f1d3e5e96a82fcf096f681e439692446c4779d12be76d",
+      "private/layout/tests/canonical_route_join.rs": "6372c32fb9edaee72f62fd44b5c55cd106abc009b9575dad530526d9fea1431d",
+      "private/layout/tests/assembly.rs": "6e5211d4cded44837ff9eb217c07ce6d3e141a5e7c88cfc8a1018bc6b7797f06",
+      "private/layout/examples/production_pages.rs": "8c5506dbe000f1a302d1367a995b13c755cf4c7f49b32bdc441b4b67c922af51",
+      "private/layout/examples/bundle_layout.rs": "74b3e8a7144c9bdcb4847361bceb7971b7b97fd01d2662f19606bb37083bb647",
+      "private/layout/examples/scale_view_bench.rs": "89cc3231b2801b3d253d77d91f630b08dd8b2901496b963a43f16bbb2b299b72",
+      "private/layout/examples/projection_bench.rs": "829481a1af42f099a25b065c6abfe43bfcc2dedee42c3ced95b30d90b7c11ce0",
+      "private/layout/examples/compare.rs": "4b692fe2161f06bac109ad8e71dff80428721c20c2c33bdbae2e5592b48cd67c",
+      "private/layout/examples/evaluate_cases.rs": "267e33a23f4843ba178c726286eb0c95f571fbd290370f7e3d99e1454ed8bebe",
+      "private/layout/examples/composed_layout.rs": "15b8200531d4871aad86fa2d07bd6e43042b4866c4e26e5ef03a5b514c4a1dae",
+      "private/layout/examples/generate_ai_fixture.rs": "caa6d269d3f525e9bc67ad6271469d5327ecb6dbf5a76eac6961c307903425fc",
+      "private/layout/examples/production_audit.rs": "fd6a0ca965da73c57e71eca902d13f1fee3c5bbd755e59769d6bae8cec50b84a",
+      "private/layout/evaluation/run.py": "efd04486864d8b74c7da474446b7b9a91a18c6cfa3b0fd470733cf6541357402",
+      "private/layout/evaluation/test_run.py": "e41e2b8a446c47f10926b57c05b9ca370737cddc70f072cec4bc9f1866059eae",
+      "private/layout/evaluation/quality5-final.lock.json": "c961b92e8f91aa4e90412c454b32fd9898e62b751823cef0d43d11141475139d",
+      "private/layout/evaluation/README.md": "5d0af1bedea5c44659c7a3b2407c8e5f8df9e623c41cd7b9bc25ccf5fd398740",
+      "private/layout/evaluation/quality5-development.lock.json": "a137d681edf747e81377d619e23d71f5190eadca01bd60c1529e6b6b857c644c",
+      "private/layout/evaluation/.gitignore": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b",
+      "private/layout/evaluation/quality5-development-v2.lock.json": "72c099949799b246a26195aa684bdb5c34aff592d7ef6cba37d135ccecd29fc4",
+      "private/layout/evaluation/quality5-development.json": "9725325df05e64fb121220131076d8d7479580166333a922dce519d3f36d18fb",
+      "private/layout/evaluation/quality5-verified.lock.json": "8942529d4ef2654746d4372b2d7ea9327051145c587e84ec4d9c179d3a5de361",
+      "private/layout/evaluation/quality5-development-v3.json": "d220fc15a37bc93e9ca4e875434c5eeba40c882f9bf79a820d23c848fb792ff4",
+      "private/layout/evaluation/quality5-development-v2.json": "1ce11343d87eff45b0e38c8a0743cf898ad26ed89af1da7674faf7416c0973cf",
+      "private/layout/fixtures/distributed-ai.bundle.jsonl": "9edbdefb611879a0a0f42b3bcf743625799a2d496b72ef2f40ccede3db9e6ccb",
+      "private/layout/fixtures/online-boutique.json": "0c84db9f92564bde28bbe37bedcc70eaa52908fecf628d5a858b24184d3c5857",
+      "private/layout/fixtures/fanout-peers.json": "5614b773595e81e54d497094560641639393bfd85c83a6f3f2217450496d9a9d",
+      "private/layout/fixtures/nested-cross-scope.json": "0a1240b1d6d8efe9ab97a1d602cb308422d11fe34f28f9f3563ad75c9f061b93",
+      "private/layout/fixtures/SOURCES.md": "9ce47fd229647444023b98488aed4584f8d639fed45e67a3fc5e2510bb514b6a",
+      "private/layout/fixtures/deathstar-hotel.json": "a677d5e0e885157425617939d28bd97c8eff13bda0bec6434005ecd57b208b6e",
+      "private/layout/fixtures/shared-saas.json": "0472e702f042897dce8c0aabefb8fcb5a9a50b02f6d60ec5856f916753e1537f",
+      "private/layout/fixtures/README.md": "87ab3b05336cf36857b77cf09d88c4909deba62c5e64acc363f8d3e7c7ceda6a",
+      "private/layout/fixtures/distributed-ai-many-tables.bundle.jsonl": "f7be008dc6a74d6624b879d21f73956309f744e8e7242e5bb27b3168ae3e6b65",
+      "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+      "private/layout/src/solver.rs": "62f0551bbc39079c5d40bfdf4eede12fb27f3d263b09d27b3fc378dd841ce7f6",
+      "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+      "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+      "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+      "private/layout/src/composed.rs": "e23e3ff229b50ea8be8e2167af25e2810cfd7d2b5c3567dc7843580b8abd2086",
+      "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+      "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+      "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+      "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+      "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+      "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+      "private/layout/src/routing.rs": "5646322dc94fa0b76d2bc820324ddd208f71f75e089795838d495facab28bc73",
+      "private/layout/src/assembly.rs": "ae8d6bde981dc7e14314679d961ea793cf1af1514d2bd2b9ddfaf78a03ae9ff5",
+      "private/layout/src/composed/cache.rs": "972c6eacda62055cad69803cbf9c33c57638cf06cfc83d9da0c7c0ad13ff41db",
+      "private/layout/src/composed/feedback.rs": "48f7d079a7f989e68c8dbcf3c6d780851170803d5623b4f8a89f65ea77557326",
+      "private/layout/src/composed/solver.rs": "4658b8225db2e78a18e6d57ae102013112345fdde44b1570bfa3e75c96af316d",
+      "private/layout/src/composed/persistence.rs": "f6da86db38b1de948a7d1d5b24a663dd873f775f0023c89ac3ccf36c0dd01184",
+      "private/layout/src/composed/recovery_tests.rs": "1efa2aa99be3c1decb3aa5cd6bff3a8eee096e69a09440f1698274f651083e0e",
+      "private/layout/src/composed/validation.rs": "74284c9bd560580b3aa8281d4fef862adcb17af98d58461b2841ffca755ea71b",
+      "private/layout/src/composed/constraints.rs": "4675fce6d16e554260f5168455fa7d80fab4f4da7f3b27e49561f27d4b5c2f62",
+      "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+      "private/layout/evaluation/__pycache__/test_run.cpython-314.pyc": "83de93f94cada72205c67ac3c543c1656ea9edf3104b28e6cca72db67952fbba",
+      "private/layout/evaluation/__pycache__/run.cpython-314.pyc": "7cbc8478384703bf09d051ab37964dfd741f00994e18a933ea4dc9151ce93586",
+      "public/README.md": "17aa6cdc2acd964a0b8233b4fb12fbf196bb359dfb52d7b8f5fc4bfc804eedde",
+      "public/mcp-server/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/schema/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/schema/model-bundle.md": "eb6afb86aa3425b3d1654cf4dd2e3d17efd32166d2dd49765e55e6369bd051a3",
+      "public/schema/architecture-format.md": "828ca848562c0077a67ffb8c7cba79cbe6348876030e4d335d0114ab2de93b35",
+      "public/schema/architecture.schema.json": "cca611605feed90125f2fc30488e80466b2f4fcf663c7efa5148f40d4d868ad2",
+      "public/examples/notes-crud.json": "aa3f43620b4308ea648c3f623f0250fb0ca6dad2719989d9eb7a7fa83219ff8c",
+      "public/examples/sketch-crud.json": "d20633a69da320c13bb995afd568e7d57656d437a0f7c6b0af43b01d091b2957",
+      "public/examples/data-messaging.bundle.jsonl": "bd26874d92789cc0f2f00a2042a8dbd8bbc57e3911de80d0edb2170fe986244c",
+      "public/examples/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/examples/architecture-minimal.json": "fea3fd1f23a9ecf4ec4a24d63c4b5d42ca8c9d15de9331261ece97363b78844b",
+      "public/examples/architecture.json": "77ae42de13086b13ceb575acd2ddd6826b80311c1e72ee38cd6616ac40a8d56f",
+      "public/examples/database.json": "ef3fd8928479242af12da3fc16f64b909448fb2b02bbdbc099963eaa78fa5b95",
+      "public/examples/objects.json": "49e2e940191dfd7c84e8356fa0cfd7c9c91419d08c7381354f6c05c6ca8a0b27",
+      "public/validation/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/conformance/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/conformance/architecture-cases.json": "c5330600299c05444d8bdc37b8a6d8a7cdf114a518f27f256bb3668a922070c9",
+      "public/conformance/architecture-contract.md": "db8081581afcd5730ac2b4b0dcf972fdec898d7bb6d9d39fbe98c90a9dcc54af",
+      "public/skills/claude-code/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/skills/codex/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/skills/shared/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/types/typescript/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+      "public/types/rust/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/types/rust/tests/provider.rs": "2e4ebc0bf863afa622c95616219133e5e9e8b82e5d8e633e0dc2f651a75fa155",
+      "public/types/rust/tests/architecture.rs": "fa9a1b1ec174d6cca0edda9541dcdf7903ee5cdf69e62f6da866d04acdb83eef",
+      "public/types/rust/examples/index_profile.rs": "ad9cc35db0c409123a117a057d59c05f779181fa1f6f702cfffd3619e482a3a1",
+      "public/types/rust/examples/bundle_bench.rs": "da6de010d5baabd2c3edb7e003324e0aae3c4d8b9eeee336bedca7676e3960c2",
+      "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+      "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+      "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+      "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+      "public/types/rust/src/provider/storage.rs": "057157a5846b614215a8c07b1d85fe372be217ff1faa48485c3d3c2d53e4c288",
+      "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+      "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+      "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+      "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+      "public/tools/rust-bundle/Cargo.toml": "8dc0bf85650d69908093bbeaf0a6d37455e55a283ddd28a4bb6172e4645a14ac",
+      "public/tools/rust-bundle/README.md": "9ec4f566c18162439ae6eae07cf36e9af7a0c067eaca8780bbaca13e9a91ccfb",
+      "public/tools/rust-bundle/tests/producer.rs": "dee02ebcf7afc265fc468a175552c2689a5c569c412abf83a3f007a283f1724f",
+      "public/tools/rust-bundle/tests/syntax_identity.rs": "e5b1c45773d35eeaefecb88d70abae8f4b91d5f746e355622dd7bf0266ab5da5",
+      "public/tools/rust-bundle/src/lib.rs": "0f6207ae2093be151e951314f40a7c22c72d58f37520177e152a1cc3beccd9e2",
+      "public/tools/rust-bundle/src/main.rs": "5ef69ae356b5e35812bee18e264ecdc2e773a3aee3d43b73354ff3bee5664855",
+      "public/tools/rust-bundle/tests/fixtures/nested/Cargo.toml": "3ac7242681dff094ebd266dca4a200a06fa7d048d08a0dec8fcc6e8c2756173f",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/core/Cargo.toml": "98ecedfccf534c46b93c4c63fe97061b51bbc63c69bec30b9e14d5c491c1dc10",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/app/Cargo.toml": "16ab1bf8b22edc250395656567cd3508d3a4d70183f1b937d41495093b71c2b7",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/lib.rs": "3f9250d7ea14f19eb80b95567257db81758e48aecf3981b77674ce93153e768d",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/helpers.rs": "c24f62a0d2a14bd3dba61d3f3f8e2be5c58535d10bdb368d0f5b32c7e669a826",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/lib.rs": "4b6bf49dfecc1bd0917597d80f64a4d1e713af7ba19fc4e2ee53faa50584f43e",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/value.rs": "13b24a36be7cbbef8317059ca322623c20db7372930e475ebb46144f894be75f",
+      "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+      "Cargo.lock": "ebde2964840a8ab18c73dcd04fff4eaa885bea827d5dd04b2194b62a950ea638",
+      "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+    },
+    "candidate_files": {
+      "Cargo.lock": "3eca1946140e4d99b8a04f43990ce0ae46daace15803d87cbc0d95d1d08dec83",
+      "Cargo.toml": "dbdadbeadabffeaa05efcef56ed28ea30aa06c8174953de731aabac78edb2631",
+      "private/README.md": "9c8b4b2a5d272946dcab6101673a686de6b8aa607063c0edb9f90d6a2c17debb",
+      "private/assets/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+      "private/layout/evaluation/.gitignore": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b",
+      "private/layout/evaluation/README.md": "5d0af1bedea5c44659c7a3b2407c8e5f8df9e623c41cd7b9bc25ccf5fd398740",
+      "private/layout/evaluation/__pycache__/run.cpython-314.pyc": "7cbc8478384703bf09d051ab37964dfd741f00994e18a933ea4dc9151ce93586",
+      "private/layout/evaluation/__pycache__/test_run.cpython-314.pyc": "83de93f94cada72205c67ac3c543c1656ea9edf3104b28e6cca72db67952fbba",
+      "private/layout/evaluation/quality5-development-v2.json": "1ce11343d87eff45b0e38c8a0743cf898ad26ed89af1da7674faf7416c0973cf",
+      "private/layout/evaluation/quality5-development-v2.lock.json": "72c099949799b246a26195aa684bdb5c34aff592d7ef6cba37d135ccecd29fc4",
+      "private/layout/evaluation/quality5-development-v3.json": "d220fc15a37bc93e9ca4e875434c5eeba40c882f9bf79a820d23c848fb792ff4",
+      "private/layout/evaluation/quality5-development.json": "9725325df05e64fb121220131076d8d7479580166333a922dce519d3f36d18fb",
+      "private/layout/evaluation/quality5-development.lock.json": "a137d681edf747e81377d619e23d71f5190eadca01bd60c1529e6b6b857c644c",
+      "private/layout/evaluation/quality5-final.lock.json": "c961b92e8f91aa4e90412c454b32fd9898e62b751823cef0d43d11141475139d",
+      "private/layout/evaluation/quality5-verified.lock.json": "8942529d4ef2654746d4372b2d7ea9327051145c587e84ec4d9c179d3a5de361",
+      "private/layout/evaluation/run.py": "efd04486864d8b74c7da474446b7b9a91a18c6cfa3b0fd470733cf6541357402",
+      "private/layout/evaluation/test_run.py": "e41e2b8a446c47f10926b57c05b9ca370737cddc70f072cec4bc9f1866059eae",
+      "private/layout/examples/bundle_layout.rs": "74b3e8a7144c9bdcb4847361bceb7971b7b97fd01d2662f19606bb37083bb647",
+      "private/layout/examples/compare.rs": "4b692fe2161f06bac109ad8e71dff80428721c20c2c33bdbae2e5592b48cd67c",
+      "private/layout/examples/composed_layout.rs": "15b8200531d4871aad86fa2d07bd6e43042b4866c4e26e5ef03a5b514c4a1dae",
+      "private/layout/examples/evaluate_cases.rs": "267e33a23f4843ba178c726286eb0c95f571fbd290370f7e3d99e1454ed8bebe",
+      "private/layout/examples/generate_ai_fixture.rs": "caa6d269d3f525e9bc67ad6271469d5327ecb6dbf5a76eac6961c307903425fc",
+      "private/layout/examples/production_audit.rs": "fd6a0ca965da73c57e71eca902d13f1fee3c5bbd755e59769d6bae8cec50b84a",
+      "private/layout/examples/production_pages.rs": "8c5506dbe000f1a302d1367a995b13c755cf4c7f49b32bdc441b4b67c922af51",
+      "private/layout/examples/projection_bench.rs": "829481a1af42f099a25b065c6abfe43bfcc2dedee42c3ced95b30d90b7c11ce0",
+      "private/layout/examples/scale_view_bench.rs": "89cc3231b2801b3d253d77d91f630b08dd8b2901496b963a43f16bbb2b299b72",
+      "private/layout/fixtures/README.md": "87ab3b05336cf36857b77cf09d88c4909deba62c5e64acc363f8d3e7c7ceda6a",
+      "private/layout/fixtures/SOURCES.md": "9ce47fd229647444023b98488aed4584f8d639fed45e67a3fc5e2510bb514b6a",
+      "private/layout/fixtures/deathstar-hotel.json": "a677d5e0e885157425617939d28bd97c8eff13bda0bec6434005ecd57b208b6e",
+      "private/layout/fixtures/distributed-ai-many-tables.bundle.jsonl": "f7be008dc6a74d6624b879d21f73956309f744e8e7242e5bb27b3168ae3e6b65",
+      "private/layout/fixtures/distributed-ai.bundle.jsonl": "9edbdefb611879a0a0f42b3bcf743625799a2d496b72ef2f40ccede3db9e6ccb",
+      "private/layout/fixtures/fanout-peers.json": "5614b773595e81e54d497094560641639393bfd85c83a6f3f2217450496d9a9d",
+      "private/layout/fixtures/nested-cross-scope.json": "0a1240b1d6d8efe9ab97a1d602cb308422d11fe34f28f9f3563ad75c9f061b93",
+      "private/layout/fixtures/online-boutique.json": "0c84db9f92564bde28bbe37bedcc70eaa52908fecf628d5a858b24184d3c5857",
+      "private/layout/fixtures/shared-saas.json": "0472e702f042897dce8c0aabefb8fcb5a9a50b02f6d60ec5856f916753e1537f",
+      "private/layout/src/assembly.rs": "ae8d6bde981dc7e14314679d961ea793cf1af1514d2bd2b9ddfaf78a03ae9ff5",
+      "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+      "private/layout/src/composed.rs": "e23e3ff229b50ea8be8e2167af25e2810cfd7d2b5c3567dc7843580b8abd2086",
+      "private/layout/src/composed/cache.rs": "972c6eacda62055cad69803cbf9c33c57638cf06cfc83d9da0c7c0ad13ff41db",
+      "private/layout/src/composed/constraints.rs": "4675fce6d16e554260f5168455fa7d80fab4f4da7f3b27e49561f27d4b5c2f62",
+      "private/layout/src/composed/feedback.rs": "48f7d079a7f989e68c8dbcf3c6d780851170803d5623b4f8a89f65ea77557326",
+      "private/layout/src/composed/persistence.rs": "f6da86db38b1de948a7d1d5b24a663dd873f775f0023c89ac3ccf36c0dd01184",
+      "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+      "private/layout/src/composed/recovery_tests.rs": "1efa2aa99be3c1decb3aa5cd6bff3a8eee096e69a09440f1698274f651083e0e",
+      "private/layout/src/composed/solver.rs": "4658b8225db2e78a18e6d57ae102013112345fdde44b1570bfa3e75c96af316d",
+      "private/layout/src/composed/validation.rs": "74284c9bd560580b3aa8281d4fef862adcb17af98d58461b2841ffca755ea71b",
+      "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+      "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+      "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+      "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+      "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+      "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+      "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+      "private/layout/src/routing.rs": "5646322dc94fa0b76d2bc820324ddd208f71f75e089795838d495facab28bc73",
+      "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+      "private/layout/src/solver.rs": "62f0551bbc39079c5d40bfdf4eede12fb27f3d263b09d27b3fc378dd841ce7f6",
+      "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+      "private/layout/tests/assembly.rs": "6e5211d4cded44837ff9eb217c07ce6d3e141a5e7c88cfc8a1018bc6b7797f06",
+      "private/layout/tests/assembly_plan.rs": "b80dd91b42419b6c877f1d3e5e96a82fcf096f681e439692446c4779d12be76d",
+      "private/layout/tests/canonical_route_join.rs": "6372c32fb9edaee72f62fd44b5c55cd106abc009b9575dad530526d9fea1431d",
+      "private/layout/tests/composed.rs": "f101163d7b59551b37879be5307ed9b4d7410c74b557d00d5b08e0ee303273b7",
+      "private/layout/tests/composed_cache.rs": "ef54a55d80fa1e1f38d2520785791bb77782da2d4d4f9f1c73026f9e9159789f",
+      "private/layout/tests/composed_feedback.rs": "f1a19726776b2bd206962f542f22d7c9861d6005151fda188170a46703338ea2",
+      "private/layout/tests/composed_persistence.rs": "1c1d062e7c04196d153af0380066ddd24866feceb9ef3a9a091d5371a242a27e",
+      "private/layout/tests/composed_recovery.rs": "6bdd2122ef89af61fff01fa49631c971559875ab1f9719154e71c87169eaf920",
+      "private/layout/tests/composed_reorganization.rs": "aff26b135ad2add94f3b4c5022302a2e8203309266470bf2385d131e41c145d5",
+      "private/layout/tests/composed_validation.rs": "bf96f0a3ca5cc9d76e718ca782caa6d075b043f86f57b404bf90a4c59d731c0a",
+      "private/layout/tests/distributed_system.rs": "0b94df9959245ead7e06cf5dd9df169ddb86cc1e82056610a916f643e1c6d930",
+      "private/layout/tests/durable_pins.rs": "a025f6ce550146612c006bdd28430e5ccfb18700ed9c818bf07e34ca26583114",
+      "private/layout/tests/inherited_constraints.rs": "5143d7ec21a33a66501b63877b23e513b7bdc867243a194b68834e3f68cc91a4",
+      "private/layout/tests/neighborhood_continuity.rs": "ac69f6b4531da8cd32db92316620413b134cad6f912816f583c5f55f3b24b39c",
+      "private/layout/tests/placement.rs": "0daa906851a3f472d8ff6252136661648bbe7a850c3842dc578995f47acc5af7",
+      "private/layout/tests/projection_integration.rs": "b7d2508c1d6e6a2a0cc2db2164e2b76a05df6a457db8ff4a4d47058e7ee000cb",
+      "private/layout/tests/provider_code.rs": "83da89bd79a5553290668bb756c37364aca60c08e49d58fa7b6ee674b99c91e4",
+      "private/layout/tests/route_metrics.rs": "0e0d78263c48a0434878f1f61707522afffbc392dbd3dc2839c484c8de8579b7",
+      "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9",
+      "private/layout/tests/volumetric_constraints.rs": "c5b8e429885c55ddf01ae761fa89e63460946b30a12026524db901b2e4a64d84",
+      "private/layout/tests/volumetric_packing.rs": "260ac29dae4bfd7624b4143d564a82c83ae0672715a1067b695c211c85dab0fe",
+      "private/packaging/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "private/runtime/Cargo.toml": "449706c320e581bf5b08fb512574924dcf60b038f5dce0e1aba93ccec610d2a0",
+      "private/runtime/examples/composed_pin_smoke.rs": "9194a4656c4641b5d6917e49673332f356c3523d8b610bfb5c8e9ad2a12b3395",
+      "private/runtime/examples/connected_smoke.rs": "435e0cdbdc399eda7ddd74f85e7b346e5477a050abb48f85b95db50e2d2796a9",
+      "private/runtime/examples/large_model_smoke.rs": "283b0591189c8ef7a6d8dfa5007a2c8225de9ce27b803d69508e9c5e2d10a693",
+      "private/runtime/examples/layout_smoke.rs": "57edb790c26d3e37b7e006c43b49fa2c21dd468ef05e89dfaa17895bf3580a51",
+      "private/runtime/examples/legacy_control.rs": "17079a763cb9df57ba81449383776bd076593ac56c9b817634570cd8f30963d1",
+      "private/runtime/examples/production_smoke.rs": "ed98473ad3f6b2f6fce52da591b6377f8cf745c5f7ba0c9555465f340a662b8b",
+      "private/runtime/examples/render_smoke.rs": "d27ea96935165fa4dd5523c5874f0008321f593395ba1e2077ee96fbb3594639",
+      "private/runtime/examples/support/control_geometry.rs": "2b5d5c96b1de4d9322c973628d2f0e0fb57fa10d4ce25ed1ea94c34777fe801b",
+      "private/runtime/examples/support/frame_trace.rs": "f41dffa84ab3cf9a771a482939b3024ce9b4608033b922d1750f790722739bfb",
+      "private/runtime/examples/support/occlusion_probe.rs": "13bfddfea50e9e527c1373a62e67019bdb9985805287748dc6637854f60ba83c",
+      "private/runtime/examples/support/presentation_probe.rs": "c4c54c26d4773ee0ea102a9b6a98d252b860482f956900403ea95d999042c5ef",
+      "private/runtime/examples/support/scripted_input.rs": "65b063bd81c1165c380a85933adf6a5afbddcdced8df9227905f8e0316f57f22",
+      "private/runtime/src/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "private/runtime/src/camera.rs": "537cfa97360bea729efd9c50a55ae09753fc54063c362d15746b709f907276bc",
+      "private/runtime/src/composed_state_tests.rs": "0a7c8601ead7e379b4e242e0f317ad987f4ec8f6851ecd74cc916f87e2691076",
+      "private/runtime/src/composition.rs": "eb4eaf1acb171812c6a90f707990d758d920e1902269802fcb1db2cccb73f2d6",
+      "private/runtime/src/connections.rs": "e70e6e2c4f2fce2fd7e38554e77d2ce5b9d9bf8c3a120a0861e07de6804e684c",
+      "private/runtime/src/input.rs": "a8fb5358a1056b405284f1a811e571ebc3e25f839cf577374f1c1a72cfb51b3e",
+      "private/runtime/src/layout_geometry.rs": "a2cbd36db2bdb852f99e270f729482d6fc87af383c4705ae51177c6e082681ef",
+      "private/runtime/src/layout_input.rs": "d3f14e5fa6e8a8b8c8146a7da2041ed62599246c6c609dba2ce110759fa2d1c6",
+      "private/runtime/src/layout_scene.rs": "cfef67d51912e13627290b569ab1962efe0ea1665facfddb92d33442b90c31f7",
+      "private/runtime/src/lib.rs": "5260244b697fc8126c2652ec63017fa37bf073fdde01e7d5f4b9133f794604d8",
+      "private/runtime/src/main.rs": "20a807dc215ab235929cbf664407919c48830df663475bf0aacda368bf79a132",
+      "private/runtime/src/native_layout.rs": "2932073683b84c9fd69e5744cc09544a3ce94984a9bc24f03d324c0d3f167c95",
+      "private/runtime/src/primitives.rs": "0c5fd38c4c26a5c59a1d52f95af95d7663dfab2d27dc124668135d5e386abd60",
+      "private/runtime/src/scene.rs": "f0518215f107170e19b9ef57036ee1af680df3b3ffae58719cb847a63c7e20e5",
+      "private/runtime/src/shutdown.rs": "6b29838be47f35f7c85e5476e3a1542f9e4f6bcb1466ac63555983f90b6b76d1",
+      "private/runtime/tests/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "private/runtime/tests/ingestion.rs": "500eec5f93a40d4bd1b82920b1fab6ccd868fa7944e9b7bad4d2f824b54abf8c",
+      "private/visual-fixtures/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/README.md": "17aa6cdc2acd964a0b8233b4fb12fbf196bb359dfb52d7b8f5fc4bfc804eedde",
+      "public/conformance/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/conformance/architecture-cases.json": "c5330600299c05444d8bdc37b8a6d8a7cdf114a518f27f256bb3668a922070c9",
+      "public/conformance/architecture-contract.md": "db8081581afcd5730ac2b4b0dcf972fdec898d7bb6d9d39fbe98c90a9dcc54af",
+      "public/examples/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/examples/architecture-minimal.json": "fea3fd1f23a9ecf4ec4a24d63c4b5d42ca8c9d15de9331261ece97363b78844b",
+      "public/examples/architecture.json": "77ae42de13086b13ceb575acd2ddd6826b80311c1e72ee38cd6616ac40a8d56f",
+      "public/examples/data-messaging.bundle.jsonl": "bd26874d92789cc0f2f00a2042a8dbd8bbc57e3911de80d0edb2170fe986244c",
+      "public/examples/database.json": "ef3fd8928479242af12da3fc16f64b909448fb2b02bbdbc099963eaa78fa5b95",
+      "public/examples/notes-crud.json": "aa3f43620b4308ea648c3f623f0250fb0ca6dad2719989d9eb7a7fa83219ff8c",
+      "public/examples/objects.json": "49e2e940191dfd7c84e8356fa0cfd7c9c91419d08c7381354f6c05c6ca8a0b27",
+      "public/examples/sketch-crud.json": "d20633a69da320c13bb995afd568e7d57656d437a0f7c6b0af43b01d091b2957",
+      "public/mcp-server/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/schema/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/schema/architecture-format.md": "828ca848562c0077a67ffb8c7cba79cbe6348876030e4d335d0114ab2de93b35",
+      "public/schema/architecture.schema.json": "cca611605feed90125f2fc30488e80466b2f4fcf663c7efa5148f40d4d868ad2",
+      "public/schema/model-bundle.md": "eb6afb86aa3425b3d1654cf4dd2e3d17efd32166d2dd49765e55e6369bd051a3",
+      "public/skills/claude-code/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/skills/codex/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/skills/shared/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/tools/rust-bundle/Cargo.toml": "8dc0bf85650d69908093bbeaf0a6d37455e55a283ddd28a4bb6172e4645a14ac",
+      "public/tools/rust-bundle/README.md": "9ec4f566c18162439ae6eae07cf36e9af7a0c067eaca8780bbaca13e9a91ccfb",
+      "public/tools/rust-bundle/src/lib.rs": "0f6207ae2093be151e951314f40a7c22c72d58f37520177e152a1cc3beccd9e2",
+      "public/tools/rust-bundle/src/main.rs": "5ef69ae356b5e35812bee18e264ecdc2e773a3aee3d43b73354ff3bee5664855",
+      "public/tools/rust-bundle/tests/fixtures/nested/Cargo.toml": "3ac7242681dff094ebd266dca4a200a06fa7d048d08a0dec8fcc6e8c2756173f",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/app/Cargo.toml": "16ab1bf8b22edc250395656567cd3508d3a4d70183f1b937d41495093b71c2b7",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/helpers.rs": "c24f62a0d2a14bd3dba61d3f3f8e2be5c58535d10bdb368d0f5b32c7e669a826",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/lib.rs": "3f9250d7ea14f19eb80b95567257db81758e48aecf3981b77674ce93153e768d",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/core/Cargo.toml": "98ecedfccf534c46b93c4c63fe97061b51bbc63c69bec30b9e14d5c491c1dc10",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/lib.rs": "4b6bf49dfecc1bd0917597d80f64a4d1e713af7ba19fc4e2ee53faa50584f43e",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/value.rs": "13b24a36be7cbbef8317059ca322623c20db7372930e475ebb46144f894be75f",
+      "public/tools/rust-bundle/tests/producer.rs": "dee02ebcf7afc265fc468a175552c2689a5c569c412abf83a3f007a283f1724f",
+      "public/tools/rust-bundle/tests/syntax_identity.rs": "e5b1c45773d35eeaefecb88d70abae8f4b91d5f746e355622dd7bf0266ab5da5",
+      "public/types/rust/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+      "public/types/rust/examples/bundle_bench.rs": "da6de010d5baabd2c3edb7e003324e0aae3c4d8b9eeee336bedca7676e3960c2",
+      "public/types/rust/examples/index_profile.rs": "ad9cc35db0c409123a117a057d59c05f779181fa1f6f702cfffd3619e482a3a1",
+      "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+      "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+      "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+      "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+      "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+      "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+      "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+      "public/types/rust/src/provider/storage.rs": "057157a5846b614215a8c07b1d85fe372be217ff1faa48485c3d3c2d53e4c288",
+      "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+      "public/types/rust/tests/architecture.rs": "fa9a1b1ec174d6cca0edda9541dcdf7903ee5cdf69e62f6da866d04acdb83eef",
+      "public/types/rust/tests/provider.rs": "2e4ebc0bf863afa622c95616219133e5e9e8b82e5d8e633e0dc2f651a75fa155",
+      "public/types/typescript/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "public/validation/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+    },
+    "unchanged_previous_measurement_source_count": 110,
+    "original_production_smoke": {
+      "path": "target/debug/examples/production_smoke",
+      "sha256": "4c16e676c7386acab76e4d907eef066f782f26a9884e6bbd5562378037431366"
+    },
+    "original_viewer": {
+      "path": "target/debug/visualyze",
+      "sha256": "8b1aea84780a5f5ad775406f6d8985ae79cc8e8a8734a40767e4e1c28c502e0c"
+    },
+    "candidate_production_smoke": {
+      "path": "/private/tmp/visualyze-bevy19-compat/target/debug/examples/production_smoke",
+      "sha256": "0e939166cf69ed19adca9add9765a1cdcb124c7b544ca131c7c83f2ad7778701"
+    },
+    "candidate_viewer": {
+      "path": "/private/tmp/visualyze-bevy19-compat/target/debug/visualyze",
+      "sha256": "be83bbcb0c84fbe7697868eeac02d224ddfd3214eca3bb16bdcb9fba33844048"
+    }
+  },
+  "independent_next_implementation": "Durable bounded presentation provenance for group/reference pins: preserve supplied ancestry separately, restore pin-bearing group definitions independently of the 64-entry suggestion LRU, classify hidden/page-absent constraints explicitly, and retain exact anchors, undo/origin navigation and transactional conflict handling. This review alone does not implement that remaining requirement.",
+  "review": {
+    "independent_read_only_review": "Completed; one factual wording correction applied: 4,499 ms was the first run\u2019s maximum renderer join (frame 4), not its first join. No remaining actionable findings. Source/binary/patch/report/log identities and validation totals were checked.",
+    "adoption_status": "Candidate only; main runtime, dependencies and current preview build are unchanged."
+  }
+}

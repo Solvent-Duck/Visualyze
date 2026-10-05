@@ -1,0 +1,194 @@
+{
+  "actions": [
+    {
+      "action": "Expand(\"datastore:orders\")",
+      "durable_pin_present": false,
+      "frames": 2,
+      "objects": 9,
+      "pin_position": null,
+      "routes": 7,
+      "screenshot": false,
+      "step": 0
+    },
+    {
+      "action": "Expand(\"table:orders\")",
+      "durable_pin_present": false,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": false,
+      "step": 1
+    },
+    {
+      "action": "Pin(\"column:customer-id\")",
+      "durable_pin_present": true,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": true,
+      "step": 2
+    },
+    {
+      "action": "Collapse(\"datastore:orders\")",
+      "durable_pin_present": true,
+      "frames": 1,
+      "objects": 7,
+      "pin_position": null,
+      "routes": 6,
+      "screenshot": true,
+      "step": 3
+    },
+    {
+      "action": "Expand(\"datastore:orders\")",
+      "durable_pin_present": true,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": false,
+      "step": 4
+    },
+    {
+      "action": "Expand(\"table:orders\")",
+      "durable_pin_present": true,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": false,
+      "step": 5
+    },
+    {
+      "action": "Unpin(\"column:customer-id\")",
+      "durable_pin_present": false,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": false,
+      "step": 6
+    },
+    {
+      "action": "Undo",
+      "durable_pin_present": true,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": true,
+      "step": 7
+    }
+  ],
+  "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+  "save_attempts": 9,
+  "save_failures": 0,
+  "save_max_ms": 14.106375000000002,
+  "scope": "Actual native composed display and isolated v2 persistence. Exact rendered pinned position checked across collapse/reopen/unpin/undo. Restart and eviction have separate worker/core regressions; this process does not simulate hardware input or establish latency percentiles.",
+  "verification": {
+    "captured_utc": "2026-09-30T20:46:07.222705+00:00",
+    "source_sha256": {
+      "Cargo.lock": "4d6af295f9b5d7a1fa95ff8f28557492d58d991cf866fbc3232bd730a4f33118",
+      "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+      "private/layout/src/assembly.rs": "ae8d6bde981dc7e14314679d961ea793cf1af1514d2bd2b9ddfaf78a03ae9ff5",
+      "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+      "private/layout/src/composed/cache.rs": "9c9839d426385c774848af7b3f93cc9f5e83aebb75ef81a238de6a9b4e9b072c",
+      "private/layout/src/composed/persistence.rs": "55ae31dbc9ccb1254628f9bc77d2b0072d5c3e51a5e0d4b4cfe8f020dfe4dd2c",
+      "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+      "private/layout/src/composed/solver.rs": "307aaeb8df1a85da69eafb7082bc3aad596fbacaab47f33b55fc209665e67ff5",
+      "private/layout/src/composed/validation.rs": "9dce17a0fbcbe044f5a35b48b57c1a577327bdb74c80b8150dabab4ff340fba3",
+      "private/layout/src/composed.rs": "6c890a9d3b487e5807d9431b0d67f1398645b522ddd42a5e3e8922f0ca423632",
+      "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+      "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+      "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+      "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+      "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+      "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+      "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+      "private/layout/src/routing.rs": "2ef8e1d8684c45ca494ced38383d0f722296746911ca7c7759fecf51353b6165",
+      "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+      "private/layout/src/solver.rs": "62f0551bbc39079c5d40bfdf4eede12fb27f3d263b09d27b3fc378dd841ce7f6",
+      "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+      "private/runtime/examples/composed_pin_smoke.rs": "5376ef0aac9726e22647fb25b28444cb6c7868c74af32fb8bde8a11d4d6c7ae1",
+      "private/runtime/examples/connected_smoke.rs": "435e0cdbdc399eda7ddd74f85e7b346e5477a050abb48f85b95db50e2d2796a9",
+      "private/runtime/examples/large_model_smoke.rs": "283b0591189c8ef7a6d8dfa5007a2c8225de9ce27b803d69508e9c5e2d10a693",
+      "private/runtime/examples/layout_smoke.rs": "57edb790c26d3e37b7e006c43b49fa2c21dd468ef05e89dfaa17895bf3580a51",
+      "private/runtime/examples/legacy_control.rs": "17079a763cb9df57ba81449383776bd076593ac56c9b817634570cd8f30963d1",
+      "private/runtime/examples/production_smoke.rs": "498b016d226d2056b8891b3d9df9c4fee40fd4184aab61a05b1bf0913d83260e",
+      "private/runtime/examples/render_smoke.rs": "d27ea96935165fa4dd5523c5874f0008321f593395ba1e2077ee96fbb3594639",
+      "private/runtime/examples/support/control_geometry.rs": "2b5d5c96b1de4d9322c973628d2f0e0fb57fa10d4ce25ed1ea94c34777fe801b",
+      "private/runtime/examples/support/scripted_input.rs": "bed1e6590af46280b7d5daf46b7d575a83085cfd3940a1119c378609d27f97e8",
+      "private/runtime/src/camera.rs": "537cfa97360bea729efd9c50a55ae09753fc54063c362d15746b709f907276bc",
+      "private/runtime/src/composed_state_tests.rs": "a7ef58f329a14968bf6bb5ebec49fe2485140fba93aa7698788d1f57d21cf3d0",
+      "private/runtime/src/composition.rs": "eb4eaf1acb171812c6a90f707990d758d920e1902269802fcb1db2cccb73f2d6",
+      "private/runtime/src/connections.rs": "e70e6e2c4f2fce2fd7e38554e77d2ce5b9d9bf8c3a120a0861e07de6804e684c",
+      "private/runtime/src/input.rs": "a8fb5358a1056b405284f1a811e571ebc3e25f839cf577374f1c1a72cfb51b3e",
+      "private/runtime/src/layout_geometry.rs": "a2cbd36db2bdb852f99e270f729482d6fc87af383c4705ae51177c6e082681ef",
+      "private/runtime/src/layout_input.rs": "2e6377dac356050b6c27ce53d3f176d7a0b23de80a7f6c6cfd788a1181f55a03",
+      "private/runtime/src/layout_scene.rs": "746584fc7291f1873b16272c7a188bb08a607a3773e969a45e9bf6b884e8661f",
+      "private/runtime/src/lib.rs": "5260244b697fc8126c2652ec63017fa37bf073fdde01e7d5f4b9133f794604d8",
+      "private/runtime/src/main.rs": "20a807dc215ab235929cbf664407919c48830df663475bf0aacda368bf79a132",
+      "private/runtime/src/native_layout.rs": "ff3a81022789e4d1693c658c155d8cb030ae027de8e5f5bf12185df5aff31589",
+      "private/runtime/src/primitives.rs": "0c5fd38c4c26a5c59a1d52f95af95d7663dfab2d27dc124668135d5e386abd60",
+      "private/runtime/src/scene.rs": "50d8808ef48a26acde5bcd7512b12ebadc69462b91cc7e96a8ccb3e6c77961c4",
+      "private/runtime/src/shutdown.rs": "5235ad891a026947b05729351e7c67c9d62feba5f5fe9f97c316b94e9520a43b",
+      "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+      "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+      "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+      "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+      "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+      "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+      "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+      "public/types/rust/src/provider/storage.rs": "b0b6e70f9d582c6603fcc255ab9c45357293860f4c03c5bf3c61bb13d822f871",
+      "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+      "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+    },
+    "binary_sha256": "eef2e34de18b112a94b68a52b979eb5d67db919265d295f079c81d84b02d007c",
+    "fixture_sha256": {
+      "public/examples/data-messaging.bundle.jsonl": "bd26874d92789cc0f2f00a2042a8dbd8bbc57e3911de80d0edb2170fe986244c",
+      "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl": "8f4d8a5f197f5381563e7c19aa81cc962f67984ff08ad621de1c189632d7286c"
+    },
+    "conditions": "Apple M5 native macOS desktop; local files recently accessed, existing user previews preserved. Source/build/check phase finished before sequential native runs. No concurrent builds during graphics.",
+    "command": "/usr/bin/time -l ./target/debug/examples/composed_pin_smoke public/examples/data-messaging.bundle.jsonl visualyze-local/production/native-durable-pins-2026-09-30",
+    "exit_code": 0,
+    "elapsed_seconds": 4.33,
+    "maximum_rss_bytes": 215629824,
+    "peak_memory_footprint_bytes": 553452672,
+    "sources_and_binaries_unchanged_after_runs": true,
+    "screenshots_inspected": [
+      "step-2.png",
+      "step-3.png",
+      "step-7.png"
+    ],
+    "screenshot_sha256": {
+      "step-2.png": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939",
+      "step-3.png": "e42d9335a236e08071635d5b4f679d7efa4f0d6723f8326381435dbd71a19150",
+      "step-7.png": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939"
+    }
+  }
+}

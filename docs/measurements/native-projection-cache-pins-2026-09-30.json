@@ -1,0 +1,120 @@
+{
+  "actions": [
+    {
+      "action": "Expand(\"datastore:orders\")",
+      "durable_pin_present": false,
+      "frames": 2,
+      "objects": 9,
+      "pin_position": null,
+      "routes": 7,
+      "screenshot": false,
+      "step": 0
+    },
+    {
+      "action": "Expand(\"table:orders\")",
+      "durable_pin_present": false,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": false,
+      "step": 1
+    },
+    {
+      "action": "Pin(\"column:customer-id\")",
+      "durable_pin_present": true,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": true,
+      "step": 2
+    },
+    {
+      "action": "Collapse(\"datastore:orders\")",
+      "durable_pin_present": true,
+      "frames": 1,
+      "objects": 7,
+      "pin_position": null,
+      "routes": 6,
+      "screenshot": true,
+      "step": 3
+    },
+    {
+      "action": "Expand(\"datastore:orders\")",
+      "durable_pin_present": true,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": false,
+      "step": 4
+    },
+    {
+      "action": "Expand(\"table:orders\")",
+      "durable_pin_present": true,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": false,
+      "step": 5
+    },
+    {
+      "action": "Unpin(\"column:customer-id\")",
+      "durable_pin_present": false,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": false,
+      "step": 6
+    },
+    {
+      "action": "Undo",
+      "durable_pin_present": true,
+      "frames": 3,
+      "objects": 10,
+      "pin_position": [
+        9.313225746154785e-08,
+        -2.4000000953674316,
+        0.40000009536743164
+      ],
+      "routes": 7,
+      "screenshot": true,
+      "step": 7
+    }
+  ],
+  "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+  "save_attempts": 9,
+  "save_failures": 0,
+  "save_max_ms": 11.693999999999999,
+  "scope": "Actual native composed display and isolated v2 persistence. Exact rendered pinned position checked across collapse/reopen/unpin/undo. Restart and eviction have separate worker/core regressions; this process does not simulate hardware input or establish latency percentiles.",
+  "provenance": {
+    "raw_report": "visualyze-local/production/native-projection-cache-pins-2026-09-30/pin-report.json",
+    "raw_sha256": "c96268bab884e84d80199263ef728154ca23e67cefa6ade7739e2bdc820a4c0d",
+    "binary_sha256": "cedcfe5eaa309982650d364865a6acd5468abde5f2d2d93f74e32c87f140f8ca",
+    "validation_record": "projection-cache-validation-2026-09-30.json",
+    "source_stable_before_after": true
+  }
+}

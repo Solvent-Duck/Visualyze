@@ -1,0 +1,59 @@
+{
+  "date": "2026-09-30",
+  "stage": "canonical composition foundations; production composed solver not integrated",
+  "layout_version": 2,
+  "quality_version": 5,
+  "checks": [
+    {
+      "command": "cargo test --workspace --offline --locked",
+      "exit_code": 0,
+      "passed": 319,
+      "failed": 0,
+      "ignored": 1,
+      "log": "/private/tmp/visualyze-canonical-final-workspace.log"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --offline --locked -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo build -p visualyze --example production_smoke --offline --locked",
+      "exit_code": 0
+    },
+    {
+      "command": "cargo run -p visualyze-layout --example compare --offline --locked -- [seven snapshot fixtures listed in comparison CSV]",
+      "exit_code": 0,
+      "rows": 28,
+      "valid_rows": 28,
+      "reported_non_timing_fields_equal_previous_profile5": true
+    }
+  ],
+  "focused_tests": {
+    "canonical_frame_and_pin": 18,
+    "frame_extraction": 17,
+    "cross_module_boundary_join": 3,
+    "routing_unit_tests_including_existing": 26
+  },
+  "review_fixes": [
+    "Explicit inward normal qualifies boundary corner/edge joins selected by parent routing.",
+    "Interface-owner protrusion remains legal only inside every enclosing open ancestor in both geometry validators.",
+    "One-link transform and right identity retain origin without evaluating unused zero coordinates."
+  ],
+  "source_sha256": {
+    "private/layout/src/assembly.rs": "1cc3a623c82bc88fa61212520be886ede03b3310295933919bcea49f7310427d",
+    "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+    "private/layout/src/routing.rs": "2ef8e1d8684c45ca494ced38383d0f722296746911ca7c7759fecf51353b6165",
+    "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+    "private/layout/tests/assembly.rs": "6e5211d4cded44837ff9eb217c07ce6d3e141a5e7c88cfc8a1018bc6b7797f06",
+    "private/layout/tests/assembly_plan.rs": "b80dd91b42419b6c877f1d3e5e96a82fcf096f681e439692446c4779d12be76d",
+    "private/layout/tests/canonical_route_join.rs": "6372c32fb9edaee72f62fd44b5c55cd106abc009b9575dad530526d9fea1431d",
+    "private/runtime/examples/support/scripted_input.rs": "bed1e6590af46280b7d5daf46b7d575a83085cfd3940a1119c378609d27f97e8",
+    "Cargo.lock": "4d6af295f9b5d7a1fa95ff8f28557492d58d991cf866fbc3232bd730a4f33118"
+  },
+  "limits": "These checks do not prove a completed compositor, runtime integration, frame-cache/persistence migration, full relationship/fragment coverage, frozen calibration, physical OS input, GPU presentation or human comprehension. Exact frame types and original flat solution serialization remain separate.",
+  "comparison": "canonical-final-quality5-2026-09-30.csv"
+}

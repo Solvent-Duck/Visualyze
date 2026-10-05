@@ -1,0 +1,10 @@
+[package]
+name = "test-app"
+version = "0.1.0"
+
+[dependencies]
+engine.workspace = true
+external-library = "1"
+
+[target.'cfg(windows)'.dependencies]
+engine = { package = "test-core", path = "../core", optional = true }

@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "manifest_sha256": "1ce11343d87eff45b0e38c8a0743cf898ad26ed89af1da7674faf7416c0973cf",
+  "profile": {
+    "algorithms": [
+      "Layered",
+      "Floorplan",
+      "Constrained",
+      "Treemap"
+    ],
+    "continuity": "reported separately; no predecessor in initial-placement cases",
+    "layout_version": 2,
+    "normalization": "preferred-solid-volume-cuberoot-v1",
+    "normalization_equations": {
+      "aspect": "max enclosing dimension / min enclosing dimension - 1",
+      "compactness": "cbrt(enclosing volume / reference_volume)",
+      "congestion": "shared_lane_length/reference_length + crossing_points/max(1,displayed edge count)",
+      "distortion": "sum(L1(actual_size,preferred_size) / reference_length for solids)",
+      "length": "actual orthogonal routed length / reference_length",
+      "occlusion": "min(1,pairwise projected solid overlap / total projected solid area) across XY/XZ/YZ",
+      "reference_length": "max(1,cbrt(reference_volume))",
+      "reference_volume": "max(1,sum(preferred_width*preferred_height*preferred_depth for projected solids))"
+    },
+    "projection": {
+      "automatic_groups": true,
+      "group_target": 32,
+      "load_focus_detail": true,
+      "max_children": 32,
+      "max_references": 64,
+      "max_relation_records": 4096,
+      "peer_ceiling": 64,
+      "visible_budget": 250
+    },
+    "quality_version": 5,
+    "solver": {
+      "clearance": 2,
+      "feedback_candidates": 4,
+      "gap": 12,
+      "movement_weight": 0.08,
+      "routed_candidates": 8,
+      "size_candidates": 28
+    },
+    "weights": {
+      "aspect_ratio": 1.5,
+      "bends": 0.3,
+      "compactness": 2.0,
+      "congestion": 1.0,
+      "distortion": 0.25,
+      "occlusion": 2.0,
+      "route_length": 1.0
+    },
+    "work_budget": 32
+  },
+  "sources": {
+    "Cargo.lock": "4d6af295f9b5d7a1fa95ff8f28557492d58d991cf866fbc3232bd730a4f33118",
+    "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+    "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+    "private/layout/evaluation/run.py": "efd04486864d8b74c7da474446b7b9a91a18c6cfa3b0fd470733cf6541357402",
+    "private/layout/examples/evaluate_cases.rs": "fcc220303a7f1dd452a7608ada311e538cfc2e1b2bbd14aeb6d30764c579fd9b",
+    "private/layout/src/lib.rs": "5e56faf507c53a626acf8b28dd8f8fd3065e89b01fe41b81edaf710b7918c2cf",
+    "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+    "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+    "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+    "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+    "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+    "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+    "private/layout/src/routing.rs": "e8de7f7f0a522d0ddef46265fd840494edf31eebadf3e7311b97711011e819c3",
+    "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+    "private/layout/src/solver.rs": "9fe9c19cb63bd018d3ad2396b6a944e989068d4a93f06877c48c9ff93652a058",
+    "private/layout/src/validation.rs": "9c85364600a3e89ae1b581588bdaf32c2e29086f4ef75df2d072bbbdffce7b0d",
+    "public/examples/database.json": "ef3fd8928479242af12da3fc16f64b909448fb2b02bbdbc099963eaa78fa5b95",
+    "public/examples/objects.json": "49e2e940191dfd7c84e8356fa0cfd7c9c91419d08c7381354f6c05c6ca8a0b27",
+    "public/schema/architecture.schema.json": "cca611605feed90125f2fc30488e80466b2f4fcf663c7efa5148f40d4d868ad2",
+    "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+    "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+    "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+    "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+    "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+    "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+    "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+    "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+    "public/types/rust/src/provider/storage.rs": "b0b6e70f9d582c6603fcc255ab9c45357293860f4c03c5bf3c61bb13d822f871",
+    "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+    "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+  },
+  "executable_sha256": "49e7be5edc0342c2703235e6d9d625d1e15ebd48995bbc378c9300446120b328",
+  "training_report_sha256": "0e2b64b6ad747d8121e5105dca43a5e79b15d0cc2e5dcadca614c6915a40b2ca",
+  "frozen_at_utc": "2026-09-30T16:33:15.515271+00:00",
+  "scope": "Computational profile freeze after training validity checks. Human calibration and comprehension remain separate gates."
+}

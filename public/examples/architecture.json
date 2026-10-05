@@ -1,0 +1,280 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "example-platform",
+  "revision": 1,
+  "system_id": "scope:app",
+  "snapshot": {
+    "id": "example-platform-001",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Synthetic web application, API, user storage, authentication coverage, and selected hosting contexts.",
+    "omissions": [
+      "Authorization, billing entitlements, and database access control are not modeled.",
+      "Client hosting and authentication-provider hosting are not modeled."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:app",
+      "kind": "scope",
+      "label": "Application",
+      "boundary": "internal",
+      "subtype": "system",
+      "basis": "declared"
+    },
+    {
+      "id": "scope:backend",
+      "kind": "scope",
+      "label": "Backend",
+      "boundary": "internal",
+      "subtype": "subsystem",
+      "basis": "declared"
+    },
+    {
+      "id": "client:web",
+      "kind": "client",
+      "label": "Web application",
+      "boundary": "internal",
+      "subtype": "web",
+      "basis": "declared"
+    },
+    {
+      "id": "service:api",
+      "kind": "service",
+      "label": "Application API",
+      "boundary": "internal",
+      "subtype": "application",
+      "basis": "declared"
+    },
+    {
+      "id": "store:users",
+      "kind": "datastore",
+      "label": "Users",
+      "boundary": "internal",
+      "subtype": "relational",
+      "basis": "declared",
+      "technology": [
+        "PostgreSQL"
+      ]
+    },
+    {
+      "id": "interface:api",
+      "kind": "interface",
+      "label": "Public API",
+      "boundary": "internal",
+      "subtype": "api",
+      "basis": "declared",
+      "protocol": "https"
+    },
+    {
+      "id": "interface:users",
+      "kind": "interface",
+      "label": "User storage interface",
+      "boundary": "internal",
+      "subtype": "storage",
+      "basis": "declared",
+      "protocol": "sql"
+    },
+    {
+      "id": "concern:authentication",
+      "kind": "concern",
+      "label": "Authentication",
+      "boundary": "internal",
+      "subtype": "authentication",
+      "basis": "declared"
+    },
+    {
+      "id": "service:identity",
+      "kind": "service",
+      "label": "Identity provider",
+      "boundary": "external",
+      "subtype": "application",
+      "basis": "declared"
+    },
+    {
+      "id": "interface:identity",
+      "kind": "interface",
+      "label": "Identity API",
+      "boundary": "external",
+      "subtype": "api",
+      "basis": "declared",
+      "protocol": "https"
+    },
+    {
+      "id": "deployment:production",
+      "kind": "deployment",
+      "label": "Production",
+      "boundary": "internal",
+      "subtype": "environment",
+      "basis": "declared"
+    },
+    {
+      "id": "deployment:api-process",
+      "kind": "deployment",
+      "label": "API process",
+      "boundary": "internal",
+      "subtype": "process",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:app-contains-backend",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "scope:backend",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:app-contains-web",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "client:web",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:app-contains-authentication",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "concern:authentication",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:backend-contains-api",
+      "kind": "contains",
+      "source": "scope:backend",
+      "target": "service:api",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:backend-contains-users",
+      "kind": "contains",
+      "source": "scope:backend",
+      "target": "store:users",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:api-exposes-public",
+      "kind": "exposes",
+      "source": "service:api",
+      "target": "interface:api",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:users-exposes-storage",
+      "kind": "exposes",
+      "source": "store:users",
+      "target": "interface:users",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:identity-exposes-api",
+      "kind": "exposes",
+      "source": "service:identity",
+      "target": "interface:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:web-requests-api",
+      "kind": "requests",
+      "source": "client:web",
+      "target": "interface:api",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:api-reads-users",
+      "kind": "reads",
+      "source": "service:api",
+      "target": "interface:users",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:api-writes-users",
+      "kind": "writes",
+      "source": "service:api",
+      "target": "interface:users",
+      "basis": "declared",
+      "condition": "When a user updates their profile."
+    },
+    {
+      "id": "rel:api-requests-identity",
+      "kind": "requests",
+      "source": "service:api",
+      "target": "interface:identity",
+      "basis": "declared",
+      "condition": "When checking a session with the provider."
+    },
+    {
+      "id": "rel:api-startup-identity",
+      "kind": "depends_on",
+      "source": "service:api",
+      "target": "service:identity",
+      "basis": "declared",
+      "dependency_phase": "startup",
+      "necessity": "required",
+      "description": "This synthetic API requires provider availability to complete startup; the initialization interaction is unspecified."
+    },
+    {
+      "id": "rel:authentication-covers-web",
+      "kind": "applies_to",
+      "source": "concern:authentication",
+      "target": "client:web",
+      "basis": "declared",
+      "aspect": "sign_in_interface"
+    },
+    {
+      "id": "rel:authentication-covers-api",
+      "kind": "applies_to",
+      "source": "concern:authentication",
+      "target": "interface:api",
+      "basis": "declared",
+      "aspect": "session_identity_validation"
+    },
+    {
+      "id": "rel:authentication-implemented-web",
+      "kind": "implemented_by",
+      "source": "concern:authentication",
+      "target": "client:web",
+      "basis": "declared",
+      "description": "Implements the sign-in interface portion of the concern."
+    },
+    {
+      "id": "rel:authentication-implemented-api",
+      "kind": "implemented_by",
+      "source": "concern:authentication",
+      "target": "service:api",
+      "basis": "declared",
+      "description": "Implements the session validation integration."
+    },
+    {
+      "id": "rel:authentication-implemented-provider",
+      "kind": "implemented_by",
+      "source": "concern:authentication",
+      "target": "service:identity",
+      "basis": "declared",
+      "description": "Implements the external identity verification portion."
+    },
+    {
+      "id": "rel:api-deployed-process",
+      "kind": "deployed_in",
+      "source": "service:api",
+      "target": "deployment:api-process",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:process-deployed-production",
+      "kind": "deployed_in",
+      "source": "deployment:api-process",
+      "target": "deployment:production",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:users-deployed-production",
+      "kind": "deployed_in",
+      "source": "store:users",
+      "target": "deployment:production",
+      "basis": "declared"
+    }
+  ],
+  "evidence": []
+}

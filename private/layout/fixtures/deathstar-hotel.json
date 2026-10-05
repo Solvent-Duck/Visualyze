@@ -1,0 +1,1161 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "reference-deathstar-hotel",
+  "revision": 1,
+  "system_id": "scope:deathstar-hotel",
+  "snapshot": {
+    "id": "deathstar-hotel-6ecb09706140",
+    "source_revision": "6ecb09706140f8730b5385c08f1386c654c3c526",
+    "coverage": "partial",
+    "scope_description": "Partial logical-component view of the pinned Hotel Reservation configuration, plus request relationships directly verified in the frontend and search service code. Compose dependency ordering is represented separately as startup dependency.",
+    "omissions": [
+      "Not a live deployment or a reconstruction of production infrastructure; replicas, container resources, volumes, TLS, and deployment instances are omitted.",
+      "Jaeger, tracing connections, workload generation, external browsers, and performance measurements are omitted.",
+      "Compose depends_on lists establish startup dependencies, not RPC execution or storage read/write behavior; runtime necessity remains unknown.",
+      "Requests are included only where the inspected frontend/search code contains a matching typed client call. Multiple operations to one target are summarized as one caller-to-service relationship.",
+      "Storage operations, tables, remaining service internals, error paths, and asynchronous message flows are outside this partial fixture."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:deathstar-hotel",
+      "kind": "scope",
+      "label": "DeathStarBench Hotel Reservation",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ],
+      "subtype": "system"
+    },
+    {
+      "id": "service:consul",
+      "kind": "service",
+      "label": "consul",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:consul"
+      ]
+    },
+    {
+      "id": "service:frontend",
+      "kind": "service",
+      "label": "frontend",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:frontend"
+      ]
+    },
+    {
+      "id": "service:profile",
+      "kind": "service",
+      "label": "profile",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:profile"
+      ]
+    },
+    {
+      "id": "service:search",
+      "kind": "service",
+      "label": "search",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:search"
+      ]
+    },
+    {
+      "id": "service:geo",
+      "kind": "service",
+      "label": "geo",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:geo"
+      ]
+    },
+    {
+      "id": "service:rate",
+      "kind": "service",
+      "label": "rate",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:rate"
+      ]
+    },
+    {
+      "id": "service:review",
+      "kind": "service",
+      "label": "review",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:review"
+      ]
+    },
+    {
+      "id": "service:attractions",
+      "kind": "service",
+      "label": "attractions",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:attractions"
+      ]
+    },
+    {
+      "id": "service:recommendation",
+      "kind": "service",
+      "label": "recommendation",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:recommendation"
+      ]
+    },
+    {
+      "id": "service:user",
+      "kind": "service",
+      "label": "user",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:user"
+      ]
+    },
+    {
+      "id": "service:reservation",
+      "kind": "service",
+      "label": "reservation",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:reservation"
+      ]
+    },
+    {
+      "id": "datastore:memcached-rate",
+      "kind": "datastore",
+      "label": "memcached-rate",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:memcached-rate"
+      ]
+    },
+    {
+      "id": "datastore:memcached-review",
+      "kind": "datastore",
+      "label": "memcached-review",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:memcached-review"
+      ]
+    },
+    {
+      "id": "datastore:memcached-profile",
+      "kind": "datastore",
+      "label": "memcached-profile",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:memcached-profile"
+      ]
+    },
+    {
+      "id": "datastore:memcached-reserve",
+      "kind": "datastore",
+      "label": "memcached-reserve",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:memcached-reserve"
+      ]
+    },
+    {
+      "id": "datastore:mongodb-geo",
+      "kind": "datastore",
+      "label": "mongodb-geo",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-geo"
+      ]
+    },
+    {
+      "id": "datastore:mongodb-profile",
+      "kind": "datastore",
+      "label": "mongodb-profile",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-profile"
+      ]
+    },
+    {
+      "id": "datastore:mongodb-rate",
+      "kind": "datastore",
+      "label": "mongodb-rate",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-rate"
+      ]
+    },
+    {
+      "id": "datastore:mongodb-review",
+      "kind": "datastore",
+      "label": "mongodb-review",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-review"
+      ]
+    },
+    {
+      "id": "datastore:mongodb-attractions",
+      "kind": "datastore",
+      "label": "mongodb-attractions",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-attractions"
+      ]
+    },
+    {
+      "id": "datastore:mongodb-recommendation",
+      "kind": "datastore",
+      "label": "mongodb-recommendation",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-recommendation"
+      ]
+    },
+    {
+      "id": "datastore:mongodb-reservation",
+      "kind": "datastore",
+      "label": "mongodb-reservation",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-reservation"
+      ]
+    },
+    {
+      "id": "datastore:mongodb-user",
+      "kind": "datastore",
+      "label": "mongodb-user",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-user"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "contains:service:consul",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:consul"
+      ]
+    },
+    {
+      "id": "contains:service:frontend",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:frontend",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:frontend"
+      ]
+    },
+    {
+      "id": "contains:service:profile",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:profile",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:profile"
+      ]
+    },
+    {
+      "id": "contains:service:search",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:search",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:search"
+      ]
+    },
+    {
+      "id": "contains:service:geo",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:geo",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:geo"
+      ]
+    },
+    {
+      "id": "contains:service:rate",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:rate",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:rate"
+      ]
+    },
+    {
+      "id": "contains:service:review",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:review",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:review"
+      ]
+    },
+    {
+      "id": "contains:service:attractions",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:attractions",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:attractions"
+      ]
+    },
+    {
+      "id": "contains:service:recommendation",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:recommendation",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:recommendation"
+      ]
+    },
+    {
+      "id": "contains:service:user",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:user",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:user"
+      ]
+    },
+    {
+      "id": "contains:service:reservation",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "service:reservation",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:reservation"
+      ]
+    },
+    {
+      "id": "contains:datastore:memcached-rate",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:memcached-rate",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:memcached-rate"
+      ]
+    },
+    {
+      "id": "contains:datastore:memcached-review",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:memcached-review",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:memcached-review"
+      ]
+    },
+    {
+      "id": "contains:datastore:memcached-profile",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:memcached-profile",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:memcached-profile"
+      ]
+    },
+    {
+      "id": "contains:datastore:memcached-reserve",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:memcached-reserve",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:memcached-reserve"
+      ]
+    },
+    {
+      "id": "contains:datastore:mongodb-geo",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:mongodb-geo",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-geo"
+      ]
+    },
+    {
+      "id": "contains:datastore:mongodb-profile",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:mongodb-profile",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-profile"
+      ]
+    },
+    {
+      "id": "contains:datastore:mongodb-rate",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:mongodb-rate",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-rate"
+      ]
+    },
+    {
+      "id": "contains:datastore:mongodb-review",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:mongodb-review",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-review"
+      ]
+    },
+    {
+      "id": "contains:datastore:mongodb-attractions",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:mongodb-attractions",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-attractions"
+      ]
+    },
+    {
+      "id": "contains:datastore:mongodb-recommendation",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:mongodb-recommendation",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-recommendation"
+      ]
+    },
+    {
+      "id": "contains:datastore:mongodb-reservation",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:mongodb-reservation",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-reservation"
+      ]
+    },
+    {
+      "id": "contains:datastore:mongodb-user",
+      "kind": "contains",
+      "source": "scope:deathstar-hotel",
+      "target": "datastore:mongodb-user",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:mongodb-user"
+      ]
+    },
+    {
+      "id": "startup:frontend:consul",
+      "kind": "depends_on",
+      "source": "service:frontend",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:frontend"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The frontend Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:profile:mongodb-profile",
+      "kind": "depends_on",
+      "source": "service:profile",
+      "target": "datastore:mongodb-profile",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:profile"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The profile Compose service explicitly lists mongodb-profile under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:profile:memcached-profile",
+      "kind": "depends_on",
+      "source": "service:profile",
+      "target": "datastore:memcached-profile",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:profile"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The profile Compose service explicitly lists memcached-profile under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:profile:consul",
+      "kind": "depends_on",
+      "source": "service:profile",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:profile"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The profile Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:search:consul",
+      "kind": "depends_on",
+      "source": "service:search",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:search"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The search Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:geo:mongodb-geo",
+      "kind": "depends_on",
+      "source": "service:geo",
+      "target": "datastore:mongodb-geo",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:geo"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The geo Compose service explicitly lists mongodb-geo under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:geo:consul",
+      "kind": "depends_on",
+      "source": "service:geo",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:geo"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The geo Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:rate:mongodb-rate",
+      "kind": "depends_on",
+      "source": "service:rate",
+      "target": "datastore:mongodb-rate",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:rate"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The rate Compose service explicitly lists mongodb-rate under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:rate:memcached-rate",
+      "kind": "depends_on",
+      "source": "service:rate",
+      "target": "datastore:memcached-rate",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:rate"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The rate Compose service explicitly lists memcached-rate under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:rate:consul",
+      "kind": "depends_on",
+      "source": "service:rate",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:rate"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The rate Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:review:mongodb-review",
+      "kind": "depends_on",
+      "source": "service:review",
+      "target": "datastore:mongodb-review",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:review"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The review Compose service explicitly lists mongodb-review under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:review:memcached-review",
+      "kind": "depends_on",
+      "source": "service:review",
+      "target": "datastore:memcached-review",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:review"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The review Compose service explicitly lists memcached-review under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:review:consul",
+      "kind": "depends_on",
+      "source": "service:review",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:review"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The review Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:attractions:mongodb-attractions",
+      "kind": "depends_on",
+      "source": "service:attractions",
+      "target": "datastore:mongodb-attractions",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:attractions"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The attractions Compose service explicitly lists mongodb-attractions under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:attractions:consul",
+      "kind": "depends_on",
+      "source": "service:attractions",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:attractions"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The attractions Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:recommendation:mongodb-recommendation",
+      "kind": "depends_on",
+      "source": "service:recommendation",
+      "target": "datastore:mongodb-recommendation",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:recommendation"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The recommendation Compose service explicitly lists mongodb-recommendation under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:recommendation:consul",
+      "kind": "depends_on",
+      "source": "service:recommendation",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:recommendation"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The recommendation Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:user:mongodb-user",
+      "kind": "depends_on",
+      "source": "service:user",
+      "target": "datastore:mongodb-user",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:user"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The user Compose service explicitly lists mongodb-user under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:user:consul",
+      "kind": "depends_on",
+      "source": "service:user",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:user"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The user Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:reservation:mongodb-reservation",
+      "kind": "depends_on",
+      "source": "service:reservation",
+      "target": "datastore:mongodb-reservation",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:reservation"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The reservation Compose service explicitly lists mongodb-reservation under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:reservation:memcached-reserve",
+      "kind": "depends_on",
+      "source": "service:reservation",
+      "target": "datastore:memcached-reserve",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:reservation"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The reservation Compose service explicitly lists memcached-reserve under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "startup:reservation:consul",
+      "kind": "depends_on",
+      "source": "service:reservation",
+      "target": "service:consul",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:component:reservation"
+      ],
+      "dependency_phase": "startup",
+      "necessity": "unknown",
+      "description": "The reservation Compose service explicitly lists consul under depends_on; this does not claim a runtime request or storage operation."
+    },
+    {
+      "id": "request:frontend:search",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:search",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:frontend-bindings",
+        "evidence:call:frontend:search"
+      ]
+    },
+    {
+      "id": "request:frontend:profile",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:profile",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:frontend-bindings",
+        "evidence:call:frontend:profile"
+      ]
+    },
+    {
+      "id": "request:frontend:recommendation",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:recommendation",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:frontend-bindings",
+        "evidence:call:frontend:recommendation"
+      ]
+    },
+    {
+      "id": "request:frontend:user",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:user",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:frontend-bindings",
+        "evidence:call:frontend:user"
+      ]
+    },
+    {
+      "id": "request:frontend:reservation",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:reservation",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:frontend-bindings",
+        "evidence:call:frontend:reservation"
+      ]
+    },
+    {
+      "id": "request:frontend:review",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:review",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:frontend-bindings",
+        "evidence:call:frontend:review"
+      ]
+    },
+    {
+      "id": "request:frontend:attractions",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:attractions",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:frontend-bindings",
+        "evidence:call:frontend:attractions"
+      ]
+    },
+    {
+      "id": "request:search:geo",
+      "kind": "requests",
+      "source": "service:search",
+      "target": "service:geo",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:search-bindings",
+        "evidence:call:search:geo"
+      ]
+    },
+    {
+      "id": "request:search:rate",
+      "kind": "requests",
+      "source": "service:search",
+      "target": "service:rate",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:search-bindings",
+        "evidence:call:search:rate"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence:compose",
+      "description": "The pinned Compose configuration lists the Hotel Reservation application services and storage components.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml"
+      }
+    },
+    {
+      "id": "evidence:component:consul",
+      "description": "The Compose configuration declares consul and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L4-L17"
+      }
+    },
+    {
+      "id": "evidence:component:frontend",
+      "description": "The Compose configuration declares frontend and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L17-L39"
+      }
+    },
+    {
+      "id": "evidence:component:profile",
+      "description": "The Compose configuration declares profile and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L39-L61"
+      }
+    },
+    {
+      "id": "evidence:component:search",
+      "description": "The Compose configuration declares search and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L61-L81"
+      }
+    },
+    {
+      "id": "evidence:component:geo",
+      "description": "The Compose configuration declares geo and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L81-L102"
+      }
+    },
+    {
+      "id": "evidence:component:rate",
+      "description": "The Compose configuration declares rate and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L102-L124"
+      }
+    },
+    {
+      "id": "evidence:component:review",
+      "description": "The Compose configuration declares review and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L124-L141"
+      }
+    },
+    {
+      "id": "evidence:component:attractions",
+      "description": "The Compose configuration declares attractions and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L141-L157"
+      }
+    },
+    {
+      "id": "evidence:component:recommendation",
+      "description": "The Compose configuration declares recommendation and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L157-L178"
+      }
+    },
+    {
+      "id": "evidence:component:user",
+      "description": "The Compose configuration declares user and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L178-L199"
+      }
+    },
+    {
+      "id": "evidence:component:reservation",
+      "description": "The Compose configuration declares reservation and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L199-L221"
+      }
+    },
+    {
+      "id": "evidence:component:memcached-rate",
+      "description": "The Compose configuration declares memcached-rate and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L238-L253"
+      }
+    },
+    {
+      "id": "evidence:component:memcached-review",
+      "description": "The Compose configuration declares memcached-review and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L253-L265"
+      }
+    },
+    {
+      "id": "evidence:component:memcached-profile",
+      "description": "The Compose configuration declares memcached-profile and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L265-L280"
+      }
+    },
+    {
+      "id": "evidence:component:memcached-reserve",
+      "description": "The Compose configuration declares memcached-reserve and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L280-L295"
+      }
+    },
+    {
+      "id": "evidence:component:mongodb-geo",
+      "description": "The Compose configuration declares mongodb-geo and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L295-L306"
+      }
+    },
+    {
+      "id": "evidence:component:mongodb-profile",
+      "description": "The Compose configuration declares mongodb-profile and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L306-L317"
+      }
+    },
+    {
+      "id": "evidence:component:mongodb-rate",
+      "description": "The Compose configuration declares mongodb-rate and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L317-L328"
+      }
+    },
+    {
+      "id": "evidence:component:mongodb-review",
+      "description": "The Compose configuration declares mongodb-review and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L328-L339"
+      }
+    },
+    {
+      "id": "evidence:component:mongodb-attractions",
+      "description": "The Compose configuration declares mongodb-attractions and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L339-L350"
+      }
+    },
+    {
+      "id": "evidence:component:mongodb-recommendation",
+      "description": "The Compose configuration declares mongodb-recommendation and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L350-L361"
+      }
+    },
+    {
+      "id": "evidence:component:mongodb-reservation",
+      "description": "The Compose configuration declares mongodb-reservation and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L361-L372"
+      }
+    },
+    {
+      "id": "evidence:component:mongodb-user",
+      "description": "The Compose configuration declares mongodb-user and its image or executable entry point.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/docker-compose.yml#L372-L382"
+      }
+    },
+    {
+      "id": "evidence:frontend-bindings",
+      "description": "Frontend startup binds typed clients to the named search, profile, recommendation, user, reservation, review, and attractions services.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/frontend/server.go#L63-L90"
+      }
+    },
+    {
+      "id": "evidence:search-bindings",
+      "description": "Search startup initializes typed geo and rate clients.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/search/server.go#L69-L76"
+      }
+    },
+    {
+      "id": "evidence:call:frontend:search",
+      "description": "The frontend implementation invokes its typed search client here.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/frontend/server.go#L241-L249"
+      }
+    },
+    {
+      "id": "evidence:call:frontend:profile",
+      "description": "The frontend implementation invokes its typed profile client here.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/frontend/server.go#L280-L288"
+      }
+    },
+    {
+      "id": "evidence:call:frontend:recommendation",
+      "description": "The frontend implementation invokes its typed recommendation client here.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/frontend/server.go#L316-L324"
+      }
+    },
+    {
+      "id": "evidence:call:frontend:user",
+      "description": "The frontend implementation invokes its typed user client here.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/frontend/server.go#L356-L364"
+      }
+    },
+    {
+      "id": "evidence:call:frontend:reservation",
+      "description": "The frontend implementation invokes its typed reservation client here.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/frontend/server.go#L640-L648"
+      }
+    },
+    {
+      "id": "evidence:call:frontend:review",
+      "description": "The frontend implementation invokes its typed review client here.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/frontend/server.go#L378-L386"
+      }
+    },
+    {
+      "id": "evidence:call:frontend:attractions",
+      "description": "The frontend implementation invokes its typed attractions client here.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/frontend/server.go#L430-L438"
+      }
+    },
+    {
+      "id": "evidence:call:search:geo",
+      "description": "The search implementation invokes its typed geo client here.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/search/server.go#L136-L144"
+      }
+    },
+    {
+      "id": "evidence:call:search:rate",
+      "description": "The search implementation invokes its typed rate client here.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/delimitrou/DeathStarBench/blob/6ecb09706140f8730b5385c08f1386c654c3c526/hotelReservation/services/search/server.go#L149-L157"
+      }
+    }
+  ]
+}

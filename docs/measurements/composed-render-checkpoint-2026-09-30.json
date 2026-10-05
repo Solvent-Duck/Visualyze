@@ -1,0 +1,36 @@
+{
+  "captured_utc": "2026-09-30T20:21:44.124859+00:00",
+  "checks": [
+    {
+      "command": "./target/debug/examples/render_smoke --model public/examples/objects.json",
+      "exit_code": 0,
+      "binary_sha256": "b3254132253b4915bc684bb9bb8d2300af29bd68441a9d92087966da4191074e",
+      "fixture_sha256": "49e2e940191dfd7c84e8356fa0cfd7c9c91419d08c7381354f6c05c6ca8a0b27",
+      "image": "visualyze-local/previews/composed-checkpoint-2026-09-30/visualyze-objects.png",
+      "image_sha256": "6fee89e671b00424af0bbecacc13d7ed48e0cf2a85b95fd3a8640da824a91779",
+      "image_inspected": true,
+      "stdout": ""
+    },
+    {
+      "command": "./target/debug/examples/connected_smoke --model public/examples/notes-crud.json",
+      "exit_code": 0,
+      "binary_sha256": "002cc30ffd2b0aaa5b1259b9861ae8f6f92e98eeebd832f0f88d967916948537",
+      "fixture_sha256": "aa3f43620b4308ea648c3f623f0250fb0ca6dad2719989d9eb7a7fa83219ff8c",
+      "image": "visualyze-local/previews/composed-checkpoint-2026-09-30/visualyze-notes-crud.png",
+      "image_sha256": "e4538ea3bb52e6ce2d7a076cae041200feb5cab7d8da0637939d22c2ca5a707e",
+      "image_inspected": true,
+      "stdout": "Window: 1280 x 833 @ 2\nGeometry fits viewport: true\nscope:notes: 12/12 visible samples; passed=true\nclient:web: 1/1 visible samples; passed=true\nservice:notes: 1/1 visible samples; passed=true\nstore:notes: 1/1 visible samples; passed=true\ninterface:sessions: 1/1 visible samples; passed=true\ninterface:notes: 1/1 visible samples; passed=true\nconcern:authentication: 1/1 visible samples; passed=true\nconcern:authorization: 1/1 visible samples; passed=true\nrel:auth-implementation: 39/76 visible samples; passed=true\nrel:auth-session: 43/57 visible samples; passed=true\nrel:auth-sign-in: 57/57 visible samples; passed=true\nrel:authorization-implementation: 34/76 visible samples; passed=true\nrel:authorization-notes: 61/76 visible samples; passed=true\nrel:read-database: 95/95 visible samples; passed=true\nrel:request-notes: 95/95 visible samples; passed=true\nrel:request-sessions: 95/95 visible samples; passed=true\nrel:write-database: 92/95 visible samples; passed=true\nConnected architecture proof: /var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-notes-crud.png\n"
+    },
+    {
+      "command": "./target/debug/examples/layout_smoke --model public/examples/sketch-crud.json --layout composed",
+      "exit_code": 0,
+      "binary_sha256": "dfbad39e7a48682b2a9da458f2f8fbe7cfa47ee3441261000fb198281a96cc88",
+      "fixture_sha256": "d20633a69da320c13bb995afd568e7d57656d437a0f7c6b0af43b01d091b2957",
+      "image": "visualyze-local/previews/composed-checkpoint-2026-09-30/visualyze-placement.png",
+      "image_sha256": "dac9e842b0c7efe975b488fd9a4e4de9f6b727051ee67616fda0768a664aec46",
+      "image_inspected": true,
+      "stdout": "Placement screenshot: /var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-placement.png\n"
+    }
+  ],
+  "scope": "Sequential native graphical checks; no concurrent build. Gallery validates each object region, connected example samples each object and relationship, composed CRUD checks membership and visible colored geometry. Images inspected; not a full visual regression or comprehension test. Existing user preview processes preserved. Production source provenance is recorded separately in native-composed-production-2026-09-30.json."
+}

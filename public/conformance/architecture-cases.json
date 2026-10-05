@@ -1,0 +1,1148 @@
+[
+  {
+    "name": "objects.json",
+    "base": "objects.json",
+    "expected_error": null,
+    "changes": []
+  },
+  {
+    "name": "architecture-minimal.json",
+    "base": "architecture-minimal.json",
+    "expected_error": null,
+    "changes": []
+  },
+  {
+    "name": "architecture.json",
+    "base": "architecture.json",
+    "expected_error": null,
+    "changes": []
+  },
+  {
+    "name": "reject /schema_version = '0.1.0'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/schema_version",
+        "value": "0.1.0"
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/kind = 'queue'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/kind",
+        "value": "queue"
+      }
+    ]
+  },
+  {
+    "name": "reject /relations/0/kind = 'connected'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/0/kind",
+        "value": "connected"
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/id = 'ABC'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/id",
+        "value": "ABC"
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/id = 'client/web'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/id",
+        "value": "client/web"
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/id = 'web\\n'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/id",
+        "value": "web\n"
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/label = '  '",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/label",
+        "value": "  "
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/label = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/label",
+        "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/label = None",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/label",
+        "value": null
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/position = {'x': 1}",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/position",
+        "value": {
+          "x": 1
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/metadata = {}",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/metadata",
+        "value": {}
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/protocol = 'https'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/protocol",
+        "value": "https"
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/basis = 'supported'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/basis",
+        "value": "supported"
+      }
+    ]
+  },
+  {
+    "name": "reject /entities/1/basis = 'inferred'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/basis",
+        "value": "inferred"
+      }
+    ]
+  },
+  {
+    "name": "reject /relations/0/basis = 'supported'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/0/basis",
+        "value": "supported"
+      }
+    ]
+  },
+  {
+    "name": "reject /relations/0/aspect = 'sign_in'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/0/aspect",
+        "value": "sign_in"
+      }
+    ]
+  },
+  {
+    "name": "reject /relations/0/condition = 'always'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/0/condition",
+        "value": "always"
+      }
+    ]
+  },
+  {
+    "name": "reject /relations/0/dependency_phase = 'runtime'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/0/dependency_phase",
+        "value": "runtime"
+      }
+    ]
+  },
+  {
+    "name": "reject /relations/0/necessity = 'required'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/0/necessity",
+        "value": "required"
+      }
+    ]
+  },
+  {
+    "name": "reject /snapshot/coverage = 'maybe'",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/snapshot/coverage",
+        "value": "maybe"
+      }
+    ]
+  },
+  {
+    "name": "reject /snapshot/source_revision = ''",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/snapshot/source_revision",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "name": "reject /revision = 0",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/revision",
+        "value": 0
+      }
+    ]
+  },
+  {
+    "name": "reject /revision = 1.5",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/revision",
+        "value": 1.5
+      }
+    ]
+  },
+  {
+    "name": "reject /revision = 9007199254740992",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/revision",
+        "value": 9007199254740992
+      }
+    ]
+  },
+  {
+    "name": "missing /entities/1/id",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "remove",
+        "path": "/entities/1/id"
+      }
+    ]
+  },
+  {
+    "name": "missing /entities/1/label",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "remove",
+        "path": "/entities/1/label"
+      }
+    ]
+  },
+  {
+    "name": "missing /entities/1/boundary",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "remove",
+        "path": "/entities/1/boundary"
+      }
+    ]
+  },
+  {
+    "name": "missing /entities/1/basis",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "remove",
+        "path": "/entities/1/basis"
+      }
+    ]
+  },
+  {
+    "name": "missing /evidence",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "remove",
+        "path": "/evidence"
+      }
+    ]
+  },
+  {
+    "name": "missing /snapshot/omissions",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "remove",
+        "path": "/snapshot/omissions"
+      }
+    ]
+  },
+  {
+    "name": "supported requires nonempty refs",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/basis",
+        "value": "supported"
+      },
+      {
+        "op": "add",
+        "path": "/entities/1/evidence_ids",
+        "value": []
+      }
+    ]
+  },
+  {
+    "name": "inferred accepts rationale",
+    "base": "objects.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/basis",
+        "value": "inferred"
+      },
+      {
+        "op": "add",
+        "path": "/entities/1/rationale",
+        "value": "Synthetic inference."
+      }
+    ]
+  },
+  {
+    "name": "generic subtype and role accepted",
+    "base": "objects.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/subtype",
+        "value": "custom"
+      },
+      {
+        "op": "add",
+        "path": "/entities/1/roles",
+        "value": [
+          "custom"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "unknown basis accepted",
+    "base": "objects.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/basis",
+        "value": "unknown"
+      }
+    ]
+  },
+  {
+    "name": "duplicate ID across collections",
+    "base": "objects.json",
+    "expected_error": "duplicate_id",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "client:web",
+          "description": "Example"
+        }
+      }
+    ]
+  },
+  {
+    "name": "missing target",
+    "base": "objects.json",
+    "expected_error": "missing_reference",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/0/target",
+        "value": "client:absent"
+      }
+    ]
+  },
+  {
+    "name": "missing source",
+    "base": "objects.json",
+    "expected_error": "missing_reference",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/0/source",
+        "value": "scope:absent"
+      }
+    ]
+  },
+  {
+    "name": "missing root",
+    "base": "objects.json",
+    "expected_error": "missing_reference",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/system_id",
+        "value": "scope:absent"
+      }
+    ]
+  },
+  {
+    "name": "root is not scope",
+    "base": "objects.json",
+    "expected_error": "invalid_system",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/system_id",
+        "value": "client:web"
+      }
+    ]
+  },
+  {
+    "name": "root not internal",
+    "base": "objects.json",
+    "expected_error": "invalid_system",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/0/boundary",
+        "value": "external"
+      }
+    ]
+  },
+  {
+    "name": "root missing system subtype",
+    "base": "objects.json",
+    "expected_error": "invalid_system",
+    "changes": [
+      {
+        "op": "remove",
+        "path": "/entities/0/subtype"
+      }
+    ]
+  },
+  {
+    "name": "unresolved evidence",
+    "base": "objects.json",
+    "expected_error": "missing_evidence",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/basis",
+        "value": "supported"
+      },
+      {
+        "op": "add",
+        "path": "/entities/1/evidence_ids",
+        "value": [
+          "evidence:absent"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "supported evidence resolves",
+    "base": "objects.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/1/basis",
+        "value": "supported"
+      },
+      {
+        "op": "add",
+        "path": "/entities/1/evidence_ids",
+        "value": [
+          "evidence:test"
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "src/app.rs",
+            "start_line": 1,
+            "end_line": 3
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "orphan internal object",
+    "base": "objects.json",
+    "expected_error": "uncontained_internal_entity",
+    "changes": [
+      {
+        "op": "remove",
+        "path": "/relations/0"
+      }
+    ]
+  },
+  {
+    "name": "multiple logical parents",
+    "base": "objects.json",
+    "expected_error": "multiple_parents",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "contains",
+          "source": "scope:app",
+          "target": "client:web",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "contained system cycle",
+    "base": "architecture.json",
+    "expected_error": "containment_cycle",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "contains",
+          "source": "scope:backend",
+          "target": "scope:app",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "missing interface owner",
+    "base": "objects.json",
+    "expected_error": "interface_owner_missing",
+    "changes": [
+      {
+        "op": "remove",
+        "path": "/relations/4"
+      }
+    ]
+  },
+  {
+    "name": "multiple owners",
+    "base": "objects.json",
+    "expected_error": "multiple_interface_owners",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "exposes",
+          "source": "client:web",
+          "target": "interface:api",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "interface boundary mismatch",
+    "base": "objects.json",
+    "expected_error": "interface_boundary_mismatch",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/entities/4/boundary",
+        "value": "external"
+      }
+    ]
+  },
+  {
+    "name": "interface in logical containment",
+    "base": "objects.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "contains",
+          "source": "scope:app",
+          "target": "interface:api",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "read wrong kind",
+    "base": "objects.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "reads",
+          "source": "service:api",
+          "target": "concern:authentication",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "read non-storage interface",
+    "base": "objects.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "reads",
+          "source": "service:api",
+          "target": "interface:api",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "read invalid source",
+    "base": "objects.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "reads",
+          "source": "store:users",
+          "target": "store:users",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "request invalid target",
+    "base": "objects.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "requests",
+          "source": "service:api",
+          "target": "store:users",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "coverage invalid target",
+    "base": "objects.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "applies_to",
+          "source": "concern:authentication",
+          "target": "scope:app",
+          "basis": "declared",
+          "aspect": "auth"
+        }
+      }
+    ]
+  },
+  {
+    "name": "coverage missing aspect",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "applies_to",
+          "source": "concern:authentication",
+          "target": "service:api",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "deployment as parent",
+    "base": "objects.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "contains",
+          "source": "deployment:production",
+          "target": "client:web",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "deployment cycle",
+    "base": "architecture.json",
+    "expected_error": "deployment_cycle",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "deployed_in",
+          "source": "deployment:production",
+          "target": "deployment:api-process",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "self dependency",
+    "base": "objects.json",
+    "expected_error": "self_relation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "depends_on",
+          "source": "service:api",
+          "target": "service:api",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "dependency cycles permitted",
+    "base": "objects.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "depends_on",
+          "source": "service:api",
+          "target": "client:web",
+          "basis": "declared"
+        }
+      },
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:reverse",
+          "kind": "depends_on",
+          "source": "client:web",
+          "target": "service:api",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "request cycles permitted",
+    "base": "objects.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "requests",
+          "source": "service:api",
+          "target": "client:web",
+          "basis": "declared"
+        }
+      },
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:reverse",
+          "kind": "requests",
+          "source": "client:web",
+          "target": "service:api",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "reads and writes distinct",
+    "base": "objects.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:test",
+          "kind": "reads",
+          "source": "service:api",
+          "target": "store:users",
+          "basis": "declared"
+        }
+      },
+      {
+        "op": "add",
+        "path": "/relations/-",
+        "value": {
+          "id": "rel:write",
+          "kind": "writes",
+          "source": "service:api",
+          "target": "store:users",
+          "basis": "declared"
+        }
+      }
+    ]
+  },
+  {
+    "name": "invalid source path '/etc/passwd'",
+    "base": "objects.json",
+    "expected_error": "invalid_source_path",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "/etc/passwd"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "invalid source path '../src/a.rs'",
+    "base": "objects.json",
+    "expected_error": "invalid_source_path",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "../src/a.rs"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "invalid source path 'src/../a.rs'",
+    "base": "objects.json",
+    "expected_error": "invalid_source_path",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "src/../a.rs"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "invalid source path './a.rs'",
+    "base": "objects.json",
+    "expected_error": "invalid_source_path",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "./a.rs"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "invalid source path 'src//a.rs'",
+    "base": "objects.json",
+    "expected_error": "invalid_source_path",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "src//a.rs"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "invalid source path 'src\\\\a.rs'",
+    "base": "objects.json",
+    "expected_error": "invalid_source_path",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "src\\a.rs"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "invalid source path 'C:/a.rs'",
+    "base": "objects.json",
+    "expected_error": "invalid_source_path",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "C:/a.rs"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "invalid source path 'src/a\\x00.rs'",
+    "base": "objects.json",
+    "expected_error": "invalid_source_path",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "src/a\u0000.rs"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "reverse lines",
+    "base": "objects.json",
+    "expected_error": "invalid_line_range",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "src/app.rs",
+            "start_line": 10,
+            "end_line": 2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "end without start",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "src/app.rs",
+            "end_line": 2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "line zero",
+    "base": "objects.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/evidence/-",
+        "value": {
+          "id": "evidence:test",
+          "description": "Synthetic source reference.",
+          "locator": {
+            "kind": "source",
+            "path": "src/app.rs",
+            "start_line": 0
+          }
+        }
+      }
+    ]
+  }
+]

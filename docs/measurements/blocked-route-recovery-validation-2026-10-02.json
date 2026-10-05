@@ -1,0 +1,2046 @@
+{
+  "recorded_utc": "2026-10-03T01:16:07.470575+00:00",
+  "scope": "Recover initially blocked composed boundary connections using observed corridor obstacles and bounded horizontal moves under the existing shared work budget. Every accepted result reroutes and independently validates the complete composition; no incomplete seed is published.",
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-blocked-workspace-tests.log",
+      "sha256": "36ea640e8f53ac560ceafae5afa2a51ecd910eba7707730137084addd2a6a908",
+      "totals": {
+        "passed": 450,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "visualyze-layout",
+        "--test",
+        "provider_code",
+        "production_navigation_preserves_group_membership_after_other_regions_fill_retention",
+        "--offline",
+        "--locked",
+        "--",
+        "--ignored"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-blocked-retention-tests.log",
+      "sha256": "b29d8c251ab116407e02d1d83f2ffba0c139871a5d152a6f12696a90e35250cb",
+      "totals": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "visualyze",
+        "--example",
+        "production_smoke",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-blocked-helper-tests.log",
+      "sha256": "2169852919cb9a6406f0e71cd888c639264624f7203541c6d2d13892784d7809",
+      "totals": {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--offline",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-blocked-clippy.log",
+      "sha256": "4c270558db006f49fd680c9c341072e9ee6d78fab42f7d055976f0ae7429f538"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "visualyze",
+        "--bin",
+        "visualyze",
+        "--example",
+        "production_smoke",
+        "--example",
+        "composed_pin_smoke",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-blocked-native-build.log",
+      "sha256": "083620fbcd082eef9558cfbcf0f5190f942c8b221a9fb7f62d59f91c106aff35"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "visualyze-layout",
+        "--example",
+        "composed_layout",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-blocked-probe-build.log",
+      "sha256": "be4f3d5dc25fa1cf42337f0887dc3d2149b7a19a9fee0407d4bcd43ce3bd7512"
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-blocked-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "focused_checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "visualyze-layout",
+        "--lib",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-blocked-core-tests.log",
+        "sha256": "4aa8a35dffadb44d7cc940405105f0ec9c3b9dc59518f4392b4589f7f95b24ae"
+      },
+      "passed": 106
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "visualyze-layout",
+        "--test",
+        "composed_recovery",
+        "--offline",
+        "--locked",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-blocked-public-final-tests.log",
+        "sha256": "8e447bf75b3c5a809b065bc95390311c46b880d2ad93cc2028a1aceb411d2df9"
+      },
+      "passed": 2
+    }
+  ],
+  "behavioral_evidence": [
+    "Public solve_composed fixture independently places two frames. Its target is sealed by clearance-inflated boxes and fails without feedback; recovery completes the original cross-frame relationship while preserving pins. Both settings perform exactly one initializer per frame; feedback trials use the explicitly larger total budget.",
+    "Public cached solve succeeds, then a newer revision pins the movable blocker shut. Failure preserves cache size and contents and revision watermark; prior revision restores identical assembly/routes with zero evaluations.",
+    "Actual fixed child boundary at (50,100,50) with inward normal (0,-1,0) is blocked by a box at [40,94,40]..[60,98,60]. One twelve-unit horizontal move opens the unchanged boundary. Complete topology, membership, joins, dimensions, layers, domains and transforms validate.",
+    "Two touching blockers require two successive moves. A one-trial budget returns the original failure with no accepted improvement; two trials produce a complete valid solution. Rejected overlap geometry consumes its trial before a later legal proposal succeeds.",
+    "Pinned/frozen subtrees, fixed hosts, domain limits, original diagnostic retention, reversed/input-reordered requests, cancellation, invalid input and strict sixteen-block evidence cap are covered by focused core/router/helper tests."
+  ],
+  "review": {
+    "against": {
+      "path": "docs/measurements/cross-frame-feedback-validation-2026-10-02.json",
+      "sha256": "79e8f2a4d463740a3b4ceaedf01789e29bf430acb51325b2ec050a2446207dcb"
+    },
+    "changed_source_files": [
+      "private/layout/src/composed.rs",
+      "private/layout/src/composed/cache.rs",
+      "private/layout/src/composed/feedback.rs",
+      "private/layout/src/composed/recovery_tests.rs",
+      "private/layout/src/composed/solver.rs",
+      "private/layout/src/routing.rs",
+      "private/layout/tests/composed_recovery.rs"
+    ],
+    "findings": "Root reviewed routing wrapper/validator extraction, failure evidence, movement helpers, recovery integration and public/private regressions. Independent read-only integration review found no actionable correctness defect. Search exhaustion remains bounded heuristic failure, not proof of infeasibility.",
+    "versions": "Private placement algorithm key revision 2; state remains v5, composition 1 and quality 5. No public contract/dependency/production-default changes."
+  },
+  "pre_native_freeze": {
+    "record": {
+      "path": "/private/tmp/visualyze-blocked-before-native.json",
+      "sha256": "4c3a0d723734fb6f4c425fa39b6a1486650f53aa242c518f25298443533db507"
+    },
+    "captured_utc": "2026-10-03T01:12:01.174289+00:00",
+    "all_112_current_hashes_match": true
+  },
+  "source_sha256": {
+    "Cargo.lock": "ebde2964840a8ab18c73dcd04fff4eaa885bea827d5dd04b2194b62a950ea638",
+    "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+    "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+    "private/layout/examples/bundle_layout.rs": "74b3e8a7144c9bdcb4847361bceb7971b7b97fd01d2662f19606bb37083bb647",
+    "private/layout/examples/compare.rs": "4b692fe2161f06bac109ad8e71dff80428721c20c2c33bdbae2e5592b48cd67c",
+    "private/layout/examples/composed_layout.rs": "15b8200531d4871aad86fa2d07bd6e43042b4866c4e26e5ef03a5b514c4a1dae",
+    "private/layout/examples/evaluate_cases.rs": "267e33a23f4843ba178c726286eb0c95f571fbd290370f7e3d99e1454ed8bebe",
+    "private/layout/examples/generate_ai_fixture.rs": "caa6d269d3f525e9bc67ad6271469d5327ecb6dbf5a76eac6961c307903425fc",
+    "private/layout/examples/production_audit.rs": "fd6a0ca965da73c57e71eca902d13f1fee3c5bbd755e59769d6bae8cec50b84a",
+    "private/layout/examples/production_pages.rs": "8c5506dbe000f1a302d1367a995b13c755cf4c7f49b32bdc441b4b67c922af51",
+    "private/layout/examples/projection_bench.rs": "829481a1af42f099a25b065c6abfe43bfcc2dedee42c3ced95b30d90b7c11ce0",
+    "private/layout/examples/scale_view_bench.rs": "89cc3231b2801b3d253d77d91f630b08dd8b2901496b963a43f16bbb2b299b72",
+    "private/layout/src/assembly.rs": "ae8d6bde981dc7e14314679d961ea793cf1af1514d2bd2b9ddfaf78a03ae9ff5",
+    "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+    "private/layout/src/composed.rs": "e23e3ff229b50ea8be8e2167af25e2810cfd7d2b5c3567dc7843580b8abd2086",
+    "private/layout/src/composed/cache.rs": "972c6eacda62055cad69803cbf9c33c57638cf06cfc83d9da0c7c0ad13ff41db",
+    "private/layout/src/composed/constraints.rs": "4675fce6d16e554260f5168455fa7d80fab4f4da7f3b27e49561f27d4b5c2f62",
+    "private/layout/src/composed/feedback.rs": "48f7d079a7f989e68c8dbcf3c6d780851170803d5623b4f8a89f65ea77557326",
+    "private/layout/src/composed/persistence.rs": "f6da86db38b1de948a7d1d5b24a663dd873f775f0023c89ac3ccf36c0dd01184",
+    "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+    "private/layout/src/composed/recovery_tests.rs": "1efa2aa99be3c1decb3aa5cd6bff3a8eee096e69a09440f1698274f651083e0e",
+    "private/layout/src/composed/solver.rs": "4658b8225db2e78a18e6d57ae102013112345fdde44b1570bfa3e75c96af316d",
+    "private/layout/src/composed/validation.rs": "74284c9bd560580b3aa8281d4fef862adcb17af98d58461b2841ffca755ea71b",
+    "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+    "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+    "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+    "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+    "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+    "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+    "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+    "private/layout/src/routing.rs": "5646322dc94fa0b76d2bc820324ddd208f71f75e089795838d495facab28bc73",
+    "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+    "private/layout/src/solver.rs": "62f0551bbc39079c5d40bfdf4eede12fb27f3d263b09d27b3fc378dd841ce7f6",
+    "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+    "private/layout/tests/assembly.rs": "6e5211d4cded44837ff9eb217c07ce6d3e141a5e7c88cfc8a1018bc6b7797f06",
+    "private/layout/tests/assembly_plan.rs": "b80dd91b42419b6c877f1d3e5e96a82fcf096f681e439692446c4779d12be76d",
+    "private/layout/tests/canonical_route_join.rs": "6372c32fb9edaee72f62fd44b5c55cd106abc009b9575dad530526d9fea1431d",
+    "private/layout/tests/composed.rs": "f101163d7b59551b37879be5307ed9b4d7410c74b557d00d5b08e0ee303273b7",
+    "private/layout/tests/composed_cache.rs": "ef54a55d80fa1e1f38d2520785791bb77782da2d4d4f9f1c73026f9e9159789f",
+    "private/layout/tests/composed_feedback.rs": "f1a19726776b2bd206962f542f22d7c9861d6005151fda188170a46703338ea2",
+    "private/layout/tests/composed_persistence.rs": "1c1d062e7c04196d153af0380066ddd24866feceb9ef3a9a091d5371a242a27e",
+    "private/layout/tests/composed_recovery.rs": "6bdd2122ef89af61fff01fa49631c971559875ab1f9719154e71c87169eaf920",
+    "private/layout/tests/composed_reorganization.rs": "aff26b135ad2add94f3b4c5022302a2e8203309266470bf2385d131e41c145d5",
+    "private/layout/tests/composed_validation.rs": "bf96f0a3ca5cc9d76e718ca782caa6d075b043f86f57b404bf90a4c59d731c0a",
+    "private/layout/tests/distributed_system.rs": "0b94df9959245ead7e06cf5dd9df169ddb86cc1e82056610a916f643e1c6d930",
+    "private/layout/tests/durable_pins.rs": "a025f6ce550146612c006bdd28430e5ccfb18700ed9c818bf07e34ca26583114",
+    "private/layout/tests/inherited_constraints.rs": "5143d7ec21a33a66501b63877b23e513b7bdc867243a194b68834e3f68cc91a4",
+    "private/layout/tests/neighborhood_continuity.rs": "ac69f6b4531da8cd32db92316620413b134cad6f912816f583c5f55f3b24b39c",
+    "private/layout/tests/placement.rs": "0daa906851a3f472d8ff6252136661648bbe7a850c3842dc578995f47acc5af7",
+    "private/layout/tests/projection_integration.rs": "b7d2508c1d6e6a2a0cc2db2164e2b76a05df6a457db8ff4a4d47058e7ee000cb",
+    "private/layout/tests/provider_code.rs": "83da89bd79a5553290668bb756c37364aca60c08e49d58fa7b6ee674b99c91e4",
+    "private/layout/tests/route_metrics.rs": "0e0d78263c48a0434878f1f61707522afffbc392dbd3dc2839c484c8de8579b7",
+    "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9",
+    "private/layout/tests/volumetric_constraints.rs": "c5b8e429885c55ddf01ae761fa89e63460946b30a12026524db901b2e4a64d84",
+    "private/layout/tests/volumetric_packing.rs": "260ac29dae4bfd7624b4143d564a82c83ae0672715a1067b695c211c85dab0fe",
+    "private/runtime/Cargo.toml": "449706c320e581bf5b08fb512574924dcf60b038f5dce0e1aba93ccec610d2a0",
+    "private/runtime/examples/composed_pin_smoke.rs": "9194a4656c4641b5d6917e49673332f356c3523d8b610bfb5c8e9ad2a12b3395",
+    "private/runtime/examples/connected_smoke.rs": "435e0cdbdc399eda7ddd74f85e7b346e5477a050abb48f85b95db50e2d2796a9",
+    "private/runtime/examples/large_model_smoke.rs": "283b0591189c8ef7a6d8dfa5007a2c8225de9ce27b803d69508e9c5e2d10a693",
+    "private/runtime/examples/layout_smoke.rs": "57edb790c26d3e37b7e006c43b49fa2c21dd468ef05e89dfaa17895bf3580a51",
+    "private/runtime/examples/legacy_control.rs": "17079a763cb9df57ba81449383776bd076593ac56c9b817634570cd8f30963d1",
+    "private/runtime/examples/production_smoke.rs": "c3826b728d20881ae125e61510749f10a4235547dbc6a9362a3fc11c53c54b88",
+    "private/runtime/examples/render_smoke.rs": "d27ea96935165fa4dd5523c5874f0008321f593395ba1e2077ee96fbb3594639",
+    "private/runtime/examples/support/control_geometry.rs": "2b5d5c96b1de4d9322c973628d2f0e0fb57fa10d4ce25ed1ea94c34777fe801b",
+    "private/runtime/examples/support/frame_trace.rs": "378da23da4ba8e5292232c701c09f5424264655cee4da9801ac1cdc650befdc5",
+    "private/runtime/examples/support/scripted_input.rs": "bed1e6590af46280b7d5daf46b7d575a83085cfd3940a1119c378609d27f97e8",
+    "private/runtime/src/camera.rs": "537cfa97360bea729efd9c50a55ae09753fc54063c362d15746b709f907276bc",
+    "private/runtime/src/composed_state_tests.rs": "0a7c8601ead7e379b4e242e0f317ad987f4ec8f6851ecd74cc916f87e2691076",
+    "private/runtime/src/composition.rs": "eb4eaf1acb171812c6a90f707990d758d920e1902269802fcb1db2cccb73f2d6",
+    "private/runtime/src/connections.rs": "e70e6e2c4f2fce2fd7e38554e77d2ce5b9d9bf8c3a120a0861e07de6804e684c",
+    "private/runtime/src/input.rs": "a8fb5358a1056b405284f1a811e571ebc3e25f839cf577374f1c1a72cfb51b3e",
+    "private/runtime/src/layout_geometry.rs": "a2cbd36db2bdb852f99e270f729482d6fc87af383c4705ae51177c6e082681ef",
+    "private/runtime/src/layout_input.rs": "d3f14e5fa6e8a8b8c8146a7da2041ed62599246c6c609dba2ce110759fa2d1c6",
+    "private/runtime/src/layout_scene.rs": "45347477e78dbdebcb3d37a42223babc0a658a9d67e3a876501b092e3c963252",
+    "private/runtime/src/lib.rs": "5260244b697fc8126c2652ec63017fa37bf073fdde01e7d5f4b9133f794604d8",
+    "private/runtime/src/main.rs": "20a807dc215ab235929cbf664407919c48830df663475bf0aacda368bf79a132",
+    "private/runtime/src/native_layout.rs": "2932073683b84c9fd69e5744cc09544a3ce94984a9bc24f03d324c0d3f167c95",
+    "private/runtime/src/primitives.rs": "0c5fd38c4c26a5c59a1d52f95af95d7663dfab2d27dc124668135d5e386abd60",
+    "private/runtime/src/scene.rs": "50d8808ef48a26acde5bcd7512b12ebadc69462b91cc7e96a8ccb3e6c77961c4",
+    "private/runtime/src/shutdown.rs": "5235ad891a026947b05729351e7c67c9d62feba5f5fe9f97c316b94e9520a43b",
+    "private/runtime/tests/ingestion.rs": "500eec5f93a40d4bd1b82920b1fab6ccd868fa7944e9b7bad4d2f824b54abf8c",
+    "public/tools/rust-bundle/Cargo.toml": "8dc0bf85650d69908093bbeaf0a6d37455e55a283ddd28a4bb6172e4645a14ac",
+    "public/tools/rust-bundle/src/lib.rs": "0f6207ae2093be151e951314f40a7c22c72d58f37520177e152a1cc3beccd9e2",
+    "public/tools/rust-bundle/src/main.rs": "5ef69ae356b5e35812bee18e264ecdc2e773a3aee3d43b73354ff3bee5664855",
+    "public/tools/rust-bundle/tests/fixtures/nested/Cargo.toml": "3ac7242681dff094ebd266dca4a200a06fa7d048d08a0dec8fcc6e8c2756173f",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/Cargo.toml": "16ab1bf8b22edc250395656567cd3508d3a4d70183f1b937d41495093b71c2b7",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/helpers.rs": "c24f62a0d2a14bd3dba61d3f3f8e2be5c58535d10bdb368d0f5b32c7e669a826",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/lib.rs": "3f9250d7ea14f19eb80b95567257db81758e48aecf3981b77674ce93153e768d",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/Cargo.toml": "98ecedfccf534c46b93c4c63fe97061b51bbc63c69bec30b9e14d5c491c1dc10",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/lib.rs": "4b6bf49dfecc1bd0917597d80f64a4d1e713af7ba19fc4e2ee53faa50584f43e",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/value.rs": "13b24a36be7cbbef8317059ca322623c20db7372930e475ebb46144f894be75f",
+    "public/tools/rust-bundle/tests/producer.rs": "dee02ebcf7afc265fc468a175552c2689a5c569c412abf83a3f007a283f1724f",
+    "public/tools/rust-bundle/tests/syntax_identity.rs": "e5b1c45773d35eeaefecb88d70abae8f4b91d5f746e355622dd7bf0266ab5da5",
+    "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+    "public/types/rust/examples/bundle_bench.rs": "da6de010d5baabd2c3edb7e003324e0aae3c4d8b9eeee336bedca7676e3960c2",
+    "public/types/rust/examples/index_profile.rs": "ad9cc35db0c409123a117a057d59c05f779181fa1f6f702cfffd3619e482a3a1",
+    "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+    "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+    "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+    "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+    "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+    "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+    "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+    "public/types/rust/src/provider/storage.rs": "057157a5846b614215a8c07b1d85fe372be217ff1faa48485c3d3c2d53e4c288",
+    "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+    "public/types/rust/tests/architecture.rs": "fa9a1b1ec174d6cca0edda9541dcdf7903ee5cdf69e62f6da866d04acdb83eef",
+    "public/types/rust/tests/provider.rs": "2e4ebc0bf863afa622c95616219133e5e9e8b82e5d8e633e0dc2f651a75fa155",
+    "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+  },
+  "binary_sha256": {
+    "target/debug/examples/composed_layout": "4d01452e7f3a03d07eadca2ab0cd07e68c2e48a86299359320249fef07a0b9cf",
+    "target/debug/examples/composed_pin_smoke": "fab14473390bac9cf2af5f747a35d6f21f272c68ecb0a06ba58df65a827a271f",
+    "target/debug/examples/production_smoke": "87e42972a152a64d14aa1a860b861da751df7b0a92026fd69349ac0b14c179ee",
+    "target/debug/visualyze": "8b1aea84780a5f5ad775406f6d8985ae79cc8e8a8734a40767e4e1c28c502e0c"
+  },
+  "representative_probes": {
+    "runner": {
+      "path": "/private/tmp/visualyze-blocked-probes.py",
+      "sha256": "bd3e4cd9be7507557b49daf9a56e4ecb35d2bd3d74ac899df577ef757c6a0bd4"
+    },
+    "raw_record": {
+      "path": "/private/tmp/visualyze-blocked-probes.json",
+      "sha256": "dbb0640cfd9ea94b114288ded813e6b41d4e067e9481db77bb37da597ed2fc03"
+    },
+    "prior": {
+      "path": "docs/measurements/cross-frame-feedback-validation-2026-10-02.json",
+      "sha256": "79e8f2a4d463740a3b4ceaedf01789e29bf430acb51325b2ec050a2446207dcb"
+    },
+    "rows": [
+      {
+        "case": "data-messaging",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "public/examples/data-messaging.bundle.jsonl",
+          "-",
+          "crud",
+          "datastore:orders",
+          "table:orders",
+          "--feedback",
+          "0"
+        ],
+        "exit_code": 0,
+        "output": {
+          "path": "/private/tmp/visualyze-blocked-data-messaging-0.json",
+          "sha256": "14a3df1a2061364feaa1f646fba4a136eec4a72e8249e25ff424f287dba43989"
+        },
+        "stderr": {
+          "path": "/private/tmp/visualyze-blocked-data-messaging-0.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "valid",
+        "same_report_as_prior_except_timing": true,
+        "timing_ms": {
+          "composition": 9.341999999999999,
+          "indexing": 0.75825,
+          "projection": 0.9835
+        },
+        "work": {
+          "allocations": {
+            "datastore:orders": 80,
+            "scope:orders": 120,
+            "table:orders": 64
+          },
+          "budget": 192,
+          "evaluations": {
+            "datastore:orders": 40,
+            "scope:orders": 60,
+            "table:orders": 32
+          },
+          "feedback_evaluations": 0,
+          "feedback_improvements": 0,
+          "frame_evaluations": 132,
+          "total_evaluations": 132
+        },
+        "quality": {
+          "canonical_route_length": 346,
+          "presented_route_length": 217.0,
+          "bends": 9,
+          "structural_cost": 39.144394069065626,
+          "maximum_scale_shift": 4
+        }
+      },
+      {
+        "case": "data-messaging",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "public/examples/data-messaging.bundle.jsonl",
+          "-",
+          "crud",
+          "datastore:orders",
+          "table:orders",
+          "--feedback",
+          "4"
+        ],
+        "exit_code": 0,
+        "output": {
+          "path": "/private/tmp/visualyze-blocked-data-messaging-4.json",
+          "sha256": "91ba9a86a292946caaf3fa225ea0c3e2f2cc8e3f74bed305f19e3f973445f21b"
+        },
+        "stderr": {
+          "path": "/private/tmp/visualyze-blocked-data-messaging-4.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "valid",
+        "same_report_as_prior_except_timing": true,
+        "timing_ms": {
+          "composition": 11.743625,
+          "indexing": 0.216583,
+          "projection": 0.28895800000000005
+        },
+        "work": {
+          "allocations": {
+            "datastore:orders": 78,
+            "scope:orders": 118,
+            "table:orders": 62
+          },
+          "budget": 192,
+          "evaluations": {
+            "datastore:orders": 39,
+            "scope:orders": 60,
+            "table:orders": 31
+          },
+          "feedback_evaluations": 4,
+          "feedback_improvements": 1,
+          "frame_evaluations": 130,
+          "total_evaluations": 134
+        },
+        "quality": {
+          "canonical_route_length": 324,
+          "presented_route_length": 196.5,
+          "bends": 3,
+          "structural_cost": 37.24115403007038,
+          "maximum_scale_shift": 4
+        }
+      },
+      {
+        "case": "distributed-data",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "private/layout/fixtures/distributed-ai.bundle.jsonl",
+          "scope:data",
+          "crud",
+          "datastore:conversations",
+          "table:conversation-00000",
+          "--feedback",
+          "0"
+        ],
+        "exit_code": 0,
+        "output": {
+          "path": "/private/tmp/visualyze-blocked-distributed-data-0.json",
+          "sha256": "fa31b84be257a2b732ccfdee43de1058011bc577d789088d26e57e71dffc1d63"
+        },
+        "stderr": {
+          "path": "/private/tmp/visualyze-blocked-distributed-data-0.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "valid",
+        "same_report_as_prior_except_timing": true,
+        "timing_ms": {
+          "composition": 76.988666,
+          "indexing": 2.520209,
+          "projection": 2.682125
+        },
+        "work": {
+          "allocations": {
+            "datastore:conversations": 70,
+            "scope:data": 105,
+            "table:conversation-00000": 48,
+            "view:suggested-group:e4f1ba42e59ec030": 56
+          },
+          "budget": 192,
+          "evaluations": {
+            "datastore:conversations": 35,
+            "scope:data": 53,
+            "table:conversation-00000": 24,
+            "view:suggested-group:e4f1ba42e59ec030": 28
+          },
+          "feedback_evaluations": 0,
+          "feedback_improvements": 0,
+          "frame_evaluations": 140,
+          "total_evaluations": 140
+        },
+        "quality": {
+          "canonical_route_length": 2562,
+          "presented_route_length": 295.59375,
+          "bends": 71,
+          "structural_cost": 112.98230274395604,
+          "maximum_scale_shift": 8
+        }
+      },
+      {
+        "case": "distributed-data",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "private/layout/fixtures/distributed-ai.bundle.jsonl",
+          "scope:data",
+          "crud",
+          "datastore:conversations",
+          "table:conversation-00000",
+          "--feedback",
+          "4"
+        ],
+        "exit_code": 0,
+        "output": {
+          "path": "/private/tmp/visualyze-blocked-distributed-data-4.json",
+          "sha256": "de4f54bdd86d768a1d3586f4a9390c62e34637c811d829203288276fb7dc27cb"
+        },
+        "stderr": {
+          "path": "/private/tmp/visualyze-blocked-distributed-data-4.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "valid",
+        "same_report_as_prior_except_timing": true,
+        "timing_ms": {
+          "composition": 114.12733399999999,
+          "indexing": 2.477375,
+          "projection": 2.688541
+        },
+        "work": {
+          "allocations": {
+            "datastore:conversations": 68,
+            "scope:data": 103,
+            "table:conversation-00000": 47,
+            "view:suggested-group:e4f1ba42e59ec030": 54
+          },
+          "budget": 192,
+          "evaluations": {
+            "datastore:conversations": 34,
+            "scope:data": 52,
+            "table:conversation-00000": 24,
+            "view:suggested-group:e4f1ba42e59ec030": 27
+          },
+          "feedback_evaluations": 4,
+          "feedback_improvements": 1,
+          "frame_evaluations": 137,
+          "total_evaluations": 141
+        },
+        "quality": {
+          "canonical_route_length": 2526,
+          "presented_route_length": 295.03125,
+          "bends": 69,
+          "structural_cost": 110.84930762642121,
+          "maximum_scale_shift": 8
+        }
+      },
+      {
+        "case": "bevy-ecs-expanded",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "repository:05317a01f80959f2",
+          "code",
+          "package:d1c2531f3a0a9b57",
+          "--feedback",
+          "0"
+        ],
+        "exit_code": 0,
+        "output": {
+          "path": "/private/tmp/visualyze-blocked-bevy-ecs-expanded-0.json",
+          "sha256": "a00a5d9b6da95fb91271f87a3123cde7e0b69b5a47b6913dc9b0da442508a3f5"
+        },
+        "stderr": {
+          "path": "/private/tmp/visualyze-blocked-bevy-ecs-expanded-0.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "valid",
+        "same_report_as_prior_except_timing": true,
+        "timing_ms": {
+          "composition": 449.193,
+          "indexing": 321.536708,
+          "projection": 44.005500000000005
+        },
+        "work": {
+          "allocations": {
+            "package:d1c2531f3a0a9b57": 64,
+            "repository:05317a01f80959f2": 120,
+            "view:suggested-group:b4d695a5a5dd423c": 80
+          },
+          "budget": 192,
+          "evaluations": {
+            "package:d1c2531f3a0a9b57": 32,
+            "repository:05317a01f80959f2": 60,
+            "view:suggested-group:b4d695a5a5dd423c": 40
+          },
+          "feedback_evaluations": 0,
+          "feedback_improvements": 0,
+          "frame_evaluations": 132,
+          "total_evaluations": 132
+        },
+        "quality": {
+          "canonical_route_length": 37008,
+          "presented_route_length": 13993.5,
+          "bends": 880,
+          "structural_cost": 1131.8262739381262,
+          "maximum_scale_shift": 6
+        }
+      },
+      {
+        "case": "bevy-ecs-expanded",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "repository:05317a01f80959f2",
+          "code",
+          "package:d1c2531f3a0a9b57",
+          "--feedback",
+          "4"
+        ],
+        "exit_code": 0,
+        "output": {
+          "path": "/private/tmp/visualyze-blocked-bevy-ecs-expanded-4.json",
+          "sha256": "9d7186b487aef5876340e86d36245b84af8ded7cccd1c624e06a651047d66f62"
+        },
+        "stderr": {
+          "path": "/private/tmp/visualyze-blocked-bevy-ecs-expanded-4.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "valid",
+        "same_report_as_prior_except_timing": true,
+        "timing_ms": {
+          "composition": 702.6285829999999,
+          "indexing": 320.422833,
+          "projection": 37.010083
+        },
+        "work": {
+          "allocations": {
+            "package:d1c2531f3a0a9b57": 62,
+            "repository:05317a01f80959f2": 118,
+            "view:suggested-group:b4d695a5a5dd423c": 78
+          },
+          "budget": 192,
+          "evaluations": {
+            "package:d1c2531f3a0a9b57": 31,
+            "repository:05317a01f80959f2": 63,
+            "view:suggested-group:b4d695a5a5dd423c": 39
+          },
+          "feedback_evaluations": 4,
+          "feedback_improvements": 2,
+          "frame_evaluations": 133,
+          "total_evaluations": 137
+        },
+        "quality": {
+          "canonical_route_length": 35725,
+          "presented_route_length": 13059.53125,
+          "bends": 835,
+          "structural_cost": 1084.9229643416713,
+          "maximum_scale_shift": 6
+        }
+      },
+      {
+        "case": "bevy-world-expanded",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "file:b6ae9420da8c77aa",
+          "code",
+          "item:1a4125968da0ac7b",
+          "--feedback",
+          "0"
+        ],
+        "exit_code": 0,
+        "output": {
+          "path": "/private/tmp/visualyze-blocked-bevy-world-expanded-0.json",
+          "sha256": "a375ac2536b35f445966b89a7c1fb4da010361e21342ab7036609ed635e3d434"
+        },
+        "stderr": {
+          "path": "/private/tmp/visualyze-blocked-bevy-world-expanded-0.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "valid",
+        "same_report_as_prior_except_timing": true,
+        "timing_ms": {
+          "composition": 116.420334,
+          "indexing": 320.79675000000003,
+          "projection": 6.724625
+        },
+        "work": {
+          "allocations": {
+            "file:b6ae9420da8c77aa": 144,
+            "item:1a4125968da0ac7b": 96
+          },
+          "budget": 192,
+          "evaluations": {
+            "file:b6ae9420da8c77aa": 72,
+            "item:1a4125968da0ac7b": 48
+          },
+          "feedback_evaluations": 0,
+          "feedback_improvements": 0,
+          "frame_evaluations": 120,
+          "total_evaluations": 120
+        },
+        "quality": {
+          "canonical_route_length": 392,
+          "presented_route_length": 392.0,
+          "bends": 0,
+          "structural_cost": 27.10610949543524,
+          "maximum_scale_shift": 4
+        }
+      },
+      {
+        "case": "bevy-world-expanded",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "file:b6ae9420da8c77aa",
+          "code",
+          "item:1a4125968da0ac7b",
+          "--feedback",
+          "4"
+        ],
+        "exit_code": 0,
+        "output": {
+          "path": "/private/tmp/visualyze-blocked-bevy-world-expanded-4.json",
+          "sha256": "239e60b725354ffe6cfe7edb625c368e5d7048963830694649a1a999a4a346ae"
+        },
+        "stderr": {
+          "path": "/private/tmp/visualyze-blocked-bevy-world-expanded-4.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "status": "valid",
+        "same_report_as_prior_except_timing": true,
+        "timing_ms": {
+          "composition": 118.794917,
+          "indexing": 325.566166,
+          "projection": 6.478083
+        },
+        "work": {
+          "allocations": {
+            "file:b6ae9420da8c77aa": 144,
+            "item:1a4125968da0ac7b": 96
+          },
+          "budget": 192,
+          "evaluations": {
+            "file:b6ae9420da8c77aa": 72,
+            "item:1a4125968da0ac7b": 48
+          },
+          "feedback_evaluations": 0,
+          "feedback_improvements": 0,
+          "frame_evaluations": 120,
+          "total_evaluations": 120
+        },
+        "quality": {
+          "canonical_route_length": 392,
+          "presented_route_length": 392.0,
+          "bends": 0,
+          "structural_cost": 27.10610949543524,
+          "maximum_scale_shift": 4
+        }
+      }
+    ],
+    "scope": "Eight previously valid headless development reports match the prior checkpoint in every field except timings. These cases exercise regression preservation, not new recovery coverage, calibration or held-out quality acceptance. Timings are single sequential samples."
+  },
+  "production_source": {
+    "bundle": {
+      "path": "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "sha256": "8f4d8a5f197f5381563e7c19aa81cc962f67984ff08ad621de1c189632d7286c"
+    },
+    "revision": "f667c282dad2c1419afb5836ded22a3ec263970e",
+    "scope": "Bevy syntax source inventory, not full runtime architecture extraction."
+  },
+  "native_pins": {
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "./target/debug/examples/composed_pin_smoke",
+      "public/examples/data-messaging.bundle.jsonl",
+      "visualyze-local/production/native-blocked-pins-2026-10-02"
+    ],
+    "exit_code": 0,
+    "log": {
+      "path": "/private/tmp/visualyze-blocked-native-pins.log",
+      "sha256": "895632585938db24443c62263dbce7c59bb0891221c15dc853c0e8ec695aad4f"
+    },
+    "report": {
+      "path": "visualyze-local/production/native-blocked-pins-2026-10-02/pin-report.json",
+      "sha256": "ad572c70aa4cc78604ef417e5e5a951d5a9b6d9a97061dfdf7b524a941823131"
+    },
+    "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+    "peak_rss_bytes": 222248960,
+    "peak_memory_footprint_bytes": 570377344,
+    "actions": [
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 2,
+        "objects": 9,
+        "owned_contexts": 0,
+        "pin_position": null,
+        "routes": 7,
+        "screenshot": false,
+        "step": 0
+      },
+      {
+        "action": "Expand(\"table:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 1
+      },
+      {
+        "action": "Pin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 2
+      },
+      {
+        "action": "Collapse(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 1,
+        "objects": 7,
+        "owned_contexts": 1,
+        "pin_position": null,
+        "routes": 6,
+        "screenshot": true,
+        "step": 3
+      },
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 4
+      },
+      {
+        "action": "Expand(\"table:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 5
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 6
+      },
+      {
+        "action": "Undo",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 7
+      },
+      {
+        "action": "Enter(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 8
+      },
+      {
+        "action": "Enter(\"table:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "table:orders",
+        "frames": 1,
+        "objects": 5,
+        "owned_contexts": 1,
+        "pin_position": [
+          -1.7999999523162842,
+          -1.1999999284744263,
+          -1.5999999046325684
+        ],
+        "routes": 3,
+        "screenshot": true,
+        "step": 9
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 10
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 11
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 12
+      },
+      {
+        "action": "Enter(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 0,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 13
+      },
+      {
+        "action": "Pin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": true,
+        "step": 14
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 15
+      },
+      {
+        "action": "Collapse(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 1,
+        "objects": 7,
+        "owned_contexts": 1,
+        "pin_position": null,
+        "routes": 6,
+        "screenshot": false,
+        "step": 16
+      },
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 17
+      },
+      {
+        "action": "OpenPinOrigin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 18
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 0,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 19
+      },
+      {
+        "action": "Undo",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 20
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 21
+      }
+    ],
+    "save_attempts": 23,
+    "save_failures": 0,
+    "save_max_ms": 10.999875,
+    "scope": "Actual native composed display and isolated v5 persistence. Exact rendered pinned position checked across collapse/reopen/unpin/undo and parent return; exact canonical point and truncated anchors checked through database/table descent. Child-origin pins preserve their original anchors when displayed in parents, including collapse/reopen, open-origin navigation and undo. Inheritance never copies owned registry entries. Restart and eviction have separate worker/core regressions; this process does not simulate hardware input or establish latency percentiles.",
+    "completed_actions": 22,
+    "inspected_image": {
+      "path": "visualyze-local/production/native-blocked-pins-2026-10-02/step-21.png",
+      "sha256": "907c358eef25f1264ba967f8d343a097ecb4e80102569a6877cb3e0debce09ba"
+    },
+    "visual_observation": "Parent Orders view renders ten objects/seven paths after returning with a child-origin pin. Small nested interiors and obscured labels remain; this is not comprehension evidence.",
+    "saved_states": [
+      {
+        "path": "visualyze-local/production/native-blocked-pins-2026-10-02/state/a276425ff5e928bb.json",
+        "sha256": "e31854423ece7cabb54296cc8388a110d90ae6eea8053119583af2652d64cec8",
+        "version": 5
+      }
+    ]
+  },
+  "native_production": {
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "./target/debug/examples/production_smoke",
+      "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "visualyze-local/production/native-blocked-production-2026-10-02",
+      "--persist",
+      "--composed",
+      "--trace-frames",
+      "--repeat-navigation",
+      "--no-captures"
+    ],
+    "exit_code": 0,
+    "log": {
+      "path": "/private/tmp/visualyze-blocked-native-production.log",
+      "sha256": "82ba92f69676397ed89ff93d8927d03af3c785a0daa83c9c8b2ed122e75be25f"
+    },
+    "report": {
+      "path": "visualyze-local/production/native-blocked-production-2026-10-02/native-report.json",
+      "sha256": "b59733b83cd4422588d4e34c00ebd26b91f91fbc5af602222c1aa2298566fba7"
+    },
+    "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+    "peak_rss_bytes": 390266880,
+    "peak_memory_footprint_bytes": 704283944,
+    "model_id": "model:788c0940ff544915",
+    "source_counts": {
+      "entities": 27117,
+      "evidence": 31319,
+      "relations": 44019
+    },
+    "initial_acceptance_ms": 671.444375,
+    "persistence": {
+      "attempts": 33,
+      "enabled": true,
+      "failures": 0,
+      "isolated_directory": "/var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-persistence-smoke-11732-1790989953960339000",
+      "last_64_attempts_ms": [
+        8.673584,
+        12.605875000000001,
+        13.632583,
+        15.182417000000001,
+        13.461166,
+        9.28275,
+        8.823375,
+        10.233084,
+        10.686708,
+        9.834000000000001,
+        9.320542,
+        9.369167,
+        9.706332999999999,
+        8.899959,
+        7.893792,
+        13.971417,
+        21.131417,
+        19.183875,
+        11.540875000000002,
+        9.082208,
+        7.283042,
+        9.448625,
+        9.272791000000002,
+        12.816374999999999,
+        9.794958,
+        7.903166999999999,
+        12.863292,
+        10.78525,
+        7.095667,
+        13.407166,
+        11.896959,
+        9.612083,
+        9.957291
+      ],
+      "max_ms": 21.131417,
+      "scope": "Synchronous main-thread state preparation and atomic save, including existing-state validation, serialization, file/directory fsync. Acceptance and frame intervals include this cost when enabled. The fresh temp directory is retained for inspection; no user state is read or written.",
+      "total_ms": 364.651793
+    },
+    "all_update_intervals_ms": {
+      "max": 1070.9399580000002,
+      "median": 16.657333,
+      "p95": 23.752459,
+      "p99": 53.943084,
+      "samples": 322
+    },
+    "worker_update_intervals_ms_excluding_capture": {
+      "max": 1070.9399580000002,
+      "median": 16.696167000000003,
+      "p95": 30.890333,
+      "p99": 78.724416,
+      "samples": 203
+    },
+    "completed_actions": 38,
+    "selected_steps": [
+      {
+        "acceptance_ms": 483.81154100000003,
+        "accepted_objects": 63,
+        "accepted_routes": 191,
+        "action_started_ms": 5148.627125,
+        "cached": false,
+        "child_page": 0,
+        "composition_frames": 3,
+        "elapsed_ms_including_3_settle_frames": 525.549166,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 392.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 12.592625,
+            "action_id": 22,
+            "cache_outcome": "miss",
+            "indexing_ms": 0.0,
+            "job_id": 17,
+            "observed_at_ms": 5548.577791,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 4.672875999999974,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 43.804583,
+            "publication_wait_ms": 12.743208000000001,
+            "queued_at_ms": 5148.667458,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 12,
+            "routing_batches_reused": 0,
+            "save_ms": 21.131417,
+            "scene_build_ms": 1.9767500000000002,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 338.646041,
+            "source_lock_wait_ms": 0.00020800000000000001,
+            "total_ms": 435.61525,
+            "worker_finished_at_ms": 5535.834583,
+            "worker_queue_ms": 0.043417000000000004,
+            "worker_total_ms": 387.123708
+          }
+        ],
+        "maximum_scale_shift": 6,
+        "objects": 63,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 191,
+        "save_attempts": 17,
+        "save_total_ms": 192.708169,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repository-ecs-expanded",
+        "step_index": 21,
+        "total_children": 81
+      },
+      {
+        "acceptance_ms": 117.277042,
+        "accepted_objects": 28,
+        "accepted_routes": 106,
+        "action_started_ms": 5677.904458000001,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 134.24645800000002,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 361.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 11.776290999999999,
+            "action_id": 23,
+            "cache_outcome": "canonical_reuse",
+            "indexing_ms": 0.0,
+            "job_id": 18,
+            "observed_at_ms": 5741.26325,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 3.5134159999999994,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 42.19933400000001,
+            "publication_wait_ms": 6.615,
+            "queued_at_ms": 5677.947833,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 1,
+            "save_ms": 19.183875,
+            "scene_build_ms": 0.614916,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 10.930834,
+            "source_lock_wait_ms": 0.000583,
+            "total_ms": 94.895167,
+            "worker_finished_at_ms": 5734.64825,
+            "worker_queue_ms": 0.05625,
+            "worker_total_ms": 56.644167
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 28,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 106,
+        "save_attempts": 18,
+        "save_total_ms": 211.892044,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repository-ecs-collapsed",
+        "step_index": 22,
+        "total_children": 81
+      },
+      {
+        "acceptance_ms": 35.028333,
+        "accepted_objects": 97,
+        "accepted_routes": 33,
+        "action_started_ms": 5910.692875,
+        "cached": false,
+        "child_page": 0,
+        "composition_frames": 2,
+        "elapsed_ms_including_3_settle_frames": 65.988333,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 205.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 1.5227089999999999,
+            "action_id": 25,
+            "cache_outcome": "canonical_reuse",
+            "indexing_ms": 0.0,
+            "job_id": 20,
+            "observed_at_ms": 5927.473666,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 1.1201249999999998,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 11.095208,
+            "publication_wait_ms": 1.9416660000000001,
+            "queued_at_ms": 5910.7261659999995,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 1,
+            "routing_batches_reused": 1,
+            "save_ms": 9.082208,
+            "scene_build_ms": 0.310291,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 2.548042,
+            "source_lock_wait_ms": 0.000292,
+            "total_ms": 27.664709,
+            "worker_finished_at_ms": 5925.532,
+            "worker_queue_ms": 0.042166999999999996,
+            "worker_total_ms": 14.763667
+          }
+        ],
+        "maximum_scale_shift": 4,
+        "objects": 97,
+        "original_routed_relations": 51,
+        "relation_page": 0,
+        "routes": 33,
+        "save_attempts": 20,
+        "save_total_ms": 232.515127,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "world-type-expanded",
+        "step_index": 24,
+        "total_children": 31
+      },
+      {
+        "acceptance_ms": 33.565083,
+        "accepted_objects": 65,
+        "accepted_routes": 33,
+        "action_started_ms": 5994.175333,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 66.625125,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 205.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 1.339,
+            "action_id": 26,
+            "cache_outcome": "canonical_reuse",
+            "indexing_ms": 0.0,
+            "job_id": 21,
+            "observed_at_ms": 6010.572958,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 1.101166,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 3.8638749999999997,
+            "publication_wait_ms": 8.7185,
+            "queued_at_ms": 5994.214166,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 1,
+            "save_ms": 7.283042,
+            "scene_build_ms": 0.218875,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 2.58775,
+            "source_lock_wait_ms": 0.0005420000000000001,
+            "total_ms": 25.201749999999997,
+            "worker_finished_at_ms": 6001.854458000001,
+            "worker_queue_ms": 0.08695900000000001,
+            "worker_total_ms": 7.553332999999999
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 51,
+        "relation_page": 0,
+        "routes": 33,
+        "save_attempts": 21,
+        "save_total_ms": 239.798169,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "world-type-collapsed",
+        "step_index": 25,
+        "total_children": 31
+      },
+      {
+        "acceptance_ms": 38.793625,
+        "accepted_objects": 65,
+        "accepted_routes": 32,
+        "action_started_ms": 6727.145375,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 66.948458,
+        "focus": "package:d1c2531f3a0a9b57",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 236.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 3.881917,
+            "action_id": 33,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 28,
+            "observed_at_ms": 6743.383083000001,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 0.8601249999999998,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 0.291417,
+            "publication_wait_ms": 14.994583,
+            "queued_at_ms": 6727.194541,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 10.78525,
+            "scene_build_ms": 0.24483300000000002,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.00037499999999999995,
+            "total_ms": 31.103167000000003,
+            "worker_finished_at_ms": 6728.3885,
+            "worker_queue_ms": 0.042042,
+            "worker_total_ms": 1.1519169999999999
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 33,
+        "relation_page": 0,
+        "routes": 32,
+        "save_attempts": 28,
+        "save_total_ms": 312.682627,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-package",
+        "step_index": 32,
+        "total_children": 151
+      },
+      {
+        "acceptance_ms": 33.301875,
+        "accepted_objects": 65,
+        "accepted_routes": 33,
+        "action_started_ms": 6810.2029999999995,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 66.94104100000001,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 236.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 1.034417,
+            "action_id": 34,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 29,
+            "observed_at_ms": 6827.212958,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 0.849958,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 0.234041,
+            "publication_wait_ms": 15.844417,
+            "queued_at_ms": 6810.245,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 7.095667,
+            "scene_build_ms": 0.217375,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.000542,
+            "total_ms": 25.317290999999997,
+            "worker_finished_at_ms": 6811.368541,
+            "worker_queue_ms": 0.039,
+            "worker_total_ms": 1.084541
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 51,
+        "relation_page": 0,
+        "routes": 33,
+        "save_attempts": 29,
+        "save_total_ms": 319.778294,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-source-file",
+        "step_index": 33,
+        "total_children": 31
+      },
+      {
+        "acceptance_ms": 50.209333,
+        "accepted_objects": 28,
+        "accepted_routes": 106,
+        "action_started_ms": 6893.9643750000005,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 66.377291,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 221.0,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 8.852250000000002,
+            "action_id": 35,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 30,
+            "observed_at_ms": 6910.2084159999995,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 6.366501000000001,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 1.9556250000000002,
+            "publication_wait_ms": 7.842791,
+            "queued_at_ms": 6894.002958,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 13.407166,
+            "scene_build_ms": 0.5854579999999999,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.000666,
+            "total_ms": 39.053333,
+            "worker_finished_at_ms": 6902.365624999999,
+            "worker_queue_ms": 0.039875,
+            "worker_total_ms": 8.322792000000002
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 28,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 106,
+        "save_attempts": 30,
+        "save_total_ms": 333.18546000000003,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-repository",
+        "step_index": 34,
+        "total_children": 81
+      },
+      {
+        "acceptance_ms": 40.895042,
+        "accepted_objects": 65,
+        "accepted_routes": 32,
+        "action_started_ms": 6976.4845829999995,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 67.109708,
+        "focus": "package:d1c2531f3a0a9b57",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 252.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 3.874709,
+            "action_id": 36,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 31,
+            "observed_at_ms": 6993.6596660000005,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 0.9656669999999998,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 0.312708,
+            "publication_wait_ms": 15.821291,
+            "queued_at_ms": 6976.520415999999,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 11.896959,
+            "scene_build_ms": 0.244084,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.00037499999999999995,
+            "total_ms": 33.157417,
+            "worker_finished_at_ms": 6977.838375,
+            "worker_queue_ms": 0.039208999999999994,
+            "worker_total_ms": 1.2787499999999998
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 33,
+        "relation_page": 0,
+        "routes": 32,
+        "save_attempts": 31,
+        "save_total_ms": 345.082419,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-package",
+        "step_index": 35,
+        "total_children": 151
+      },
+      {
+        "acceptance_ms": 33.828375,
+        "accepted_objects": 65,
+        "accepted_routes": 33,
+        "action_started_ms": 7060.37,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 67.093583,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 252.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 1.093125,
+            "action_id": 37,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 32,
+            "observed_at_ms": 7077.48025,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 1.043791,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 0.179792,
+            "publication_wait_ms": 15.7945,
+            "queued_at_ms": 7060.423333,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 9.612083,
+            "scene_build_ms": 0.22525,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.000417,
+            "total_ms": 27.989957999999998,
+            "worker_finished_at_ms": 7061.68575,
+            "worker_queue_ms": 0.038417,
+            "worker_total_ms": 1.224
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 51,
+        "relation_page": 0,
+        "routes": 33,
+        "save_attempts": 32,
+        "save_total_ms": 354.694502,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-source-file",
+        "step_index": 36,
+        "total_children": 31
+      },
+      {
+        "acceptance_ms": 47.573375,
+        "accepted_objects": 28,
+        "accepted_routes": 106,
+        "action_started_ms": 7144.113125,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 66.693416,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 221.0,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 9.50025,
+            "action_id": 38,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 33,
+            "observed_at_ms": 7160.832958,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 7.068833999999999,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 1.9499579999999999,
+            "publication_wait_ms": 7.604708,
+            "queued_at_ms": 7144.1609579999995,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 9.957291,
+            "scene_build_ms": 0.529917,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.0007080000000000001,
+            "total_ms": 36.662917,
+            "worker_finished_at_ms": 7153.22825,
+            "worker_queue_ms": 0.047792,
+            "worker_total_ms": 9.019499999999999
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 28,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 106,
+        "save_attempts": 33,
+        "save_total_ms": 364.651793,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-repository",
+        "step_index": 37,
+        "total_children": 81
+      }
+    ],
+    "final_six_acceptance_ms": [
+      38.793625,
+      33.301875,
+      50.209333,
+      40.895042,
+      33.828375,
+      47.573375
+    ],
+    "longest_main_spans": [
+      {
+        "capture_pending": false,
+        "duration_ms": 1067.848,
+        "focused": false,
+        "frame": 151,
+        "last_action_id": 9,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 3023.5863329999997
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 117.11416600000001,
+        "focused": true,
+        "frame": 2,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "end",
+        "occluded": null,
+        "phase": "between_updates",
+        "start_ms": 270.135
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 95.177083,
+        "focused": true,
+        "frame": 2,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "PostUpdate",
+        "start_ms": 388.219333
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 75.925792,
+        "focused": true,
+        "frame": 14,
+        "last_action_id": 1,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 673.239166
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 50.031167,
+        "focused": false,
+        "frame": 240,
+        "last_action_id": 22,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "Update",
+        "start_ms": 5548.537791000001
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 45.628707999999996,
+        "focused": true,
+        "frame": 3,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 489.171083
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 41.654334,
+        "focused": false,
+        "frame": 248,
+        "last_action_id": 23,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "Update",
+        "start_ms": 5741.2174159999995
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 28.771959,
+        "focused": true,
+        "frame": 108,
+        "last_action_id": 4,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "Update",
+        "start_ms": 2287.898416
+      }
+    ],
+    "surface_summary": {
+      "scope": "CPU scheduling bracket before/after Bevy prepare_windows in the render schedule, including time to schedule either marker and concurrent render work. This is not exclusive function time or GPU time. It covers swapchain acquisition/reconfiguration for all extracted windows; a call may reuse an existing texture. Render invocation numbers are independent of main frame IDs. Correlate by shared-clock start/duration offsets. Markers add ordering constraints/overhead but leave prepare_windows and window settings unchanged.",
+      "span_count": 335,
+      "dropped_spans": 0,
+      "longest_spans": [
+        {
+          "duration_ms": 1065.731959,
+          "invocation": 150,
+          "start_ms": 3022.197291
+        },
+        {
+          "duration_ms": 107.356625,
+          "invocation": 1,
+          "start_ms": 281.173375
+        },
+        {
+          "duration_ms": 24.537,
+          "invocation": 140,
+          "start_ms": 2844.9307080000003
+        }
+      ]
+    },
+    "measurement_scope": "One native scripted-action regression run with persistence/tracing and no screenshots or OS sampling. User previews remained open; no hardware-input/GPU presentation or controlled latency-improvement claim.",
+    "saved_states": [
+      {
+        "path": "/var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-persistence-smoke-11732-1790989953960339000/6844b20809e462ac.json",
+        "sha256": "7680ec6260ca9f5b66ccf5ac4f903ea28a4eec1e4f0de9e891843eac8cc61d05",
+        "version": 5
+      }
+    ]
+  },
+  "limitations": [
+    "Greedy bounded recovery uses at most the existing feedback allowance and only named obstacles from one short corridor per actual failure. It cannot certify infeasibility or guarantee recovery from arbitrary constraints.",
+    "Keeps box sizes, frame domains, layers and dyadic scales fixed. Enlarging routing space, changing parent ports jointly, and broader negotiated congestion placement remain future work.",
+    "Existing/reused frames remain frozen during ordinary navigation and repair; explicit reorganization may search free frames. Recovery cannot silently relax pins or accepted-frame stability.",
+    "The new blocked cases are headless fixtures through real routing and validation. Native runs verify regression safety of viewer actions and saved layouts, not a native display of the sealed synthetic fixture or physical keyboard/mouse delivery.",
+    "Native production again showed a 1,067.8 ms render handoff overlapping a 1,065.7 ms surface-acquisition bracket while unfocused with last-observed occlusion false. Cached repository collapse took 117.3 ms. Responsiveness targets and GPU presentation remain open.",
+    "Broader topology/group/reference overrides, repeated scale measurements, calibrated held-out comparison and human comprehension gates remain incomplete; the overall plan stays active."
+  ]
+}

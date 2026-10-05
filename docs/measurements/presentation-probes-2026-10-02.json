@@ -1,0 +1,2597 @@
+{
+  "recorded_utc": "2026-10-03T01:58:01.105470+00:00",
+  "scope": "Example-only renderer investigation against the same pinned production Bevy source inventory. No product runtime/defaults, dependencies, model, layout algorithms or cache versions changed. Neither tested presentation settings nor event-gated suspension removes the first late-notification stall. Not a performance or comprehension gate pass.",
+  "previous_goal_turn_classification": "The preceding user-preview turn verified availability; it did not advance the remaining engineering gates. This continuation revalidated the 450-test production source checkpoint, then added and ran bounded renderer experiments.",
+  "reference_environment": "Apple M5, 16 GiB RAM, macOS 26.6.2, Rust 1.96.0, Bevy 0.18.1, wgpu-hal 27.0.4 Metal; dev profile with repository optimizations. Existing desktop activity/focus/cover state was not controlled. Bundle cache warm, isolated persistence each run, screenshots disabled, scripted ViewerActions only.",
+  "production_source": {
+    "bundle": {
+      "path": "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "sha256": "8f4d8a5f197f5381563e7c19aa81cc962f67984ff08ad621de1c189632d7286c"
+    },
+    "revision": "f667c282dad2c1419afb5836ded22a3ec263970e",
+    "scope": "Bevy syntax source inventory, not full runtime architecture extraction."
+  },
+  "checks": [
+    {
+      "command": "cargo test --workspace --offline --locked",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-workspace-tests.log",
+        "sha256": "1221a71a1b5aa99dde4bb80584b34e9294a4346f81b7b13ac59255d60026463f"
+      }
+    },
+    {
+      "command": "cargo test -p visualyze --example production_smoke --offline --locked",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-final-helper-tests.log",
+        "sha256": "90c77b6a43768645b3ec54f0e26862d18d13930c5d6877d5e45a51cba99f3cae"
+      }
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --offline --locked -- -D warnings",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-final-clippy.log",
+        "sha256": "b66b71a976ffc64474e3bd16b12352df82335f67335bff287a1dab506b3ee16d"
+      }
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-final-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command": "cargo build -p visualyze --example production_smoke --offline --locked",
+      "exit_code": 0,
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-final-build.log",
+        "sha256": "640ed6bed920f2f5895909806746451db9d957baaca3726db76bd5d3eab2efee"
+      }
+    }
+  ],
+  "workspace_test_totals": {
+    "passed": 450,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_scope": "Production-bundle continuity test intentionally ignored by default; last explicit pass is in the unchanged production source checkpoint linked below. Not rerun for example-only changes."
+  },
+  "helper_tests": {
+    "passed": 15,
+    "failed": 0,
+    "scope": "Existing phase/occlusion/input tracing tests plus mode preservation/conflicts, occlusion-cycle state, independent window suspension, initial presentation, hidden resize/mode and forced resume, stale events, close cleanup and installed render-schedule ordering around the real surface systems with false conditions (no GPU resources). No fake native handles."
+  },
+  "negative_cli_checks": [
+    {
+      "command": [
+        "./target/debug/examples/production_smoke",
+        "public/examples/data-messaging.bundle.jsonl",
+        "/private/tmp/visualyze-invalid-presentation-0-2026-10-02",
+        "--skip-occluded"
+      ],
+      "expected_rejection": "--skip-occluded requires --no-captures",
+      "exit_code": 101,
+      "output_directory_created": false,
+      "log": "/private/tmp/visualyze-invalid-presentation-0.log"
+    },
+    {
+      "command": [
+        "./target/debug/examples/production_smoke",
+        "public/examples/data-messaging.bundle.jsonl",
+        "/private/tmp/visualyze-invalid-presentation-1-2026-10-02",
+        "--present-immediate",
+        "--present-background-immediate"
+      ],
+      "expected_rejection": "only one presentation probe",
+      "exit_code": 101,
+      "output_directory_created": false,
+      "log": "/private/tmp/visualyze-invalid-presentation-1.log"
+    }
+  ],
+  "summary": [
+    {
+      "series": "presentation",
+      "mode": "default",
+      "runs": 3,
+      "runs_with_surface_bracket_over_250_ms": 1,
+      "maximum_surface_brackets_ms": [
+        22.843166,
+        23.20275,
+        1068.751875
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "immediate",
+      "runs": 3,
+      "runs_with_surface_bracket_over_250_ms": 2,
+      "maximum_surface_brackets_ms": [
+        1039.1055840000001,
+        21.364207999999998,
+        1048.5695420000002
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "background",
+      "runs": 3,
+      "runs_with_surface_bracket_over_250_ms": 3,
+      "maximum_surface_brackets_ms": [
+        1048.2630829999998,
+        1019.0192920000001,
+        1035.740125
+      ]
+    },
+    {
+      "series": "occlusion",
+      "mode": "default",
+      "runs": 3,
+      "runs_with_surface_bracket_over_250_ms": 3,
+      "maximum_surface_brackets_ms": [
+        1059.101625,
+        1067.214917,
+        1068.0777500000002
+      ]
+    },
+    {
+      "series": "occlusion",
+      "mode": "skip",
+      "runs": 3,
+      "runs_with_surface_bracket_over_250_ms": 3,
+      "maximum_surface_brackets_ms": [
+        1061.309541,
+        1055.6479590000001,
+        1065.486042
+      ]
+    }
+  ],
+  "native_runs": [
+    {
+      "series": "presentation",
+      "mode": "default",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-presentation-1-default-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-1-default-2026-10-02/native-report.json",
+        "sha256": "55ef0571143ffcaa3bc4d9dc41bea72d9dcf249bc19f6711c7eb54aa3ce74a12"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-native-1-default.log",
+        "sha256": "1dd8baab780ea721fd3dc92b6e4bfd796232a994f88edc3112d98b69bd378abe"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 374.475873,
+        "max_ms": 23.716250000000002
+      },
+      "initial_acceptance_ms": 1138.3953330000002,
+      "maximum_surface_bracket_ms": 22.843166,
+      "maximum_render_join_ms": 133.19204100000002,
+      "surface_brackets_above_250_ms": [],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 133.19204100000002,
+        "focused": true,
+        "frame": 2,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Fifo",
+        "start_ms": 671.927417
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 621.1471250000001
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 86.015625,
+        "median": 16.739791,
+        "p95": 26.843833,
+        "p99": 54.573541000000006,
+        "samples": 204
+      },
+      "all_update_intervals_ms": {
+        "max": 86.015625,
+        "median": 16.60275,
+        "p95": 21.39525,
+        "p99": 42.237209,
+        "samples": 323
+      },
+      "final_repeated_acceptance_ms": [
+        41.068625,
+        33.738291,
+        52.4545,
+        41.102125,
+        35.490417,
+        51.231625
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "immediate",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-presentation-2-immediate-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures",
+        "--present-immediate"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-2-immediate-2026-10-02/native-report.json",
+        "sha256": "fba9f2df498edaf381f53ed67f36e79495ce6029423a4d01e6323e9f02866d6f"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-native-2-immediate.log",
+        "sha256": "1d3f714745dc90b9f0a301971e6a8c7d74e909632fef3f2ebbb6312544179230"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 374.08124799999996,
+        "max_ms": 19.656208000000003
+      },
+      "initial_acceptance_ms": 745.7447090000001,
+      "maximum_surface_bracket_ms": 1039.1055840000001,
+      "maximum_render_join_ms": 1019.042708,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1039.1055840000001,
+          "invocation": 326,
+          "start_ms": 4909.389125
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1019.042708,
+        "focused": false,
+        "frame": 327,
+        "last_action_id": 27,
+        "loading": false,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Immediate",
+        "start_ms": 4934.888292000001
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 282.149125
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 27,
+          "last_action_id": 1,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 811.169875
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 148,
+          "last_action_id": 6,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 2729.237334
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 326,
+          "last_action_id": 27,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 4907.758459
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 339,
+          "last_action_id": 29,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 6073.721042
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 1038.686125,
+        "median": 16.62875,
+        "p95": 26.221167,
+        "p99": 51.798458,
+        "samples": 257
+      },
+      "all_update_intervals_ms": {
+        "max": 1038.686125,
+        "median": 15.579,
+        "p95": 23.705917,
+        "p99": 43.152042,
+        "samples": 376
+      },
+      "final_repeated_acceptance_ms": [
+        41.882041,
+        26.401,
+        46.425000000000004,
+        45.609958,
+        29.592582999999998,
+        53.917833
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "default",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-presentation-3-default-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-3-default-2026-10-02/native-report.json",
+        "sha256": "6dfcc556b9b9fc4e2da6d32089919225423f97b66f1ea96178e2f886440195ba"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-native-3-default.log",
+        "sha256": "9ab21d8b5f527b19f741b73ea745e45eb78138fc33b6ba0d7dd4bce23d28973c"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 399.1562929999999,
+        "max_ms": 22.830084
+      },
+      "initial_acceptance_ms": 751.077,
+      "maximum_surface_bracket_ms": 23.20275,
+      "maximum_render_join_ms": 110.26237499999999,
+      "surface_brackets_above_250_ms": [],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 110.26237499999999,
+        "focused": true,
+        "frame": 2,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Fifo",
+        "start_ms": 370.05341699999997
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 339.189
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 85.879417,
+        "median": 16.703333,
+        "p95": 33.550959,
+        "p99": 56.071999999999996,
+        "samples": 206
+      },
+      "all_update_intervals_ms": {
+        "max": 85.879417,
+        "median": 16.629417,
+        "p95": 25.613417,
+        "p99": 55.128208,
+        "samples": 325
+      },
+      "final_repeated_acceptance_ms": [
+        42.248709000000005,
+        34.884541999999996,
+        51.331500000000005,
+        63.25,
+        41.344291999999996,
+        56.83825
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "immediate",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-presentation-4-immediate-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures",
+        "--present-immediate"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-4-immediate-2026-10-02/native-report.json",
+        "sha256": "639e8fcc6cce643aeafcb152fc1dbe137967b125b7c7d30362faec020a932f31"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-native-4-immediate.log",
+        "sha256": "2cfdf3220f92e9233e6e128f8a8838150a9e951709b0080e8b02e034e3455cef"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 392.47716800000006,
+        "max_ms": 19.922625
+      },
+      "initial_acceptance_ms": 668.670209,
+      "maximum_surface_bracket_ms": 21.364207999999998,
+      "maximum_render_join_ms": 94.633708,
+      "surface_brackets_above_250_ms": [],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 94.633708,
+        "focused": true,
+        "frame": 2,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Immediate",
+        "start_ms": 311.753334
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 285.161125
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 81.42983299999999,
+        "median": 16.431458,
+        "p95": 25.324875,
+        "p99": 53.792,
+        "samples": 246
+      },
+      "all_update_intervals_ms": {
+        "max": 81.42983299999999,
+        "median": 16.40475,
+        "p95": 22.049334,
+        "p99": 36.244125000000004,
+        "samples": 365
+      },
+      "final_repeated_acceptance_ms": [
+        41.1295,
+        33.135708,
+        51.024333999999996,
+        41.541416999999996,
+        34.400042,
+        51.802291
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "default",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-presentation-5-default-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-5-default-2026-10-02/native-report.json",
+        "sha256": "e329a4b7dbcd0f84d2e0dd0aa23a731178faecf8991e38a8d5873ba336e3b1c8"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-native-5-default.log",
+        "sha256": "390cb3155a80fc92e366e0e18460ff3293364eafe795c86cc26286f3a633a1ab"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 399.72925000000004,
+        "max_ms": 25.055750000000003
+      },
+      "initial_acceptance_ms": 628.584583,
+      "maximum_surface_bracket_ms": 1068.751875,
+      "maximum_render_join_ms": 1065.919542,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1068.751875,
+          "invocation": 182,
+          "start_ms": 3481.328375
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1065.919542,
+        "focused": false,
+        "frame": 183,
+        "last_action_id": 14,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Fifo",
+        "start_ms": 3487.6199579999998
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 2,
+          "last_action_id": 0,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 341.371
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 184,
+          "last_action_id": 14,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 4554.917083
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 1073.78325,
+        "median": 16.692583,
+        "p95": 32.984375,
+        "p99": 71.776333,
+        "samples": 210
+      },
+      "all_update_intervals_ms": {
+        "max": 1073.78325,
+        "median": 16.64775,
+        "p95": 24.826207999999998,
+        "p99": 57.069291,
+        "samples": 329
+      },
+      "final_repeated_acceptance_ms": [
+        44.821792,
+        34.051917,
+        53.980833,
+        41.730416999999996,
+        35.113042,
+        54.908709
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "immediate",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-presentation-6-immediate-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures",
+        "--present-immediate"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-6-immediate-2026-10-02/native-report.json",
+        "sha256": "6e490a26f052c5f5378ba61339b27641c25b9c97f3b09eeee10453d9bf05acde"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-native-6-immediate.log",
+        "sha256": "8458c46f28f9290519ebe909dd5c9e35362bd100754d33d9875e379249a9052e"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 360.81754100000006,
+        "max_ms": 19.576375
+      },
+      "initial_acceptance_ms": 763.2540829999999,
+      "maximum_surface_bracket_ms": 1048.5695420000002,
+      "maximum_render_join_ms": 1037.52975,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1048.5695420000002,
+          "invocation": 139,
+          "start_ms": 2149.4781660000003
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1037.52975,
+        "focused": false,
+        "frame": 140,
+        "last_action_id": 4,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Immediate",
+        "start_ms": 2164.921625
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 368.731208
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 138,
+          "last_action_id": 4,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 2143.964875
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 1039.835541,
+        "median": 16.608959,
+        "p95": 26.553834,
+        "p99": 59.914042,
+        "samples": 229
+      },
+      "all_update_intervals_ms": {
+        "max": 1039.835541,
+        "median": 16.599708,
+        "p95": 22.14075,
+        "p99": 57.4875,
+        "samples": 348
+      },
+      "final_repeated_acceptance_ms": [
+        38.824958,
+        32.603458,
+        52.770833,
+        41.363,
+        33.690583000000004,
+        53.190583
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "background",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-presentation-7-background-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures",
+        "--present-background-immediate"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-7-background-2026-10-02/native-report.json",
+        "sha256": "096ad07dde5fe220b98fd8cc8ed3a7b8ed1097b20767b82858fcebe2107b8199"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-native-7-background.log",
+        "sha256": "93b16a8809fedeb264cc2066a4da4b31a6ca7af98ec25da794fe97bc47b04cdc"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 371.170704,
+        "max_ms": 20.367333000000002
+      },
+      "initial_acceptance_ms": 705.0298750000001,
+      "maximum_surface_bracket_ms": 1048.2630829999998,
+      "maximum_render_join_ms": 1038.96875,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1048.2630829999998,
+          "invocation": 91,
+          "start_ms": 1926.6722920000002
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1038.96875,
+        "focused": false,
+        "frame": 92,
+        "last_action_id": 4,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Immediate",
+        "start_ms": 1940.961875
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 305.893708
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 90,
+          "last_action_id": 4,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 1922.171125
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 1041.429042,
+        "median": 16.687041999999998,
+        "p95": 34.908583,
+        "p99": 74.773959,
+        "samples": 184
+      },
+      "all_update_intervals_ms": {
+        "max": 1041.429042,
+        "median": 16.652375,
+        "p95": 24.178666,
+        "p99": 56.934958,
+        "samples": 303
+      },
+      "final_repeated_acceptance_ms": [
+        45.799541999999995,
+        34.249750000000006,
+        51.716875,
+        39.119042,
+        34.285584,
+        53.630416
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "background",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-presentation-8-background-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures",
+        "--present-background-immediate"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-8-background-2026-10-02/native-report.json",
+        "sha256": "0a9b98d0ff539533eef864fff89f670411e55cdf36847a5997c7d91dba8c92d2"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-native-8-background.log",
+        "sha256": "677822557d036fb5f9747c3e4a92e6a5a5d6c2ff68c143a9b2bbe9731cadfdb9"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 376.7380819999999,
+        "max_ms": 22.632666
+      },
+      "initial_acceptance_ms": 712.88175,
+      "maximum_surface_bracket_ms": 1019.0192920000001,
+      "maximum_render_join_ms": 1028.665833,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1019.0192920000001,
+          "invocation": 311,
+          "start_ms": 5721.252708
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1028.665833,
+        "focused": false,
+        "frame": 312,
+        "last_action_id": 33,
+        "loading": false,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Immediate",
+        "start_ms": 5720.941667
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 328.157833
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 312,
+          "last_action_id": 33,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 5719.606833
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 84.299125,
+        "median": 16.693708,
+        "p95": 26.960874999999998,
+        "p99": 55.922833999999995,
+        "samples": 203
+      },
+      "all_update_intervals_ms": {
+        "max": 1031.672917,
+        "median": 16.618875000000003,
+        "p95": 23.353958000000002,
+        "p99": 55.922833999999995,
+        "samples": 322
+      },
+      "final_repeated_acceptance_ms": [
+        43.493708,
+        35.67425,
+        48.206792,
+        39.910875,
+        33.048792,
+        47.699625000000005
+      ]
+    },
+    {
+      "series": "presentation",
+      "mode": "background",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-presentation-9-background-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures",
+        "--present-background-immediate"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-9-background-2026-10-02/native-report.json",
+        "sha256": "3b419895a0c28f918742225868f587c609c02ef923c417ed22f7a13142f48ead"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-presentation-native-9-background.log",
+        "sha256": "0c6bc36a268157ee710d0c0ca03a3358d0e0c756abdd060969f850784da234ff"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 364.1862480000001,
+        "max_ms": 19.348625000000002
+      },
+      "initial_acceptance_ms": 627.5535,
+      "maximum_surface_bracket_ms": 1035.740125,
+      "maximum_render_join_ms": 1036.787459,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1035.740125,
+          "invocation": 130,
+          "start_ms": 2612.510625
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1036.787459,
+        "focused": false,
+        "frame": 131,
+        "last_action_id": 6,
+        "loading": false,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Immediate",
+        "start_ms": 2615.254375
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 2,
+          "last_action_id": 0,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 364.965209
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 130,
+          "last_action_id": 6,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Immediate",
+          "start_ms": 2611.0476670000003
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 80.338042,
+        "median": 16.703667,
+        "p95": 31.906249999999996,
+        "p99": 50.979375,
+        "samples": 206
+      },
+      "all_update_intervals_ms": {
+        "max": 1039.335708,
+        "median": 16.652875,
+        "p95": 22.470582999999998,
+        "p99": 50.979375,
+        "samples": 325
+      },
+      "final_repeated_acceptance_ms": [
+        39.821957999999995,
+        32.72175,
+        48.815458,
+        40.673334,
+        33.557375,
+        49.901666999999996
+      ]
+    },
+    {
+      "series": "occlusion",
+      "mode": "default",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-occlusion-1-default-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "35c94b25c277afd9f1810f08d4d6f94a9861ea38c7c7a0e05cf846219482e671",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-occlusion-1-default-2026-10-02/native-report.json",
+        "sha256": "781f2b8a6789a87a86d23188e39ee25d1c8c26fc1e81e5c36a18c755316e3d5d"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-occlusion-native-1-default.log",
+        "sha256": "f045ba5e0bf210b2bdadd1c30e629679e63bc5e5b4772f134ec548b8e3986143"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 376.3039129999999,
+        "max_ms": 21.343375
+      },
+      "initial_acceptance_ms": 956.808542,
+      "maximum_surface_bracket_ms": 1059.101625,
+      "maximum_render_join_ms": 1060.950417,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1059.101625,
+          "invocation": 90,
+          "start_ms": 2254.544667
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1060.950417,
+        "focused": false,
+        "frame": 91,
+        "last_action_id": 4,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Fifo",
+        "start_ms": 2256.169417
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 541.814875
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 92,
+          "last_action_id": 4,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 3318.143125
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 1063.845667,
+        "median": 16.675875,
+        "p95": 32.882458,
+        "p99": 74.354458,
+        "samples": 183
+      },
+      "all_update_intervals_ms": {
+        "max": 1063.845667,
+        "median": 16.647416000000003,
+        "p95": 28.268625,
+        "p99": 74.354458,
+        "samples": 302
+      },
+      "final_repeated_acceptance_ms": [
+        39.313334,
+        33.29125,
+        50.446125,
+        41.396875,
+        32.614667,
+        49.868417
+      ]
+    },
+    {
+      "series": "occlusion",
+      "mode": "skip",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-occlusion-2-skip-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures",
+        "--skip-occluded"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "35c94b25c277afd9f1810f08d4d6f94a9861ea38c7c7a0e05cf846219482e671",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-occlusion-2-skip-2026-10-02/native-report.json",
+        "sha256": "776ed4e7bb21c4ce70458d7f87e73f0443989e62ee563541654ff9f55ef00f03"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-occlusion-native-2-skip.log",
+        "sha256": "b24155e92ddce8c53f57ba431f38077c310d7adcf52b8e945cc4c4e3126903c6"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 370.77517,
+        "max_ms": 19.027667
+      },
+      "initial_acceptance_ms": 730.834625,
+      "maximum_surface_bracket_ms": 1061.309541,
+      "maximum_render_join_ms": 1064.128416,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1061.309541,
+          "invocation": 75,
+          "start_ms": 1714.6070419999999
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1064.128416,
+        "focused": false,
+        "frame": 76,
+        "last_action_id": 4,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Fifo",
+        "start_ms": 1716.037542
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 327.901292
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 77,
+          "last_action_id": 4,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 2781.304083
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": {
+        "currently_suspended": 1,
+        "maximum_parked": 1,
+        "parked_window_frames": 224,
+        "render_invocations": 300,
+        "resume_transitions": 0,
+        "scope": "Example-only event-gated acquisition suspension. After initial presentation, known-occluded windows are absent from ExtractedWindows during the render schedule and restored after Cleanup. Initial presentation, unknown and unfocused-only windows are permitted. Resume forces surface reconfiguration. This cannot prevent a stall before a late occlusion notification. Window screenshots are prohibited while this probe is installed.",
+        "suspension_transitions": 1
+      },
+      "worker_update_intervals_ms": {
+        "max": 1067.027583,
+        "median": 16.680625000000003,
+        "p95": 32.794958,
+        "p99": 72.968459,
+        "samples": 163
+      },
+      "all_update_intervals_ms": {
+        "max": 1067.027583,
+        "median": 16.659875,
+        "p95": 22.995792,
+        "p99": 53.077167,
+        "samples": 282
+      },
+      "final_repeated_acceptance_ms": [
+        39.363417,
+        33.064541000000006,
+        50.624666999999995,
+        38.166375,
+        33.168209,
+        49.470583
+      ]
+    },
+    {
+      "series": "occlusion",
+      "mode": "default",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-occlusion-3-default-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "35c94b25c277afd9f1810f08d4d6f94a9861ea38c7c7a0e05cf846219482e671",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-occlusion-3-default-2026-10-02/native-report.json",
+        "sha256": "7931e676ccf5fa701119a845bd476d3cf07a40e6409586503b1b35ce49359498"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-occlusion-native-3-default.log",
+        "sha256": "fc2ce0b2e1468126a372d80ba7e17a0058424f9f9f5288cbbf86ff9da22d987d"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 368.815375,
+        "max_ms": 19.430209
+      },
+      "initial_acceptance_ms": 738.746208,
+      "maximum_surface_bracket_ms": 1067.214917,
+      "maximum_render_join_ms": 1071.488667,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1067.214917,
+          "invocation": 92,
+          "start_ms": 2005.600791
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1071.488667,
+        "focused": false,
+        "frame": 93,
+        "last_action_id": 4,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Fifo",
+        "start_ms": 2006.847708
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 334.296083
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 94,
+          "last_action_id": 4,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 3079.657083
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 1074.493916,
+        "median": 16.682916,
+        "p95": 32.67125,
+        "p99": 75.344583,
+        "samples": 183
+      },
+      "all_update_intervals_ms": {
+        "max": 1074.493916,
+        "median": 16.657333,
+        "p95": 23.367915999999997,
+        "p99": 51.028417,
+        "samples": 302
+      },
+      "final_repeated_acceptance_ms": [
+        40.067875,
+        35.834167,
+        50.161667,
+        41.252583,
+        34.235667,
+        49.340084
+      ]
+    },
+    {
+      "series": "occlusion",
+      "mode": "skip",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-occlusion-4-skip-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures",
+        "--skip-occluded"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "35c94b25c277afd9f1810f08d4d6f94a9861ea38c7c7a0e05cf846219482e671",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-occlusion-4-skip-2026-10-02/native-report.json",
+        "sha256": "7e3ee2808900b6e01e2cc62265606b7f82fc5344fe7125ec57dc882176c3529a"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-occlusion-native-4-skip.log",
+        "sha256": "e43dbf2d0a17994f5fd77295767c277f3ffaee3d6d836ae66ed2a7879c9b765b"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 373.41233500000004,
+        "max_ms": 24.859167000000003
+      },
+      "initial_acceptance_ms": 725.340209,
+      "maximum_surface_bracket_ms": 1055.6479590000001,
+      "maximum_render_join_ms": 1056.8387910000001,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1055.6479590000001,
+          "invocation": 69,
+          "start_ms": 1624.969
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1056.8387910000001,
+        "focused": false,
+        "frame": 70,
+        "last_action_id": 4,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Fifo",
+        "start_ms": 1627.913709
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 348.563167
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 71,
+          "last_action_id": 4,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 2686.009125
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": {
+        "currently_suspended": 1,
+        "maximum_parked": 1,
+        "parked_window_frames": 227,
+        "render_invocations": 297,
+        "resume_transitions": 0,
+        "scope": "Example-only event-gated acquisition suspension. After initial presentation, known-occluded windows are absent from ExtractedWindows during the render schedule and restored after Cleanup. Initial presentation, unknown and unfocused-only windows are permitted. Resume forces surface reconfiguration. This cannot prevent a stall before a late occlusion notification. Window screenshots are prohibited while this probe is installed.",
+        "suspension_transitions": 1
+      },
+      "worker_update_intervals_ms": {
+        "max": 1059.566292,
+        "median": 16.70475,
+        "p95": 34.019792,
+        "p99": 70.48620799999999,
+        "samples": 161
+      },
+      "all_update_intervals_ms": {
+        "max": 1059.566292,
+        "median": 16.643208,
+        "p95": 23.743875000000003,
+        "p99": 54.789542,
+        "samples": 280
+      },
+      "final_repeated_acceptance_ms": [
+        38.909125,
+        33.494208,
+        51.679875,
+        40.518375,
+        34.29575,
+        51.681
+      ]
+    },
+    {
+      "series": "occlusion",
+      "mode": "default",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-occlusion-5-default-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "35c94b25c277afd9f1810f08d4d6f94a9861ea38c7c7a0e05cf846219482e671",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-occlusion-5-default-2026-10-02/native-report.json",
+        "sha256": "50acaef731fd0891cc2de393843e17f601442d4d5073891dd0a3854052f3d145"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-occlusion-native-5-default.log",
+        "sha256": "a43ea8517ba9ab872996ae9388db78a35a5853b04410df96b3be15d17a807ff5"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 379.5540019999999,
+        "max_ms": 20.91
+      },
+      "initial_acceptance_ms": 754.632709,
+      "maximum_surface_bracket_ms": 1068.0777500000002,
+      "maximum_render_join_ms": 1050.8167079999998,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1068.0777500000002,
+          "invocation": 58,
+          "start_ms": 1472.5050419999998
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1050.8167079999998,
+        "focused": false,
+        "frame": 59,
+        "last_action_id": 3,
+        "loading": false,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Fifo",
+        "start_ms": 1496.4921669999999
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 333.089459
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": false,
+          "frame": 60,
+          "last_action_id": 3,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 2548.930042
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 175,
+          "last_action_id": 12,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 4376.616875
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": null,
+      "worker_update_intervals_ms": {
+        "max": 1076.850041,
+        "median": 16.700958,
+        "p95": 34.062208,
+        "p99": 75.304541,
+        "samples": 202
+      },
+      "all_update_intervals_ms": {
+        "max": 1076.850041,
+        "median": 16.643959,
+        "p95": 24.400458,
+        "p99": 54.813,
+        "samples": 321
+      },
+      "final_repeated_acceptance_ms": [
+        41.47325,
+        33.612417,
+        51.41675,
+        41.625209000000005,
+        33.974167,
+        51.184124999999995
+      ]
+    },
+    {
+      "series": "occlusion",
+      "mode": "skip",
+      "command": [
+        "/usr/bin/time",
+        "-l",
+        "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+        "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "visualyze-local/production/native-occlusion-6-skip-2026-10-02",
+        "--persist",
+        "--composed",
+        "--trace-frames",
+        "--repeat-navigation",
+        "--no-captures",
+        "--skip-occluded"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "35c94b25c277afd9f1810f08d4d6f94a9861ea38c7c7a0e05cf846219482e671",
+      "report": {
+        "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-occlusion-6-skip-2026-10-02/native-report.json",
+        "sha256": "977f337726a6e67de2acb6f7e9035e91a7874efa2767544ce0a81daa185db5fb"
+      },
+      "log": {
+        "path": "/private/tmp/visualyze-occlusion-native-6-skip.log",
+        "sha256": "55c059adea4195b79031c4c8f9e7556995c99f7a71ff02e1150a2c9d4aabf6ab"
+      },
+      "completed_actions": 38,
+      "persistence": {
+        "attempts": 33,
+        "failures": 0,
+        "total_ms": 392.048169,
+        "max_ms": 20.78325
+      },
+      "initial_acceptance_ms": 716.1124159999999,
+      "maximum_surface_bracket_ms": 1065.486042,
+      "maximum_render_join_ms": 1062.232792,
+      "surface_brackets_above_250_ms": [
+        {
+          "duration_ms": 1065.486042,
+          "invocation": 112,
+          "start_ms": 2367.6902910000003
+        }
+      ],
+      "longest_render_span": {
+        "capture_pending": false,
+        "duration_ms": 1062.232792,
+        "focused": false,
+        "frame": 113,
+        "last_action_id": 5,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "requested_present_mode": "Fifo",
+        "start_ms": 2375.631833
+      },
+      "observed_occlusion_events": [
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 1,
+          "last_action_id": 0,
+          "loading": false,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 345.99791600000003
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 114,
+          "last_action_id": 5,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": true,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 3446.1508329999997
+        },
+        {
+          "capture_pending": false,
+          "duration_ms": 0.0,
+          "focused": true,
+          "frame": 126,
+          "last_action_id": 6,
+          "loading": true,
+          "metadata_at": "event_observed",
+          "occluded": false,
+          "phase": "window_occlusion_changed",
+          "requested_present_mode": "Fifo",
+          "start_ms": 3519.971833
+        }
+      ],
+      "main_spans_dropped": 0,
+      "surface_spans_dropped": 0,
+      "occlusion_probe": {
+        "currently_suspended": 0,
+        "maximum_parked": 1,
+        "parked_window_frames": 12,
+        "render_invocations": 345,
+        "resume_transitions": 1,
+        "scope": "Example-only event-gated acquisition suspension. After initial presentation, known-occluded windows are absent from ExtractedWindows during the render schedule and restored after Cleanup. Initial presentation, unknown and unfocused-only windows are permitted. Resume forces surface reconfiguration. This cannot prevent a stall before a late occlusion notification. Window screenshots are prohibited while this probe is installed.",
+        "suspension_transitions": 1
+      },
+      "worker_update_intervals_ms": {
+        "max": 1072.650542,
+        "median": 16.697667,
+        "p95": 34.932790999999995,
+        "p99": 70.150667,
+        "samples": 210
+      },
+      "all_update_intervals_ms": {
+        "max": 1072.650542,
+        "median": 16.615333,
+        "p95": 25.47725,
+        "p99": 54.051833,
+        "samples": 329
+      },
+      "final_repeated_acceptance_ms": [
+        42.106459,
+        33.926875,
+        51.741417,
+        41.131417000000006,
+        33.547042,
+        52.892125
+      ]
+    }
+  ],
+  "identical_action_semantic_counts_across_all_15_runs": [
+    {
+      "step": "repository",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "search",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "package",
+      "focus": "package:d1c2531f3a0a9b57",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 32,
+      "original_routed_relations": 33,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "package-page-2",
+      "focus": "package:d1c2531f3a0a9b57",
+      "child_page": 1,
+      "relation_page": 0,
+      "objects": 63,
+      "routes": 196,
+      "original_routed_relations": 3196,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "package-page-1-return",
+      "focus": "package:d1c2531f3a0a9b57",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 32,
+      "original_routed_relations": 33,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "source-file",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "source-file-relationships-2",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 1,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 40,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "source-file-relationships-1-return",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "world-type",
+      "focus": "item:1a4125968da0ac7b",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 33,
+      "routes": 0,
+      "original_routed_relations": 0,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "world-methods-page-2",
+      "focus": "item:1a4125968da0ac7b",
+      "child_page": 1,
+      "relation_page": 0,
+      "objects": 12,
+      "routes": 0,
+      "original_routed_relations": 0,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "world-methods-page-1-return",
+      "focus": "item:1a4125968da0ac7b",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 33,
+      "routes": 0,
+      "original_routed_relations": 0,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "world-spawn",
+      "focus": "item:8707261374bd1960",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 1,
+      "routes": 0,
+      "original_routed_relations": 0,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "world-type-return",
+      "focus": "item:1a4125968da0ac7b",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 33,
+      "routes": 0,
+      "original_routed_relations": 0,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "source-file-return",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "package-return",
+      "focus": "package:d1c2531f3a0a9b57",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 32,
+      "original_routed_relations": 33,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repository-return",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "select-relationship",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "show-details",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "isolated-relationship",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 3,
+      "routes": 1,
+      "original_routed_relations": 864,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "restore-relationships",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "clear-relationship",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repository-ecs-expanded",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 63,
+      "routes": 191,
+      "original_routed_relations": 3775,
+      "composition_frames": 3,
+      "maximum_scale_shift": 6
+    },
+    {
+      "step": "repository-ecs-collapsed",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "world-file-nested-start",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "world-type-expanded",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 97,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 2,
+      "maximum_scale_shift": 4
+    },
+    {
+      "step": "world-type-collapsed",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-package",
+      "focus": "package:d1c2531f3a0a9b57",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 32,
+      "original_routed_relations": 33,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-source-file",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-repository",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-package",
+      "focus": "package:d1c2531f3a0a9b57",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 32,
+      "original_routed_relations": 33,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-source-file",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-repository",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-package",
+      "focus": "package:d1c2531f3a0a9b57",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 32,
+      "original_routed_relations": 33,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-source-file",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-repository",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-package",
+      "focus": "package:d1c2531f3a0a9b57",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 32,
+      "original_routed_relations": 33,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-source-file",
+      "focus": "file:b6ae9420da8c77aa",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 65,
+      "routes": 33,
+      "original_routed_relations": 51,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    },
+    {
+      "step": "repeat-repository",
+      "focus": "repository:05317a01f80959f2",
+      "child_page": 0,
+      "relation_page": 0,
+      "objects": 28,
+      "routes": 106,
+      "original_routed_relations": 3775,
+      "composition_frames": 1,
+      "maximum_scale_shift": 0
+    }
+  ],
+  "source_identity": {
+    "previous_production_checkpoint": "docs/measurements/blocked-route-recovery-validation-2026-10-02.json",
+    "changed_preexisting_sources": [
+      "private/runtime/examples/production_smoke.rs",
+      "private/runtime/examples/support/frame_trace.rs",
+      "private/runtime/examples/support/scripted_input.rs"
+    ],
+    "added_sources": [
+      "private/runtime/examples/support/presentation_probe.rs",
+      "private/runtime/examples/support/occlusion_probe.rs"
+    ],
+    "occlusion_series_snapshot_after_runs_before_report_wording_edits": {
+      "source_sha256": {
+        "Cargo.lock": "ebde2964840a8ab18c73dcd04fff4eaa885bea827d5dd04b2194b62a950ea638",
+        "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+        "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+        "private/layout/examples/bundle_layout.rs": "74b3e8a7144c9bdcb4847361bceb7971b7b97fd01d2662f19606bb37083bb647",
+        "private/layout/examples/compare.rs": "4b692fe2161f06bac109ad8e71dff80428721c20c2c33bdbae2e5592b48cd67c",
+        "private/layout/examples/composed_layout.rs": "15b8200531d4871aad86fa2d07bd6e43042b4866c4e26e5ef03a5b514c4a1dae",
+        "private/layout/examples/evaluate_cases.rs": "267e33a23f4843ba178c726286eb0c95f571fbd290370f7e3d99e1454ed8bebe",
+        "private/layout/examples/generate_ai_fixture.rs": "caa6d269d3f525e9bc67ad6271469d5327ecb6dbf5a76eac6961c307903425fc",
+        "private/layout/examples/production_audit.rs": "fd6a0ca965da73c57e71eca902d13f1fee3c5bbd755e59769d6bae8cec50b84a",
+        "private/layout/examples/production_pages.rs": "8c5506dbe000f1a302d1367a995b13c755cf4c7f49b32bdc441b4b67c922af51",
+        "private/layout/examples/projection_bench.rs": "829481a1af42f099a25b065c6abfe43bfcc2dedee42c3ced95b30d90b7c11ce0",
+        "private/layout/examples/scale_view_bench.rs": "89cc3231b2801b3d253d77d91f630b08dd8b2901496b963a43f16bbb2b299b72",
+        "private/layout/src/assembly.rs": "ae8d6bde981dc7e14314679d961ea793cf1af1514d2bd2b9ddfaf78a03ae9ff5",
+        "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+        "private/layout/src/composed.rs": "e23e3ff229b50ea8be8e2167af25e2810cfd7d2b5c3567dc7843580b8abd2086",
+        "private/layout/src/composed/cache.rs": "972c6eacda62055cad69803cbf9c33c57638cf06cfc83d9da0c7c0ad13ff41db",
+        "private/layout/src/composed/constraints.rs": "4675fce6d16e554260f5168455fa7d80fab4f4da7f3b27e49561f27d4b5c2f62",
+        "private/layout/src/composed/feedback.rs": "48f7d079a7f989e68c8dbcf3c6d780851170803d5623b4f8a89f65ea77557326",
+        "private/layout/src/composed/persistence.rs": "f6da86db38b1de948a7d1d5b24a663dd873f775f0023c89ac3ccf36c0dd01184",
+        "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+        "private/layout/src/composed/recovery_tests.rs": "1efa2aa99be3c1decb3aa5cd6bff3a8eee096e69a09440f1698274f651083e0e",
+        "private/layout/src/composed/solver.rs": "4658b8225db2e78a18e6d57ae102013112345fdde44b1570bfa3e75c96af316d",
+        "private/layout/src/composed/validation.rs": "74284c9bd560580b3aa8281d4fef862adcb17af98d58461b2841ffca755ea71b",
+        "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+        "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+        "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+        "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+        "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+        "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+        "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+        "private/layout/src/routing.rs": "5646322dc94fa0b76d2bc820324ddd208f71f75e089795838d495facab28bc73",
+        "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+        "private/layout/src/solver.rs": "62f0551bbc39079c5d40bfdf4eede12fb27f3d263b09d27b3fc378dd841ce7f6",
+        "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+        "private/layout/tests/assembly.rs": "6e5211d4cded44837ff9eb217c07ce6d3e141a5e7c88cfc8a1018bc6b7797f06",
+        "private/layout/tests/assembly_plan.rs": "b80dd91b42419b6c877f1d3e5e96a82fcf096f681e439692446c4779d12be76d",
+        "private/layout/tests/canonical_route_join.rs": "6372c32fb9edaee72f62fd44b5c55cd106abc009b9575dad530526d9fea1431d",
+        "private/layout/tests/composed.rs": "f101163d7b59551b37879be5307ed9b4d7410c74b557d00d5b08e0ee303273b7",
+        "private/layout/tests/composed_cache.rs": "ef54a55d80fa1e1f38d2520785791bb77782da2d4d4f9f1c73026f9e9159789f",
+        "private/layout/tests/composed_feedback.rs": "f1a19726776b2bd206962f542f22d7c9861d6005151fda188170a46703338ea2",
+        "private/layout/tests/composed_persistence.rs": "1c1d062e7c04196d153af0380066ddd24866feceb9ef3a9a091d5371a242a27e",
+        "private/layout/tests/composed_recovery.rs": "6bdd2122ef89af61fff01fa49631c971559875ab1f9719154e71c87169eaf920",
+        "private/layout/tests/composed_reorganization.rs": "aff26b135ad2add94f3b4c5022302a2e8203309266470bf2385d131e41c145d5",
+        "private/layout/tests/composed_validation.rs": "bf96f0a3ca5cc9d76e718ca782caa6d075b043f86f57b404bf90a4c59d731c0a",
+        "private/layout/tests/distributed_system.rs": "0b94df9959245ead7e06cf5dd9df169ddb86cc1e82056610a916f643e1c6d930",
+        "private/layout/tests/durable_pins.rs": "a025f6ce550146612c006bdd28430e5ccfb18700ed9c818bf07e34ca26583114",
+        "private/layout/tests/inherited_constraints.rs": "5143d7ec21a33a66501b63877b23e513b7bdc867243a194b68834e3f68cc91a4",
+        "private/layout/tests/neighborhood_continuity.rs": "ac69f6b4531da8cd32db92316620413b134cad6f912816f583c5f55f3b24b39c",
+        "private/layout/tests/placement.rs": "0daa906851a3f472d8ff6252136661648bbe7a850c3842dc578995f47acc5af7",
+        "private/layout/tests/projection_integration.rs": "b7d2508c1d6e6a2a0cc2db2164e2b76a05df6a457db8ff4a4d47058e7ee000cb",
+        "private/layout/tests/provider_code.rs": "83da89bd79a5553290668bb756c37364aca60c08e49d58fa7b6ee674b99c91e4",
+        "private/layout/tests/route_metrics.rs": "0e0d78263c48a0434878f1f61707522afffbc392dbd3dc2839c484c8de8579b7",
+        "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9",
+        "private/layout/tests/volumetric_constraints.rs": "c5b8e429885c55ddf01ae761fa89e63460946b30a12026524db901b2e4a64d84",
+        "private/layout/tests/volumetric_packing.rs": "260ac29dae4bfd7624b4143d564a82c83ae0672715a1067b695c211c85dab0fe",
+        "private/runtime/Cargo.toml": "449706c320e581bf5b08fb512574924dcf60b038f5dce0e1aba93ccec610d2a0",
+        "private/runtime/examples/composed_pin_smoke.rs": "9194a4656c4641b5d6917e49673332f356c3523d8b610bfb5c8e9ad2a12b3395",
+        "private/runtime/examples/connected_smoke.rs": "435e0cdbdc399eda7ddd74f85e7b346e5477a050abb48f85b95db50e2d2796a9",
+        "private/runtime/examples/large_model_smoke.rs": "283b0591189c8ef7a6d8dfa5007a2c8225de9ce27b803d69508e9c5e2d10a693",
+        "private/runtime/examples/layout_smoke.rs": "57edb790c26d3e37b7e006c43b49fa2c21dd468ef05e89dfaa17895bf3580a51",
+        "private/runtime/examples/legacy_control.rs": "17079a763cb9df57ba81449383776bd076593ac56c9b817634570cd8f30963d1",
+        "private/runtime/examples/production_smoke.rs": "046d2dcb7a06d949297ae89044391d0b49d1b8d2e377ac3f9d7d52b8e7d5737d",
+        "private/runtime/examples/render_smoke.rs": "d27ea96935165fa4dd5523c5874f0008321f593395ba1e2077ee96fbb3594639",
+        "private/runtime/examples/support/control_geometry.rs": "2b5d5c96b1de4d9322c973628d2f0e0fb57fa10d4ce25ed1ea94c34777fe801b",
+        "private/runtime/examples/support/frame_trace.rs": "affdd84c0e2c3ec2e6d19d842956ad550365661e9d926b58e82e05557e9669b2",
+        "private/runtime/examples/support/occlusion_probe.rs": "8d7045deb851eb59f4f81d6b26ad62c8bb42f1279a38503e08c8dc409c52f40a",
+        "private/runtime/examples/support/presentation_probe.rs": "c4c54c26d4773ee0ea102a9b6a98d252b860482f956900403ea95d999042c5ef",
+        "private/runtime/examples/support/scripted_input.rs": "bed1e6590af46280b7d5daf46b7d575a83085cfd3940a1119c378609d27f97e8",
+        "private/runtime/src/camera.rs": "537cfa97360bea729efd9c50a55ae09753fc54063c362d15746b709f907276bc",
+        "private/runtime/src/composed_state_tests.rs": "0a7c8601ead7e379b4e242e0f317ad987f4ec8f6851ecd74cc916f87e2691076",
+        "private/runtime/src/composition.rs": "eb4eaf1acb171812c6a90f707990d758d920e1902269802fcb1db2cccb73f2d6",
+        "private/runtime/src/connections.rs": "e70e6e2c4f2fce2fd7e38554e77d2ce5b9d9bf8c3a120a0861e07de6804e684c",
+        "private/runtime/src/input.rs": "a8fb5358a1056b405284f1a811e571ebc3e25f839cf577374f1c1a72cfb51b3e",
+        "private/runtime/src/layout_geometry.rs": "a2cbd36db2bdb852f99e270f729482d6fc87af383c4705ae51177c6e082681ef",
+        "private/runtime/src/layout_input.rs": "d3f14e5fa6e8a8b8c8146a7da2041ed62599246c6c609dba2ce110759fa2d1c6",
+        "private/runtime/src/layout_scene.rs": "45347477e78dbdebcb3d37a42223babc0a658a9d67e3a876501b092e3c963252",
+        "private/runtime/src/lib.rs": "5260244b697fc8126c2652ec63017fa37bf073fdde01e7d5f4b9133f794604d8",
+        "private/runtime/src/main.rs": "20a807dc215ab235929cbf664407919c48830df663475bf0aacda368bf79a132",
+        "private/runtime/src/native_layout.rs": "2932073683b84c9fd69e5744cc09544a3ce94984a9bc24f03d324c0d3f167c95",
+        "private/runtime/src/primitives.rs": "0c5fd38c4c26a5c59a1d52f95af95d7663dfab2d27dc124668135d5e386abd60",
+        "private/runtime/src/scene.rs": "50d8808ef48a26acde5bcd7512b12ebadc69462b91cc7e96a8ccb3e6c77961c4",
+        "private/runtime/src/shutdown.rs": "5235ad891a026947b05729351e7c67c9d62feba5f5fe9f97c316b94e9520a43b",
+        "private/runtime/tests/ingestion.rs": "500eec5f93a40d4bd1b82920b1fab6ccd868fa7944e9b7bad4d2f824b54abf8c",
+        "public/tools/rust-bundle/Cargo.toml": "8dc0bf85650d69908093bbeaf0a6d37455e55a283ddd28a4bb6172e4645a14ac",
+        "public/tools/rust-bundle/src/lib.rs": "0f6207ae2093be151e951314f40a7c22c72d58f37520177e152a1cc3beccd9e2",
+        "public/tools/rust-bundle/src/main.rs": "5ef69ae356b5e35812bee18e264ecdc2e773a3aee3d43b73354ff3bee5664855",
+        "public/tools/rust-bundle/tests/fixtures/nested/Cargo.toml": "3ac7242681dff094ebd266dca4a200a06fa7d048d08a0dec8fcc6e8c2756173f",
+        "public/tools/rust-bundle/tests/fixtures/nested/crates/app/Cargo.toml": "16ab1bf8b22edc250395656567cd3508d3a4d70183f1b937d41495093b71c2b7",
+        "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/helpers.rs": "c24f62a0d2a14bd3dba61d3f3f8e2be5c58535d10bdb368d0f5b32c7e669a826",
+        "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/lib.rs": "3f9250d7ea14f19eb80b95567257db81758e48aecf3981b77674ce93153e768d",
+        "public/tools/rust-bundle/tests/fixtures/nested/crates/core/Cargo.toml": "98ecedfccf534c46b93c4c63fe97061b51bbc63c69bec30b9e14d5c491c1dc10",
+        "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/lib.rs": "4b6bf49dfecc1bd0917597d80f64a4d1e713af7ba19fc4e2ee53faa50584f43e",
+        "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/value.rs": "13b24a36be7cbbef8317059ca322623c20db7372930e475ebb46144f894be75f",
+        "public/tools/rust-bundle/tests/producer.rs": "dee02ebcf7afc265fc468a175552c2689a5c569c412abf83a3f007a283f1724f",
+        "public/tools/rust-bundle/tests/syntax_identity.rs": "e5b1c45773d35eeaefecb88d70abae8f4b91d5f746e355622dd7bf0266ab5da5",
+        "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+        "public/types/rust/examples/bundle_bench.rs": "da6de010d5baabd2c3edb7e003324e0aae3c4d8b9eeee336bedca7676e3960c2",
+        "public/types/rust/examples/index_profile.rs": "ad9cc35db0c409123a117a057d59c05f779181fa1f6f702cfffd3619e482a3a1",
+        "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+        "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+        "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+        "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+        "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+        "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+        "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+        "public/types/rust/src/provider/storage.rs": "057157a5846b614215a8c07b1d85fe372be217ff1faa48485c3d3c2d53e4c288",
+        "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+        "public/types/rust/tests/architecture.rs": "fa9a1b1ec174d6cca0edda9541dcdf7903ee5cdf69e62f6da866d04acdb83eef",
+        "public/types/rust/tests/provider.rs": "2e4ebc0bf863afa622c95616219133e5e9e8b82e5d8e633e0dc2f651a75fa155",
+        "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+      },
+      "binary_sha256": "35c94b25c277afd9f1810f08d4d6f94a9861ea38c7c7a0e05cf846219482e671"
+    },
+    "source_archive": "/private/tmp/visualyze-presentation-native-source",
+    "final_source_sha256": {
+      "Cargo.lock": "ebde2964840a8ab18c73dcd04fff4eaa885bea827d5dd04b2194b62a950ea638",
+      "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+      "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+      "private/layout/examples/bundle_layout.rs": "74b3e8a7144c9bdcb4847361bceb7971b7b97fd01d2662f19606bb37083bb647",
+      "private/layout/examples/compare.rs": "4b692fe2161f06bac109ad8e71dff80428721c20c2c33bdbae2e5592b48cd67c",
+      "private/layout/examples/composed_layout.rs": "15b8200531d4871aad86fa2d07bd6e43042b4866c4e26e5ef03a5b514c4a1dae",
+      "private/layout/examples/evaluate_cases.rs": "267e33a23f4843ba178c726286eb0c95f571fbd290370f7e3d99e1454ed8bebe",
+      "private/layout/examples/generate_ai_fixture.rs": "caa6d269d3f525e9bc67ad6271469d5327ecb6dbf5a76eac6961c307903425fc",
+      "private/layout/examples/production_audit.rs": "fd6a0ca965da73c57e71eca902d13f1fee3c5bbd755e59769d6bae8cec50b84a",
+      "private/layout/examples/production_pages.rs": "8c5506dbe000f1a302d1367a995b13c755cf4c7f49b32bdc441b4b67c922af51",
+      "private/layout/examples/projection_bench.rs": "829481a1af42f099a25b065c6abfe43bfcc2dedee42c3ced95b30d90b7c11ce0",
+      "private/layout/examples/scale_view_bench.rs": "89cc3231b2801b3d253d77d91f630b08dd8b2901496b963a43f16bbb2b299b72",
+      "private/layout/src/assembly.rs": "ae8d6bde981dc7e14314679d961ea793cf1af1514d2bd2b9ddfaf78a03ae9ff5",
+      "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+      "private/layout/src/composed.rs": "e23e3ff229b50ea8be8e2167af25e2810cfd7d2b5c3567dc7843580b8abd2086",
+      "private/layout/src/composed/cache.rs": "972c6eacda62055cad69803cbf9c33c57638cf06cfc83d9da0c7c0ad13ff41db",
+      "private/layout/src/composed/constraints.rs": "4675fce6d16e554260f5168455fa7d80fab4f4da7f3b27e49561f27d4b5c2f62",
+      "private/layout/src/composed/feedback.rs": "48f7d079a7f989e68c8dbcf3c6d780851170803d5623b4f8a89f65ea77557326",
+      "private/layout/src/composed/persistence.rs": "f6da86db38b1de948a7d1d5b24a663dd873f775f0023c89ac3ccf36c0dd01184",
+      "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+      "private/layout/src/composed/recovery_tests.rs": "1efa2aa99be3c1decb3aa5cd6bff3a8eee096e69a09440f1698274f651083e0e",
+      "private/layout/src/composed/solver.rs": "4658b8225db2e78a18e6d57ae102013112345fdde44b1570bfa3e75c96af316d",
+      "private/layout/src/composed/validation.rs": "74284c9bd560580b3aa8281d4fef862adcb17af98d58461b2841ffca755ea71b",
+      "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+      "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+      "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+      "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+      "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+      "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+      "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+      "private/layout/src/routing.rs": "5646322dc94fa0b76d2bc820324ddd208f71f75e089795838d495facab28bc73",
+      "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+      "private/layout/src/solver.rs": "62f0551bbc39079c5d40bfdf4eede12fb27f3d263b09d27b3fc378dd841ce7f6",
+      "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+      "private/layout/tests/assembly.rs": "6e5211d4cded44837ff9eb217c07ce6d3e141a5e7c88cfc8a1018bc6b7797f06",
+      "private/layout/tests/assembly_plan.rs": "b80dd91b42419b6c877f1d3e5e96a82fcf096f681e439692446c4779d12be76d",
+      "private/layout/tests/canonical_route_join.rs": "6372c32fb9edaee72f62fd44b5c55cd106abc009b9575dad530526d9fea1431d",
+      "private/layout/tests/composed.rs": "f101163d7b59551b37879be5307ed9b4d7410c74b557d00d5b08e0ee303273b7",
+      "private/layout/tests/composed_cache.rs": "ef54a55d80fa1e1f38d2520785791bb77782da2d4d4f9f1c73026f9e9159789f",
+      "private/layout/tests/composed_feedback.rs": "f1a19726776b2bd206962f542f22d7c9861d6005151fda188170a46703338ea2",
+      "private/layout/tests/composed_persistence.rs": "1c1d062e7c04196d153af0380066ddd24866feceb9ef3a9a091d5371a242a27e",
+      "private/layout/tests/composed_recovery.rs": "6bdd2122ef89af61fff01fa49631c971559875ab1f9719154e71c87169eaf920",
+      "private/layout/tests/composed_reorganization.rs": "aff26b135ad2add94f3b4c5022302a2e8203309266470bf2385d131e41c145d5",
+      "private/layout/tests/composed_validation.rs": "bf96f0a3ca5cc9d76e718ca782caa6d075b043f86f57b404bf90a4c59d731c0a",
+      "private/layout/tests/distributed_system.rs": "0b94df9959245ead7e06cf5dd9df169ddb86cc1e82056610a916f643e1c6d930",
+      "private/layout/tests/durable_pins.rs": "a025f6ce550146612c006bdd28430e5ccfb18700ed9c818bf07e34ca26583114",
+      "private/layout/tests/inherited_constraints.rs": "5143d7ec21a33a66501b63877b23e513b7bdc867243a194b68834e3f68cc91a4",
+      "private/layout/tests/neighborhood_continuity.rs": "ac69f6b4531da8cd32db92316620413b134cad6f912816f583c5f55f3b24b39c",
+      "private/layout/tests/placement.rs": "0daa906851a3f472d8ff6252136661648bbe7a850c3842dc578995f47acc5af7",
+      "private/layout/tests/projection_integration.rs": "b7d2508c1d6e6a2a0cc2db2164e2b76a05df6a457db8ff4a4d47058e7ee000cb",
+      "private/layout/tests/provider_code.rs": "83da89bd79a5553290668bb756c37364aca60c08e49d58fa7b6ee674b99c91e4",
+      "private/layout/tests/route_metrics.rs": "0e0d78263c48a0434878f1f61707522afffbc392dbd3dc2839c484c8de8579b7",
+      "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9",
+      "private/layout/tests/volumetric_constraints.rs": "c5b8e429885c55ddf01ae761fa89e63460946b30a12026524db901b2e4a64d84",
+      "private/layout/tests/volumetric_packing.rs": "260ac29dae4bfd7624b4143d564a82c83ae0672715a1067b695c211c85dab0fe",
+      "private/runtime/Cargo.toml": "449706c320e581bf5b08fb512574924dcf60b038f5dce0e1aba93ccec610d2a0",
+      "private/runtime/examples/composed_pin_smoke.rs": "9194a4656c4641b5d6917e49673332f356c3523d8b610bfb5c8e9ad2a12b3395",
+      "private/runtime/examples/connected_smoke.rs": "435e0cdbdc399eda7ddd74f85e7b346e5477a050abb48f85b95db50e2d2796a9",
+      "private/runtime/examples/large_model_smoke.rs": "283b0591189c8ef7a6d8dfa5007a2c8225de9ce27b803d69508e9c5e2d10a693",
+      "private/runtime/examples/layout_smoke.rs": "57edb790c26d3e37b7e006c43b49fa2c21dd468ef05e89dfaa17895bf3580a51",
+      "private/runtime/examples/legacy_control.rs": "17079a763cb9df57ba81449383776bd076593ac56c9b817634570cd8f30963d1",
+      "private/runtime/examples/production_smoke.rs": "ed98473ad3f6b2f6fce52da591b6377f8cf745c5f7ba0c9555465f340a662b8b",
+      "private/runtime/examples/render_smoke.rs": "d27ea96935165fa4dd5523c5874f0008321f593395ba1e2077ee96fbb3594639",
+      "private/runtime/examples/support/control_geometry.rs": "2b5d5c96b1de4d9322c973628d2f0e0fb57fa10d4ce25ed1ea94c34777fe801b",
+      "private/runtime/examples/support/frame_trace.rs": "be8505f9df292d2c2db1fb13c6f41ab12c9b1fd4eebf579639eb3ac0515143c5",
+      "private/runtime/examples/support/occlusion_probe.rs": "6c67e09975887a7cd4896949f6625493fdfa0344a589682cb242f0a3bb8e7e40",
+      "private/runtime/examples/support/presentation_probe.rs": "c4c54c26d4773ee0ea102a9b6a98d252b860482f956900403ea95d999042c5ef",
+      "private/runtime/examples/support/scripted_input.rs": "e2d3163e3a56b19d30d5a1b06a13abf7264e7a6f179b64131e1920d40260c93b",
+      "private/runtime/src/camera.rs": "537cfa97360bea729efd9c50a55ae09753fc54063c362d15746b709f907276bc",
+      "private/runtime/src/composed_state_tests.rs": "0a7c8601ead7e379b4e242e0f317ad987f4ec8f6851ecd74cc916f87e2691076",
+      "private/runtime/src/composition.rs": "eb4eaf1acb171812c6a90f707990d758d920e1902269802fcb1db2cccb73f2d6",
+      "private/runtime/src/connections.rs": "e70e6e2c4f2fce2fd7e38554e77d2ce5b9d9bf8c3a120a0861e07de6804e684c",
+      "private/runtime/src/input.rs": "a8fb5358a1056b405284f1a811e571ebc3e25f839cf577374f1c1a72cfb51b3e",
+      "private/runtime/src/layout_geometry.rs": "a2cbd36db2bdb852f99e270f729482d6fc87af383c4705ae51177c6e082681ef",
+      "private/runtime/src/layout_input.rs": "d3f14e5fa6e8a8b8c8146a7da2041ed62599246c6c609dba2ce110759fa2d1c6",
+      "private/runtime/src/layout_scene.rs": "45347477e78dbdebcb3d37a42223babc0a658a9d67e3a876501b092e3c963252",
+      "private/runtime/src/lib.rs": "5260244b697fc8126c2652ec63017fa37bf073fdde01e7d5f4b9133f794604d8",
+      "private/runtime/src/main.rs": "20a807dc215ab235929cbf664407919c48830df663475bf0aacda368bf79a132",
+      "private/runtime/src/native_layout.rs": "2932073683b84c9fd69e5744cc09544a3ce94984a9bc24f03d324c0d3f167c95",
+      "private/runtime/src/primitives.rs": "0c5fd38c4c26a5c59a1d52f95af95d7663dfab2d27dc124668135d5e386abd60",
+      "private/runtime/src/scene.rs": "50d8808ef48a26acde5bcd7512b12ebadc69462b91cc7e96a8ccb3e6c77961c4",
+      "private/runtime/src/shutdown.rs": "5235ad891a026947b05729351e7c67c9d62feba5f5fe9f97c316b94e9520a43b",
+      "private/runtime/tests/ingestion.rs": "500eec5f93a40d4bd1b82920b1fab6ccd868fa7944e9b7bad4d2f824b54abf8c",
+      "public/tools/rust-bundle/Cargo.toml": "8dc0bf85650d69908093bbeaf0a6d37455e55a283ddd28a4bb6172e4645a14ac",
+      "public/tools/rust-bundle/src/lib.rs": "0f6207ae2093be151e951314f40a7c22c72d58f37520177e152a1cc3beccd9e2",
+      "public/tools/rust-bundle/src/main.rs": "5ef69ae356b5e35812bee18e264ecdc2e773a3aee3d43b73354ff3bee5664855",
+      "public/tools/rust-bundle/tests/fixtures/nested/Cargo.toml": "3ac7242681dff094ebd266dca4a200a06fa7d048d08a0dec8fcc6e8c2756173f",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/app/Cargo.toml": "16ab1bf8b22edc250395656567cd3508d3a4d70183f1b937d41495093b71c2b7",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/helpers.rs": "c24f62a0d2a14bd3dba61d3f3f8e2be5c58535d10bdb368d0f5b32c7e669a826",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/lib.rs": "3f9250d7ea14f19eb80b95567257db81758e48aecf3981b77674ce93153e768d",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/core/Cargo.toml": "98ecedfccf534c46b93c4c63fe97061b51bbc63c69bec30b9e14d5c491c1dc10",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/lib.rs": "4b6bf49dfecc1bd0917597d80f64a4d1e713af7ba19fc4e2ee53faa50584f43e",
+      "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/value.rs": "13b24a36be7cbbef8317059ca322623c20db7372930e475ebb46144f894be75f",
+      "public/tools/rust-bundle/tests/producer.rs": "dee02ebcf7afc265fc468a175552c2689a5c569c412abf83a3f007a283f1724f",
+      "public/tools/rust-bundle/tests/syntax_identity.rs": "e5b1c45773d35eeaefecb88d70abae8f4b91d5f746e355622dd7bf0266ab5da5",
+      "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+      "public/types/rust/examples/bundle_bench.rs": "da6de010d5baabd2c3edb7e003324e0aae3c4d8b9eeee336bedca7676e3960c2",
+      "public/types/rust/examples/index_profile.rs": "ad9cc35db0c409123a117a057d59c05f779181fa1f6f702cfffd3619e482a3a1",
+      "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+      "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+      "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+      "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+      "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+      "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+      "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+      "public/types/rust/src/provider/storage.rs": "057157a5846b614215a8c07b1d85fe372be217ff1faa48485c3d3c2d53e4c288",
+      "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+      "public/types/rust/tests/architecture.rs": "fa9a1b1ec174d6cca0edda9541dcdf7903ee5cdf69e62f6da866d04acdb83eef",
+      "public/types/rust/tests/provider.rs": "2e4ebc0bf863afa622c95616219133e5e9e8b82e5d8e633e0dc2f651a75fa155",
+      "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+    },
+    "final_production_smoke_sha256": "4c16e676c7386acab76e4d907eef066f782f26a9884e6bbd5562378037431366",
+    "phase_provenance": "Presentation series used binary 84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24 before adding the occlusion/cycle probes; a complete helper-source freeze was not captured for that earlier binary. Occlusion series used 35c94b25c277afd9f1810f08d4d6f94a9861ea38c7c7a0e05cf846219482e671. Its source was captured after those runs. Final edits clarify input-mode/report limitations and configuration attribution, and add a completed-render counter plus an installed scheduling regression; final helper tests, build and lint were repeated. Do not treat the final binary as the binary measured by either series."
+  },
+  "auxiliary_sampling": {
+    "command": [
+      "/Users/isaiahbergstrom/Visualyze/target/debug/examples/production_smoke",
+      "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "visualyze-local/production/native-presentation-sampled-2026-10-02",
+      "--persist",
+      "--composed",
+      "--trace-frames",
+      "--repeat-navigation",
+      "--no-captures"
+    ],
+    "pid": 12461,
+    "exit_code": 0,
+    "sample_command": [
+      "/usr/bin/sample",
+      "12461",
+      "15",
+      "5",
+      "-file",
+      "/private/tmp/visualyze-presentation-stacks.txt"
+    ],
+    "sample_exit_code": 0,
+    "log": "/private/tmp/visualyze-presentation-sampled.log",
+    "sample": "/private/tmp/visualyze-presentation-stacks.txt",
+    "sample_log": "/private/tmp/visualyze-presentation-sample-tool.log",
+    "binary_sha256": "84b4e400264fc04dacf3b6d1a95d379d986907faa71cda7453a8a79b61112c24",
+    "stack_artifact": {
+      "path": "/private/tmp/visualyze-presentation-stacks.txt",
+      "sha256": "5d6233c2597b69d6d37d5b89e77177578e818525a7c203c7302f181ecd36d3bc"
+    },
+    "report": {
+      "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-presentation-sampled-2026-10-02/native-report.json",
+      "sha256": "5ff4e783d47406a2929d09b86262ac1609807cca17083326019541f9f2907c63"
+    },
+    "result": "Completed 38 actions/33 saves and normal exit, but did not reproduce a >250 ms surface bracket (max 26.736834 ms). Aggregated samples include prepare_windows \u2192 get_current_texture \u2192 Metal acquire_texture \u2192 CAMetalLayer nextDrawable \u2192 semaphore wait. They do not pinpoint a one-second pause in this run and are not exclusive timing."
+  },
+  "controlled_ui_attempts": {
+    "unbundled": "The unbundled CLI app was not addressable through the available native UI selector. Its await-cycle run was explicitly interrupted with SIGINT and returned 130, with no successful proof report.",
+    "bundle": "A temporary SurfaceProbe.app wrapper was attempted. Native UI launch took 348.5893 seconds and later minimize/state calls timed out. A report was produced after a notification cycle, but a subsequent relaunch hit the already-existing output guard and overwrote the wrapper log/exit file with 101. Original exit status was not preserved; controlled desktop action and presentation are unverified. Excluded from the fifteen successful comparative runs.",
+    "report": {
+      "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-occlusion-controlled-default-2026-10-02/native-report.json",
+      "sha256": "c9d7bcb1235bfbfbce43a058f9d52e703d20dabef6f036850c8a3f867d11d592"
+    },
+    "main_spans_dropped": 7945,
+    "interpretation": "The await-cycle option detects notifications only. It cannot by itself prove controlled physical hide/restore. No latency claim is based on this attempt."
+  },
+  "final_native_validation": {
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "./target/debug/examples/production_smoke",
+      "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "visualyze-local/production/native-occlusion-final-2026-10-02",
+      "--persist",
+      "--composed",
+      "--trace-frames",
+      "--repeat-navigation",
+      "--no-captures",
+      "--skip-occluded"
+    ],
+    "exit_code": 0,
+    "report": {
+      "path": "/Users/isaiahbergstrom/Visualyze/visualyze-local/production/native-occlusion-final-2026-10-02/native-report.json",
+      "sha256": "486652247981a35fefdd228b57616267f3a9472576f83fe678a74c6850eb879a"
+    },
+    "log": {
+      "path": "/private/tmp/visualyze-occlusion-final.log",
+      "sha256": "83091e8ed4c436b9963747b827a239fc16ea467ae07861f002b433310d3ddb0b"
+    },
+    "completed_actions": 38,
+    "saves": 33,
+    "save_failures": 0,
+    "render_invocations": 330,
+    "completed_render_invocations": 330,
+    "parked_window_frames": 0,
+    "maximum_surface_bracket_ms": 7.648833,
+    "scope": "Final helper binary completed normally, with the new counter/report fields. No occlusion was observed, so this validates the active-window path and report; it does not exercise the suspension branch or establish a stall fix."
+  },
+  "review": {
+    "result": "No functional blocker found by independent agent review. Corrected overbroad ordinary surface-configuration timing claim and added installed-schedule ordering test requested by review."
+  },
+  "primary_references": [
+    {
+      "url": "https://github.com/gfx-rs/wgpu/issues/8309",
+      "finding": "Reported macOS nextDrawable pause after foreground/background transitions; pattern matches, but not proof of the exact local cause."
+    },
+    {
+      "url": "https://github.com/gfx-rs/wgpu/pull/9141",
+      "finding": "Merged an acquisition-level occlusion check and a new surface error. Pinned wgpu-hal 27.0.4 lacks this guard."
+    },
+    {
+      "url": "https://github.com/gfx-rs/wgpu/pull/10302",
+      "finding": "Follow-up discusses initially invisible windows and avoiding first-draw starvation; do not blindly port an occlusion check."
+    }
+  ],
+  "next_compatibility_candidate": {
+    "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.19.0/crates/bevy_render/src/view/window/mod.rs",
+    "finding": "Versioned Bevy 0.19.0 source handles CurrentSurfaceTexture::Occluded without failing the frame. A renderer-stack migration is a concrete compatibility candidate, not yet implemented or tested locally; startup regression and screenshot behavior still require validation."
+  },
+  "decision": "Keep all mitigation options test-only. Both Immediate modes fail to eliminate the pause. Event-gated parking works after notification (224, 227 and 12 parked frames, one native resume) but all three trials still pause before the notification. Next renderer work should evaluate a compatible acquisition-level fix with startup, resize, rapid hide/restore, screenshots and teardown tests; an event-only product workaround is insufficient.",
+  "limitations": [
+    "Desktop occlusion/focus was not standardized; stall counts describe these runs and are not comparative probabilities or a ranking of modes.",
+    "All native action and geometry assertions passed, but no-capture runs and suspended render frames do not prove every accepted scene was displayed.",
+    "CPU scheduling brackets include scheduling and concurrent work; no GPU/input-to-presentation measurement.",
+    "Current complete placement, calibrated held-out quality, topology/override continuity, scale and human comprehension gates remain open."
+  ]
+}

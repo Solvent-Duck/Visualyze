@@ -1,0 +1,227 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "example-notes-crud",
+  "revision": 1,
+  "system_id": "scope:notes",
+  "snapshot": {
+    "id": "notes-crud-001",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Declared design for a personal notes CRUD app: a browser client, one service, one database, session authentication, and per-user note authorization.",
+    "omissions": [
+      "This is an architecture example, not an implemented or deployed notes application.",
+      "Registration, password recovery, deployment, and operational hardening are outside this example."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:notes",
+      "kind": "scope",
+      "label": "Personal notes",
+      "boundary": "internal",
+      "subtype": "system",
+      "description": "The logical application boundary.",
+      "basis": "declared"
+    },
+    {
+      "id": "client:web",
+      "kind": "client",
+      "label": "Notes frontend",
+      "boundary": "internal",
+      "subtype": "web",
+      "description": "A browser UI for sign-in and creating, listing, editing, and deleting personal notes.",
+      "basis": "declared"
+    },
+    {
+      "id": "service:notes",
+      "kind": "service",
+      "label": "Notes service",
+      "boundary": "internal",
+      "subtype": "application",
+      "description": "The only backend service. Handles sessions and notes CRUD, validates the session, and filters every note operation by its owner.",
+      "basis": "declared"
+    },
+    {
+      "id": "store:notes",
+      "kind": "datastore",
+      "label": "App database",
+      "boundary": "internal",
+      "subtype": "relational",
+      "description": "One database containing notes (with owner IDs), users, and server-side sessions.",
+      "basis": "declared",
+      "technology": [
+        "SQLite"
+      ]
+    },
+    {
+      "id": "interface:sessions",
+      "kind": "interface",
+      "label": "Session API",
+      "boundary": "internal",
+      "subtype": "api",
+      "description": "Sign-in and sign-out endpoints. Verifies credentials and issues or revokes an opaque server-side session; no note operations live here.",
+      "basis": "declared",
+      "protocol": "https"
+    },
+    {
+      "id": "interface:notes",
+      "kind": "interface",
+      "label": "Notes API",
+      "boundary": "internal",
+      "subtype": "api",
+      "description": "Create, list, read, update, and delete notes. Every operation requires a valid session and enforces per-user ownership.",
+      "basis": "declared",
+      "protocol": "https"
+    },
+    {
+      "id": "concern:authentication",
+      "kind": "concern",
+      "label": "Authentication",
+      "boundary": "internal",
+      "subtype": "authentication",
+      "description": "The frontend presents sign-in. The service validates opaque server-side sessions on notes requests.",
+      "basis": "declared"
+    },
+    {
+      "id": "concern:authorization",
+      "kind": "concern",
+      "label": "Owner-only notes",
+      "boundary": "internal",
+      "subtype": "authorization",
+      "description": "Server-side ownership checks restrict listing and individual read/update/delete operations to the current user; created notes receive that user as owner.",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:contains-client-web",
+      "kind": "contains",
+      "source": "scope:notes",
+      "target": "client:web",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:contains-service-notes",
+      "kind": "contains",
+      "source": "scope:notes",
+      "target": "service:notes",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:contains-store-notes",
+      "kind": "contains",
+      "source": "scope:notes",
+      "target": "store:notes",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:contains-concern-authentication",
+      "kind": "contains",
+      "source": "scope:notes",
+      "target": "concern:authentication",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:contains-concern-authorization",
+      "kind": "contains",
+      "source": "scope:notes",
+      "target": "concern:authorization",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:exposes-sessions",
+      "kind": "exposes",
+      "source": "service:notes",
+      "target": "interface:sessions",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:exposes-notes",
+      "kind": "exposes",
+      "source": "service:notes",
+      "target": "interface:notes",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:request-sessions",
+      "kind": "requests",
+      "source": "client:web",
+      "target": "interface:sessions",
+      "basis": "declared",
+      "label": "Sign in / out",
+      "description": "The browser requests session creation or termination.",
+      "condition": "When the user signs in or signs out."
+    },
+    {
+      "id": "rel:request-notes",
+      "kind": "requests",
+      "source": "client:web",
+      "target": "interface:notes",
+      "basis": "declared",
+      "label": "Notes CRUD",
+      "description": "Create, list, read, update, or delete a note using the current session."
+    },
+    {
+      "id": "rel:read-database",
+      "kind": "reads",
+      "source": "service:notes",
+      "target": "store:notes",
+      "basis": "declared",
+      "label": "Read",
+      "description": "Read notes scoped to the current user; read users and sessions as required by authentication."
+    },
+    {
+      "id": "rel:write-database",
+      "kind": "writes",
+      "source": "service:notes",
+      "target": "store:notes",
+      "basis": "declared",
+      "label": "Write",
+      "description": "Insert, update, and delete notes; create and revoke sessions. Note changes enforce ownership."
+    },
+    {
+      "id": "rel:auth-sign-in",
+      "kind": "applies_to",
+      "source": "concern:authentication",
+      "target": "client:web",
+      "basis": "declared",
+      "aspect": "sign_in_interface",
+      "label": "Sign-in UI"
+    },
+    {
+      "id": "rel:auth-session",
+      "kind": "applies_to",
+      "source": "concern:authentication",
+      "target": "interface:notes",
+      "basis": "declared",
+      "aspect": "session_validation",
+      "label": "Session"
+    },
+    {
+      "id": "rel:authorization-notes",
+      "kind": "applies_to",
+      "source": "concern:authorization",
+      "target": "interface:notes",
+      "basis": "declared",
+      "aspect": "per_user_note_ownership",
+      "label": "Owner check"
+    },
+    {
+      "id": "rel:auth-implementation",
+      "kind": "implemented_by",
+      "source": "concern:authentication",
+      "target": "service:notes",
+      "basis": "declared",
+      "description": "The notes service implements credential checks and session validation."
+    },
+    {
+      "id": "rel:authorization-implementation",
+      "kind": "implemented_by",
+      "source": "concern:authorization",
+      "target": "service:notes",
+      "basis": "declared",
+      "description": "The same notes service enforces ownership for every note operation."
+    }
+  ],
+  "evidence": []
+}

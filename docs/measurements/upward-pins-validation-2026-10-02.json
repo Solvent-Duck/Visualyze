@@ -1,0 +1,974 @@
+{
+  "recorded_utc": "2026-10-02T23:56:55.784337+00:00",
+  "scope": "Bidirectional region-relative supplied-object pins in composed views. Child-origin anchors remain unchanged when shown in ancestors; unrelated parent objects retain their placement. Original registry ownership is preserved. Shift+P opens the actual pin origin.",
+  "checks": [
+    {
+      "command": "cargo test --workspace --offline --locked",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-upward-pin-final-workspace-tests.log",
+      "sha256": "e4a9e81ba24e73f45e661984318ddbf54fc62f37fbfeea2f94534f58777fab32",
+      "totals": {
+        "passed": 428,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    {
+      "command": "cargo test -p visualyze-layout --test provider_code production_navigation_preserves_group_membership_after_other_regions_fill_retention --offline --locked -- --ignored",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-upward-pin-final-retention-tests.log",
+      "sha256": "087272f4970a83af94836404dabdffdddd59f950e5774a1a8011b15204991d6f",
+      "totals": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "command": "cargo test -p visualyze --example production_smoke --offline --locked",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-upward-pin-final-helper-tests.log",
+      "sha256": "8eaaca6d5e98745355cc1238553d1418d530bebcaf57e1e207dce5767ba0c0f9",
+      "totals": {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --offline --locked -- -D warnings",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-upward-pin-final-clippy.log",
+      "sha256": "eb96446696388608b53017b60723e2fa1c8b76e51838ec72bee4b827943268d9"
+    },
+    {
+      "command": "cargo build -p visualyze --bin visualyze --example production_smoke --example composed_pin_smoke --offline --locked",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-upward-pin-final-native-build.log",
+      "sha256": "b90c830c4ee32d09c73331d274e9fd66eeba30ee24537fa28ce142c1e53079d3"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-upward-pin-final-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "review": {
+    "against": "docs/measurements/inherited-pins-validation-2026-10-02.json",
+    "changed_source_files": [
+      "private/layout/src/composed/constraints.rs",
+      "private/layout/src/composed/persistence.rs",
+      "private/layout/tests/composed_persistence.rs",
+      "private/layout/tests/inherited_constraints.rs",
+      "private/runtime/examples/composed_pin_smoke.rs",
+      "private/runtime/src/composed_state_tests.rs",
+      "private/runtime/src/layout_scene.rs",
+      "private/runtime/src/native_layout.rs"
+    ],
+    "findings": "Reviewed final core/runtime diffs plus independent agent review. Found and fixed pin-origin lookup selecting an earlier retained group record that did not contribute the effective same-ID pin. Lookup now requires effective owner/coordinates/context/applicable ownership; regression exercises actual origin navigation. No remaining actionable finding in reviewed scope.",
+    "state_version": 4,
+    "migration": "Versions 1/2 retain local-only and version 3 downward-only interpretation while loading; validate/repair under bidirectional constraints before writing v4. No public contract, dependencies, composition or quality version changes."
+  },
+  "pre_native_freeze": {
+    "record": {
+      "path": "/private/tmp/visualyze-upward-pins-before-final-native.json",
+      "sha256": "6647cf64b0a6856e514432a99d99fd5774d8cf1a7976f2a5628adb3916e5b31c"
+    },
+    "captured_utc": "2026-10-02T23:54:24.474295+00:00",
+    "all_107_current_hashes_match": true
+  },
+  "source_sha256": {
+    "Cargo.lock": "ebde2964840a8ab18c73dcd04fff4eaa885bea827d5dd04b2194b62a950ea638",
+    "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+    "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+    "private/layout/examples/bundle_layout.rs": "74b3e8a7144c9bdcb4847361bceb7971b7b97fd01d2662f19606bb37083bb647",
+    "private/layout/examples/compare.rs": "4b692fe2161f06bac109ad8e71dff80428721c20c2c33bdbae2e5592b48cd67c",
+    "private/layout/examples/composed_layout.rs": "6ea8ca20b64fca821efa7f85d9d4aea1679977a8d0f95df1062a04417e8868cd",
+    "private/layout/examples/evaluate_cases.rs": "267e33a23f4843ba178c726286eb0c95f571fbd290370f7e3d99e1454ed8bebe",
+    "private/layout/examples/generate_ai_fixture.rs": "caa6d269d3f525e9bc67ad6271469d5327ecb6dbf5a76eac6961c307903425fc",
+    "private/layout/examples/production_audit.rs": "fd6a0ca965da73c57e71eca902d13f1fee3c5bbd755e59769d6bae8cec50b84a",
+    "private/layout/examples/production_pages.rs": "8c5506dbe000f1a302d1367a995b13c755cf4c7f49b32bdc441b4b67c922af51",
+    "private/layout/examples/projection_bench.rs": "829481a1af42f099a25b065c6abfe43bfcc2dedee42c3ced95b30d90b7c11ce0",
+    "private/layout/examples/scale_view_bench.rs": "89cc3231b2801b3d253d77d91f630b08dd8b2901496b963a43f16bbb2b299b72",
+    "private/layout/src/assembly.rs": "ae8d6bde981dc7e14314679d961ea793cf1af1514d2bd2b9ddfaf78a03ae9ff5",
+    "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+    "private/layout/src/composed.rs": "e42b29110ce29b52deef95d73782bfc86605a72449bd35a7eac1cf87cf8c9e53",
+    "private/layout/src/composed/cache.rs": "0b2ce54e0475c03ba1bee74212665fc6729e1ac5ab46e7d3a36922cc6e8ecf4e",
+    "private/layout/src/composed/constraints.rs": "4675fce6d16e554260f5168455fa7d80fab4f4da7f3b27e49561f27d4b5c2f62",
+    "private/layout/src/composed/persistence.rs": "95c8fd7996ff0020bd9afd2db283f230d05bb0839960864f72b1c5ac7d760b41",
+    "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+    "private/layout/src/composed/solver.rs": "3a8ece7fc05f532790b05f7b95dd55abc8cc9c59821e425e48d182c753ac3c37",
+    "private/layout/src/composed/validation.rs": "9dce17a0fbcbe044f5a35b48b57c1a577327bdb74c80b8150dabab4ff340fba3",
+    "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+    "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+    "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+    "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+    "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+    "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+    "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+    "private/layout/src/routing.rs": "2ef8e1d8684c45ca494ced38383d0f722296746911ca7c7759fecf51353b6165",
+    "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+    "private/layout/src/solver.rs": "62f0551bbc39079c5d40bfdf4eede12fb27f3d263b09d27b3fc378dd841ce7f6",
+    "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+    "private/layout/tests/assembly.rs": "6e5211d4cded44837ff9eb217c07ce6d3e141a5e7c88cfc8a1018bc6b7797f06",
+    "private/layout/tests/assembly_plan.rs": "b80dd91b42419b6c877f1d3e5e96a82fcf096f681e439692446c4779d12be76d",
+    "private/layout/tests/canonical_route_join.rs": "6372c32fb9edaee72f62fd44b5c55cd106abc009b9575dad530526d9fea1431d",
+    "private/layout/tests/composed.rs": "345b3a56a3148b84446feaec3eb3c66ffffb6eb6a9594aa4177f18481d4f73fb",
+    "private/layout/tests/composed_cache.rs": "ef54a55d80fa1e1f38d2520785791bb77782da2d4d4f9f1c73026f9e9159789f",
+    "private/layout/tests/composed_persistence.rs": "9a36ed67df5153679f29ca995b9b6c0a05a419e5852516718254d17a5a755df9",
+    "private/layout/tests/composed_reorganization.rs": "403e25b2b8782ce4cf747ffe7f493ee542d23afa57d572a9fa0e57a4e71d9472",
+    "private/layout/tests/composed_validation.rs": "3aefc4ba410ffab765e1cba567e8f530ac49b410416571fa598739aab54534e4",
+    "private/layout/tests/distributed_system.rs": "0b94df9959245ead7e06cf5dd9df169ddb86cc1e82056610a916f643e1c6d930",
+    "private/layout/tests/durable_pins.rs": "daa57d1423f66a1584197c7912bf8b127bae4728244e322bfada6541dbe0c397",
+    "private/layout/tests/inherited_constraints.rs": "5143d7ec21a33a66501b63877b23e513b7bdc867243a194b68834e3f68cc91a4",
+    "private/layout/tests/neighborhood_continuity.rs": "ac69f6b4531da8cd32db92316620413b134cad6f912816f583c5f55f3b24b39c",
+    "private/layout/tests/placement.rs": "0daa906851a3f472d8ff6252136661648bbe7a850c3842dc578995f47acc5af7",
+    "private/layout/tests/projection_integration.rs": "b7d2508c1d6e6a2a0cc2db2164e2b76a05df6a457db8ff4a4d47058e7ee000cb",
+    "private/layout/tests/provider_code.rs": "83da89bd79a5553290668bb756c37364aca60c08e49d58fa7b6ee674b99c91e4",
+    "private/layout/tests/route_metrics.rs": "0e0d78263c48a0434878f1f61707522afffbc392dbd3dc2839c484c8de8579b7",
+    "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9",
+    "private/layout/tests/volumetric_constraints.rs": "c5b8e429885c55ddf01ae761fa89e63460946b30a12026524db901b2e4a64d84",
+    "private/layout/tests/volumetric_packing.rs": "260ac29dae4bfd7624b4143d564a82c83ae0672715a1067b695c211c85dab0fe",
+    "private/runtime/Cargo.toml": "449706c320e581bf5b08fb512574924dcf60b038f5dce0e1aba93ccec610d2a0",
+    "private/runtime/examples/composed_pin_smoke.rs": "79d74ba493fd068112d5ca801381fecf528470266c40689196314ac831e93713",
+    "private/runtime/examples/connected_smoke.rs": "435e0cdbdc399eda7ddd74f85e7b346e5477a050abb48f85b95db50e2d2796a9",
+    "private/runtime/examples/large_model_smoke.rs": "283b0591189c8ef7a6d8dfa5007a2c8225de9ce27b803d69508e9c5e2d10a693",
+    "private/runtime/examples/layout_smoke.rs": "57edb790c26d3e37b7e006c43b49fa2c21dd468ef05e89dfaa17895bf3580a51",
+    "private/runtime/examples/legacy_control.rs": "17079a763cb9df57ba81449383776bd076593ac56c9b817634570cd8f30963d1",
+    "private/runtime/examples/production_smoke.rs": "c3826b728d20881ae125e61510749f10a4235547dbc6a9362a3fc11c53c54b88",
+    "private/runtime/examples/render_smoke.rs": "d27ea96935165fa4dd5523c5874f0008321f593395ba1e2077ee96fbb3594639",
+    "private/runtime/examples/support/control_geometry.rs": "2b5d5c96b1de4d9322c973628d2f0e0fb57fa10d4ce25ed1ea94c34777fe801b",
+    "private/runtime/examples/support/frame_trace.rs": "378da23da4ba8e5292232c701c09f5424264655cee4da9801ac1cdc650befdc5",
+    "private/runtime/examples/support/scripted_input.rs": "bed1e6590af46280b7d5daf46b7d575a83085cfd3940a1119c378609d27f97e8",
+    "private/runtime/src/camera.rs": "537cfa97360bea729efd9c50a55ae09753fc54063c362d15746b709f907276bc",
+    "private/runtime/src/composed_state_tests.rs": "0a7c8601ead7e379b4e242e0f317ad987f4ec8f6851ecd74cc916f87e2691076",
+    "private/runtime/src/composition.rs": "eb4eaf1acb171812c6a90f707990d758d920e1902269802fcb1db2cccb73f2d6",
+    "private/runtime/src/connections.rs": "e70e6e2c4f2fce2fd7e38554e77d2ce5b9d9bf8c3a120a0861e07de6804e684c",
+    "private/runtime/src/input.rs": "a8fb5358a1056b405284f1a811e571ebc3e25f839cf577374f1c1a72cfb51b3e",
+    "private/runtime/src/layout_geometry.rs": "a2cbd36db2bdb852f99e270f729482d6fc87af383c4705ae51177c6e082681ef",
+    "private/runtime/src/layout_input.rs": "d3f14e5fa6e8a8b8c8146a7da2041ed62599246c6c609dba2ce110759fa2d1c6",
+    "private/runtime/src/layout_scene.rs": "45347477e78dbdebcb3d37a42223babc0a658a9d67e3a876501b092e3c963252",
+    "private/runtime/src/lib.rs": "5260244b697fc8126c2652ec63017fa37bf073fdde01e7d5f4b9133f794604d8",
+    "private/runtime/src/main.rs": "20a807dc215ab235929cbf664407919c48830df663475bf0aacda368bf79a132",
+    "private/runtime/src/native_layout.rs": "2932073683b84c9fd69e5744cc09544a3ce94984a9bc24f03d324c0d3f167c95",
+    "private/runtime/src/primitives.rs": "0c5fd38c4c26a5c59a1d52f95af95d7663dfab2d27dc124668135d5e386abd60",
+    "private/runtime/src/scene.rs": "50d8808ef48a26acde5bcd7512b12ebadc69462b91cc7e96a8ccb3e6c77961c4",
+    "private/runtime/src/shutdown.rs": "5235ad891a026947b05729351e7c67c9d62feba5f5fe9f97c316b94e9520a43b",
+    "private/runtime/tests/ingestion.rs": "500eec5f93a40d4bd1b82920b1fab6ccd868fa7944e9b7bad4d2f824b54abf8c",
+    "public/tools/rust-bundle/Cargo.toml": "8dc0bf85650d69908093bbeaf0a6d37455e55a283ddd28a4bb6172e4645a14ac",
+    "public/tools/rust-bundle/src/lib.rs": "0f6207ae2093be151e951314f40a7c22c72d58f37520177e152a1cc3beccd9e2",
+    "public/tools/rust-bundle/src/main.rs": "5ef69ae356b5e35812bee18e264ecdc2e773a3aee3d43b73354ff3bee5664855",
+    "public/tools/rust-bundle/tests/fixtures/nested/Cargo.toml": "3ac7242681dff094ebd266dca4a200a06fa7d048d08a0dec8fcc6e8c2756173f",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/Cargo.toml": "16ab1bf8b22edc250395656567cd3508d3a4d70183f1b937d41495093b71c2b7",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/helpers.rs": "c24f62a0d2a14bd3dba61d3f3f8e2be5c58535d10bdb368d0f5b32c7e669a826",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/lib.rs": "3f9250d7ea14f19eb80b95567257db81758e48aecf3981b77674ce93153e768d",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/Cargo.toml": "98ecedfccf534c46b93c4c63fe97061b51bbc63c69bec30b9e14d5c491c1dc10",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/lib.rs": "4b6bf49dfecc1bd0917597d80f64a4d1e713af7ba19fc4e2ee53faa50584f43e",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/value.rs": "13b24a36be7cbbef8317059ca322623c20db7372930e475ebb46144f894be75f",
+    "public/tools/rust-bundle/tests/producer.rs": "dee02ebcf7afc265fc468a175552c2689a5c569c412abf83a3f007a283f1724f",
+    "public/tools/rust-bundle/tests/syntax_identity.rs": "e5b1c45773d35eeaefecb88d70abae8f4b91d5f746e355622dd7bf0266ab5da5",
+    "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+    "public/types/rust/examples/bundle_bench.rs": "da6de010d5baabd2c3edb7e003324e0aae3c4d8b9eeee336bedca7676e3960c2",
+    "public/types/rust/examples/index_profile.rs": "ad9cc35db0c409123a117a057d59c05f779181fa1f6f702cfffd3619e482a3a1",
+    "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+    "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+    "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+    "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+    "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+    "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+    "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+    "public/types/rust/src/provider/storage.rs": "057157a5846b614215a8c07b1d85fe372be217ff1faa48485c3d3c2d53e4c288",
+    "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+    "public/types/rust/tests/architecture.rs": "fa9a1b1ec174d6cca0edda9541dcdf7903ee5cdf69e62f6da866d04acdb83eef",
+    "public/types/rust/tests/provider.rs": "2e4ebc0bf863afa622c95616219133e5e9e8b82e5d8e633e0dc2f651a75fa155",
+    "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+  },
+  "binary_sha256": {
+    "target/debug/examples/composed_pin_smoke": "dc98e9916c17276864a6d7d2c85b4073e56350a8070ad87c03cc0f0cd45bb4c2",
+    "target/debug/examples/production_smoke": "22e3155c36a300c3bbd1139373f93f9d070f2423bd642feb9b14d519290996e1",
+    "target/debug/visualyze": "c71697bab5b6e4ecf059a923f5619354a94f3484eea8ab63e845ab581f4d5897"
+  },
+  "native_pins": {
+    "command": "/usr/bin/time -l ./target/debug/examples/composed_pin_smoke public/examples/data-messaging.bundle.jsonl visualyze-local/production/native-upward-pins-final-2026-10-02",
+    "exit_code": 0,
+    "report": {
+      "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/pin-report.json",
+      "sha256": "0e962e9824fd5dcbe5ffb6d6ab283bead60c89a379ba99fd715caa64f7824e4c"
+    },
+    "log": {
+      "path": "/private/tmp/visualyze-upward-pin-final-native-pins.log",
+      "sha256": "1cd6bbaf84999e2a0cdb39ab1f81a90703d2c050623258c4f42117ffdd698d40"
+    },
+    "peak_rss_bytes": 255262720,
+    "peak_memory_footprint_bytes": 553501824,
+    "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+    "completed_actions": 22,
+    "save_attempts": 23,
+    "save_failures": 0,
+    "save_max_ms": 10.113541,
+    "actions": [
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 2,
+        "objects": 9,
+        "owned_contexts": 0,
+        "pin_position": null,
+        "routes": 7,
+        "screenshot": false,
+        "step": 0
+      },
+      {
+        "action": "Expand(\"table:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 1
+      },
+      {
+        "action": "Pin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 2
+      },
+      {
+        "action": "Collapse(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 1,
+        "objects": 7,
+        "owned_contexts": 1,
+        "pin_position": null,
+        "routes": 6,
+        "screenshot": true,
+        "step": 3
+      },
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 4
+      },
+      {
+        "action": "Expand(\"table:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 5
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 6
+      },
+      {
+        "action": "Undo",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 7
+      },
+      {
+        "action": "Enter(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          4.470348358154297e-08,
+          -1.1999999284744263,
+          1.6000001430511475
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 8
+      },
+      {
+        "action": "Enter(\"table:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "table:orders",
+        "frames": 1,
+        "objects": 5,
+        "owned_contexts": 1,
+        "pin_position": [
+          -1.7999999523162842,
+          -1.1999999284744263,
+          -1.5999999046325684
+        ],
+        "routes": 3,
+        "screenshot": true,
+        "step": 9
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          4.470348358154297e-08,
+          -1.1999999284744263,
+          1.6000001430511475
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 10
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 11
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 12
+      },
+      {
+        "action": "Enter(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 0,
+        "pin_position": [
+          4.470348358154297e-08,
+          -1.1999999284744263,
+          1.6000001430511475
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 13
+      },
+      {
+        "action": "Pin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          4.470348358154297e-08,
+          -1.1999999284744263,
+          1.6000001430511475
+        ],
+        "routes": 3,
+        "screenshot": true,
+        "step": 14
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 15
+      },
+      {
+        "action": "Collapse(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 1,
+        "objects": 7,
+        "owned_contexts": 1,
+        "pin_position": null,
+        "routes": 6,
+        "screenshot": false,
+        "step": 16
+      },
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 17
+      },
+      {
+        "action": "OpenPinOrigin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          4.470348358154297e-08,
+          -1.1999999284744263,
+          1.6000001430511475
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 18
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 0,
+        "pin_position": [
+          4.470348358154297e-08,
+          -1.1999999284744263,
+          1.6000001430511475
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 19
+      },
+      {
+        "action": "Undo",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          4.470348358154297e-08,
+          -1.1999999284744263,
+          1.6000001430511475
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 20
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          9.313225746154785e-08,
+          -2.4000000953674316,
+          0.40000009536743164
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 21
+      }
+    ],
+    "images": [
+      {
+        "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/step-11.png",
+        "sha256": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939"
+      },
+      {
+        "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/step-14.png",
+        "sha256": "f1c1b8cebd82ea4df286b9e97e345849c0086101d2e5a41d76dfd326b1fc7d41"
+      },
+      {
+        "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/step-17.png",
+        "sha256": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939"
+      },
+      {
+        "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/step-2.png",
+        "sha256": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939"
+      },
+      {
+        "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/step-21.png",
+        "sha256": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939"
+      },
+      {
+        "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/step-3.png",
+        "sha256": "e42d9335a236e08071635d5b4f679d7efa4f0d6723f8326381435dbd71a19150"
+      },
+      {
+        "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/step-7.png",
+        "sha256": "a7f701ec72cc09dfe2326f977f97e9904f3b2875a0301b6b7debe0a132cb5939"
+      },
+      {
+        "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/step-9.png",
+        "sha256": "b7b05a40bf3650322c60befe9e90ed29d9d18a50b7b6d9f763615fad6a5e7d0a"
+      }
+    ],
+    "saved_states": [
+      {
+        "path": "visualyze-local/production/native-upward-pins-final-2026-10-02/state/a276425ff5e928bb.json",
+        "sha256": "1c55f6dab239333fe0b8c5c71d0dd88e99ff8cc79304b134ed94af892a1c1d81"
+      }
+    ],
+    "inspected_images": [
+      "step-14.png",
+      "step-21.png"
+    ],
+    "inspection": "Pinned customer-ID column visible in the database interior and on parent return. Exact local pin and parent rendered position are asserted by the proof. Interiors remain small and some labels/objects occlude one another; this is not a comprehension pass.",
+    "scope": "Actual native composed display and isolated v4 persistence. Exact rendered pinned position checked across collapse/reopen/unpin/undo and parent return; exact canonical point and truncated anchors checked through database/table descent. Child-origin pins preserve their original anchors when displayed in parents, including collapse/reopen, open-origin navigation and undo. Inheritance never copies owned registry entries. Restart and eviction have separate worker/core regressions; this process does not simulate hardware input or establish latency percentiles."
+  },
+  "native_production": {
+    "command": "/usr/bin/time -l ./target/debug/examples/production_smoke visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl visualyze-local/production/native-upward-production-final-2026-10-02 --persist --composed --trace-frames --repeat-navigation --no-captures",
+    "exit_code": 0,
+    "report": {
+      "path": "visualyze-local/production/native-upward-production-final-2026-10-02/native-report.json",
+      "sha256": "2543eb2d5a73ae63f1c103d8e242f30d15dcf845b9ad5feb00fc711258fb6da0"
+    },
+    "log": {
+      "path": "/private/tmp/visualyze-upward-pin-final-native-production.log",
+      "sha256": "7d30c152924a91d436fc2fd158816245159cb753361fafb71db849b5e76b4b70"
+    },
+    "peak_rss_bytes": 420184064,
+    "peak_memory_footprint_bytes": 690717992,
+    "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+    "model_id": "model:788c0940ff544915",
+    "source_counts": {
+      "entities": 27117,
+      "evidence": 31319,
+      "relations": 44019
+    },
+    "source_bundle": {
+      "path": "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "sha256": "8f4d8a5f197f5381563e7c19aa81cc962f67984ff08ad621de1c189632d7286c"
+    },
+    "source_revision": "Bevy 0.18.1, f667c282dad2c1419afb5836ded22a3ec263970e",
+    "completed_actions": 38,
+    "initial_acceptance_ms": 706.820041,
+    "persistence": {
+      "attempts": 33,
+      "enabled": true,
+      "failures": 0,
+      "isolated_directory": "/var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-persistence-smoke-7544-1790985273680610000",
+      "last_64_attempts_ms": [
+        9.262709,
+        13.190125,
+        10.438708,
+        16.018125,
+        12.644625,
+        9.782041999999999,
+        7.491917,
+        8.78575,
+        8.152334000000002,
+        8.481582999999999,
+        8.406459,
+        6.518417,
+        7.6515,
+        9.447833,
+        8.681042,
+        11.973374999999999,
+        21.728708,
+        18.356875000000002,
+        11.564166,
+        9.204375,
+        8.407792,
+        9.179834,
+        8.253125,
+        11.309291,
+        10.618834000000001,
+        9.88775,
+        13.206667,
+        12.722166999999999,
+        10.049792,
+        13.372708000000001,
+        12.551834,
+        8.319583,
+        12.632834
+      ],
+      "max_ms": 21.728708,
+      "scope": "Synchronous main-thread state preparation and atomic save, including existing-state validation, serialization, file/directory fsync. Acceptance and frame intervals include this cost when enabled. The fresh temp directory is retained for inspection; no user state is read or written.",
+      "total_ms": 358.292879
+    },
+    "saved_states": [
+      {
+        "path": "/var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-persistence-smoke-7544-1790985273680610000/6844b20809e462ac.json",
+        "sha256": "4cd2033785c9dafd42eeeefb1b24be16aede380213a46c6d8dee13a6cf79c423"
+      }
+    ],
+    "selected_steps": [
+      {
+        "acceptance_ms": 237.080792,
+        "accepted_objects": 63,
+        "accepted_routes": 191,
+        "action_started_ms": 4090.5742079999995,
+        "cached": false,
+        "child_page": 0,
+        "composition_frames": 3,
+        "elapsed_ms_including_3_settle_frames": 276.628125,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 392.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 13.453542,
+            "action_id": 22,
+            "cache_outcome": "miss",
+            "indexing_ms": 0.0,
+            "job_id": 17,
+            "observed_at_ms": 4241.142958,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 4.178751000000034,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 43.4195,
+            "publication_wait_ms": 8.800708,
+            "queued_at_ms": 4090.6216659999995,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 3,
+            "routing_batches_reused": 0,
+            "save_ms": 21.728708,
+            "scene_build_ms": 2.156,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 94.054833,
+            "source_lock_wait_ms": 0.00075,
+            "total_ms": 187.864792,
+            "worker_finished_at_ms": 4232.342250000001,
+            "worker_queue_ms": 0.06674999999999999,
+            "worker_total_ms": 141.65383400000002
+          }
+        ],
+        "maximum_scale_shift": 6,
+        "objects": 63,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 191,
+        "save_attempts": 17,
+        "save_total_ms": 178.655252,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repository-ecs-expanded",
+        "step_index": 21,
+        "total_children": 81
+      },
+      {
+        "acceptance_ms": 109.077125,
+        "accepted_objects": 28,
+        "accepted_routes": 106,
+        "action_started_ms": 4371.338541,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 126.294875,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 361.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 12.921459,
+            "action_id": 23,
+            "cache_outcome": "canonical_reuse",
+            "indexing_ms": 0.0,
+            "job_id": 18,
+            "observed_at_ms": 4425.124916,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 3.210999000000008,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 41.181292,
+            "publication_wait_ms": 1.852166,
+            "queued_at_ms": 4371.401125,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 1,
+            "save_ms": 18.356875000000002,
+            "scene_build_ms": 0.7936249999999999,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 7.3925,
+            "source_lock_wait_ms": 0.000626,
+            "total_ms": 85.800916,
+            "worker_finished_at_ms": 4423.27275,
+            "worker_queue_ms": 0.08620799999999999,
+            "worker_total_ms": 51.785417
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 28,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 106,
+        "save_attempts": 18,
+        "save_total_ms": 197.012127,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repository-ecs-collapsed",
+        "step_index": 22,
+        "total_children": 81
+      }
+    ],
+    "final_six_acceptance_ms": [
+      42.051041999999995,
+      37.11725,
+      50.00825,
+      41.487666,
+      33.915292,
+      49.802875
+    ],
+    "worker_update_intervals_ms": {
+      "max": 86.55233299999999,
+      "median": 16.696208000000002,
+      "p95": 31.657040999999996,
+      "p99": 55.333583,
+      "samples": 187
+    },
+    "all_update_intervals_ms": {
+      "max": 86.55233299999999,
+      "median": 16.589541999999998,
+      "p95": 23.491625,
+      "p99": 44.106125000000006,
+      "samples": 306
+    },
+    "longest_main_spans": [
+      {
+        "capture_pending": false,
+        "duration_ms": 87.994583,
+        "focused": true,
+        "frame": 2,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 355.58374999999995
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 70.458542,
+        "focused": true,
+        "frame": 19,
+        "last_action_id": 1,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 708.508791
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 51.821167,
+        "focused": true,
+        "frame": 229,
+        "last_action_id": 22,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "Update",
+        "start_ms": 4241.089290999999
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 42.906458,
+        "focused": true,
+        "frame": 237,
+        "last_action_id": 23,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "Update",
+        "start_ms": 4425.053958
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 31.570500000000003,
+        "focused": true,
+        "frame": 3,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 449.69237499999997
+      }
+    ],
+    "surface_summary": {
+      "count": 323,
+      "dropped_spans": 0,
+      "max_ms": 16.356375
+    },
+    "measurement_scope": "Real native renderer. Original source records validated before app startup; OS bundle cache is warm. Acceptance is the first update observing the action ticket complete and loading false, before the three render-settlement frames. It includes action dispatch and worker publication, not screenshot work. Frame intervals are CPU update intervals, not GPU presentation latency. The bounded layout_job_timings records actual hit/miss/saved_exact/saved_repair decisions and matching action/revision IDs. Empty per-action layout_jobs means the action did not submit a layout job. Worker indexing, source lock wait, projection, restoration, solve and preparation residual are nonoverlapping; worker_total includes those stages. Publication wait, CPU acceptance, scene construction and save follow worker completion. These are CPU measurements and exclude deferred command application/GPU presentation. The cached step field is only an expectation; actual cache decisions are in layout_jobs. Cached geometry is compared exactly; all scenes are bounded to 250 representations."
+  },
+  "limitations": [
+    "Pins fix region-relative coordinates and captured internal anchor links, not all object dimensions or routing. Hosting above the source region stays free.",
+    "Inheritance through visual groups/references and arbitrary frame-topology changes remain unsupported.",
+    "Physical OS keyboard/mouse delivery, input-to-GPU presentation latency and comprehension remain unverified by scripted ViewerActions.",
+    "Single warm-cache final native runs are regression evidence, not percentile performance or causal before/after comparison. User previews remained open.",
+    "Native pin proof covers live navigation/undo; restart and eviction are separately covered by worker/core regressions.",
+    "Production source inventory is not full runtime architecture extraction.",
+    "Cached repository collapse remains above the 100 ms target; no renderer-stall fix is claimed."
+  ]
+}

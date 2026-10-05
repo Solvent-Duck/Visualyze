@@ -1,0 +1,3106 @@
+{
+  "recorded_utc": "2026-10-03T00:58:15.664816+00:00",
+  "scope": "Bounded cross-frame placement alignment from complete routed boundary fragments. Every accepted trial keeps domain dimensions, box dimensions, vertical bands and dyadic scales unchanged; complete routes are rebuilt and validated before acceptance. Existing/reused frames remain fixed during navigation and repair.",
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-cross-frame-workspace-tests.log",
+      "sha256": "997b72fa4ff70764bf5af50647482841439aa33c90a0577d134827b9c02f577a",
+      "totals": {
+        "passed": 437,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "visualyze-layout",
+        "--test",
+        "provider_code",
+        "production_navigation_preserves_group_membership_after_other_regions_fill_retention",
+        "--offline",
+        "--locked",
+        "--",
+        "--ignored"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-cross-frame-retention-tests.log",
+      "sha256": "f5991884aa5dc499011bcb54cd5f9ecea807b8dc76a974f057647dc3b70aab4a",
+      "totals": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "visualyze",
+        "--example",
+        "production_smoke",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-cross-frame-helper-tests.log",
+      "sha256": "77c1530e6e562e05edc04e519694c8bf2ae4161c320a9fe6aee8e9ae27744ca2",
+      "totals": {
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--offline",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-cross-frame-clippy.log",
+      "sha256": "4ad5f186264406dad7f3ff6cfd9a70dba26c0d89175ecc2230461a6455cb495b"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "visualyze",
+        "--bin",
+        "visualyze",
+        "--example",
+        "production_smoke",
+        "--example",
+        "composed_pin_smoke",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-cross-frame-native-build.log",
+      "sha256": "1dba2eefb3de6b7ef8345932727b4a22794fe2d0c2163e4d8de69868e99ce537"
+    },
+    {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "visualyze-layout",
+        "--example",
+        "composed_layout",
+        "--offline",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-cross-frame-probe-build.log",
+      "sha256": "122407ec5fb60350374ea3b8b2662907f52288dd3f9f992f07fef641d156b94d"
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "/private/tmp/visualyze-cross-frame-fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "review": {
+    "against": "docs/measurements/upward-pins-validation-2026-10-02.json",
+    "changed_source_files": [
+      "private/layout/examples/composed_layout.rs",
+      "private/layout/src/composed.rs",
+      "private/layout/src/composed/cache.rs",
+      "private/layout/src/composed/feedback.rs",
+      "private/layout/src/composed/persistence.rs",
+      "private/layout/src/composed/solver.rs",
+      "private/layout/src/composed/validation.rs",
+      "private/layout/tests/composed.rs",
+      "private/layout/tests/composed_feedback.rs",
+      "private/layout/tests/composed_persistence.rs",
+      "private/layout/tests/composed_reorganization.rs",
+      "private/layout/tests/composed_validation.rs",
+      "private/layout/tests/durable_pins.rs",
+      "private/runtime/examples/composed_pin_smoke.rs"
+    ],
+    "findings": "Root reviewed integration, persistence/accounting, tests and final source changes. Independent read-only agent review found no actionable correctness defect in shared work accounting, pin/anchor host protection, prior-frame stability, exact routing reuse, cancellation and transactional cache publication.",
+    "state_version": 5,
+    "migration": "Missing feedback work counters default to zero. Versions 1/2 retain local-only pin interpretation; version 3 uses downward-only inheritance; versions 4/5 use bidirectional region-relative constraints. Older geometry is validated/repaired before writing v5. Public contract, dependencies, quality and composition versions unchanged; private placement cache key includes boundary refinement revision."
+  },
+  "pre_native_freeze": {
+    "record": {
+      "path": "/private/tmp/visualyze-cross-frame-before-native.json",
+      "sha256": "5a02e0458850475202b661917f20a5361cb14aa5b64a35e379f6e75744e28f62"
+    },
+    "captured_utc": "2026-10-03T00:56:19.730211+00:00",
+    "all_110_current_hashes_match": true
+  },
+  "source_sha256": {
+    "Cargo.lock": "ebde2964840a8ab18c73dcd04fff4eaa885bea827d5dd04b2194b62a950ea638",
+    "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+    "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+    "private/layout/examples/bundle_layout.rs": "74b3e8a7144c9bdcb4847361bceb7971b7b97fd01d2662f19606bb37083bb647",
+    "private/layout/examples/compare.rs": "4b692fe2161f06bac109ad8e71dff80428721c20c2c33bdbae2e5592b48cd67c",
+    "private/layout/examples/composed_layout.rs": "15b8200531d4871aad86fa2d07bd6e43042b4866c4e26e5ef03a5b514c4a1dae",
+    "private/layout/examples/evaluate_cases.rs": "267e33a23f4843ba178c726286eb0c95f571fbd290370f7e3d99e1454ed8bebe",
+    "private/layout/examples/generate_ai_fixture.rs": "caa6d269d3f525e9bc67ad6271469d5327ecb6dbf5a76eac6961c307903425fc",
+    "private/layout/examples/production_audit.rs": "fd6a0ca965da73c57e71eca902d13f1fee3c5bbd755e59769d6bae8cec50b84a",
+    "private/layout/examples/production_pages.rs": "8c5506dbe000f1a302d1367a995b13c755cf4c7f49b32bdc441b4b67c922af51",
+    "private/layout/examples/projection_bench.rs": "829481a1af42f099a25b065c6abfe43bfcc2dedee42c3ced95b30d90b7c11ce0",
+    "private/layout/examples/scale_view_bench.rs": "89cc3231b2801b3d253d77d91f630b08dd8b2901496b963a43f16bbb2b299b72",
+    "private/layout/src/assembly.rs": "ae8d6bde981dc7e14314679d961ea793cf1af1514d2bd2b9ddfaf78a03ae9ff5",
+    "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+    "private/layout/src/composed.rs": "9e342a0d694b4bdd4f18cf4ecc9e8edef424122e9dda4346c8b7055c8dd91441",
+    "private/layout/src/composed/cache.rs": "387f9b3055abf52e1e1372740337c8bff82ba19516aec9d184cfd58af3564509",
+    "private/layout/src/composed/constraints.rs": "4675fce6d16e554260f5168455fa7d80fab4f4da7f3b27e49561f27d4b5c2f62",
+    "private/layout/src/composed/feedback.rs": "84a45bd9c049fb70da8f910ab5deaf0fa607296972805b84b91411d3391803b4",
+    "private/layout/src/composed/persistence.rs": "f6da86db38b1de948a7d1d5b24a663dd873f775f0023c89ac3ccf36c0dd01184",
+    "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+    "private/layout/src/composed/solver.rs": "268943019f2de985a153774d1c0884e254316357caf31ce73e8cf92329920ec8",
+    "private/layout/src/composed/validation.rs": "74284c9bd560580b3aa8281d4fef862adcb17af98d58461b2841ffca755ea71b",
+    "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+    "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+    "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+    "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+    "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+    "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+    "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+    "private/layout/src/routing.rs": "2ef8e1d8684c45ca494ced38383d0f722296746911ca7c7759fecf51353b6165",
+    "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+    "private/layout/src/solver.rs": "62f0551bbc39079c5d40bfdf4eede12fb27f3d263b09d27b3fc378dd841ce7f6",
+    "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+    "private/layout/tests/assembly.rs": "6e5211d4cded44837ff9eb217c07ce6d3e141a5e7c88cfc8a1018bc6b7797f06",
+    "private/layout/tests/assembly_plan.rs": "b80dd91b42419b6c877f1d3e5e96a82fcf096f681e439692446c4779d12be76d",
+    "private/layout/tests/canonical_route_join.rs": "6372c32fb9edaee72f62fd44b5c55cd106abc009b9575dad530526d9fea1431d",
+    "private/layout/tests/composed.rs": "f101163d7b59551b37879be5307ed9b4d7410c74b557d00d5b08e0ee303273b7",
+    "private/layout/tests/composed_cache.rs": "ef54a55d80fa1e1f38d2520785791bb77782da2d4d4f9f1c73026f9e9159789f",
+    "private/layout/tests/composed_feedback.rs": "f1a19726776b2bd206962f542f22d7c9861d6005151fda188170a46703338ea2",
+    "private/layout/tests/composed_persistence.rs": "1c1d062e7c04196d153af0380066ddd24866feceb9ef3a9a091d5371a242a27e",
+    "private/layout/tests/composed_reorganization.rs": "aff26b135ad2add94f3b4c5022302a2e8203309266470bf2385d131e41c145d5",
+    "private/layout/tests/composed_validation.rs": "bf96f0a3ca5cc9d76e718ca782caa6d075b043f86f57b404bf90a4c59d731c0a",
+    "private/layout/tests/distributed_system.rs": "0b94df9959245ead7e06cf5dd9df169ddb86cc1e82056610a916f643e1c6d930",
+    "private/layout/tests/durable_pins.rs": "a025f6ce550146612c006bdd28430e5ccfb18700ed9c818bf07e34ca26583114",
+    "private/layout/tests/inherited_constraints.rs": "5143d7ec21a33a66501b63877b23e513b7bdc867243a194b68834e3f68cc91a4",
+    "private/layout/tests/neighborhood_continuity.rs": "ac69f6b4531da8cd32db92316620413b134cad6f912816f583c5f55f3b24b39c",
+    "private/layout/tests/placement.rs": "0daa906851a3f472d8ff6252136661648bbe7a850c3842dc578995f47acc5af7",
+    "private/layout/tests/projection_integration.rs": "b7d2508c1d6e6a2a0cc2db2164e2b76a05df6a457db8ff4a4d47058e7ee000cb",
+    "private/layout/tests/provider_code.rs": "83da89bd79a5553290668bb756c37364aca60c08e49d58fa7b6ee674b99c91e4",
+    "private/layout/tests/route_metrics.rs": "0e0d78263c48a0434878f1f61707522afffbc392dbd3dc2839c484c8de8579b7",
+    "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9",
+    "private/layout/tests/volumetric_constraints.rs": "c5b8e429885c55ddf01ae761fa89e63460946b30a12026524db901b2e4a64d84",
+    "private/layout/tests/volumetric_packing.rs": "260ac29dae4bfd7624b4143d564a82c83ae0672715a1067b695c211c85dab0fe",
+    "private/runtime/Cargo.toml": "449706c320e581bf5b08fb512574924dcf60b038f5dce0e1aba93ccec610d2a0",
+    "private/runtime/examples/composed_pin_smoke.rs": "9194a4656c4641b5d6917e49673332f356c3523d8b610bfb5c8e9ad2a12b3395",
+    "private/runtime/examples/connected_smoke.rs": "435e0cdbdc399eda7ddd74f85e7b346e5477a050abb48f85b95db50e2d2796a9",
+    "private/runtime/examples/large_model_smoke.rs": "283b0591189c8ef7a6d8dfa5007a2c8225de9ce27b803d69508e9c5e2d10a693",
+    "private/runtime/examples/layout_smoke.rs": "57edb790c26d3e37b7e006c43b49fa2c21dd468ef05e89dfaa17895bf3580a51",
+    "private/runtime/examples/legacy_control.rs": "17079a763cb9df57ba81449383776bd076593ac56c9b817634570cd8f30963d1",
+    "private/runtime/examples/production_smoke.rs": "c3826b728d20881ae125e61510749f10a4235547dbc6a9362a3fc11c53c54b88",
+    "private/runtime/examples/render_smoke.rs": "d27ea96935165fa4dd5523c5874f0008321f593395ba1e2077ee96fbb3594639",
+    "private/runtime/examples/support/control_geometry.rs": "2b5d5c96b1de4d9322c973628d2f0e0fb57fa10d4ce25ed1ea94c34777fe801b",
+    "private/runtime/examples/support/frame_trace.rs": "378da23da4ba8e5292232c701c09f5424264655cee4da9801ac1cdc650befdc5",
+    "private/runtime/examples/support/scripted_input.rs": "bed1e6590af46280b7d5daf46b7d575a83085cfd3940a1119c378609d27f97e8",
+    "private/runtime/src/camera.rs": "537cfa97360bea729efd9c50a55ae09753fc54063c362d15746b709f907276bc",
+    "private/runtime/src/composed_state_tests.rs": "0a7c8601ead7e379b4e242e0f317ad987f4ec8f6851ecd74cc916f87e2691076",
+    "private/runtime/src/composition.rs": "eb4eaf1acb171812c6a90f707990d758d920e1902269802fcb1db2cccb73f2d6",
+    "private/runtime/src/connections.rs": "e70e6e2c4f2fce2fd7e38554e77d2ce5b9d9bf8c3a120a0861e07de6804e684c",
+    "private/runtime/src/input.rs": "a8fb5358a1056b405284f1a811e571ebc3e25f839cf577374f1c1a72cfb51b3e",
+    "private/runtime/src/layout_geometry.rs": "a2cbd36db2bdb852f99e270f729482d6fc87af383c4705ae51177c6e082681ef",
+    "private/runtime/src/layout_input.rs": "d3f14e5fa6e8a8b8c8146a7da2041ed62599246c6c609dba2ce110759fa2d1c6",
+    "private/runtime/src/layout_scene.rs": "45347477e78dbdebcb3d37a42223babc0a658a9d67e3a876501b092e3c963252",
+    "private/runtime/src/lib.rs": "5260244b697fc8126c2652ec63017fa37bf073fdde01e7d5f4b9133f794604d8",
+    "private/runtime/src/main.rs": "20a807dc215ab235929cbf664407919c48830df663475bf0aacda368bf79a132",
+    "private/runtime/src/native_layout.rs": "2932073683b84c9fd69e5744cc09544a3ce94984a9bc24f03d324c0d3f167c95",
+    "private/runtime/src/primitives.rs": "0c5fd38c4c26a5c59a1d52f95af95d7663dfab2d27dc124668135d5e386abd60",
+    "private/runtime/src/scene.rs": "50d8808ef48a26acde5bcd7512b12ebadc69462b91cc7e96a8ccb3e6c77961c4",
+    "private/runtime/src/shutdown.rs": "5235ad891a026947b05729351e7c67c9d62feba5f5fe9f97c316b94e9520a43b",
+    "private/runtime/tests/ingestion.rs": "500eec5f93a40d4bd1b82920b1fab6ccd868fa7944e9b7bad4d2f824b54abf8c",
+    "public/tools/rust-bundle/Cargo.toml": "8dc0bf85650d69908093bbeaf0a6d37455e55a283ddd28a4bb6172e4645a14ac",
+    "public/tools/rust-bundle/src/lib.rs": "0f6207ae2093be151e951314f40a7c22c72d58f37520177e152a1cc3beccd9e2",
+    "public/tools/rust-bundle/src/main.rs": "5ef69ae356b5e35812bee18e264ecdc2e773a3aee3d43b73354ff3bee5664855",
+    "public/tools/rust-bundle/tests/fixtures/nested/Cargo.toml": "3ac7242681dff094ebd266dca4a200a06fa7d048d08a0dec8fcc6e8c2756173f",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/Cargo.toml": "16ab1bf8b22edc250395656567cd3508d3a4d70183f1b937d41495093b71c2b7",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/helpers.rs": "c24f62a0d2a14bd3dba61d3f3f8e2be5c58535d10bdb368d0f5b32c7e669a826",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/app/src/lib.rs": "3f9250d7ea14f19eb80b95567257db81758e48aecf3981b77674ce93153e768d",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/Cargo.toml": "98ecedfccf534c46b93c4c63fe97061b51bbc63c69bec30b9e14d5c491c1dc10",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/lib.rs": "4b6bf49dfecc1bd0917597d80f64a4d1e713af7ba19fc4e2ee53faa50584f43e",
+    "public/tools/rust-bundle/tests/fixtures/nested/crates/core/src/value.rs": "13b24a36be7cbbef8317059ca322623c20db7372930e475ebb46144f894be75f",
+    "public/tools/rust-bundle/tests/producer.rs": "dee02ebcf7afc265fc468a175552c2689a5c569c412abf83a3f007a283f1724f",
+    "public/tools/rust-bundle/tests/syntax_identity.rs": "e5b1c45773d35eeaefecb88d70abae8f4b91d5f746e355622dd7bf0266ab5da5",
+    "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+    "public/types/rust/examples/bundle_bench.rs": "da6de010d5baabd2c3edb7e003324e0aae3c4d8b9eeee336bedca7676e3960c2",
+    "public/types/rust/examples/index_profile.rs": "ad9cc35db0c409123a117a057d59c05f779181fa1f6f702cfffd3619e482a3a1",
+    "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+    "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+    "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+    "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+    "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+    "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+    "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+    "public/types/rust/src/provider/storage.rs": "057157a5846b614215a8c07b1d85fe372be217ff1faa48485c3d3c2d53e4c288",
+    "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+    "public/types/rust/tests/architecture.rs": "fa9a1b1ec174d6cca0edda9541dcdf7903ee5cdf69e62f6da866d04acdb83eef",
+    "public/types/rust/tests/provider.rs": "2e4ebc0bf863afa622c95616219133e5e9e8b82e5d8e633e0dc2f651a75fa155",
+    "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+  },
+  "binary_sha256": {
+    "target/debug/examples/composed_layout": "db6e1a3ea5f43935b7b8dbe4b9e104fba8a48ff49ca0326662cf125e9d6f3b86",
+    "target/debug/examples/composed_pin_smoke": "79e192f825423c0c9a4c9ee09acb63d17251e43020e2080c91f31e634efb2244",
+    "target/debug/examples/production_smoke": "05da5c0edfa792096f2b27a7f800b0c9632ee93f5fc2f299cf7e6e075d1b8161",
+    "target/debug/visualyze": "b922db8afccfbdc7390a1b77aa7345f66b296eac41d0ef93b3a29caf43f5fe19"
+  },
+  "controlled_fixture": {
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "visualyze-layout",
+      "--test",
+      "composed_feedback",
+      "--offline",
+      "--locked",
+      "--",
+      "--nocapture"
+    ],
+    "log": {
+      "path": "/private/tmp/visualyze-cross-frame-feedback-final-tests.log",
+      "sha256": "d6e44b84cb0f97941631fc481a676091f131425d8381fe483ef17f8c649133ec"
+    },
+    "passed": 4,
+    "route_length_before": 569,
+    "route_length_after": 256,
+    "bends_before": 2,
+    "bends_after": 0,
+    "feedback_evaluations": 2,
+    "feedback_improvements": 2,
+    "scope": "Deterministic two-frame fixture with fixed distant pin; unchanged box sizes, frame domains, bands and scales asserted. Additional three-frame test checks moved proxy, exact unchanged child interior, complete boundary joins and semantic membership. Cache, pins, tiny budget and pre-cancellation checks are separate cases."
+  },
+  "representative_probes": {
+    "runner": {
+      "path": "/private/tmp/visualyze-cross-frame-probes.py",
+      "sha256": "c8ebe35e1ee60f33425172065d100ccfe5932e33b58e806e66575fc9cfa63a22"
+    },
+    "raw_record": {
+      "path": "/private/tmp/visualyze-cross-frame-probes.json",
+      "sha256": "645b3778aaf4871083f01b196090ec6be084cb718fa63dee34471dc6d4eb8192"
+    },
+    "source_bundles": [
+      {
+        "path": "public/examples/data-messaging.bundle.jsonl",
+        "sha256": "bd26874d92789cc0f2f00a2042a8dbd8bbc57e3911de80d0edb2170fe986244c"
+      },
+      {
+        "path": "private/layout/fixtures/distributed-ai.bundle.jsonl",
+        "sha256": "9edbdefb611879a0a0f42b3bcf743625799a2d496b72ef2f40ccede3db9e6ccb"
+      },
+      {
+        "path": "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+        "sha256": "8f4d8a5f197f5381563e7c19aa81cc962f67984ff08ad621de1c189632d7286c"
+      }
+    ],
+    "production_source_revision": "f667c282dad2c1419afb5836ded22a3ec263970e",
+    "control_scope": "Feedback allowance 0 versus 4 affects both flat kernel feedback and the composed pass, and changes shared allocation. These are policy-control development probes, not an isolated causal comparison or calibrated/held-out release evaluation. One sequential pair per case; do not infer latency percentiles. Membership and final geometry independently checked.",
+    "rows": [
+      {
+        "case": "data-messaging",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "public/examples/data-messaging.bundle.jsonl",
+          "-",
+          "crud",
+          "datastore:orders",
+          "table:orders",
+          "--feedback",
+          "0"
+        ],
+        "exit_code": 0,
+        "output": "/private/tmp/visualyze-cross-frame-data-messaging-0.json",
+        "sha256": "df258d742f5a7b38115e67f734867ddfd4b67cb252c36d2555a69d3fea11bba7",
+        "stderr": "/private/tmp/visualyze-cross-frame-data-messaging-0.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "composition_version": 1,
+          "expanded": [
+            "datastore:orders",
+            "table:orders"
+          ],
+          "feedback_candidates": 0,
+          "feedback_control_scope": "Profile feedback allowance applies to flat kernels and composed boundary refinement. Zero disables both; changing this setting also changes shared work allocation. This is not a pure isolated-stage timing comparison.",
+          "focus": "scope:orders",
+          "frames": [
+            "datastore:orders",
+            "scope:orders",
+            "table:orders"
+          ],
+          "model_id": "example:data-messaging",
+          "presented": {
+            "fragments": 10,
+            "objects": 12,
+            "relationships": 8
+          },
+          "probe": "headless canonical composition; no native rendering claim",
+          "projection": {
+            "complete": true,
+            "diagnostics": [
+              "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 1 relationships in this scanned slice are internal to collapsed regions (1 membership IDs resident; enter a region for records)."
+            ],
+            "objects": 12,
+            "relationships": 8,
+            "remaining_queries": 0,
+            "unrepresented_loaded_relationships": []
+          },
+          "quality": {
+            "bends": 9,
+            "canonical_frames": {
+              "datastore:orders": {
+                "aspect_ratio": 2.0,
+                "bends": 4,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.14285714285714285,
+                "route_length": 172,
+                "shared_lane_length": 0,
+                "structural_cost": 16.951038239395796,
+                "volume": 368640.0
+              },
+              "scope:orders": {
+                "aspect_ratio": 1.6470588235294117,
+                "bends": 5,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.3601190476190476,
+                "route_length": 174,
+                "shared_lane_length": 0,
+                "structural_cost": 12.693355829669832,
+                "volume": 578816.0
+              },
+              "table:orders": {
+                "aspect_ratio": 2.0,
+                "bends": 0,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.0,
+                "route_length": 0,
+                "shared_lane_length": 0,
+                "structural_cost": 9.5,
+                "volume": 368640.0
+              }
+            },
+            "canonical_route_length": 346,
+            "maximum_scale_shift": 4,
+            "presented_route_length": 217.0,
+            "structural_cost": 39.144394069065626
+          },
+          "quality_version": 5,
+          "resident": {
+            "cached_detail_bytes": 4403,
+            "cached_detail_records": 1,
+            "estimated_index_bytes": 18674
+          },
+          "revision": 1,
+          "source_counts": {
+            "entities": 16,
+            "relationships": 23
+          },
+          "status": "valid",
+          "timing_ms": {
+            "composition": 9.542083,
+            "indexing": 0.8580420000000001,
+            "projection": 0.895375
+          },
+          "work": {
+            "allocations": {
+              "datastore:orders": 80,
+              "scope:orders": 120,
+              "table:orders": 64
+            },
+            "budget": 192,
+            "evaluations": {
+              "datastore:orders": 40,
+              "scope:orders": 60,
+              "table:orders": 32
+            },
+            "feedback_evaluations": 0,
+            "feedback_improvements": 0,
+            "frame_evaluations": 132,
+            "total_evaluations": 132
+          }
+        }
+      },
+      {
+        "case": "data-messaging",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "public/examples/data-messaging.bundle.jsonl",
+          "-",
+          "crud",
+          "datastore:orders",
+          "table:orders",
+          "--feedback",
+          "4"
+        ],
+        "exit_code": 0,
+        "output": "/private/tmp/visualyze-cross-frame-data-messaging-4.json",
+        "sha256": "21b3bef1f04a6306fd48301e94a1e7a09ef28ef0f3deda5b7968cbfb0ab1cd10",
+        "stderr": "/private/tmp/visualyze-cross-frame-data-messaging-4.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "composition_version": 1,
+          "expanded": [
+            "datastore:orders",
+            "table:orders"
+          ],
+          "feedback_candidates": 4,
+          "feedback_control_scope": "Profile feedback allowance applies to flat kernels and composed boundary refinement. Zero disables both; changing this setting also changes shared work allocation. This is not a pure isolated-stage timing comparison.",
+          "focus": "scope:orders",
+          "frames": [
+            "datastore:orders",
+            "scope:orders",
+            "table:orders"
+          ],
+          "model_id": "example:data-messaging",
+          "presented": {
+            "fragments": 10,
+            "objects": 12,
+            "relationships": 8
+          },
+          "probe": "headless canonical composition; no native rendering claim",
+          "projection": {
+            "complete": true,
+            "diagnostics": [
+              "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 1 relationships in this scanned slice are internal to collapsed regions (1 membership IDs resident; enter a region for records)."
+            ],
+            "objects": 12,
+            "relationships": 8,
+            "remaining_queries": 0,
+            "unrepresented_loaded_relationships": []
+          },
+          "quality": {
+            "bends": 3,
+            "canonical_frames": {
+              "datastore:orders": {
+                "aspect_ratio": 2.0,
+                "bends": 2,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.047619047619047616,
+                "route_length": 170,
+                "shared_lane_length": 0,
+                "structural_cost": 16.07200716815439,
+                "volume": 368640.0
+              },
+              "scope:orders": {
+                "aspect_ratio": 1.4736842105263157,
+                "bends": 1,
+                "congestion": 0.8122900929393124,
+                "crossing_points": 1,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.32142857142857145,
+                "route_length": 154,
+                "shared_lane_length": 24,
+                "structural_cost": 11.669146861915994,
+                "volume": 680960.0
+              },
+              "table:orders": {
+                "aspect_ratio": 2.0,
+                "bends": 0,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.0,
+                "route_length": 0,
+                "shared_lane_length": 0,
+                "structural_cost": 9.5,
+                "volume": 368640.0
+              }
+            },
+            "canonical_route_length": 324,
+            "maximum_scale_shift": 4,
+            "presented_route_length": 196.5,
+            "structural_cost": 37.24115403007038
+          },
+          "quality_version": 5,
+          "resident": {
+            "cached_detail_bytes": 4403,
+            "cached_detail_records": 1,
+            "estimated_index_bytes": 18674
+          },
+          "revision": 1,
+          "source_counts": {
+            "entities": 16,
+            "relationships": 23
+          },
+          "status": "valid",
+          "timing_ms": {
+            "composition": 11.278375,
+            "indexing": 0.217166,
+            "projection": 0.278208
+          },
+          "work": {
+            "allocations": {
+              "datastore:orders": 78,
+              "scope:orders": 118,
+              "table:orders": 62
+            },
+            "budget": 192,
+            "evaluations": {
+              "datastore:orders": 39,
+              "scope:orders": 60,
+              "table:orders": 31
+            },
+            "feedback_evaluations": 4,
+            "feedback_improvements": 1,
+            "frame_evaluations": 130,
+            "total_evaluations": 134
+          }
+        }
+      },
+      {
+        "case": "distributed-data",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "private/layout/fixtures/distributed-ai.bundle.jsonl",
+          "scope:data",
+          "crud",
+          "datastore:conversations",
+          "table:conversation-00000",
+          "--feedback",
+          "0"
+        ],
+        "exit_code": 0,
+        "output": "/private/tmp/visualyze-cross-frame-distributed-data-0.json",
+        "sha256": "d463900e8b3f3d9d5ec0f62ffe2766b209f83e9c1a41a92f19e2431a49c139b0",
+        "stderr": "/private/tmp/visualyze-cross-frame-distributed-data-0.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "composition_version": 1,
+          "expanded": [
+            "datastore:conversations",
+            "table:conversation-00000"
+          ],
+          "feedback_candidates": 0,
+          "feedback_control_scope": "Profile feedback allowance applies to flat kernels and composed boundary refinement. Zero disables both; changing this setting also changes shared work allocation. This is not a pure isolated-stage timing comparison.",
+          "focus": "scope:data",
+          "frames": [
+            "datastore:conversations",
+            "scope:data",
+            "table:conversation-00000",
+            "view:suggested-group:e4f1ba42e59ec030"
+          ],
+          "model_id": "synthetic:ai:3:12:80",
+          "presented": {
+            "fragments": 42,
+            "objects": 43,
+            "relationships": 38
+          },
+          "probe": "headless canonical composition; no native rendering claim",
+          "projection": {
+            "complete": true,
+            "diagnostics": [
+              "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 51 relationships in this scanned slice are internal to collapsed regions (51 membership IDs resident; enter a region for records).",
+              "view:suggested-group:e4f1ba42e59ec030: Opened this visual group to preserve an explicit member expansion; neighboring members keep their own detail level."
+            ],
+            "objects": 43,
+            "relationships": 38,
+            "remaining_queries": 0,
+            "unrepresented_loaded_relationships": []
+          },
+          "quality": {
+            "bends": 71,
+            "canonical_frames": {
+              "datastore:conversations": {
+                "aspect_ratio": 2.0,
+                "bends": 62,
+                "congestion": 1.3987628777960377,
+                "crossing_points": 35,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 2176,
+                "shared_lane_length": 8,
+                "structural_cost": 74.62893230498496,
+                "volume": 23592960.0
+              },
+              "scope:data": {
+                "aspect_ratio": 1.9230769230769231,
+                "bends": 4,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.5619047619047619,
+                "route_length": 156,
+                "shared_lane_length": 0,
+                "structural_cost": 11.548216989721208,
+                "volume": 395200.0
+              },
+              "table:conversation-00000": {
+                "aspect_ratio": 2.0,
+                "bends": 0,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.14285714285714285,
+                "route_length": 0,
+                "shared_lane_length": 0,
+                "structural_cost": 8.135318493587084,
+                "volume": 368640.0
+              },
+              "view:suggested-group:e4f1ba42e59ec030": {
+                "aspect_ratio": 2.0,
+                "bends": 5,
+                "congestion": 0.8773598138935463,
+                "crossing_points": 4,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.1746031746031746,
+                "route_length": 230,
+                "shared_lane_length": 2,
+                "structural_cost": 18.6698349556628,
+                "volume": 368640.0
+              }
+            },
+            "canonical_route_length": 2562,
+            "maximum_scale_shift": 8,
+            "presented_route_length": 295.59375,
+            "structural_cost": 112.98230274395604
+          },
+          "quality_version": 5,
+          "resident": {
+            "cached_detail_bytes": 4445,
+            "cached_detail_records": 1,
+            "estimated_index_bytes": 459048
+          },
+          "revision": 1,
+          "source_counts": {
+            "entities": 346,
+            "relationships": 564
+          },
+          "status": "valid",
+          "timing_ms": {
+            "composition": 76.402292,
+            "indexing": 3.113209,
+            "projection": 2.737667
+          },
+          "work": {
+            "allocations": {
+              "datastore:conversations": 70,
+              "scope:data": 105,
+              "table:conversation-00000": 48,
+              "view:suggested-group:e4f1ba42e59ec030": 56
+            },
+            "budget": 192,
+            "evaluations": {
+              "datastore:conversations": 35,
+              "scope:data": 53,
+              "table:conversation-00000": 24,
+              "view:suggested-group:e4f1ba42e59ec030": 28
+            },
+            "feedback_evaluations": 0,
+            "feedback_improvements": 0,
+            "frame_evaluations": 140,
+            "total_evaluations": 140
+          }
+        }
+      },
+      {
+        "case": "distributed-data",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "private/layout/fixtures/distributed-ai.bundle.jsonl",
+          "scope:data",
+          "crud",
+          "datastore:conversations",
+          "table:conversation-00000",
+          "--feedback",
+          "4"
+        ],
+        "exit_code": 0,
+        "output": "/private/tmp/visualyze-cross-frame-distributed-data-4.json",
+        "sha256": "cfcb6925bceb3f033fbe28d083b31279405a5f5c94207339a2efa51312de0a9f",
+        "stderr": "/private/tmp/visualyze-cross-frame-distributed-data-4.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "composition_version": 1,
+          "expanded": [
+            "datastore:conversations",
+            "table:conversation-00000"
+          ],
+          "feedback_candidates": 4,
+          "feedback_control_scope": "Profile feedback allowance applies to flat kernels and composed boundary refinement. Zero disables both; changing this setting also changes shared work allocation. This is not a pure isolated-stage timing comparison.",
+          "focus": "scope:data",
+          "frames": [
+            "datastore:conversations",
+            "scope:data",
+            "table:conversation-00000",
+            "view:suggested-group:e4f1ba42e59ec030"
+          ],
+          "model_id": "synthetic:ai:3:12:80",
+          "presented": {
+            "fragments": 42,
+            "objects": 43,
+            "relationships": 38
+          },
+          "probe": "headless canonical composition; no native rendering claim",
+          "projection": {
+            "complete": true,
+            "diagnostics": [
+              "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 51 relationships in this scanned slice are internal to collapsed regions (51 membership IDs resident; enter a region for records).",
+              "view:suggested-group:e4f1ba42e59ec030: Opened this visual group to preserve an explicit member expansion; neighboring members keep their own detail level."
+            ],
+            "objects": 43,
+            "relationships": 38,
+            "remaining_queries": 0,
+            "unrepresented_loaded_relationships": []
+          },
+          "quality": {
+            "bends": 69,
+            "canonical_frames": {
+              "datastore:conversations": {
+                "aspect_ratio": 2.0,
+                "bends": 62,
+                "congestion": 1.3987628777960377,
+                "crossing_points": 35,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 2176,
+                "shared_lane_length": 8,
+                "structural_cost": 74.62893230498496,
+                "volume": 23592960.0
+              },
+              "scope:data": {
+                "aspect_ratio": 1.9230769230769231,
+                "bends": 4,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.5619047619047619,
+                "route_length": 156,
+                "shared_lane_length": 0,
+                "structural_cost": 11.548216989721208,
+                "volume": 395200.0
+              },
+              "table:conversation-00000": {
+                "aspect_ratio": 2.0,
+                "bends": 0,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.14285714285714285,
+                "route_length": 0,
+                "shared_lane_length": 0,
+                "structural_cost": 8.135318493587084,
+                "volume": 368640.0
+              },
+              "view:suggested-group:e4f1ba42e59ec030": {
+                "aspect_ratio": 2.0,
+                "bends": 3,
+                "congestion": 0.8320794416806389,
+                "crossing_points": 3,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.12698412698412698,
+                "route_length": 194,
+                "shared_lane_length": 6,
+                "structural_cost": 16.536839838127964,
+                "volume": 368640.0
+              }
+            },
+            "canonical_route_length": 2526,
+            "maximum_scale_shift": 8,
+            "presented_route_length": 295.03125,
+            "structural_cost": 110.84930762642121
+          },
+          "quality_version": 5,
+          "resident": {
+            "cached_detail_bytes": 4445,
+            "cached_detail_records": 1,
+            "estimated_index_bytes": 459048
+          },
+          "revision": 1,
+          "source_counts": {
+            "entities": 346,
+            "relationships": 564
+          },
+          "status": "valid",
+          "timing_ms": {
+            "composition": 111.2475,
+            "indexing": 2.564292,
+            "projection": 2.684666
+          },
+          "work": {
+            "allocations": {
+              "datastore:conversations": 68,
+              "scope:data": 103,
+              "table:conversation-00000": 47,
+              "view:suggested-group:e4f1ba42e59ec030": 54
+            },
+            "budget": 192,
+            "evaluations": {
+              "datastore:conversations": 34,
+              "scope:data": 52,
+              "table:conversation-00000": 24,
+              "view:suggested-group:e4f1ba42e59ec030": 27
+            },
+            "feedback_evaluations": 4,
+            "feedback_improvements": 1,
+            "frame_evaluations": 137,
+            "total_evaluations": 141
+          }
+        }
+      },
+      {
+        "case": "bevy-ecs-expanded",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "repository:05317a01f80959f2",
+          "code",
+          "package:d1c2531f3a0a9b57",
+          "--feedback",
+          "0"
+        ],
+        "exit_code": 0,
+        "output": "/private/tmp/visualyze-cross-frame-bevy-ecs-expanded-0.json",
+        "sha256": "d27634b248425092841de0c48137587b21fd58d2d97301777e7213957f6a2822",
+        "stderr": "/private/tmp/visualyze-cross-frame-bevy-ecs-expanded-0.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "composition_version": 1,
+          "expanded": [
+            "package:d1c2531f3a0a9b57"
+          ],
+          "feedback_candidates": 0,
+          "feedback_control_scope": "Profile feedback allowance applies to flat kernels and composed boundary refinement. Zero disables both; changing this setting also changes shared work allocation. This is not a pure isolated-stage timing comparison.",
+          "focus": "repository:05317a01f80959f2",
+          "frames": [
+            "package:d1c2531f3a0a9b57",
+            "repository:05317a01f80959f2",
+            "view:suggested-group:b4d695a5a5dd423c"
+          ],
+          "model_id": "model:788c0940ff544915",
+          "presented": {
+            "fragments": 338,
+            "objects": 63,
+            "relationships": 180
+          },
+          "probe": "headless canonical composition; no native rendering claim",
+          "projection": {
+            "complete": false,
+            "diagnostics": [
+              "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 2175 relationships in this scanned slice are internal to collapsed regions (1477 membership IDs resident; enter a region for records).",
+              "package:d1c2531f3a0a9b57: More supplied children are available; this region is a bounded page.",
+              "view:suggested-group:b4d695a5a5dd423c: Opened this visual group to preserve an explicit member expansion; neighboring members keep their own detail level.",
+              "Partial region/page: 2 query continuations and 0 loaded relationships without displayed endpoints; refine or page before treating this as complete."
+            ],
+            "objects": 63,
+            "relationships": 180,
+            "remaining_queries": 2,
+            "unrepresented_loaded_relationships": []
+          },
+          "quality": {
+            "bends": 880,
+            "canonical_frames": {
+              "package:d1c2531f3a0a9b57": {
+                "aspect_ratio": 2.0,
+                "bends": 240,
+                "congestion": 8.2673646597014,
+                "crossing_points": 152,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 18336,
+                "shared_lane_length": 352,
+                "structural_cost": 416.0380112041285,
+                "volume": 23592960.0
+              },
+              "repository:05317a01f80959f2": {
+                "aspect_ratio": 1.12,
+                "bends": 404,
+                "congestion": 8.66300936466037,
+                "crossing_points": 428,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 12052,
+                "shared_lane_length": 338,
+                "structural_cost": 360.0165365920427,
+                "volume": 1120000.0
+              },
+              "view:suggested-group:b4d695a5a5dd423c": {
+                "aspect_ratio": 2.0,
+                "bends": 236,
+                "congestion": 21.514645610305394,
+                "crossing_points": 198,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.1746031746031746,
+                "route_length": 6620,
+                "shared_lane_length": 496,
+                "structural_cost": 355.7717261419551,
+                "volume": 368640.0
+              }
+            },
+            "canonical_route_length": 37008,
+            "maximum_scale_shift": 6,
+            "presented_route_length": 13993.5,
+            "structural_cost": 1131.8262739381262
+          },
+          "quality_version": 5,
+          "resident": {
+            "cached_detail_bytes": 4621,
+            "cached_detail_records": 1,
+            "estimated_index_bytes": 39821877
+          },
+          "revision": 1,
+          "source_counts": {
+            "entities": 27117,
+            "relationships": 44019
+          },
+          "status": "valid",
+          "timing_ms": {
+            "composition": 414.182292,
+            "indexing": 323.569666,
+            "projection": 35.934166
+          },
+          "work": {
+            "allocations": {
+              "package:d1c2531f3a0a9b57": 64,
+              "repository:05317a01f80959f2": 120,
+              "view:suggested-group:b4d695a5a5dd423c": 80
+            },
+            "budget": 192,
+            "evaluations": {
+              "package:d1c2531f3a0a9b57": 32,
+              "repository:05317a01f80959f2": 60,
+              "view:suggested-group:b4d695a5a5dd423c": 40
+            },
+            "feedback_evaluations": 0,
+            "feedback_improvements": 0,
+            "frame_evaluations": 132,
+            "total_evaluations": 132
+          }
+        }
+      },
+      {
+        "case": "bevy-ecs-expanded",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "repository:05317a01f80959f2",
+          "code",
+          "package:d1c2531f3a0a9b57",
+          "--feedback",
+          "4"
+        ],
+        "exit_code": 0,
+        "output": "/private/tmp/visualyze-cross-frame-bevy-ecs-expanded-4.json",
+        "sha256": "d6ffdaa524144efe2ea7cb4bdf15438ac57cc61b5da4fa8661e9f3a54feb956b",
+        "stderr": "/private/tmp/visualyze-cross-frame-bevy-ecs-expanded-4.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "composition_version": 1,
+          "expanded": [
+            "package:d1c2531f3a0a9b57"
+          ],
+          "feedback_candidates": 4,
+          "feedback_control_scope": "Profile feedback allowance applies to flat kernels and composed boundary refinement. Zero disables both; changing this setting also changes shared work allocation. This is not a pure isolated-stage timing comparison.",
+          "focus": "repository:05317a01f80959f2",
+          "frames": [
+            "package:d1c2531f3a0a9b57",
+            "repository:05317a01f80959f2",
+            "view:suggested-group:b4d695a5a5dd423c"
+          ],
+          "model_id": "model:788c0940ff544915",
+          "presented": {
+            "fragments": 338,
+            "objects": 63,
+            "relationships": 180
+          },
+          "probe": "headless canonical composition; no native rendering claim",
+          "projection": {
+            "complete": false,
+            "diagnostics": [
+              "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 2175 relationships in this scanned slice are internal to collapsed regions (1477 membership IDs resident; enter a region for records).",
+              "package:d1c2531f3a0a9b57: More supplied children are available; this region is a bounded page.",
+              "view:suggested-group:b4d695a5a5dd423c: Opened this visual group to preserve an explicit member expansion; neighboring members keep their own detail level.",
+              "Partial region/page: 2 query continuations and 0 loaded relationships without displayed endpoints; refine or page before treating this as complete."
+            ],
+            "objects": 63,
+            "relationships": 180,
+            "remaining_queries": 2,
+            "unrepresented_loaded_relationships": []
+          },
+          "quality": {
+            "bends": 835,
+            "canonical_frames": {
+              "package:d1c2531f3a0a9b57": {
+                "aspect_ratio": 2.0,
+                "bends": 230,
+                "congestion": 7.014121387128881,
+                "crossing_points": 158,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 18466,
+                "shared_lane_length": 276,
+                "structural_cost": 414.06906473341496,
+                "volume": 23592960.0
+              },
+              "repository:05317a01f80959f2": {
+                "aspect_ratio": 1.12,
+                "bends": 393,
+                "congestion": 8.674581523007397,
+                "crossing_points": 410,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 11275,
+                "shared_lane_length": 344,
+                "structural_cost": 342.2795142444496,
+                "volume": 1120000.0
+              },
+              "view:suggested-group:b4d695a5a5dd423c": {
+                "aspect_ratio": 2.0,
+                "bends": 212,
+                "congestion": 26.117725650304664,
+                "crossing_points": 175,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.1746031746031746,
+                "route_length": 5984,
+                "shared_lane_length": 622,
+                "structural_cost": 328.5743853638067,
+                "volume": 368640.0
+              }
+            },
+            "canonical_route_length": 35725,
+            "maximum_scale_shift": 6,
+            "presented_route_length": 13059.53125,
+            "structural_cost": 1084.9229643416713
+          },
+          "quality_version": 5,
+          "resident": {
+            "cached_detail_bytes": 4621,
+            "cached_detail_records": 1,
+            "estimated_index_bytes": 39821877
+          },
+          "revision": 1,
+          "source_counts": {
+            "entities": 27117,
+            "relationships": 44019
+          },
+          "status": "valid",
+          "timing_ms": {
+            "composition": 701.8835,
+            "indexing": 323.21812500000004,
+            "projection": 38.381458
+          },
+          "work": {
+            "allocations": {
+              "package:d1c2531f3a0a9b57": 62,
+              "repository:05317a01f80959f2": 118,
+              "view:suggested-group:b4d695a5a5dd423c": 78
+            },
+            "budget": 192,
+            "evaluations": {
+              "package:d1c2531f3a0a9b57": 31,
+              "repository:05317a01f80959f2": 63,
+              "view:suggested-group:b4d695a5a5dd423c": 39
+            },
+            "feedback_evaluations": 4,
+            "feedback_improvements": 2,
+            "frame_evaluations": 133,
+            "total_evaluations": 137
+          }
+        }
+      },
+      {
+        "case": "bevy-world-expanded",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "file:b6ae9420da8c77aa",
+          "code",
+          "item:1a4125968da0ac7b",
+          "--feedback",
+          "0"
+        ],
+        "exit_code": 0,
+        "output": "/private/tmp/visualyze-cross-frame-bevy-world-expanded-0.json",
+        "sha256": "72100fde444841ab9f3a5fc4bdcd153c3cefe7fc502dca62afda1e7aebd2aaff",
+        "stderr": "/private/tmp/visualyze-cross-frame-bevy-world-expanded-0.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "composition_version": 1,
+          "expanded": [
+            "item:1a4125968da0ac7b"
+          ],
+          "feedback_candidates": 0,
+          "feedback_control_scope": "Profile feedback allowance applies to flat kernels and composed boundary refinement. Zero disables both; changing this setting also changes shared work allocation. This is not a pure isolated-stage timing comparison.",
+          "focus": "file:b6ae9420da8c77aa",
+          "frames": [
+            "file:b6ae9420da8c77aa",
+            "item:1a4125968da0ac7b"
+          ],
+          "model_id": "model:788c0940ff544915",
+          "presented": {
+            "fragments": 33,
+            "objects": 97,
+            "relationships": 33
+          },
+          "probe": "headless canonical composition; no native rendering claim",
+          "projection": {
+            "complete": false,
+            "diagnostics": [
+              "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 0 relationships in this scanned slice are internal to collapsed regions (0 membership IDs resident; enter a region for records).",
+              "file:b6ae9420da8c77aa: Reference-node budget reached; the next relationship page resumes the first deferred claim.",
+              "item:1a4125968da0ac7b: More supplied children are available; this region is a bounded page.",
+              "Partial region/page: 2 query continuations and 0 loaded relationships without displayed endpoints; refine or page before treating this as complete.",
+              "Immediate-peer budget reserves 33 reference slots beside 31 supplied or grouped peers; deferred claims remain on relationship pages."
+            ],
+            "objects": 97,
+            "relationships": 33,
+            "remaining_queries": 2,
+            "unrepresented_loaded_relationships": []
+          },
+          "quality": {
+            "bends": 0,
+            "canonical_frames": {
+              "file:b6ae9420da8c77aa": {
+                "aspect_ratio": 2.44,
+                "bends": 0,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 392,
+                "shared_lane_length": 0,
+                "structural_cost": 13.526741096276256,
+                "volume": 2732800.0
+              },
+              "item:1a4125968da0ac7b": {
+                "aspect_ratio": 2.0,
+                "bends": 0,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 0,
+                "shared_lane_length": 0,
+                "structural_cost": 13.579368399158986,
+                "volume": 23592960.0
+              }
+            },
+            "canonical_route_length": 392,
+            "maximum_scale_shift": 4,
+            "presented_route_length": 392.0,
+            "structural_cost": 27.10610949543524
+          },
+          "quality_version": 5,
+          "resident": {
+            "cached_detail_bytes": 4569,
+            "cached_detail_records": 1,
+            "estimated_index_bytes": 39821877
+          },
+          "revision": 1,
+          "source_counts": {
+            "entities": 27117,
+            "relationships": 44019
+          },
+          "status": "valid",
+          "timing_ms": {
+            "composition": 118.729291,
+            "indexing": 321.87379100000004,
+            "projection": 6.746582999999999
+          },
+          "work": {
+            "allocations": {
+              "file:b6ae9420da8c77aa": 144,
+              "item:1a4125968da0ac7b": 96
+            },
+            "budget": 192,
+            "evaluations": {
+              "file:b6ae9420da8c77aa": 72,
+              "item:1a4125968da0ac7b": 48
+            },
+            "feedback_evaluations": 0,
+            "feedback_improvements": 0,
+            "frame_evaluations": 120,
+            "total_evaluations": 120
+          }
+        }
+      },
+      {
+        "case": "bevy-world-expanded",
+        "command": [
+          "./target/debug/examples/composed_layout",
+          "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+          "file:b6ae9420da8c77aa",
+          "code",
+          "item:1a4125968da0ac7b",
+          "--feedback",
+          "4"
+        ],
+        "exit_code": 0,
+        "output": "/private/tmp/visualyze-cross-frame-bevy-world-expanded-4.json",
+        "sha256": "d85d5b6d5baee74a50891c7b6b20db8e2eae05213636efad9582b4e1b7befde9",
+        "stderr": "/private/tmp/visualyze-cross-frame-bevy-world-expanded-4.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "composition_version": 1,
+          "expanded": [
+            "item:1a4125968da0ac7b"
+          ],
+          "feedback_candidates": 4,
+          "feedback_control_scope": "Profile feedback allowance applies to flat kernels and composed boundary refinement. Zero disables both; changing this setting also changes shared work allocation. This is not a pure isolated-stage timing comparison.",
+          "focus": "file:b6ae9420da8c77aa",
+          "frames": [
+            "file:b6ae9420da8c77aa",
+            "item:1a4125968da0ac7b"
+          ],
+          "model_id": "model:788c0940ff544915",
+          "presented": {
+            "fragments": 33,
+            "objects": 97,
+            "relationships": 33
+          },
+          "probe": "headless canonical composition; no native rendering claim",
+          "projection": {
+            "complete": false,
+            "diagnostics": [
+              "Descendant boundary relationships map to visible ancestors; grouped connectors retain original predicate, direction, and membership IDs. 0 relationships in this scanned slice are internal to collapsed regions (0 membership IDs resident; enter a region for records).",
+              "file:b6ae9420da8c77aa: Reference-node budget reached; the next relationship page resumes the first deferred claim.",
+              "item:1a4125968da0ac7b: More supplied children are available; this region is a bounded page.",
+              "Partial region/page: 2 query continuations and 0 loaded relationships without displayed endpoints; refine or page before treating this as complete.",
+              "Immediate-peer budget reserves 33 reference slots beside 31 supplied or grouped peers; deferred claims remain on relationship pages."
+            ],
+            "objects": 97,
+            "relationships": 33,
+            "remaining_queries": 2,
+            "unrepresented_loaded_relationships": []
+          },
+          "quality": {
+            "bends": 0,
+            "canonical_frames": {
+              "file:b6ae9420da8c77aa": {
+                "aspect_ratio": 2.44,
+                "bends": 0,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 392,
+                "shared_lane_length": 0,
+                "structural_cost": 13.526741096276256,
+                "volume": 2732800.0
+              },
+              "item:1a4125968da0ac7b": {
+                "aspect_ratio": 2.0,
+                "bends": 0,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 1.0,
+                "route_length": 0,
+                "shared_lane_length": 0,
+                "structural_cost": 13.579368399158986,
+                "volume": 23592960.0
+              }
+            },
+            "canonical_route_length": 392,
+            "maximum_scale_shift": 4,
+            "presented_route_length": 392.0,
+            "structural_cost": 27.10610949543524
+          },
+          "quality_version": 5,
+          "resident": {
+            "cached_detail_bytes": 4569,
+            "cached_detail_records": 1,
+            "estimated_index_bytes": 39821877
+          },
+          "revision": 1,
+          "source_counts": {
+            "entities": 27117,
+            "relationships": 44019
+          },
+          "status": "valid",
+          "timing_ms": {
+            "composition": 118.70729200000001,
+            "indexing": 319.475292,
+            "projection": 6.712792
+          },
+          "work": {
+            "allocations": {
+              "file:b6ae9420da8c77aa": 144,
+              "item:1a4125968da0ac7b": 96
+            },
+            "budget": 192,
+            "evaluations": {
+              "file:b6ae9420da8c77aa": 72,
+              "item:1a4125968da0ac7b": 48
+            },
+            "feedback_evaluations": 0,
+            "feedback_improvements": 0,
+            "frame_evaluations": 120,
+            "total_evaluations": 120
+          }
+        }
+      }
+    ]
+  },
+  "native_pins": {
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "./target/debug/examples/composed_pin_smoke",
+      "public/examples/data-messaging.bundle.jsonl",
+      "visualyze-local/production/native-cross-frame-pins-2026-10-02"
+    ],
+    "exit_code": 0,
+    "report": {
+      "path": "visualyze-local/production/native-cross-frame-pins-2026-10-02/pin-report.json",
+      "sha256": "e8c2ac22abeacd7bcf6db6e68d0c3761ea17f34437c3f6d607a61aaee221e881"
+    },
+    "log": {
+      "path": "/private/tmp/visualyze-cross-frame-native-pins.log",
+      "sha256": "72ee39a9713504f2faca80ae437eac09c21d223f1031db697d97bf48ea85bb5e"
+    },
+    "peak_rss_bytes": 226033664,
+    "peak_memory_footprint_bytes": 581141704,
+    "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+    "actions": [
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 2,
+        "objects": 9,
+        "owned_contexts": 0,
+        "pin_position": null,
+        "routes": 7,
+        "screenshot": false,
+        "step": 0
+      },
+      {
+        "action": "Expand(\"table:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 1
+      },
+      {
+        "action": "Pin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 2
+      },
+      {
+        "action": "Collapse(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 1,
+        "objects": 7,
+        "owned_contexts": 1,
+        "pin_position": null,
+        "routes": 6,
+        "screenshot": true,
+        "step": 3
+      },
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 4
+      },
+      {
+        "action": "Expand(\"table:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 5
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 6
+      },
+      {
+        "action": "Undo",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 7
+      },
+      {
+        "action": "Enter(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 8
+      },
+      {
+        "action": "Enter(\"table:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "table:orders",
+        "frames": 1,
+        "objects": 5,
+        "owned_contexts": 1,
+        "pin_position": [
+          -1.7999999523162842,
+          -1.1999999284744263,
+          -1.5999999046325684
+        ],
+        "routes": 3,
+        "screenshot": true,
+        "step": 9
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 10
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 11
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 0,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 12
+      },
+      {
+        "action": "Enter(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 0,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 13
+      },
+      {
+        "action": "Pin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": true,
+        "step": 14
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": false,
+        "step": 15
+      },
+      {
+        "action": "Collapse(\"datastore:orders\")",
+        "canonical_pin": null,
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 1,
+        "objects": 7,
+        "owned_contexts": 1,
+        "pin_position": null,
+        "routes": 6,
+        "screenshot": false,
+        "step": 16
+      },
+      {
+        "action": "Expand(\"datastore:orders\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 17
+      },
+      {
+        "action": "OpenPinOrigin(\"column:customer-id\")",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 18
+      },
+      {
+        "action": "Unpin(\"column:customer-id\")",
+        "canonical_pin": null,
+        "durable_pin_present": false,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 0,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 19
+      },
+      {
+        "action": "Undo",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "datastore:orders",
+        "frames": 2,
+        "objects": 6,
+        "owned_contexts": 1,
+        "pin_position": [
+          1.6000001430511475,
+          -1.1999999284744263,
+          -0.6000000238418579
+        ],
+        "routes": 3,
+        "screenshot": false,
+        "step": 20
+      },
+      {
+        "action": "Back",
+        "canonical_pin": {
+          "x": 18,
+          "y": 6,
+          "z": 10
+        },
+        "durable_pin_present": true,
+        "focus": "scope:orders",
+        "frames": 3,
+        "objects": 10,
+        "owned_contexts": 1,
+        "pin_position": [
+          0.8500000834465027,
+          -2.4000000953674316,
+          -0.6999999284744263
+        ],
+        "routes": 7,
+        "screenshot": true,
+        "step": 21
+      }
+    ],
+    "save_attempts": 23,
+    "save_failures": 0,
+    "save_max_ms": 18.084792,
+    "scope": "Actual native composed display and isolated v5 persistence. Exact rendered pinned position checked across collapse/reopen/unpin/undo and parent return; exact canonical point and truncated anchors checked through database/table descent. Child-origin pins preserve their original anchors when displayed in parents, including collapse/reopen, open-origin navigation and undo. Inheritance never copies owned registry entries. Restart and eviction have separate worker/core regressions; this process does not simulate hardware input or establish latency percentiles.",
+    "completed_actions": 22,
+    "inspected_image": {
+      "path": "visualyze-local/production/native-cross-frame-pins-2026-10-02/step-21.png",
+      "sha256": "907c358eef25f1264ba967f8d343a097ecb4e80102569a6877cb3e0debce09ba"
+    },
+    "image_observation": "Orders parent view after child-origin pin undo/return renders ten objects and seven paths. Small nested interiors and occluded labels remain. No comprehension claim.",
+    "saved_states": [
+      {
+        "path": "visualyze-local/production/native-cross-frame-pins-2026-10-02/state/a276425ff5e928bb.json",
+        "sha256": "e31854423ece7cabb54296cc8388a110d90ae6eea8053119583af2652d64cec8",
+        "version": 5
+      }
+    ]
+  },
+  "native_production": {
+    "command": [
+      "/usr/bin/time",
+      "-l",
+      "./target/debug/examples/production_smoke",
+      "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "visualyze-local/production/native-cross-frame-production-2026-10-02",
+      "--persist",
+      "--composed",
+      "--trace-frames",
+      "--repeat-navigation",
+      "--no-captures"
+    ],
+    "exit_code": 0,
+    "report": {
+      "path": "visualyze-local/production/native-cross-frame-production-2026-10-02/native-report.json",
+      "sha256": "ce7c534a04f225d66cd3910ad89a85387e11e1f83b3022b06f3363c23dd7b815"
+    },
+    "log": {
+      "path": "/private/tmp/visualyze-cross-frame-native-production.log",
+      "sha256": "7d891a08a07f4b933f865e52a3a877b4b04dbbb506a5dfbbaaef4adca5cb37d2"
+    },
+    "peak_rss_bytes": 391266304,
+    "peak_memory_footprint_bytes": 710493480,
+    "input_mode": "Scripted ViewerActions only. Hardware keyboard/mouse messages, button states, accumulated deltas and cursor hover are discarded after Bevy InputSystems and before runtime Update controls. Native window/update settings are unchanged; the window may activate. This proof does not verify physical OS input delivery.",
+    "model_id": "model:788c0940ff544915",
+    "source_counts": {
+      "entities": 27117,
+      "evidence": 31319,
+      "relations": 44019
+    },
+    "initial_acceptance_ms": 839.1905830000001,
+    "persistence": {
+      "attempts": 33,
+      "enabled": true,
+      "failures": 0,
+      "isolated_directory": "/var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-persistence-smoke-10001-1790989011585899000",
+      "last_64_attempts_ms": [
+        11.826625,
+        17.311583,
+        12.002333,
+        14.697583,
+        11.155750000000001,
+        9.752833,
+        9.422958,
+        12.548833,
+        8.456750000000001,
+        7.3208329999999995,
+        10.394917,
+        8.576541,
+        7.341417,
+        8.041833,
+        10.993375,
+        17.578542,
+        19.844583,
+        18.861375,
+        11.273291,
+        9.894583,
+        9.791083,
+        9.436625000000001,
+        9.402249999999999,
+        14.298833,
+        14.706916,
+        10.515042000000001,
+        13.879624999999999,
+        12.407584,
+        11.169417,
+        13.464416,
+        11.546458000000001,
+        11.508084,
+        14.227458
+      ],
+      "max_ms": 19.844583,
+      "scope": "Synchronous main-thread state preparation and atomic save, including existing-state validation, serialization, file/directory fsync. Acceptance and frame intervals include this cost when enabled. The fresh temp directory is retained for inspection; no user state is read or written.",
+      "total_ms": 393.65032899999994
+    },
+    "worker_update_intervals_ms_excluding_capture": {
+      "max": 1061.864375,
+      "median": 16.688499999999998,
+      "p95": 35.627875,
+      "p99": 74.451958,
+      "samples": 186
+    },
+    "all_update_intervals_ms": {
+      "max": 1061.864375,
+      "median": 16.642,
+      "p95": 24.600084000000003,
+      "p99": 53.866916,
+      "samples": 305
+    },
+    "completed_actions": 38,
+    "selected_steps": [
+      {
+        "acceptance_ms": 402.12904100000003,
+        "accepted_objects": 28,
+        "accepted_routes": 106,
+        "action_started_ms": 839.19075,
+        "cached": false,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 416.38941600000004,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": false,
+        "inspector_scroll_max": 0.0,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 7.682042,
+            "action_id": 1,
+            "cache_outcome": "miss",
+            "indexing_ms": 0.0,
+            "job_id": 2,
+            "observed_at_ms": 1204.070666,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 3.3038329999999974,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 44.284,
+            "publication_wait_ms": 13.572458000000001,
+            "queued_at_ms": 839.262708,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 1,
+            "routing_batches_reused": 0,
+            "save_ms": 17.311583,
+            "scene_build_ms": 0.5467500000000001,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 303.59825,
+            "source_lock_wait_ms": 0.000292,
+            "total_ms": 390.351583,
+            "worker_finished_at_ms": 1190.498208,
+            "worker_queue_ms": 0.049125,
+            "worker_total_ms": 351.186375
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 28,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 106,
+        "save_attempts": 2,
+        "save_total_ms": 29.138208,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repository",
+        "step_index": 0,
+        "total_children": 81
+      },
+      {
+        "acceptance_ms": 1676.10675,
+        "accepted_objects": 63,
+        "accepted_routes": 196,
+        "action_started_ms": 1604.475708,
+        "cached": false,
+        "child_page": 1,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 1698.4893749999999,
+        "focus": "package:d1c2531f3a0a9b57",
+        "has_more_relation_pages": false,
+        "inspector_expanded": false,
+        "inspector_scroll_max": 0.0,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 10.913459,
+            "action_id": 4,
+            "cache_outcome": "miss",
+            "indexing_ms": 0.0,
+            "job_id": 4,
+            "observed_at_ms": 3234.205666,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 3.4574169999998503,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 28.061708,
+            "publication_wait_ms": 757.273541,
+            "queued_at_ms": 1604.499375,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 1,
+            "routing_batches_reused": 0,
+            "save_ms": 14.697583,
+            "scene_build_ms": 1.199459,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 840.8675420000001,
+            "source_lock_wait_ms": 0.000417,
+            "total_ms": 1656.5200829999999,
+            "worker_finished_at_ms": 2476.932125,
+            "worker_queue_ms": 0.045666,
+            "worker_total_ms": 872.387084
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 63,
+        "original_routed_relations": 3196,
+        "relation_page": 0,
+        "routes": 196,
+        "save_attempts": 4,
+        "save_total_ms": 55.838124,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "package-page-2",
+        "step_index": 3,
+        "total_children": 151
+      },
+      {
+        "acceptance_ms": 448.918125,
+        "accepted_objects": 63,
+        "accepted_routes": 191,
+        "action_started_ms": 5065.1165,
+        "cached": false,
+        "child_page": 0,
+        "composition_frames": 3,
+        "elapsed_ms_including_3_settle_frames": 485.423208,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 392.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 12.79925,
+            "action_id": 22,
+            "cache_outcome": "miss",
+            "indexing_ms": 0.0,
+            "job_id": 17,
+            "observed_at_ms": 5431.866166,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 4.12966700000004,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 43.135583,
+            "publication_wait_ms": 11.365958000000001,
+            "queued_at_ms": 5065.157041,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 12,
+            "routing_batches_reused": 0,
+            "save_ms": 19.844583,
+            "scene_build_ms": 2.091542,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 308.02574999999996,
+            "source_lock_wait_ms": 0.000625,
+            "total_ms": 401.447542,
+            "worker_finished_at_ms": 5420.500208,
+            "worker_queue_ms": 0.051542000000000004,
+            "worker_total_ms": 355.291625
+          }
+        ],
+        "maximum_scale_shift": 6,
+        "objects": 63,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 191,
+        "save_attempts": 17,
+        "save_total_ms": 197.26728899999998,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repository-ecs-expanded",
+        "step_index": 21,
+        "total_children": 81
+      },
+      {
+        "acceptance_ms": 116.90495800000001,
+        "accepted_objects": 28,
+        "accepted_routes": 106,
+        "action_started_ms": 5554.766208,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 134.035792,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 361.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 11.924417,
+            "action_id": 23,
+            "cache_outcome": "canonical_reuse",
+            "indexing_ms": 0.0,
+            "job_id": 18,
+            "observed_at_ms": 5617.8334159999995,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 3.318125000000002,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 40.636958,
+            "publication_wait_ms": 8.540333,
+            "queued_at_ms": 5554.81925,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 1,
+            "save_ms": 18.861375,
+            "scene_build_ms": 0.690459,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 10.445208,
+            "source_lock_wait_ms": 0.0011259999999999998,
+            "total_ms": 94.49445800000001,
+            "worker_finished_at_ms": 5609.293083,
+            "worker_queue_ms": 0.07241600000000001,
+            "worker_total_ms": 54.401417
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 28,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 106,
+        "save_attempts": 18,
+        "save_total_ms": 216.128664,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repository-ecs-collapsed",
+        "step_index": 22,
+        "total_children": 81
+      },
+      {
+        "acceptance_ms": 36.696459,
+        "accepted_objects": 97,
+        "accepted_routes": 33,
+        "action_started_ms": 5786.412915999999,
+        "cached": false,
+        "child_page": 0,
+        "composition_frames": 2,
+        "elapsed_ms_including_3_settle_frames": 67.207167,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 205.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 1.556792,
+            "action_id": 25,
+            "cache_outcome": "canonical_reuse",
+            "indexing_ms": 0.0,
+            "job_id": 20,
+            "observed_at_ms": 5803.925583,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 1.2080409999999997,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 10.922625,
+            "publication_wait_ms": 2.647042,
+            "queued_at_ms": 5786.441291,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 1,
+            "routing_batches_reused": 1,
+            "save_ms": 9.894583,
+            "scene_build_ms": 0.332541,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 2.662833,
+            "source_lock_wait_ms": 0.000417,
+            "total_ms": 29.270874999999997,
+            "worker_finished_at_ms": 5801.278541000001,
+            "worker_queue_ms": 0.043334000000000004,
+            "worker_total_ms": 14.793916000000001
+          }
+        ],
+        "maximum_scale_shift": 4,
+        "objects": 97,
+        "original_routed_relations": 51,
+        "relation_page": 0,
+        "routes": 33,
+        "save_attempts": 20,
+        "save_total_ms": 237.296538,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "world-type-expanded",
+        "step_index": 24,
+        "total_children": 31
+      },
+      {
+        "acceptance_ms": 33.520208000000004,
+        "accepted_objects": 65,
+        "accepted_routes": 33,
+        "action_started_ms": 5870.561624999999,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 66.628625,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 205.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 1.34175,
+            "action_id": 26,
+            "cache_outcome": "canonical_reuse",
+            "indexing_ms": 0.0,
+            "job_id": 21,
+            "observed_at_ms": 5887.306291,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 1.1914169999999995,
+            "projection_cache_hits": 0,
+            "projection_calls": 1,
+            "projection_ms": 3.413916,
+            "publication_wait_ms": 9.828291,
+            "queued_at_ms": 5870.598041,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 1,
+            "save_ms": 9.791083,
+            "scene_build_ms": 0.237083,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 2.224834,
+            "source_lock_wait_ms": 0.000292,
+            "total_ms": 28.080375,
+            "worker_finished_at_ms": 5877.478,
+            "worker_queue_ms": 0.049499999999999995,
+            "worker_total_ms": 6.830458999999999
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 51,
+        "relation_page": 0,
+        "routes": 33,
+        "save_attempts": 21,
+        "save_total_ms": 247.087621,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "world-type-collapsed",
+        "step_index": 25,
+        "total_children": 31
+      },
+      {
+        "acceptance_ms": 43.318708,
+        "accepted_objects": 65,
+        "accepted_routes": 32,
+        "action_started_ms": 6605.372333,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 67.541458,
+        "focus": "package:d1c2531f3a0a9b57",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 236.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 4.0794999999999995,
+            "action_id": 33,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 28,
+            "observed_at_ms": 6622.893583,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 1.1696659999999999,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 0.494667,
+            "publication_wait_ms": 15.742167000000002,
+            "queued_at_ms": 6605.441374999999,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 12.407584,
+            "scene_build_ms": 0.26287499999999997,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.000625,
+            "total_ms": 34.207291,
+            "worker_finished_at_ms": 6607.151416,
+            "worker_queue_ms": 0.045083000000000005,
+            "worker_total_ms": 1.664958
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 33,
+        "relation_page": 0,
+        "routes": 32,
+        "save_attempts": 28,
+        "save_total_ms": 331.7344959999999,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-package",
+        "step_index": 32,
+        "total_children": 151
+      },
+      {
+        "acceptance_ms": 37.463499999999996,
+        "accepted_objects": 65,
+        "accepted_routes": 33,
+        "action_started_ms": 6690.072083,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 66.240625,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 236.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 2.558875,
+            "action_id": 34,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 29,
+            "observed_at_ms": 6705.548541,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 1.287042,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 0.444375,
+            "publication_wait_ms": 13.456208,
+            "queued_at_ms": 6690.143,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 11.169417,
+            "scene_build_ms": 0.36604200000000003,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.0005,
+            "total_ms": 29.50425,
+            "worker_finished_at_ms": 6692.092333,
+            "worker_queue_ms": 0.217416,
+            "worker_total_ms": 1.731917
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 51,
+        "relation_page": 0,
+        "routes": 33,
+        "save_attempts": 29,
+        "save_total_ms": 342.90391299999993,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-source-file",
+        "step_index": 33,
+        "total_children": 31
+      },
+      {
+        "acceptance_ms": 53.548291,
+        "accepted_objects": 28,
+        "accepted_routes": 106,
+        "action_started_ms": 6772.9641249999995,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 73.323625,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 221.0,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 10.820791999999999,
+            "action_id": 35,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 30,
+            "observed_at_ms": 6788.691083,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 7.474207999999999,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 2.428,
+            "publication_wait_ms": 5.696124999999999,
+            "queued_at_ms": 6773.0224579999995,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 13.464416,
+            "scene_build_ms": 0.543708,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.007667,
+            "total_ms": 40.500833,
+            "worker_finished_at_ms": 6782.994957999999,
+            "worker_queue_ms": 0.062625,
+            "worker_total_ms": 9.909875
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 28,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 106,
+        "save_attempts": 30,
+        "save_total_ms": 356.3683289999999,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-repository",
+        "step_index": 34,
+        "total_children": 81
+      },
+      {
+        "acceptance_ms": 40.138042,
+        "accepted_objects": 65,
+        "accepted_routes": 32,
+        "action_started_ms": 6858.269832999999,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 67.245042,
+        "focus": "package:d1c2531f3a0a9b57",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 252.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 4.26975,
+            "action_id": 36,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 31,
+            "observed_at_ms": 6874.5319580000005,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 0.9554159999999998,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 0.25083300000000003,
+            "publication_wait_ms": 14.945292,
+            "queued_at_ms": 6858.313166,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 11.546458000000001,
+            "scene_build_ms": 0.24858299999999997,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.000459,
+            "total_ms": 32.286750000000005,
+            "worker_finished_at_ms": 6859.586666,
+            "worker_queue_ms": 0.06679199999999999,
+            "worker_total_ms": 1.206708
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 33,
+        "relation_page": 0,
+        "routes": 32,
+        "save_attempts": 31,
+        "save_total_ms": 367.91478699999993,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-package",
+        "step_index": 35,
+        "total_children": 151
+      },
+      {
+        "acceptance_ms": 36.854290999999996,
+        "accepted_objects": 65,
+        "accepted_routes": 33,
+        "action_started_ms": 6941.408875,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 66.495208,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 252.5,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 1.083375,
+            "action_id": 37,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 32,
+            "observed_at_ms": 6958.748666,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 1.049291,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 0.158876,
+            "publication_wait_ms": 16.035500000000003,
+            "queued_at_ms": 6941.451,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 11.508084,
+            "scene_build_ms": 0.219917,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.00024900000000000004,
+            "total_ms": 30.111583,
+            "worker_finished_at_ms": 6942.713166,
+            "worker_queue_ms": 0.05375,
+            "worker_total_ms": 1.208416
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 65,
+        "original_routed_relations": 51,
+        "relation_page": 0,
+        "routes": 33,
+        "save_attempts": 32,
+        "save_total_ms": 379.42287099999993,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-source-file",
+        "step_index": 36,
+        "total_children": 31
+      },
+      {
+        "acceptance_ms": 51.598458,
+        "accepted_objects": 28,
+        "accepted_routes": 106,
+        "action_started_ms": 7025.5092079999995,
+        "cached": true,
+        "child_page": 0,
+        "composition_frames": 1,
+        "elapsed_ms_including_3_settle_frames": 68.260583,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "inspector_expanded": true,
+        "inspector_scroll_max": 221.0,
+        "layout_jobs": [
+          {
+            "acceptance_ms": 9.22975,
+            "action_id": 38,
+            "cache_outcome": "hit",
+            "indexing_ms": 0.0,
+            "job_id": 33,
+            "observed_at_ms": 7042.005958,
+            "outcome": "accepted",
+            "partial_phase": null,
+            "partial_phase_ms": 0.0,
+            "preparation_ms": 6.0486249999999995,
+            "projection_cache_hits": 1,
+            "projection_calls": 1,
+            "projection_ms": 1.586791,
+            "publication_wait_ms": 8.767042,
+            "queued_at_ms": 7025.553541,
+            "restoration_ms": 0.0,
+            "revision": 1,
+            "routing_batches_computed": 0,
+            "routing_batches_reused": 0,
+            "save_ms": 14.227458,
+            "scene_build_ms": 0.536583,
+            "snapshot_read_ms": 0.0,
+            "solve_ms": 0.0,
+            "source_lock_wait_ms": 0.000709,
+            "total_ms": 40.453792,
+            "worker_finished_at_ms": 7033.238916,
+            "worker_queue_ms": 0.049249999999999995,
+            "worker_total_ms": 7.636125
+          }
+        ],
+        "maximum_scale_shift": 0,
+        "objects": 28,
+        "original_routed_relations": 3775,
+        "relation_page": 0,
+        "routes": 106,
+        "save_attempts": 33,
+        "save_total_ms": 393.65032899999994,
+        "screenshot": false,
+        "selected_relation": null,
+        "selected_relation_members": [],
+        "step": "repeat-repository",
+        "step_index": 37,
+        "total_children": 81
+      }
+    ],
+    "final_six_acceptance_ms": [
+      43.318708,
+      37.463499999999996,
+      53.548291,
+      40.138042,
+      36.854290999999996,
+      51.598458
+    ],
+    "longest_main_spans": [
+      {
+        "capture_pending": false,
+        "duration_ms": 1058.694416,
+        "focused": false,
+        "frame": 98,
+        "last_action_id": 4,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 2173.544375
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 118.16095899999999,
+        "focused": true,
+        "frame": 2,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 427.964416
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 71.784,
+        "focused": true,
+        "frame": 21,
+        "last_action_id": 1,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 841.2419580000001
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 48.703875000000004,
+        "focused": false,
+        "frame": 230,
+        "last_action_id": 22,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "Update",
+        "start_ms": 5431.820041
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 41.673458,
+        "focused": false,
+        "frame": 238,
+        "last_action_id": 23,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "Update",
+        "start_ms": 5617.791625
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 38.900416,
+        "focused": true,
+        "frame": 3,
+        "last_action_id": 0,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": false,
+        "phase": "render_join_and_extract",
+        "start_ms": 555.948125
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 32.026375,
+        "focused": false,
+        "frame": 99,
+        "last_action_id": 4,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "Update",
+        "start_ms": 3234.11875
+      },
+      {
+        "capture_pending": false,
+        "duration_ms": 31.187165999999998,
+        "focused": false,
+        "frame": 184,
+        "last_action_id": 16,
+        "loading": true,
+        "metadata_at": "start",
+        "occluded": true,
+        "phase": "Update",
+        "start_ms": 4660.667125
+      }
+    ],
+    "surface_summary": {
+      "scope": "CPU scheduling bracket before/after Bevy prepare_windows in the render schedule, including time to schedule either marker and concurrent render work. This is not exclusive function time or GPU time. It covers swapchain acquisition/reconfiguration for all extracted windows; a call may reuse an existing texture. Render invocation numbers are independent of main frame IDs. Correlate by shared-clock start/duration offsets. Markers add ordering constraints/overhead but leave prepare_windows and window settings unchanged.",
+      "span_count": 325,
+      "dropped_spans": 0,
+      "longest_spans": [
+        {
+          "duration_ms": 1057.8408749999999,
+          "invocation": 97,
+          "start_ms": 2171.938916
+        },
+        {
+          "duration_ms": 26.277209,
+          "invocation": 87,
+          "start_ms": 1993.153541
+        },
+        {
+          "duration_ms": 18.636625,
+          "invocation": 86,
+          "start_ms": 1971.837708
+        }
+      ]
+    },
+    "measurement_scope": "One traced native run without screenshots or OS sampling. Timings cover CPU acceptance, not hardware input or GPU presentation. User previews remained running; no claim of controlled comparative latency.",
+    "saved_states": [
+      {
+        "path": "/var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-persistence-smoke-10001-1790989011585899000/6844b20809e462ac.json",
+        "sha256": "7680ec6260ca9f5b66ccf5ac4f903ea28a4eec1e4f0de9e891843eac8cc61d05",
+        "version": 5
+      }
+    ]
+  },
+  "limitations": [
+    "Requires an initially valid routed composition; does not repair initially unroutable cross-frame geometry or enlarge passages.",
+    "Bounded horizontal terminal alignment is not a global or negotiated multi-commodity optimum. Dense congestion, occlusion and individual frame metrics can worsen under a better total score.",
+    "Zero-feedback control also changes flat feedback and initialization allocation. Improvements relative to it cannot be attributed solely to the new pass.",
+    "Additional complete routing trials add solve time. No profile calibration or fresh held-out acceptance is claimed.",
+    "Native scripts prove viewer actions and persisted geometry, not physical OS input or comprehension. Current production run reproduced a 1,058 ms render handoff overlapping surface acquisition, with last-observed occlusion false; no root cause or remedy proven.",
+    "Cached repository collapse was 116.9 ms, above the 100 ms target. Broader scale, performance, topology/group/reference overrides and actual human comprehension gates remain open."
+  ]
+}

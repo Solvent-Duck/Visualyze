@@ -1,0 +1,12 @@
+{
+  "run": "native-100k-quality5-timing-final-2026-09-30",
+  "input": "visualyze-local/production/100k-scale.bundle.jsonl",
+  "process_exit_code": 101,
+  "complete_native_report": false,
+  "maximum_resident_set_size_bytes": 250150912,
+  "failure": "action error: Some(\"No current reorganization proposal\")",
+  "failure_location": "private/runtime/examples/large_model_smoke.rs:351",
+  "observed_wall_seconds": 1.52,
+  "interpretation": "The driver submits no Preview action. Source inspection identifies native keyboard controls as another producer of that action, but the originating OS event was not recorded. This failed run is retained and never counted as a geometry/navigation pass. The remaining million-input run in that sequence was not started.",
+  "next_action": "Isolate physical input in direct-action smoke examples with a focused regression; leave the production input path unchanged and keep physical-input verification as a separate outstanding gate."
+}

@@ -1,0 +1,18 @@
+{
+  "source_revision": "f667c282dad2c1419afb5836ded22a3ec263970e",
+  "identity_scheme": "syntax-v2",
+  "legacy_bundle_sha256": "113c806186aacd4e5d67b24f6f1c9979b45d7ea4aae0f8eea5933cb07c767c36",
+  "syntax_v2_bundle_sha256": "8f4d8a5f197f5381563e7c19aa81cc962f67984ff08ad621de1c189632d7286c",
+  "legacy_bytes": 40169426,
+  "syntax_v2_bytes": 40169745,
+  "legacy_model_id": "model:b459b6f69394a519",
+  "syntax_v2_model_id": "model:788c0940ff544915",
+  "entities": 27117,
+  "relations": 44019,
+  "retained_entity_ids": 1705,
+  "retained_relation_ids": 2300,
+  "world_type_id": "item:1a4125968da0ac7b",
+  "native_steps_passed": 21,
+  "native_exit_code": 0,
+  "notes": "Both schemes ingest the same pinned source counts. The v2 publication uses a distinct model identity; no layout/pin migration is claimed. Editing stability is covered by portable source-mutation tests; this pinned corpus run checks ambiguity and production ingestion/display. Existing legacy bundle and user previews were not modified."
+}

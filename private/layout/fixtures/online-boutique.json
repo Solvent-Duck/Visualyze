@@ -1,0 +1,717 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "reference-online-boutique",
+  "revision": 1,
+  "system_id": "scope:online-boutique",
+  "snapshot": {
+    "id": "online-boutique-38e7348eb289",
+    "source_revision": "38e7348eb289eb5b87c0c6e8cb19ced0449dc389",
+    "coverage": "partial",
+    "scope_description": "Partial logical-component view of the pinned Online Boutique release configuration. One node per named runnable component; configured endpoint references are dependencies, not inferred requests.",
+    "omissions": [
+      "Does not represent a live deployment, replica counts, Kubernetes resources, network policies, observability, or traffic measurements.",
+      "The configured optional shoppingassistantservice address has no matching Deployment in this release manifest and is intentionally omitted; feature enablement is not inferred.",
+      "Configured addresses do not prove an endpoint is required or invoked, so dependency necessity is unknown and no runtime requests are inferred from environment variables.",
+      "Ports, read/write operations, optional integrations, source-file internals, and geographic placement are outside this partial fixture."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:online-boutique",
+      "kind": "scope",
+      "label": "Online Boutique",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:project"
+      ],
+      "subtype": "system"
+    },
+    {
+      "id": "service:adservice",
+      "kind": "service",
+      "label": "adservice",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:adservice"
+      ]
+    },
+    {
+      "id": "service:shippingservice",
+      "kind": "service",
+      "label": "shippingservice",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:shippingservice"
+      ]
+    },
+    {
+      "id": "service:checkoutservice",
+      "kind": "service",
+      "label": "checkoutservice",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:checkoutservice"
+      ]
+    },
+    {
+      "id": "service:currencyservice",
+      "kind": "service",
+      "label": "currencyservice",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:currencyservice"
+      ]
+    },
+    {
+      "id": "service:emailservice",
+      "kind": "service",
+      "label": "emailservice",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:emailservice"
+      ]
+    },
+    {
+      "id": "service:productcatalogservice",
+      "kind": "service",
+      "label": "productcatalogservice",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:productcatalogservice"
+      ]
+    },
+    {
+      "id": "service:frontend",
+      "kind": "service",
+      "label": "frontend",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:frontend"
+      ]
+    },
+    {
+      "id": "service:recommendationservice",
+      "kind": "service",
+      "label": "recommendationservice",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:recommendationservice"
+      ]
+    },
+    {
+      "id": "client:loadgenerator",
+      "kind": "client",
+      "label": "loadgenerator",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:loadgenerator",
+        "evidence:project"
+      ]
+    },
+    {
+      "id": "service:cartservice",
+      "kind": "service",
+      "label": "cartservice",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:cartservice"
+      ]
+    },
+    {
+      "id": "datastore:redis-cart",
+      "kind": "datastore",
+      "label": "redis-cart",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:redis-cart"
+      ]
+    },
+    {
+      "id": "service:paymentservice",
+      "kind": "service",
+      "label": "paymentservice",
+      "boundary": "internal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:paymentservice"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "contains:service:adservice",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:adservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:adservice"
+      ]
+    },
+    {
+      "id": "contains:service:shippingservice",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:shippingservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:shippingservice"
+      ]
+    },
+    {
+      "id": "contains:service:checkoutservice",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:checkoutservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:checkoutservice"
+      ]
+    },
+    {
+      "id": "contains:service:currencyservice",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:currencyservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:currencyservice"
+      ]
+    },
+    {
+      "id": "contains:service:emailservice",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:emailservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:emailservice"
+      ]
+    },
+    {
+      "id": "contains:service:productcatalogservice",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:productcatalogservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:productcatalogservice"
+      ]
+    },
+    {
+      "id": "contains:service:frontend",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:frontend",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:frontend"
+      ]
+    },
+    {
+      "id": "contains:service:recommendationservice",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:recommendationservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:recommendationservice"
+      ]
+    },
+    {
+      "id": "contains:client:loadgenerator",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "client:loadgenerator",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:loadgenerator",
+        "evidence:project"
+      ]
+    },
+    {
+      "id": "contains:service:cartservice",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:cartservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:cartservice"
+      ]
+    },
+    {
+      "id": "contains:datastore:redis-cart",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "datastore:redis-cart",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:redis-cart"
+      ]
+    },
+    {
+      "id": "contains:service:paymentservice",
+      "kind": "contains",
+      "source": "scope:online-boutique",
+      "target": "service:paymentservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:deployment:paymentservice"
+      ]
+    },
+    {
+      "id": "configured:checkoutservice:cartservice",
+      "kind": "depends_on",
+      "source": "service:checkoutservice",
+      "target": "service:cartservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:checkoutservice:cartservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through CART_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:checkoutservice:currencyservice",
+      "kind": "depends_on",
+      "source": "service:checkoutservice",
+      "target": "service:currencyservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:checkoutservice:currencyservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through CURRENCY_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:checkoutservice:emailservice",
+      "kind": "depends_on",
+      "source": "service:checkoutservice",
+      "target": "service:emailservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:checkoutservice:emailservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through EMAIL_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:checkoutservice:paymentservice",
+      "kind": "depends_on",
+      "source": "service:checkoutservice",
+      "target": "service:paymentservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:checkoutservice:paymentservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through PAYMENT_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:checkoutservice:productcatalogservice",
+      "kind": "depends_on",
+      "source": "service:checkoutservice",
+      "target": "service:productcatalogservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:checkoutservice:productcatalogservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through PRODUCT_CATALOG_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:checkoutservice:shippingservice",
+      "kind": "depends_on",
+      "source": "service:checkoutservice",
+      "target": "service:shippingservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:checkoutservice:shippingservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through SHIPPING_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:frontend:adservice",
+      "kind": "depends_on",
+      "source": "service:frontend",
+      "target": "service:adservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:frontend:adservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through AD_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:frontend:cartservice",
+      "kind": "depends_on",
+      "source": "service:frontend",
+      "target": "service:cartservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:frontend:cartservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through CART_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:frontend:checkoutservice",
+      "kind": "depends_on",
+      "source": "service:frontend",
+      "target": "service:checkoutservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:frontend:checkoutservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through CHECKOUT_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:frontend:currencyservice",
+      "kind": "depends_on",
+      "source": "service:frontend",
+      "target": "service:currencyservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:frontend:currencyservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through CURRENCY_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:frontend:productcatalogservice",
+      "kind": "depends_on",
+      "source": "service:frontend",
+      "target": "service:productcatalogservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:frontend:productcatalogservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through PRODUCT_CATALOG_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:frontend:recommendationservice",
+      "kind": "depends_on",
+      "source": "service:frontend",
+      "target": "service:recommendationservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:frontend:recommendationservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through RECOMMENDATION_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:frontend:shippingservice",
+      "kind": "depends_on",
+      "source": "service:frontend",
+      "target": "service:shippingservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:frontend:shippingservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through SHIPPING_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:recommendationservice:productcatalogservice",
+      "kind": "depends_on",
+      "source": "service:recommendationservice",
+      "target": "service:productcatalogservice",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:recommendationservice:productcatalogservice"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through PRODUCT_CATALOG_SERVICE_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:loadgenerator:frontend",
+      "kind": "depends_on",
+      "source": "client:loadgenerator",
+      "target": "service:frontend",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:loadgenerator:frontend"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through FRONTEND_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    },
+    {
+      "id": "configured:cartservice:redis-cart",
+      "kind": "depends_on",
+      "source": "service:cartservice",
+      "target": "datastore:redis-cart",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:endpoint:cartservice:redis-cart"
+      ],
+      "dependency_phase": "runtime",
+      "necessity": "unknown",
+      "description": "Configured endpoint through REDIS_ADDR; requiredness and actual invocation are not established by this configuration fact."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence:project",
+      "description": "Upstream architecture table identifies the application components and the load generator role.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/README.md#L15-L37"
+      }
+    },
+    {
+      "id": "evidence:deployment:adservice",
+      "description": "The release manifest declares the adservice runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L22-L74"
+      }
+    },
+    {
+      "id": "evidence:deployment:shippingservice",
+      "description": "The release manifest declares the shippingservice runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L97-L147"
+      }
+    },
+    {
+      "id": "evidence:deployment:checkoutservice",
+      "description": "The release manifest declares the checkoutservice runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L170-L229"
+      }
+    },
+    {
+      "id": "evidence:deployment:currencyservice",
+      "description": "The release manifest declares the currencyservice runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L252-L303"
+      }
+    },
+    {
+      "id": "evidence:deployment:emailservice",
+      "description": "The release manifest declares the emailservice runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L326-L378"
+      }
+    },
+    {
+      "id": "evidence:deployment:productcatalogservice",
+      "description": "The release manifest declares the productcatalogservice runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L401-L451"
+      }
+    },
+    {
+      "id": "evidence:deployment:frontend",
+      "description": "The release manifest declares the frontend runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L474-L564"
+      }
+    },
+    {
+      "id": "evidence:deployment:recommendationservice",
+      "description": "The release manifest declares the recommendationservice runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L602-L656"
+      }
+    },
+    {
+      "id": "evidence:deployment:loadgenerator",
+      "description": "The release manifest declares the loadgenerator runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L679-L758"
+      }
+    },
+    {
+      "id": "evidence:deployment:cartservice",
+      "description": "The release manifest declares the cartservice runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L766-L817"
+      }
+    },
+    {
+      "id": "evidence:deployment:redis-cart",
+      "description": "The release manifest declares the redis-cart runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L840-L891"
+      }
+    },
+    {
+      "id": "evidence:deployment:paymentservice",
+      "description": "The release manifest declares the paymentservice runnable component and its container configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L909-L959"
+      }
+    },
+    {
+      "id": "evidence:endpoint:checkoutservice:cartservice",
+      "description": "CART_SERVICE_ADDR names cartservice in the checkoutservice environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L221-L222"
+      }
+    },
+    {
+      "id": "evidence:endpoint:checkoutservice:currencyservice",
+      "description": "CURRENCY_SERVICE_ADDR names currencyservice in the checkoutservice environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L219-L220"
+      }
+    },
+    {
+      "id": "evidence:endpoint:checkoutservice:emailservice",
+      "description": "EMAIL_SERVICE_ADDR names emailservice in the checkoutservice environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L217-L218"
+      }
+    },
+    {
+      "id": "evidence:endpoint:checkoutservice:paymentservice",
+      "description": "PAYMENT_SERVICE_ADDR names paymentservice in the checkoutservice environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L215-L216"
+      }
+    },
+    {
+      "id": "evidence:endpoint:checkoutservice:productcatalogservice",
+      "description": "PRODUCT_CATALOG_SERVICE_ADDR names productcatalogservice in the checkoutservice environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L211-L212"
+      }
+    },
+    {
+      "id": "evidence:endpoint:checkoutservice:shippingservice",
+      "description": "SHIPPING_SERVICE_ADDR names shippingservice in the checkoutservice environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L213-L214"
+      }
+    },
+    {
+      "id": "evidence:endpoint:frontend:adservice",
+      "description": "AD_SERVICE_ADDR names adservice in the frontend environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L539-L540"
+      }
+    },
+    {
+      "id": "evidence:endpoint:frontend:cartservice",
+      "description": "CART_SERVICE_ADDR names cartservice in the frontend environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L531-L532"
+      }
+    },
+    {
+      "id": "evidence:endpoint:frontend:checkoutservice",
+      "description": "CHECKOUT_SERVICE_ADDR names checkoutservice in the frontend environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L537-L538"
+      }
+    },
+    {
+      "id": "evidence:endpoint:frontend:currencyservice",
+      "description": "CURRENCY_SERVICE_ADDR names currencyservice in the frontend environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L529-L530"
+      }
+    },
+    {
+      "id": "evidence:endpoint:frontend:productcatalogservice",
+      "description": "PRODUCT_CATALOG_SERVICE_ADDR names productcatalogservice in the frontend environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L527-L528"
+      }
+    },
+    {
+      "id": "evidence:endpoint:frontend:recommendationservice",
+      "description": "RECOMMENDATION_SERVICE_ADDR names recommendationservice in the frontend environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L533-L534"
+      }
+    },
+    {
+      "id": "evidence:endpoint:frontend:shippingservice",
+      "description": "SHIPPING_SERVICE_ADDR names shippingservice in the frontend environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L535-L536"
+      }
+    },
+    {
+      "id": "evidence:endpoint:recommendationservice:productcatalogservice",
+      "description": "PRODUCT_CATALOG_SERVICE_ADDR names productcatalogservice in the recommendationservice environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L646-L647"
+      }
+    },
+    {
+      "id": "evidence:endpoint:loadgenerator:frontend",
+      "description": "FRONTEND_ADDR names frontend in the loadgenerator environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L746-L747"
+      }
+    },
+    {
+      "id": "evidence:endpoint:cartservice:redis-cart",
+      "description": "REDIS_ADDR names redis-cart in the cartservice environment configuration.",
+      "locator": {
+        "kind": "reference",
+        "value": "https://github.com/GoogleCloudPlatform/microservices-demo/blob/38e7348eb289eb5b87c0c6e8cb19ced0449dc389/release/kubernetes-manifests.yaml#L800-L801"
+      }
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "example-sketch-crud",
+  "revision": 1,
+  "system_id": "scope:app",
+  "snapshot": {
+    "id": "sketch-crud-001",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Declared interpretation of the three user sketches: auth, demo and waitlist over login/services and three independent stores.",
+    "omissions": [
+      "Schematic supplied design, not a deployed application.",
+      "Data stores stand for conceptual persistence areas; individual tables require the additive bundle profile."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:app",
+      "kind": "scope",
+      "label": "CRUD cube",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "system"
+    },
+    {
+      "id": "concern:auth",
+      "kind": "concern",
+      "label": "Auth",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "client:demo",
+      "kind": "client",
+      "label": "Demo",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "client:waitlist",
+      "kind": "client",
+      "label": "Waitlist",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:login",
+      "kind": "service",
+      "label": "Login",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:app",
+      "kind": "service",
+      "label": "Services",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:profiles",
+      "kind": "datastore",
+      "label": "Profiles",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:app",
+      "kind": "datastore",
+      "label": "App data",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:waitlist",
+      "kind": "datastore",
+      "label": "Waitlist data",
+      "boundary": "internal",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "contains:concern:auth",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "concern:auth",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:client:demo",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "client:demo",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:client:waitlist",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "client:waitlist",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:login",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:login",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:app",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:app",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:profiles",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "store:profiles",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:app",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "store:app",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:waitlist",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "store:waitlist",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:00",
+      "kind": "applies_to",
+      "source": "concern:auth",
+      "target": "service:login",
+      "basis": "declared",
+      "aspect": "access_control"
+    },
+    {
+      "id": "flow:01",
+      "kind": "applies_to",
+      "source": "concern:auth",
+      "target": "service:app",
+      "basis": "declared",
+      "aspect": "access_control"
+    },
+    {
+      "id": "flow:02",
+      "kind": "requests",
+      "source": "client:demo",
+      "target": "service:app",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:03",
+      "kind": "writes",
+      "source": "client:waitlist",
+      "target": "store:waitlist",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:04",
+      "kind": "requests",
+      "source": "service:login",
+      "target": "service:app",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:05",
+      "kind": "reads",
+      "source": "service:login",
+      "target": "store:profiles",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:06",
+      "kind": "writes",
+      "source": "service:login",
+      "target": "store:profiles",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:07",
+      "kind": "reads",
+      "source": "service:app",
+      "target": "store:app",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:08",
+      "kind": "writes",
+      "source": "service:app",
+      "target": "store:app",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:09",
+      "kind": "depends_on",
+      "source": "store:profiles",
+      "target": "store:app",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    }
+  ],
+  "evidence": []
+}

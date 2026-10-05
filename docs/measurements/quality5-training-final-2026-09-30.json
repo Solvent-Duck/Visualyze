@@ -1,0 +1,3598 @@
+{
+  "version": 1,
+  "role": "training",
+  "manifest_sha256": "1ce11343d87eff45b0e38c8a0743cf898ad26ed89af1da7674faf7416c0973cf",
+  "sources": {
+    "Cargo.lock": "4d6af295f9b5d7a1fa95ff8f28557492d58d991cf866fbc3232bd730a4f33118",
+    "Cargo.toml": "d586bd7abb64b48edca4190f70b17490915668eb73d461d84b5a56f7c1b619bc",
+    "private/layout/Cargo.toml": "f42620429f6681f4bde71a83bd81e44fb7f7e915c0a0d11a4b873e4f54177344",
+    "private/layout/evaluation/run.py": "efd04486864d8b74c7da474446b7b9a91a18c6cfa3b0fd470733cf6541357402",
+    "private/layout/examples/evaluate_cases.rs": "ed85b22b581149b0cf52426de8b2a3546a77a821a32a5725d7cb593b2e71a40f",
+    "private/layout/src/lib.rs": "5e56faf507c53a626acf8b28dd8f8fd3065e89b01fe41b81edaf710b7918c2cf",
+    "private/layout/src/metrics.rs": "b7e01f7452dc23677956ab368911878e24b0b31703ae37695df456dfac403ab3",
+    "private/layout/src/oracle.rs": "703b4335ef0b607f97125e84687264fa847af1c0fc9480a42fd4d945e1e61760",
+    "private/layout/src/persistence.rs": "1c5a0a6b2d79f60e7f7acf44867997b6fae33381678fa27d1e82e392fdfde7a4",
+    "private/layout/src/projection.rs": "491a3a9615c25f34047743ab4822182dcf5bf99063eb132f78b42a859da55169",
+    "private/layout/src/provider_projection.rs": "ab22eab857032b89d1b83b4b545054254b15c67fd5457c13c83b018929de9789",
+    "private/layout/src/quality.rs": "7c9c898bf7bc4db8f7e7635fe2c97c42c708d16f1e506d219f0528b553d355ee",
+    "private/layout/src/routing.rs": "e8de7f7f0a522d0ddef46265fd840494edf31eebadf3e7311b97711011e819c3",
+    "private/layout/src/session.rs": "f1b46b3942d204ffd3a33446f3b9f0b6621e56f0c8a5595450fb1b4c32d8c507",
+    "private/layout/src/solver.rs": "9fe9c19cb63bd018d3ad2396b6a944e989068d4a93f06877c48c9ff93652a058",
+    "private/layout/src/validation.rs": "9c85364600a3e89ae1b581588bdaf32c2e29086f4ef75df2d072bbbdffce7b0d",
+    "public/examples/database.json": "ef3fd8928479242af12da3fc16f64b909448fb2b02bbdbc099963eaa78fa5b95",
+    "public/examples/objects.json": "49e2e940191dfd7c84e8356fa0cfd7c9c91419d08c7381354f6c05c6ca8a0b27",
+    "public/schema/architecture.schema.json": "cca611605feed90125f2fc30488e80466b2f4fcf663c7efa5148f40d4d868ad2",
+    "public/types/rust/Cargo.toml": "21ae9b18f0f1ab42e365af8972ab593c4fc2ed57382426fe0f1b9bdc87a5fc0b",
+    "public/types/rust/src/architecture/graph.rs": "dbf62451024ef4970606e09aac0023da03d34cdfea7024d7e118cf9eb02d7bfe",
+    "public/types/rust/src/architecture/input.rs": "b008749ced8e5a9c697362c5a340475536cdc303a22a55ff9f12f1ebb7d76a5b",
+    "public/types/rust/src/architecture/mod.rs": "f8d6c43ce3a1c1797a0f6cf28374b32e8c79fc4e9e3c5cca425ec7f98cebd48f",
+    "public/types/rust/src/architecture/types.rs": "3565b630a82a842523a2e2ebe8cdd130f958a34fb0b6c2d960d4e4e0c72d1b1c",
+    "public/types/rust/src/lib.rs": "ead36d200a5b898e632f8e6a5573e7269c772d335c6e932fabf05271a7c20635",
+    "public/types/rust/src/provider/index.rs": "14738869df72744cf1e7fbc4b2ceaa6fd60e25dd4fee2b14a11299e6c2eb88b2",
+    "public/types/rust/src/provider/mod.rs": "4bc3e732a9cbad2739e1f4744c00362f71615a27c39e4b66968705d5385e60d1",
+    "public/types/rust/src/provider/storage.rs": "b0b6e70f9d582c6603fcc255ab9c45357293860f4c03c5bf3c61bb13d822f871",
+    "public/types/rust/src/provider/types.rs": "f83d6fb3c6a9d14eaf742f1e1bb42358a19d52a804878fbb0824d157a0b67e2f",
+    "rust-toolchain.toml": "2c388180d0d5476ed0d69975b382feaf709bb072d51a342add3030cfb3d1bdb2"
+  },
+  "executable_sha256": "0b9b1309a701c8193495f6b833430615579510e4702acefa6decf80b4a1f6277",
+  "executable": "/Users/isaiahbergstrom/Visualyze/target/debug/examples/evaluate_cases",
+  "freeze_sha256": null,
+  "all_valid": true,
+  "evaluation": {
+    "cases": [
+      {
+        "case": {
+          "format": "snapshot",
+          "id": "notes-overview",
+          "path": "public/examples/notes-crud.json",
+          "role": "training",
+          "sha256": "aa3f43620b4308ea648c3f623f0250fb0ca6dad2719989d9eb7a7fa83219ff8c",
+          "view": {
+            "child_page": 0,
+            "expanded": [],
+            "focus": null,
+            "lens": null,
+            "policy": "crud",
+            "relation_page": 0
+          }
+        },
+        "completeness": {
+          "supplied_omissions": [
+            "This is an architecture example, not an implemented or deployed notes application.",
+            "Registration, password recovery, deployment, and operational hardening are outside this example."
+          ],
+          "supplied_snapshot_coverage": "partial",
+          "visible_projection_records_complete": true
+        },
+        "indexing_ms": 5.334042,
+        "model_id": "example-notes-crud",
+        "projection_key": "projection-v1-6728a310f5a8d8ed",
+        "projection_ms": 0.597583,
+        "results": [
+          {
+            "algorithm": "Layered",
+            "metrics": {
+              "aspect_ratio": 1.0555555555555556,
+              "bends": 8,
+              "congestion": 0.0,
+              "crossing_points": 0,
+              "displacement": 0,
+              "neighborhood": {
+                "added_objects": 0,
+                "compared_neighbor_slots": 0,
+                "compared_objects": 0,
+                "excluded_frame_changes": 0,
+                "excluded_insufficient_peers": 0,
+                "excluded_reparented_objects": 0,
+                "excluded_representation_changes": 0,
+                "excluded_root_objects": 0,
+                "removed_objects": 0,
+                "retained_neighbor_slots": 0,
+                "retention": null,
+                "status": "no_previous"
+              },
+              "occlusion": 0.1956521739130435,
+              "route_length": 162,
+              "shared_lane_length": 0,
+              "structural_cost": 13.781367828073286,
+              "volume": 393984.0
+            },
+            "milliseconds": 5.778416,
+            "objects": 6,
+            "routes": 9,
+            "solution": {
+              "boxes": {
+                "client:web": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 60,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:web",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "client:web"
+                  ],
+                  "solid": true
+                },
+                "concern:authentication": {
+                  "bounds": {
+                    "max": {
+                      "x": 70,
+                      "y": 52,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "concern:authentication",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "concern:authentication"
+                  ],
+                  "solid": true
+                },
+                "concern:authorization": {
+                  "bounds": {
+                    "max": {
+                      "x": 34,
+                      "y": 52,
+                      "z": 60
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 36
+                    }
+                  },
+                  "id": "concern:authorization",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "concern:authorization"
+                  ],
+                  "solid": true
+                },
+                "scope:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 76,
+                      "y": 66,
+                      "z": 66
+                    },
+                    "min": {
+                      "x": 0,
+                      "y": -6,
+                      "z": -6
+                    }
+                  },
+                  "id": "scope:notes",
+                  "parent": null,
+                  "semantic_ids": [
+                    "scope:notes"
+                  ],
+                  "solid": false
+                },
+                "service:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 40,
+                      "y": 36,
+                      "z": 30
+                    },
+                    "min": {
+                      "x": 16,
+                      "y": 24,
+                      "z": 10
+                    }
+                  },
+                  "id": "service:notes",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "interface:notes",
+                    "interface:sessions",
+                    "service:notes"
+                  ],
+                  "solid": true
+                },
+                "store:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 40,
+                      "y": 12,
+                      "z": 30
+                    },
+                    "min": {
+                      "x": 16,
+                      "y": 0,
+                      "z": 10
+                    }
+                  },
+                  "id": "store:notes",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "store:notes"
+                  ],
+                  "solid": true
+                }
+              },
+              "diagnostics": [
+                "Layered initialization used 8 alternating ordering sweeps and 56 adjacent-neighbor comparisons (limit 3072), then rectangular depth packing; supplied bands and relationship directions are unchanged."
+              ],
+              "metrics": {
+                "aspect_ratio": 1.0555555555555556,
+                "bends": 8,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.1956521739130435,
+                "route_length": 162,
+                "shared_lane_length": 0,
+                "structural_cost": 13.781367828073286,
+                "volume": 393984.0
+              },
+              "model_id": "example-notes-crud",
+              "projection_key": "projection-v1-6728a310f5a8d8ed",
+              "revision": 1,
+              "routes": [
+                {
+                  "edge_id": "rel:auth-implementation",
+                  "points": [
+                    {
+                      "x": 44,
+                      "y": 48,
+                      "z": 17
+                    },
+                    {
+                      "x": 44,
+                      "y": 30,
+                      "z": 17
+                    },
+                    {
+                      "x": 44,
+                      "y": 30,
+                      "z": 12
+                    },
+                    {
+                      "x": 40,
+                      "y": 30,
+                      "z": 12
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-implementation"
+                  ]
+                },
+                {
+                  "edge_id": "rel:auth-session",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 50,
+                      "z": 22
+                    },
+                    {
+                      "x": 38,
+                      "y": 50,
+                      "z": 22
+                    },
+                    {
+                      "x": 38,
+                      "y": 50,
+                      "z": 17
+                    },
+                    {
+                      "x": 38,
+                      "y": 36,
+                      "z": 17
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-session"
+                  ]
+                },
+                {
+                  "edge_id": "rel:auth-sign-in",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 50,
+                      "z": 10
+                    },
+                    {
+                      "x": 30,
+                      "y": 50,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-sign-in"
+                  ]
+                },
+                {
+                  "edge_id": "rel:authorization-implementation",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 50,
+                      "z": 36
+                    },
+                    {
+                      "x": 18,
+                      "y": 50,
+                      "z": 32
+                    },
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 32
+                    },
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 30
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:authorization-implementation"
+                  ]
+                },
+                {
+                  "edge_id": "rel:authorization-notes",
+                  "points": [
+                    {
+                      "x": 32,
+                      "y": 50,
+                      "z": 36
+                    },
+                    {
+                      "x": 32,
+                      "y": 50,
+                      "z": 32
+                    },
+                    {
+                      "x": 32,
+                      "y": 30,
+                      "z": 32
+                    },
+                    {
+                      "x": 32,
+                      "y": 30,
+                      "z": 30
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:authorization-notes"
+                  ]
+                },
+                {
+                  "edge_id": "rel:read-database",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 24,
+                      "z": 20
+                    },
+                    {
+                      "x": 18,
+                      "y": 12,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:read-database"
+                  ]
+                },
+                {
+                  "edge_id": "rel:request-notes",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 48,
+                      "z": 15
+                    },
+                    {
+                      "x": 18,
+                      "y": 36,
+                      "z": 15
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:request-notes"
+                  ]
+                },
+                {
+                  "edge_id": "rel:request-sessions",
+                  "points": [
+                    {
+                      "x": 28,
+                      "y": 48,
+                      "z": 15
+                    },
+                    {
+                      "x": 28,
+                      "y": 36,
+                      "z": 15
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:request-sessions"
+                  ]
+                },
+                {
+                  "edge_id": "rel:write-database",
+                  "points": [
+                    {
+                      "x": 38,
+                      "y": 24,
+                      "z": 20
+                    },
+                    {
+                      "x": 38,
+                      "y": 12,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:write-database"
+                  ]
+                }
+              ],
+              "version": 2
+            },
+            "status": "valid"
+          },
+          {
+            "algorithm": "Floorplan",
+            "metrics": {
+              "aspect_ratio": 1.0,
+              "bends": 3,
+              "congestion": 0.0,
+              "crossing_points": 0,
+              "displacement": 0,
+              "neighborhood": {
+                "added_objects": 0,
+                "compared_neighbor_slots": 0,
+                "compared_objects": 0,
+                "excluded_frame_changes": 0,
+                "excluded_insufficient_peers": 0,
+                "excluded_reparented_objects": 0,
+                "excluded_representation_changes": 0,
+                "excluded_root_objects": 0,
+                "removed_objects": 0,
+                "retained_neighbor_slots": 0,
+                "retention": null,
+                "status": "no_previous"
+              },
+              "occlusion": 0.1939799331103679,
+              "route_length": 132,
+              "shared_lane_length": 0,
+              "structural_cost": 11.253970884447924,
+              "volume": 373248.0
+            },
+            "milliseconds": 7.145417,
+            "objects": 6,
+            "routes": 9,
+            "solution": {
+              "boxes": {
+                "client:web": {
+                  "bounds": {
+                    "max": {
+                      "x": 26,
+                      "y": 60,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:web",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "client:web"
+                  ],
+                  "solid": true
+                },
+                "concern:authentication": {
+                  "bounds": {
+                    "max": {
+                      "x": 66,
+                      "y": 52,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 38,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "concern:authentication",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "concern:authentication"
+                  ],
+                  "solid": true
+                },
+                "concern:authorization": {
+                  "bounds": {
+                    "max": {
+                      "x": 66,
+                      "y": 52,
+                      "z": 60
+                    },
+                    "min": {
+                      "x": 38,
+                      "y": 48,
+                      "z": 36
+                    }
+                  },
+                  "id": "concern:authorization",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "concern:authorization"
+                  ],
+                  "solid": true
+                },
+                "scope:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 72,
+                      "y": 66,
+                      "z": 66
+                    },
+                    "min": {
+                      "x": 0,
+                      "y": -6,
+                      "z": -6
+                    }
+                  },
+                  "id": "scope:notes",
+                  "parent": null,
+                  "semantic_ids": [
+                    "scope:notes"
+                  ],
+                  "solid": false
+                },
+                "service:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 44,
+                      "y": 36,
+                      "z": 33
+                    },
+                    "min": {
+                      "x": 24,
+                      "y": 24,
+                      "z": 9
+                    }
+                  },
+                  "id": "service:notes",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "interface:notes",
+                    "interface:sessions",
+                    "service:notes"
+                  ],
+                  "solid": true
+                },
+                "store:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 44,
+                      "y": 12,
+                      "z": 33
+                    },
+                    "min": {
+                      "x": 24,
+                      "y": 0,
+                      "z": 9
+                    }
+                  },
+                  "id": "store:notes",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "store:notes"
+                  ],
+                  "solid": true
+                }
+              },
+              "diagnostics": [],
+              "metrics": {
+                "aspect_ratio": 1.0,
+                "bends": 3,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.1939799331103679,
+                "route_length": 132,
+                "shared_lane_length": 0,
+                "structural_cost": 11.253970884447924,
+                "volume": 373248.0
+              },
+              "model_id": "example-notes-crud",
+              "projection_key": "projection-v1-6728a310f5a8d8ed",
+              "revision": 1,
+              "routes": [
+                {
+                  "edge_id": "rel:auth-implementation",
+                  "points": [
+                    {
+                      "x": 41,
+                      "y": 48,
+                      "z": 11
+                    },
+                    {
+                      "x": 41,
+                      "y": 36,
+                      "z": 11
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-implementation"
+                  ]
+                },
+                {
+                  "edge_id": "rel:auth-session",
+                  "points": [
+                    {
+                      "x": 41,
+                      "y": 48,
+                      "z": 22
+                    },
+                    {
+                      "x": 41,
+                      "y": 36,
+                      "z": 22
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-session"
+                  ]
+                },
+                {
+                  "edge_id": "rel:auth-sign-in",
+                  "points": [
+                    {
+                      "x": 38,
+                      "y": 50,
+                      "z": 12
+                    },
+                    {
+                      "x": 26,
+                      "y": 50,
+                      "z": 12
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-sign-in"
+                  ]
+                },
+                {
+                  "edge_id": "rel:authorization-implementation",
+                  "points": [
+                    {
+                      "x": 41,
+                      "y": 48,
+                      "z": 38
+                    },
+                    {
+                      "x": 41,
+                      "y": 26,
+                      "z": 38
+                    },
+                    {
+                      "x": 41,
+                      "y": 26,
+                      "z": 33
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:authorization-implementation"
+                  ]
+                },
+                {
+                  "edge_id": "rel:authorization-notes",
+                  "points": [
+                    {
+                      "x": 43,
+                      "y": 50,
+                      "z": 36
+                    },
+                    {
+                      "x": 43,
+                      "y": 50,
+                      "z": 31
+                    },
+                    {
+                      "x": 41,
+                      "y": 50,
+                      "z": 31
+                    },
+                    {
+                      "x": 41,
+                      "y": 36,
+                      "z": 31
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:authorization-notes"
+                  ]
+                },
+                {
+                  "edge_id": "rel:read-database",
+                  "points": [
+                    {
+                      "x": 34,
+                      "y": 24,
+                      "z": 11
+                    },
+                    {
+                      "x": 34,
+                      "y": 12,
+                      "z": 11
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:read-database"
+                  ]
+                },
+                {
+                  "edge_id": "rel:request-notes",
+                  "points": [
+                    {
+                      "x": 25,
+                      "y": 48,
+                      "z": 11
+                    },
+                    {
+                      "x": 25,
+                      "y": 36,
+                      "z": 11
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:request-notes"
+                  ]
+                },
+                {
+                  "edge_id": "rel:request-sessions",
+                  "points": [
+                    {
+                      "x": 25,
+                      "y": 48,
+                      "z": 22
+                    },
+                    {
+                      "x": 25,
+                      "y": 36,
+                      "z": 22
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:request-sessions"
+                  ]
+                },
+                {
+                  "edge_id": "rel:write-database",
+                  "points": [
+                    {
+                      "x": 34,
+                      "y": 24,
+                      "z": 31
+                    },
+                    {
+                      "x": 34,
+                      "y": 12,
+                      "z": 31
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:write-database"
+                  ]
+                }
+              ],
+              "version": 2
+            },
+            "status": "valid"
+          },
+          {
+            "algorithm": "Constrained",
+            "metrics": {
+              "aspect_ratio": 1.0555555555555556,
+              "bends": 8,
+              "congestion": 0.0,
+              "crossing_points": 0,
+              "displacement": 0,
+              "neighborhood": {
+                "added_objects": 0,
+                "compared_neighbor_slots": 0,
+                "compared_objects": 0,
+                "excluded_frame_changes": 0,
+                "excluded_insufficient_peers": 0,
+                "excluded_reparented_objects": 0,
+                "excluded_representation_changes": 0,
+                "excluded_root_objects": 0,
+                "removed_objects": 0,
+                "retained_neighbor_slots": 0,
+                "retention": null,
+                "status": "no_previous"
+              },
+              "occlusion": 0.1956521739130435,
+              "route_length": 162,
+              "shared_lane_length": 0,
+              "structural_cost": 13.781367828073286,
+              "volume": 393984.0
+            },
+            "milliseconds": 1.671459,
+            "objects": 6,
+            "routes": 9,
+            "solution": {
+              "boxes": {
+                "client:web": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 60,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:web",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "client:web"
+                  ],
+                  "solid": true
+                },
+                "concern:authentication": {
+                  "bounds": {
+                    "max": {
+                      "x": 70,
+                      "y": 52,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "concern:authentication",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "concern:authentication"
+                  ],
+                  "solid": true
+                },
+                "concern:authorization": {
+                  "bounds": {
+                    "max": {
+                      "x": 34,
+                      "y": 52,
+                      "z": 60
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 36
+                    }
+                  },
+                  "id": "concern:authorization",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "concern:authorization"
+                  ],
+                  "solid": true
+                },
+                "scope:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 76,
+                      "y": 66,
+                      "z": 66
+                    },
+                    "min": {
+                      "x": 0,
+                      "y": -6,
+                      "z": -6
+                    }
+                  },
+                  "id": "scope:notes",
+                  "parent": null,
+                  "semantic_ids": [
+                    "scope:notes"
+                  ],
+                  "solid": false
+                },
+                "service:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 40,
+                      "y": 36,
+                      "z": 30
+                    },
+                    "min": {
+                      "x": 16,
+                      "y": 24,
+                      "z": 10
+                    }
+                  },
+                  "id": "service:notes",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "interface:notes",
+                    "interface:sessions",
+                    "service:notes"
+                  ],
+                  "solid": true
+                },
+                "store:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 40,
+                      "y": 12,
+                      "z": 30
+                    },
+                    "min": {
+                      "x": 16,
+                      "y": 0,
+                      "z": 10
+                    }
+                  },
+                  "id": "store:notes",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "store:notes"
+                  ],
+                  "solid": true
+                }
+              },
+              "diagnostics": [],
+              "metrics": {
+                "aspect_ratio": 1.0555555555555556,
+                "bends": 8,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.1956521739130435,
+                "route_length": 162,
+                "shared_lane_length": 0,
+                "structural_cost": 13.781367828073286,
+                "volume": 393984.0
+              },
+              "model_id": "example-notes-crud",
+              "projection_key": "projection-v1-6728a310f5a8d8ed",
+              "revision": 1,
+              "routes": [
+                {
+                  "edge_id": "rel:auth-implementation",
+                  "points": [
+                    {
+                      "x": 44,
+                      "y": 48,
+                      "z": 17
+                    },
+                    {
+                      "x": 44,
+                      "y": 30,
+                      "z": 17
+                    },
+                    {
+                      "x": 44,
+                      "y": 30,
+                      "z": 12
+                    },
+                    {
+                      "x": 40,
+                      "y": 30,
+                      "z": 12
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-implementation"
+                  ]
+                },
+                {
+                  "edge_id": "rel:auth-session",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 50,
+                      "z": 22
+                    },
+                    {
+                      "x": 38,
+                      "y": 50,
+                      "z": 22
+                    },
+                    {
+                      "x": 38,
+                      "y": 50,
+                      "z": 17
+                    },
+                    {
+                      "x": 38,
+                      "y": 36,
+                      "z": 17
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-session"
+                  ]
+                },
+                {
+                  "edge_id": "rel:auth-sign-in",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 50,
+                      "z": 10
+                    },
+                    {
+                      "x": 30,
+                      "y": 50,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-sign-in"
+                  ]
+                },
+                {
+                  "edge_id": "rel:authorization-implementation",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 50,
+                      "z": 36
+                    },
+                    {
+                      "x": 18,
+                      "y": 50,
+                      "z": 32
+                    },
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 32
+                    },
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 30
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:authorization-implementation"
+                  ]
+                },
+                {
+                  "edge_id": "rel:authorization-notes",
+                  "points": [
+                    {
+                      "x": 32,
+                      "y": 50,
+                      "z": 36
+                    },
+                    {
+                      "x": 32,
+                      "y": 50,
+                      "z": 32
+                    },
+                    {
+                      "x": 32,
+                      "y": 30,
+                      "z": 32
+                    },
+                    {
+                      "x": 32,
+                      "y": 30,
+                      "z": 30
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:authorization-notes"
+                  ]
+                },
+                {
+                  "edge_id": "rel:read-database",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 24,
+                      "z": 20
+                    },
+                    {
+                      "x": 18,
+                      "y": 12,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:read-database"
+                  ]
+                },
+                {
+                  "edge_id": "rel:request-notes",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 48,
+                      "z": 15
+                    },
+                    {
+                      "x": 18,
+                      "y": 36,
+                      "z": 15
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:request-notes"
+                  ]
+                },
+                {
+                  "edge_id": "rel:request-sessions",
+                  "points": [
+                    {
+                      "x": 28,
+                      "y": 48,
+                      "z": 15
+                    },
+                    {
+                      "x": 28,
+                      "y": 36,
+                      "z": 15
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:request-sessions"
+                  ]
+                },
+                {
+                  "edge_id": "rel:write-database",
+                  "points": [
+                    {
+                      "x": 38,
+                      "y": 24,
+                      "z": 20
+                    },
+                    {
+                      "x": 38,
+                      "y": 12,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:write-database"
+                  ]
+                }
+              ],
+              "version": 2
+            },
+            "status": "valid"
+          },
+          {
+            "algorithm": "Treemap",
+            "metrics": {
+              "aspect_ratio": 1.0555555555555556,
+              "bends": 8,
+              "congestion": 0.0,
+              "crossing_points": 0,
+              "displacement": 0,
+              "neighborhood": {
+                "added_objects": 0,
+                "compared_neighbor_slots": 0,
+                "compared_objects": 0,
+                "excluded_frame_changes": 0,
+                "excluded_insufficient_peers": 0,
+                "excluded_reparented_objects": 0,
+                "excluded_representation_changes": 0,
+                "excluded_root_objects": 0,
+                "removed_objects": 0,
+                "retained_neighbor_slots": 0,
+                "retention": null,
+                "status": "no_previous"
+              },
+              "occlusion": 0.3377926421404682,
+              "route_length": 196,
+              "shared_lane_length": 0,
+              "structural_cost": 15.267224561051979,
+              "volume": 393984.0
+            },
+            "milliseconds": 1.5015409999999998,
+            "objects": 6,
+            "routes": 9,
+            "solution": {
+              "boxes": {
+                "client:web": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 60,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:web",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "client:web"
+                  ],
+                  "solid": true
+                },
+                "concern:authentication": {
+                  "bounds": {
+                    "max": {
+                      "x": 70,
+                      "y": 52,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "concern:authentication",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "concern:authentication"
+                  ],
+                  "solid": true
+                },
+                "concern:authorization": {
+                  "bounds": {
+                    "max": {
+                      "x": 34,
+                      "y": 52,
+                      "z": 60
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 36
+                    }
+                  },
+                  "id": "concern:authorization",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "concern:authorization"
+                  ],
+                  "solid": true
+                },
+                "scope:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 76,
+                      "y": 66,
+                      "z": 66
+                    },
+                    "min": {
+                      "x": 0,
+                      "y": -6,
+                      "z": -6
+                    }
+                  },
+                  "id": "scope:notes",
+                  "parent": null,
+                  "semantic_ids": [
+                    "scope:notes"
+                  ],
+                  "solid": false
+                },
+                "service:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 36,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 24,
+                      "z": 0
+                    }
+                  },
+                  "id": "service:notes",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "interface:notes",
+                    "interface:sessions",
+                    "service:notes"
+                  ],
+                  "solid": true
+                },
+                "store:notes": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 12,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 0
+                    }
+                  },
+                  "id": "store:notes",
+                  "parent": "scope:notes",
+                  "semantic_ids": [
+                    "store:notes"
+                  ],
+                  "solid": true
+                }
+              },
+              "diagnostics": [],
+              "metrics": {
+                "aspect_ratio": 1.0555555555555556,
+                "bends": 8,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.3377926421404682,
+                "route_length": 196,
+                "shared_lane_length": 0,
+                "structural_cost": 15.267224561051979,
+                "volume": 393984.0
+              },
+              "model_id": "example-notes-crud",
+              "projection_key": "projection-v1-6728a310f5a8d8ed",
+              "revision": 1,
+              "routes": [
+                {
+                  "edge_id": "rel:auth-implementation",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 50,
+                      "z": 2
+                    },
+                    {
+                      "x": 32,
+                      "y": 50,
+                      "z": 2
+                    },
+                    {
+                      "x": 32,
+                      "y": 30,
+                      "z": 2
+                    },
+                    {
+                      "x": 30,
+                      "y": 30,
+                      "z": 2
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-implementation"
+                  ]
+                },
+                {
+                  "edge_id": "rel:auth-session",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 50,
+                      "z": 18
+                    },
+                    {
+                      "x": 32,
+                      "y": 50,
+                      "z": 18
+                    },
+                    {
+                      "x": 32,
+                      "y": 30,
+                      "z": 18
+                    },
+                    {
+                      "x": 30,
+                      "y": 30,
+                      "z": 18
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-session"
+                  ]
+                },
+                {
+                  "edge_id": "rel:auth-sign-in",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 50,
+                      "z": 10
+                    },
+                    {
+                      "x": 30,
+                      "y": 50,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:auth-sign-in"
+                  ]
+                },
+                {
+                  "edge_id": "rel:authorization-implementation",
+                  "points": [
+                    {
+                      "x": 8,
+                      "y": 50,
+                      "z": 36
+                    },
+                    {
+                      "x": 8,
+                      "y": 50,
+                      "z": 22
+                    },
+                    {
+                      "x": 8,
+                      "y": 30,
+                      "z": 22
+                    },
+                    {
+                      "x": 8,
+                      "y": 30,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:authorization-implementation"
+                  ]
+                },
+                {
+                  "edge_id": "rel:authorization-notes",
+                  "points": [
+                    {
+                      "x": 28,
+                      "y": 50,
+                      "z": 36
+                    },
+                    {
+                      "x": 28,
+                      "y": 50,
+                      "z": 22
+                    },
+                    {
+                      "x": 28,
+                      "y": 30,
+                      "z": 22
+                    },
+                    {
+                      "x": 28,
+                      "y": 30,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:authorization-notes"
+                  ]
+                },
+                {
+                  "edge_id": "rel:read-database",
+                  "points": [
+                    {
+                      "x": 8,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 8,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:read-database"
+                  ]
+                },
+                {
+                  "edge_id": "rel:request-notes",
+                  "points": [
+                    {
+                      "x": 8,
+                      "y": 48,
+                      "z": 10
+                    },
+                    {
+                      "x": 8,
+                      "y": 36,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:request-notes"
+                  ]
+                },
+                {
+                  "edge_id": "rel:request-sessions",
+                  "points": [
+                    {
+                      "x": 28,
+                      "y": 48,
+                      "z": 10
+                    },
+                    {
+                      "x": 28,
+                      "y": 36,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:request-sessions"
+                  ]
+                },
+                {
+                  "edge_id": "rel:write-database",
+                  "points": [
+                    {
+                      "x": 28,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 28,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "rel:write-database"
+                  ]
+                }
+              ],
+              "version": 2
+            },
+            "status": "valid"
+          }
+        ],
+        "revision": 1
+      },
+      {
+        "case": {
+          "format": "snapshot",
+          "id": "sketch-overview",
+          "path": "public/examples/sketch-crud.json",
+          "role": "training",
+          "sha256": "d20633a69da320c13bb995afd568e7d57656d437a0f7c6b0af43b01d091b2957",
+          "view": {
+            "child_page": 0,
+            "expanded": [],
+            "focus": null,
+            "lens": null,
+            "policy": "crud",
+            "relation_page": 0
+          }
+        },
+        "completeness": {
+          "supplied_omissions": [
+            "Schematic supplied design, not a deployed application.",
+            "Data stores stand for conceptual persistence areas; individual tables require the additive bundle profile."
+          ],
+          "supplied_snapshot_coverage": "partial",
+          "visible_projection_records_complete": true
+        },
+        "indexing_ms": 0.36475,
+        "model_id": "example-sketch-crud",
+        "projection_key": "projection-v1-3c24eba8dae6f558",
+        "projection_ms": 0.06904199999999999,
+        "results": [
+          {
+            "algorithm": "Layered",
+            "metrics": {
+              "aspect_ratio": 1.3333333333333333,
+              "bends": 3,
+              "congestion": 0.0,
+              "crossing_points": 0,
+              "displacement": 0,
+              "neighborhood": {
+                "added_objects": 0,
+                "compared_neighbor_slots": 0,
+                "compared_objects": 0,
+                "excluded_frame_changes": 0,
+                "excluded_insufficient_peers": 0,
+                "excluded_reparented_objects": 0,
+                "excluded_representation_changes": 0,
+                "excluded_root_objects": 0,
+                "removed_objects": 0,
+                "retained_neighbor_slots": 0,
+                "retention": null,
+                "status": "no_previous"
+              },
+              "occlusion": 0.45060483870967744,
+              "route_length": 239,
+              "shared_lane_length": 0,
+              "structural_cost": 13.768740028107727,
+              "volume": 539136.0
+            },
+            "milliseconds": 5.34925,
+            "objects": 9,
+            "routes": 10,
+            "solution": {
+              "boxes": {
+                "client:demo": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 60,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:demo",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "client:demo"
+                  ],
+                  "solid": true
+                },
+                "client:waitlist": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 60,
+                      "z": 84
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 64
+                    }
+                  },
+                  "id": "client:waitlist",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "client:waitlist"
+                  ],
+                  "solid": true
+                },
+                "concern:auth": {
+                  "bounds": {
+                    "max": {
+                      "x": 72,
+                      "y": 52,
+                      "z": 54
+                    },
+                    "min": {
+                      "x": 44,
+                      "y": 48,
+                      "z": 30
+                    }
+                  },
+                  "id": "concern:auth",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "concern:auth"
+                  ],
+                  "solid": true
+                },
+                "scope:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 78,
+                      "y": 66,
+                      "z": 90
+                    },
+                    "min": {
+                      "x": 0,
+                      "y": -6,
+                      "z": -6
+                    }
+                  },
+                  "id": "scope:app",
+                  "parent": null,
+                  "semantic_ids": [
+                    "scope:app"
+                  ],
+                  "solid": false
+                },
+                "service:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 36,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 24,
+                      "z": 0
+                    }
+                  },
+                  "id": "service:app",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "service:app"
+                  ],
+                  "solid": true
+                },
+                "service:login": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 36,
+                      "z": 63
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 24,
+                      "z": 43
+                    }
+                  },
+                  "id": "service:login",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "service:login"
+                  ],
+                  "solid": true
+                },
+                "store:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 12,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 0
+                    }
+                  },
+                  "id": "store:app",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:app"
+                  ],
+                  "solid": true
+                },
+                "store:profiles": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 12,
+                      "z": 52
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 32
+                    }
+                  },
+                  "id": "store:profiles",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:profiles"
+                  ],
+                  "solid": true
+                },
+                "store:waitlist": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 12,
+                      "z": 84
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 64
+                    }
+                  },
+                  "id": "store:waitlist",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:waitlist"
+                  ],
+                  "solid": true
+                }
+              },
+              "diagnostics": [
+                "Layered initialization used 8 alternating ordering sweeps and 184 adjacent-neighbor comparisons (limit 4608), then rectangular depth packing; supplied bands and relationship directions are unchanged."
+              ],
+              "metrics": {
+                "aspect_ratio": 1.3333333333333333,
+                "bends": 3,
+                "congestion": 0.0,
+                "crossing_points": 0,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.45060483870967744,
+                "route_length": 239,
+                "shared_lane_length": 0,
+                "structural_cost": 13.768740028107727,
+                "volume": 539136.0
+              },
+              "model_id": "example-sketch-crud",
+              "projection_key": "projection-v1-3c24eba8dae6f558",
+              "revision": 1,
+              "routes": [
+                {
+                  "edge_id": "flow:00",
+                  "points": [
+                    {
+                      "x": 44,
+                      "y": 50,
+                      "z": 48
+                    },
+                    {
+                      "x": 18,
+                      "y": 50,
+                      "z": 48
+                    },
+                    {
+                      "x": 18,
+                      "y": 36,
+                      "z": 48
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:00"
+                  ]
+                },
+                {
+                  "edge_id": "flow:01",
+                  "points": [
+                    {
+                      "x": 58,
+                      "y": 50,
+                      "z": 30
+                    },
+                    {
+                      "x": 58,
+                      "y": 50,
+                      "z": 10
+                    },
+                    {
+                      "x": 58,
+                      "y": 30,
+                      "z": 10
+                    },
+                    {
+                      "x": 30,
+                      "y": 30,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:01"
+                  ]
+                },
+                {
+                  "edge_id": "flow:02",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 48,
+                      "z": 10
+                    },
+                    {
+                      "x": 18,
+                      "y": 36,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:02"
+                  ]
+                },
+                {
+                  "edge_id": "flow:03",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 48,
+                      "z": 74
+                    },
+                    {
+                      "x": 18,
+                      "y": 12,
+                      "z": 74
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:03"
+                  ]
+                },
+                {
+                  "edge_id": "flow:04",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 43
+                    },
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:04"
+                  ]
+                },
+                {
+                  "edge_id": "flow:05",
+                  "points": [
+                    {
+                      "x": 8,
+                      "y": 24,
+                      "z": 47
+                    },
+                    {
+                      "x": 8,
+                      "y": 12,
+                      "z": 47
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:05"
+                  ]
+                },
+                {
+                  "edge_id": "flow:06",
+                  "points": [
+                    {
+                      "x": 28,
+                      "y": 24,
+                      "z": 47
+                    },
+                    {
+                      "x": 28,
+                      "y": 12,
+                      "z": 47
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:06"
+                  ]
+                },
+                {
+                  "edge_id": "flow:07",
+                  "points": [
+                    {
+                      "x": 8,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 8,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:07"
+                  ]
+                },
+                {
+                  "edge_id": "flow:08",
+                  "points": [
+                    {
+                      "x": 28,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 28,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:08"
+                  ]
+                },
+                {
+                  "edge_id": "flow:09",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 6,
+                      "z": 32
+                    },
+                    {
+                      "x": 18,
+                      "y": 6,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:09"
+                  ]
+                }
+              ],
+              "version": 2
+            },
+            "status": "valid"
+          },
+          {
+            "algorithm": "Floorplan",
+            "metrics": {
+              "aspect_ratio": 1.0555555555555556,
+              "bends": 2,
+              "congestion": 0.15708389254953678,
+              "crossing_points": 1,
+              "displacement": 0,
+              "neighborhood": {
+                "added_objects": 0,
+                "compared_neighbor_slots": 0,
+                "compared_objects": 0,
+                "excluded_frame_changes": 0,
+                "excluded_insufficient_peers": 0,
+                "excluded_reparented_objects": 0,
+                "excluded_representation_changes": 0,
+                "excluded_root_objects": 0,
+                "removed_objects": 0,
+                "retained_neighbor_slots": 0,
+                "retention": null,
+                "status": "no_previous"
+              },
+              "occlusion": 0.5443548387096774,
+              "route_length": 168,
+              "shared_lane_length": 2,
+              "structural_cost": 11.308545720939897,
+              "volume": 393984.0
+            },
+            "milliseconds": 7.249333,
+            "objects": 9,
+            "routes": 10,
+            "solution": {
+              "boxes": {
+                "client:demo": {
+                  "bounds": {
+                    "max": {
+                      "x": 26,
+                      "y": 60,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:demo",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "client:demo"
+                  ],
+                  "solid": true
+                },
+                "client:waitlist": {
+                  "bounds": {
+                    "max": {
+                      "x": 26,
+                      "y": 60,
+                      "z": 60
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 36
+                    }
+                  },
+                  "id": "client:waitlist",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "client:waitlist"
+                  ],
+                  "solid": true
+                },
+                "concern:auth": {
+                  "bounds": {
+                    "max": {
+                      "x": 70,
+                      "y": 52,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "concern:auth",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "concern:auth"
+                  ],
+                  "solid": true
+                },
+                "scope:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 76,
+                      "y": 66,
+                      "z": 66
+                    },
+                    "min": {
+                      "x": 0,
+                      "y": -6,
+                      "z": -6
+                    }
+                  },
+                  "id": "scope:app",
+                  "parent": null,
+                  "semantic_ids": [
+                    "scope:app"
+                  ],
+                  "solid": false
+                },
+                "service:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 26,
+                      "y": 36,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 24,
+                      "z": 0
+                    }
+                  },
+                  "id": "service:app",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "service:app"
+                  ],
+                  "solid": true
+                },
+                "service:login": {
+                  "bounds": {
+                    "max": {
+                      "x": 58,
+                      "y": 36,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 38,
+                      "y": 24,
+                      "z": 0
+                    }
+                  },
+                  "id": "service:login",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "service:login"
+                  ],
+                  "solid": true
+                },
+                "store:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 26,
+                      "y": 12,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 0
+                    }
+                  },
+                  "id": "store:app",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:app"
+                  ],
+                  "solid": true
+                },
+                "store:profiles": {
+                  "bounds": {
+                    "max": {
+                      "x": 58,
+                      "y": 12,
+                      "z": 24
+                    },
+                    "min": {
+                      "x": 38,
+                      "y": 0,
+                      "z": 0
+                    }
+                  },
+                  "id": "store:profiles",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:profiles"
+                  ],
+                  "solid": true
+                },
+                "store:waitlist": {
+                  "bounds": {
+                    "max": {
+                      "x": 26,
+                      "y": 12,
+                      "z": 60
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 36
+                    }
+                  },
+                  "id": "store:waitlist",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:waitlist"
+                  ],
+                  "solid": true
+                }
+              },
+              "diagnostics": [],
+              "metrics": {
+                "aspect_ratio": 1.0555555555555556,
+                "bends": 2,
+                "congestion": 0.15708389254953678,
+                "crossing_points": 1,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.5443548387096774,
+                "route_length": 168,
+                "shared_lane_length": 2,
+                "structural_cost": 11.308545720939897,
+                "volume": 393984.0
+              },
+              "model_id": "example-sketch-crud",
+              "projection_key": "projection-v1-3c24eba8dae6f558",
+              "revision": 1,
+              "routes": [
+                {
+                  "edge_id": "flow:00",
+                  "points": [
+                    {
+                      "x": 50,
+                      "y": 48,
+                      "z": 12
+                    },
+                    {
+                      "x": 50,
+                      "y": 36,
+                      "z": 12
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:00"
+                  ]
+                },
+                {
+                  "edge_id": "flow:01",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 50,
+                      "z": 12
+                    },
+                    {
+                      "x": 28,
+                      "y": 50,
+                      "z": 12
+                    },
+                    {
+                      "x": 28,
+                      "y": 30,
+                      "z": 12
+                    },
+                    {
+                      "x": 26,
+                      "y": 30,
+                      "z": 12
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:01"
+                  ]
+                },
+                {
+                  "edge_id": "flow:02",
+                  "points": [
+                    {
+                      "x": 16,
+                      "y": 48,
+                      "z": 12
+                    },
+                    {
+                      "x": 16,
+                      "y": 36,
+                      "z": 12
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:02"
+                  ]
+                },
+                {
+                  "edge_id": "flow:03",
+                  "points": [
+                    {
+                      "x": 16,
+                      "y": 48,
+                      "z": 48
+                    },
+                    {
+                      "x": 16,
+                      "y": 12,
+                      "z": 48
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:03"
+                  ]
+                },
+                {
+                  "edge_id": "flow:04",
+                  "points": [
+                    {
+                      "x": 38,
+                      "y": 30,
+                      "z": 12
+                    },
+                    {
+                      "x": 26,
+                      "y": 30,
+                      "z": 12
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:04"
+                  ]
+                },
+                {
+                  "edge_id": "flow:05",
+                  "points": [
+                    {
+                      "x": 48,
+                      "y": 24,
+                      "z": 2
+                    },
+                    {
+                      "x": 48,
+                      "y": 12,
+                      "z": 2
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:05"
+                  ]
+                },
+                {
+                  "edge_id": "flow:06",
+                  "points": [
+                    {
+                      "x": 48,
+                      "y": 24,
+                      "z": 22
+                    },
+                    {
+                      "x": 48,
+                      "y": 12,
+                      "z": 22
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:06"
+                  ]
+                },
+                {
+                  "edge_id": "flow:07",
+                  "points": [
+                    {
+                      "x": 16,
+                      "y": 24,
+                      "z": 2
+                    },
+                    {
+                      "x": 16,
+                      "y": 12,
+                      "z": 2
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:07"
+                  ]
+                },
+                {
+                  "edge_id": "flow:08",
+                  "points": [
+                    {
+                      "x": 16,
+                      "y": 24,
+                      "z": 22
+                    },
+                    {
+                      "x": 16,
+                      "y": 12,
+                      "z": 22
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:08"
+                  ]
+                },
+                {
+                  "edge_id": "flow:09",
+                  "points": [
+                    {
+                      "x": 38,
+                      "y": 6,
+                      "z": 12
+                    },
+                    {
+                      "x": 26,
+                      "y": 6,
+                      "z": 12
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:09"
+                  ]
+                }
+              ],
+              "version": 2
+            },
+            "status": "valid"
+          },
+          {
+            "algorithm": "Constrained",
+            "metrics": {
+              "aspect_ratio": 1.0588235294117647,
+              "bends": 6,
+              "congestion": 0.1,
+              "crossing_points": 1,
+              "displacement": 0,
+              "neighborhood": {
+                "added_objects": 0,
+                "compared_neighbor_slots": 0,
+                "compared_objects": 0,
+                "excluded_frame_changes": 0,
+                "excluded_insufficient_peers": 0,
+                "excluded_reparented_objects": 0,
+                "excluded_representation_changes": 0,
+                "excluded_root_objects": 0,
+                "removed_objects": 0,
+                "retained_neighbor_slots": 0,
+                "retention": null,
+                "status": "no_previous"
+              },
+              "occlusion": 0.5020161290322581,
+              "route_length": 266,
+              "shared_lane_length": 0,
+              "structural_cost": 14.616899007030252,
+              "volume": 352512.0
+            },
+            "milliseconds": 2.050917,
+            "objects": 9,
+            "routes": 10,
+            "solution": {
+              "boxes": {
+                "client:demo": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 60,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:demo",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "client:demo"
+                  ],
+                  "solid": true
+                },
+                "client:waitlist": {
+                  "bounds": {
+                    "max": {
+                      "x": 66,
+                      "y": 60,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:waitlist",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "client:waitlist"
+                  ],
+                  "solid": true
+                },
+                "concern:auth": {
+                  "bounds": {
+                    "max": {
+                      "x": 34,
+                      "y": 52,
+                      "z": 56
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 32
+                    }
+                  },
+                  "id": "concern:auth",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "concern:auth"
+                  ],
+                  "solid": true
+                },
+                "scope:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 72,
+                      "y": 66,
+                      "z": 62
+                    },
+                    "min": {
+                      "x": 0,
+                      "y": -6,
+                      "z": -6
+                    }
+                  },
+                  "id": "scope:app",
+                  "parent": null,
+                  "semantic_ids": [
+                    "scope:app"
+                  ],
+                  "solid": false
+                },
+                "service:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 36,
+                      "z": 28
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 24,
+                      "z": 8
+                    }
+                  },
+                  "id": "service:app",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "service:app"
+                  ],
+                  "solid": true
+                },
+                "service:login": {
+                  "bounds": {
+                    "max": {
+                      "x": 66,
+                      "y": 36,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 24,
+                      "z": 0
+                    }
+                  },
+                  "id": "service:login",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "service:login"
+                  ],
+                  "solid": true
+                },
+                "store:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 12,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 0
+                    }
+                  },
+                  "id": "store:app",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:app"
+                  ],
+                  "solid": true
+                },
+                "store:profiles": {
+                  "bounds": {
+                    "max": {
+                      "x": 66,
+                      "y": 12,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 0,
+                      "z": 0
+                    }
+                  },
+                  "id": "store:profiles",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:profiles"
+                  ],
+                  "solid": true
+                },
+                "store:waitlist": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 12,
+                      "z": 52
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 32
+                    }
+                  },
+                  "id": "store:waitlist",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:waitlist"
+                  ],
+                  "solid": true
+                }
+              },
+              "diagnostics": [],
+              "metrics": {
+                "aspect_ratio": 1.0588235294117647,
+                "bends": 6,
+                "congestion": 0.1,
+                "crossing_points": 1,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.5020161290322581,
+                "route_length": 266,
+                "shared_lane_length": 0,
+                "structural_cost": 14.616899007030252,
+                "volume": 352512.0
+              },
+              "model_id": "example-sketch-crud",
+              "projection_key": "projection-v1-3c24eba8dae6f558",
+              "revision": 1,
+              "routes": [
+                {
+                  "edge_id": "flow:00",
+                  "points": [
+                    {
+                      "x": 34,
+                      "y": 50,
+                      "z": 44
+                    },
+                    {
+                      "x": 54,
+                      "y": 50,
+                      "z": 44
+                    },
+                    {
+                      "x": 54,
+                      "y": 30,
+                      "z": 44
+                    },
+                    {
+                      "x": 54,
+                      "y": 30,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:00"
+                  ]
+                },
+                {
+                  "edge_id": "flow:01",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 50,
+                      "z": 32
+                    },
+                    {
+                      "x": 18,
+                      "y": 50,
+                      "z": 30
+                    },
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 30
+                    },
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 28
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:01"
+                  ]
+                },
+                {
+                  "edge_id": "flow:02",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 48,
+                      "z": 14
+                    },
+                    {
+                      "x": 18,
+                      "y": 36,
+                      "z": 14
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:02"
+                  ]
+                },
+                {
+                  "edge_id": "flow:03",
+                  "points": [
+                    {
+                      "x": 54,
+                      "y": 54,
+                      "z": 20
+                    },
+                    {
+                      "x": 54,
+                      "y": 54,
+                      "z": 42
+                    },
+                    {
+                      "x": 54,
+                      "y": 6,
+                      "z": 42
+                    },
+                    {
+                      "x": 30,
+                      "y": 6,
+                      "z": 42
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:03"
+                  ]
+                },
+                {
+                  "edge_id": "flow:04",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 30,
+                      "z": 14
+                    },
+                    {
+                      "x": 30,
+                      "y": 30,
+                      "z": 14
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:04"
+                  ]
+                },
+                {
+                  "edge_id": "flow:05",
+                  "points": [
+                    {
+                      "x": 44,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 44,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:05"
+                  ]
+                },
+                {
+                  "edge_id": "flow:06",
+                  "points": [
+                    {
+                      "x": 64,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 64,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:06"
+                  ]
+                },
+                {
+                  "edge_id": "flow:07",
+                  "points": [
+                    {
+                      "x": 8,
+                      "y": 24,
+                      "z": 14
+                    },
+                    {
+                      "x": 8,
+                      "y": 12,
+                      "z": 14
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:07"
+                  ]
+                },
+                {
+                  "edge_id": "flow:08",
+                  "points": [
+                    {
+                      "x": 28,
+                      "y": 24,
+                      "z": 14
+                    },
+                    {
+                      "x": 28,
+                      "y": 12,
+                      "z": 14
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:08"
+                  ]
+                },
+                {
+                  "edge_id": "flow:09",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 6,
+                      "z": 10
+                    },
+                    {
+                      "x": 30,
+                      "y": 6,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:09"
+                  ]
+                }
+              ],
+              "version": 2
+            },
+            "status": "valid"
+          },
+          {
+            "algorithm": "Treemap",
+            "metrics": {
+              "aspect_ratio": 1.0588235294117647,
+              "bends": 6,
+              "congestion": 0.1,
+              "crossing_points": 1,
+              "displacement": 0,
+              "neighborhood": {
+                "added_objects": 0,
+                "compared_neighbor_slots": 0,
+                "compared_objects": 0,
+                "excluded_frame_changes": 0,
+                "excluded_insufficient_peers": 0,
+                "excluded_reparented_objects": 0,
+                "excluded_representation_changes": 0,
+                "excluded_root_objects": 0,
+                "removed_objects": 0,
+                "retained_neighbor_slots": 0,
+                "retention": null,
+                "status": "no_previous"
+              },
+              "occlusion": 0.5625,
+              "route_length": 274,
+              "shared_lane_length": 0,
+              "structural_cost": 14.966202319163884,
+              "volume": 352512.0
+            },
+            "milliseconds": 1.642291,
+            "objects": 9,
+            "routes": 10,
+            "solution": {
+              "boxes": {
+                "client:demo": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 60,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:demo",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "client:demo"
+                  ],
+                  "solid": true
+                },
+                "client:waitlist": {
+                  "bounds": {
+                    "max": {
+                      "x": 66,
+                      "y": 60,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 48,
+                      "z": 0
+                    }
+                  },
+                  "id": "client:waitlist",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "client:waitlist"
+                  ],
+                  "solid": true
+                },
+                "concern:auth": {
+                  "bounds": {
+                    "max": {
+                      "x": 34,
+                      "y": 52,
+                      "z": 56
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 48,
+                      "z": 32
+                    }
+                  },
+                  "id": "concern:auth",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "concern:auth"
+                  ],
+                  "solid": true
+                },
+                "scope:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 72,
+                      "y": 66,
+                      "z": 62
+                    },
+                    "min": {
+                      "x": 0,
+                      "y": -6,
+                      "z": -6
+                    }
+                  },
+                  "id": "scope:app",
+                  "parent": null,
+                  "semantic_ids": [
+                    "scope:app"
+                  ],
+                  "solid": false
+                },
+                "service:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 36,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 24,
+                      "z": 0
+                    }
+                  },
+                  "id": "service:app",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "service:app"
+                  ],
+                  "solid": true
+                },
+                "service:login": {
+                  "bounds": {
+                    "max": {
+                      "x": 66,
+                      "y": 36,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 24,
+                      "z": 0
+                    }
+                  },
+                  "id": "service:login",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "service:login"
+                  ],
+                  "solid": true
+                },
+                "store:app": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 12,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 0
+                    }
+                  },
+                  "id": "store:app",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:app"
+                  ],
+                  "solid": true
+                },
+                "store:profiles": {
+                  "bounds": {
+                    "max": {
+                      "x": 66,
+                      "y": 12,
+                      "z": 20
+                    },
+                    "min": {
+                      "x": 42,
+                      "y": 0,
+                      "z": 0
+                    }
+                  },
+                  "id": "store:profiles",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:profiles"
+                  ],
+                  "solid": true
+                },
+                "store:waitlist": {
+                  "bounds": {
+                    "max": {
+                      "x": 30,
+                      "y": 12,
+                      "z": 52
+                    },
+                    "min": {
+                      "x": 6,
+                      "y": 0,
+                      "z": 32
+                    }
+                  },
+                  "id": "store:waitlist",
+                  "parent": "scope:app",
+                  "semantic_ids": [
+                    "store:waitlist"
+                  ],
+                  "solid": true
+                }
+              },
+              "diagnostics": [],
+              "metrics": {
+                "aspect_ratio": 1.0588235294117647,
+                "bends": 6,
+                "congestion": 0.1,
+                "crossing_points": 1,
+                "displacement": 0,
+                "neighborhood": {
+                  "added_objects": 0,
+                  "compared_neighbor_slots": 0,
+                  "compared_objects": 0,
+                  "excluded_frame_changes": 0,
+                  "excluded_insufficient_peers": 0,
+                  "excluded_reparented_objects": 0,
+                  "excluded_representation_changes": 0,
+                  "excluded_root_objects": 0,
+                  "removed_objects": 0,
+                  "retained_neighbor_slots": 0,
+                  "retention": null,
+                  "status": "no_previous"
+                },
+                "occlusion": 0.5625,
+                "route_length": 274,
+                "shared_lane_length": 0,
+                "structural_cost": 14.966202319163884,
+                "volume": 352512.0
+              },
+              "model_id": "example-sketch-crud",
+              "projection_key": "projection-v1-3c24eba8dae6f558",
+              "revision": 1,
+              "routes": [
+                {
+                  "edge_id": "flow:00",
+                  "points": [
+                    {
+                      "x": 34,
+                      "y": 50,
+                      "z": 44
+                    },
+                    {
+                      "x": 54,
+                      "y": 50,
+                      "z": 44
+                    },
+                    {
+                      "x": 54,
+                      "y": 30,
+                      "z": 44
+                    },
+                    {
+                      "x": 54,
+                      "y": 30,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:00"
+                  ]
+                },
+                {
+                  "edge_id": "flow:01",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 50,
+                      "z": 32
+                    },
+                    {
+                      "x": 18,
+                      "y": 50,
+                      "z": 22
+                    },
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 22
+                    },
+                    {
+                      "x": 18,
+                      "y": 30,
+                      "z": 20
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:01"
+                  ]
+                },
+                {
+                  "edge_id": "flow:02",
+                  "points": [
+                    {
+                      "x": 18,
+                      "y": 48,
+                      "z": 10
+                    },
+                    {
+                      "x": 18,
+                      "y": 36,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:02"
+                  ]
+                },
+                {
+                  "edge_id": "flow:03",
+                  "points": [
+                    {
+                      "x": 54,
+                      "y": 54,
+                      "z": 20
+                    },
+                    {
+                      "x": 54,
+                      "y": 54,
+                      "z": 42
+                    },
+                    {
+                      "x": 54,
+                      "y": 6,
+                      "z": 42
+                    },
+                    {
+                      "x": 30,
+                      "y": 6,
+                      "z": 42
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:03"
+                  ]
+                },
+                {
+                  "edge_id": "flow:04",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 30,
+                      "z": 10
+                    },
+                    {
+                      "x": 30,
+                      "y": 30,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:04"
+                  ]
+                },
+                {
+                  "edge_id": "flow:05",
+                  "points": [
+                    {
+                      "x": 44,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 44,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:05"
+                  ]
+                },
+                {
+                  "edge_id": "flow:06",
+                  "points": [
+                    {
+                      "x": 64,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 64,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:06"
+                  ]
+                },
+                {
+                  "edge_id": "flow:07",
+                  "points": [
+                    {
+                      "x": 8,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 8,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:07"
+                  ]
+                },
+                {
+                  "edge_id": "flow:08",
+                  "points": [
+                    {
+                      "x": 28,
+                      "y": 24,
+                      "z": 10
+                    },
+                    {
+                      "x": 28,
+                      "y": 12,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:08"
+                  ]
+                },
+                {
+                  "edge_id": "flow:09",
+                  "points": [
+                    {
+                      "x": 42,
+                      "y": 6,
+                      "z": 10
+                    },
+                    {
+                      "x": 30,
+                      "y": 6,
+                      "z": 10
+                    }
+                  ],
+                  "scope_ports": [],
+                  "semantic_ids": [
+                    "flow:09"
+                  ]
+                }
+              ],
+              "version": 2
+            },
+            "status": "valid"
+          }
+        ],
+        "revision": 1
+      }
+    ],
+    "profile": {
+      "algorithms": [
+        "Layered",
+        "Floorplan",
+        "Constrained",
+        "Treemap"
+      ],
+      "continuity": "reported separately; no predecessor in initial-placement cases",
+      "layout_version": 2,
+      "normalization": "preferred-solid-volume-cuberoot-v1",
+      "normalization_equations": {
+        "aspect": "max enclosing dimension / min enclosing dimension - 1",
+        "compactness": "cbrt(enclosing volume / reference_volume)",
+        "congestion": "shared_lane_length/reference_length + crossing_points/max(1,displayed edge count)",
+        "distortion": "sum(L1(actual_size,preferred_size) / reference_length for solids)",
+        "length": "actual orthogonal routed length / reference_length",
+        "occlusion": "min(1,pairwise projected solid overlap / total projected solid area) across XY/XZ/YZ",
+        "reference_length": "max(1,cbrt(reference_volume))",
+        "reference_volume": "max(1,sum(preferred_width*preferred_height*preferred_depth for projected solids))"
+      },
+      "projection": {
+        "automatic_groups": true,
+        "group_target": 32,
+        "load_focus_detail": true,
+        "max_children": 32,
+        "max_references": 64,
+        "max_relation_records": 4096,
+        "peer_ceiling": 64,
+        "visible_budget": 250
+      },
+      "quality_version": 5,
+      "solver": {
+        "clearance": 2,
+        "feedback_candidates": 4,
+        "gap": 12,
+        "movement_weight": 0.08,
+        "routed_candidates": 8,
+        "size_candidates": 28
+      },
+      "weights": {
+        "aspect_ratio": 1.5,
+        "bends": 0.3,
+        "compactness": 2.0,
+        "congestion": 1.0,
+        "distortion": 0.25,
+        "occlusion": 2.0,
+        "route_length": 1.0
+      },
+      "work_budget": 32
+    }
+  },
+  "compiler": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+  "recorded_at_utc": "2026-09-30T16:34:24.205031+00:00",
+  "notes": "Headless CPU observations; includes every declared case/algorithm and every failure. No GPU or human comprehension claim. Initial placement has no previous layout. Historical fixtures remain development cases; a computational freeze alone is not weight calibration."
+}

@@ -1,0 +1,42 @@
+{
+  "recorded_utc": "2026-10-02T22:12:40.672973+00:00",
+  "parent_source_record": "projection-cache-validation-2026-09-30.json",
+  "only_source_changed_since_parent": "private/runtime/examples/support/frame_trace.rs",
+  "checks": [
+    {
+      "command": "cargo test -p visualyze --example production_smoke --offline --locked",
+      "exit_code": 0,
+      "log_sha256": "a90cb696948a81eb2903b04d5e8ef0deda76de49727c4eccdb3358bb11640b1f"
+    },
+    {
+      "command": "cargo clippy -p visualyze --example production_smoke --offline --locked -- -D warnings",
+      "exit_code": 0,
+      "log_sha256": "be71681a025403fa7ab7440da9c752b68e2e478f0fec84de363f2766e6c5ab5a"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "cargo build -p visualyze --example production_smoke --offline --locked",
+      "exit_code": 0,
+      "log_sha256": "7f6911d6c73d4f3c7436fdd25615c7deae216c137e5f9e5d62f5ea4e7caf6057"
+    }
+  ],
+  "example_tests": {
+    "passed": 5,
+    "failed": 0
+  },
+  "source_and_binary_verified_unchanged_after_native_run": true,
+  "source_sha256": {
+    "private/runtime/examples/support/frame_trace.rs": "cefd8542595d0d716da197e186183b976553f3f8e7a82267e479f5ac4cc2d67f",
+    "private/runtime/examples/production_smoke.rs": "8fabe421b4d261eb963f8dd0149b2f53fe2459a0791242a4b7abe8f88321e299",
+    "Cargo.lock": "ebde2964840a8ab18c73dcd04fff4eaa885bea827d5dd04b2194b62a950ea638"
+  },
+  "production_smoke_sha256": "2f6044fd9e0bf6855e26c683790e83bd1379011db904d586181498861e910da3",
+  "native_report": "native-surface-trace-2026-10-02.json",
+  "prior_binary_sampling": "renderer-sampling-2026-10-02.json",
+  "review": "Inspected bounded shared trace storage, exact callback preservation, before/after dependency placement and shared-clock attribution. Render marker intervals explicitly include scheduling/concurrent work and remain optional in the proof only. Actual native run produced298 surface brackets, zero dropped spans,38 successful actions and33 successful saves. Production viewer source is unchanged from the401-test cache checkpoint.",
+  "remaining": "Acquisition/occlusion behavior needs a verified remedy; no production renderer change or performance-gate pass is claimed."
+}

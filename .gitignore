@@ -1,0 +1,25 @@
+# Operating-system and editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Rust
+target/
+**/*.rs.bk
+
+# Node.js / TypeScript
+node_modules/
+dist/
+coverage/
+.npm/
+*.tsbuildinfo
+
+# Local runtime data. Visualization snapshots and preferences stay outside the
+# repository by default; these entries protect against accidental local saves.
+.visualyze/
+visualyze-local/
+
+# Logs and temporary files
+*.log
+.tmp/
+tmp/

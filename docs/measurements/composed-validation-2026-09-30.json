@@ -1,0 +1,63 @@
+{
+  "recorded_at_utc": "2026-09-30T19:21:47.653073+00:00",
+  "workspace": {
+    "passed": 342,
+    "failed": 0,
+    "ignored": 1,
+    "suites": 29
+  },
+  "commands": [
+    {
+      "command": "cargo test --workspace --offline --locked",
+      "status": "passed",
+      "log": "/private/tmp/visualyze-composed-workspace.log"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "status": "passed",
+      "log": "/private/tmp/visualyze-composed-fmt.log"
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --offline --locked -- -D warnings",
+      "status": "passed",
+      "log": "/private/tmp/visualyze-composed-clippy.log"
+    }
+  ],
+  "new_checks": {
+    "composed_integration": 8,
+    "independent_composed_validator": 8,
+    "strict_budget_integration": 6,
+    "rejected_feedback_accounting": 1
+  },
+  "legacy_comparison": {
+    "report": "composed-legacy-quality5-2026-09-30.csv",
+    "valid_rows": 28,
+    "baseline": "placement-quality5-2026-09-30.csv",
+    "all_reported_non_timing_fields_identical": true,
+    "scope": "Reported fields only, not a proof of all possible output geometry."
+  },
+  "headless_probe_report": "composed-headless-2026-09-30.json",
+  "source_sha256": {
+    "Cargo.lock": "4d6af295f9b5d7a1fa95ff8f28557492d58d991cf866fbc3232bd730a4f33118",
+    "private/layout/src/lib.rs": "ea366076e5c68acbbe4227f72f2182703990698481edbe0cfcfa6f5582006bc4",
+    "private/layout/src/assembly.rs": "d1b1afc039f62b2ef33b193aa3204a6dbbe426b072c984e205bfa05e60a4ac66",
+    "private/layout/src/assembly_plan.rs": "8cfbbd1f26f42a7f4c587bc38ac4507dedaa8191d5829f88da6196b903d9bcaa",
+    "private/layout/src/solver.rs": "8daed60a5e7c0f377f698cfc98c7d04dff986663c3d2f693dbeff2cad7b4a50b",
+    "private/layout/src/routing.rs": "2ef8e1d8684c45ca494ced38383d0f722296746911ca7c7759fecf51353b6165",
+    "private/layout/src/validation.rs": "f7c77e185ce1b6c1503f83ae09447a6eb859c220863b85efac537e1992816f76",
+    "private/layout/src/composed.rs": "2a122320c3455889889164824fbaacd0c6ba34114e56cb01a0286b98c59538f1",
+    "private/layout/src/composed/solver.rs": "289347690b00d935dbcb26fbb822a3ebc05d0a296026384ec71226b4520b8086",
+    "private/layout/src/composed/presentation.rs": "eda1b97c2d672592ae9e3588918f9ef1c608923793d9b2744d654f0a0db4bbc8",
+    "private/layout/src/composed/validation.rs": "cbb34eafa82229bb59433b33910ca8abc053a912fc02a7b0059bdd2b16f688f0",
+    "private/layout/examples/composed_layout.rs": "6ea8ca20b64fca821efa7f85d9d4aea1679977a8d0f95df1062a04417e8868cd",
+    "private/layout/tests/composed.rs": "345b3a56a3148b84446feaec3eb3c66ffffb6eb6a9594aa4177f18481d4f73fb",
+    "private/layout/tests/composed_validation.rs": "e0563394a91203a543730a5b62fd8216ff5cd4d3a621f39de35c1855de9b7ebe",
+    "private/layout/tests/solver_budget.rs": "0d519aaacfcb36df5340d218beee00652f057aae6f87a1726f803530f525e6b9"
+  },
+  "limitations": [
+    "New composed solver not yet integrated into native viewer",
+    "No default promotion",
+    "Independent caches, previous-composition repair and reversible persistence remain",
+    "Human comprehension and full performance acceptance remain unproven"
+  ]
+}

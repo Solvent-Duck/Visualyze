@@ -1,0 +1,58 @@
+{
+  "reference_machine": "Apple M5, 16 GiB RAM, macOS 26.6.2, Rust 1.96.0",
+  "build": "Optimized development profile",
+  "measurement_notes": "Fresh processes and recently written files; warm OS cache. Includes semantic-lens indexing. The user viewer remained running. Finalization includes flush/sync. Single-run observations, not percentiles. No GPU measured.",
+  "runs": [
+    {
+      "bundle_bytes": 5558510,
+      "cached_detail_bytes": 443175,
+      "cached_detail_records": 100,
+      "cached_details_before_queries": 0,
+      "entities": 10000,
+      "estimated_index_bytes": 9653657,
+      "index_validation_seconds": 0.030153416,
+      "one_hundred_cached_details_micros": 53,
+      "one_hundred_cold_details_micros": 261,
+      "relations": 9999,
+      "root_page_count": 32,
+      "root_page_micros": 62,
+      "stream_write_seconds": 0.020032292,
+      "maximum_resident_set_size_bytes": 10502144,
+      "peak_memory_footprint_bytes": 9552232
+    },
+    {
+      "bundle_bytes": 55682888,
+      "cached_detail_bytes": 443277,
+      "cached_detail_records": 100,
+      "cached_details_before_queries": 0,
+      "entities": 100000,
+      "estimated_index_bytes": 96638649,
+      "index_validation_seconds": 0.247493833,
+      "one_hundred_cached_details_micros": 49,
+      "one_hundred_cold_details_micros": 251,
+      "relations": 99999,
+      "root_page_count": 32,
+      "root_page_micros": 64,
+      "stream_write_seconds": 0.202615416,
+      "maximum_resident_set_size_bytes": 78102528,
+      "peak_memory_footprint_bytes": 77201840
+    },
+    {
+      "bundle_bytes": 557826640,
+      "cached_detail_bytes": 443374,
+      "cached_detail_records": 100,
+      "cached_details_before_queries": 0,
+      "entities": 1000000,
+      "estimated_index_bytes": 967388649,
+      "index_validation_seconds": 2.876253166,
+      "one_hundred_cached_details_micros": 48,
+      "one_hundred_cold_details_micros": 296,
+      "relations": 999999,
+      "root_page_count": 32,
+      "root_page_micros": 72,
+      "stream_write_seconds": 1.968715334,
+      "maximum_resident_set_size_bytes": 833077248,
+      "peak_memory_footprint_bytes": 914506832
+    }
+  ]
+}

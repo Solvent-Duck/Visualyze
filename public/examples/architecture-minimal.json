@@ -1,0 +1,43 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "example-minimal",
+  "revision": 1,
+  "system_id": "scope:app",
+  "snapshot": {
+    "id": "example-minimal-001",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Synthetic application with one relational datastore.",
+    "omissions": [
+      "Components that use the datastore are outside this example."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:app",
+      "kind": "scope",
+      "label": "Application",
+      "boundary": "internal",
+      "subtype": "system",
+      "basis": "declared"
+    },
+    {
+      "id": "store:users",
+      "kind": "datastore",
+      "label": "Users",
+      "boundary": "internal",
+      "subtype": "relational",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:app-contains-users",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "store:users",
+      "basis": "declared"
+    }
+  ],
+  "evidence": []
+}

@@ -1,0 +1,60 @@
+{
+  "reference_machine": "Apple M5, 16 GiB RAM, macOS 26.6.2, Rust 1.96.0",
+  "build": "Optimized development profile",
+  "scope": "Provider only: freshly written synthetic 32-way ownership tree. Single runs, warm filesystem cache. No native rendering or routing.",
+  "command": "/usr/bin/time -l target/debug/examples/bundle_bench COUNT",
+  "runs": [
+    {
+      "bundle_bytes": 5558510,
+      "cached_detail_bytes": 443175,
+      "cached_detail_records": 100,
+      "cached_details_before_queries": 0,
+      "entities": 10000,
+      "estimated_index_bytes": 9488553,
+      "index_validation_seconds": 0.028460416,
+      "one_hundred_cached_details_micros": 50,
+      "one_hundred_cold_details_micros": 217,
+      "relations": 9999,
+      "root_page_count": 32,
+      "root_page_micros": 55,
+      "stream_write_seconds": 0.022855958,
+      "maximum_resident_set_size_bytes": 10387456,
+      "peak_memory_footprint_bytes": 9453928
+    },
+    {
+      "bundle_bytes": 55682888,
+      "cached_detail_bytes": 443277,
+      "cached_detail_records": 100,
+      "cached_details_before_queries": 0,
+      "entities": 100000,
+      "estimated_index_bytes": 94988553,
+      "index_validation_seconds": 0.225690625,
+      "one_hundred_cached_details_micros": 49,
+      "one_hundred_cold_details_micros": 254,
+      "relations": 99999,
+      "root_page_count": 32,
+      "root_page_micros": 58,
+      "stream_write_seconds": 0.19092075,
+      "maximum_resident_set_size_bytes": 77955072,
+      "peak_memory_footprint_bytes": 77054360
+    },
+    {
+      "bundle_bytes": 557826640,
+      "cached_detail_bytes": 443374,
+      "cached_detail_records": 100,
+      "cached_details_before_queries": 0,
+      "entities": 1000000,
+      "estimated_index_bytes": 950888553,
+      "index_validation_seconds": 2.733889042,
+      "one_hundred_cached_details_micros": 48,
+      "one_hundred_cold_details_micros": 287,
+      "relations": 999999,
+      "root_page_count": 32,
+      "root_page_micros": 70,
+      "stream_write_seconds": 1.859846459,
+      "maximum_resident_set_size_bytes": 786137088,
+      "peak_memory_footprint_bytes": 912786488
+    }
+  ],
+  "measurement_notes": "Raw index_validation_seconds includes BundleWriter final flush/sync. These runs precede semantic-lens indexing; rerun after index changes."
+}

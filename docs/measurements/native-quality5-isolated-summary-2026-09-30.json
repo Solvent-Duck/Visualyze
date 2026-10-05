@@ -1,0 +1,102 @@
+[
+  {
+    "kind": "production",
+    "initial_acceptance_ms": 1133.4091250000001,
+    "initial_indexing_ms": 608.782834,
+    "initial_projection_ms": 9.172625,
+    "initial_solve_ms": 0.384584,
+    "initial_layout_job_ms": 629.473042,
+    "hit_samples": 7,
+    "max_hit_acceptance_ms": 80.160916,
+    "miss_samples": 8,
+    "max_miss_acceptance_ms": 752.8799160000001,
+    "rss_bytes": 341147648,
+    "steps": 21,
+    "phase_audit": {
+      "jobs": 16,
+      "unique_contiguous_job_ids": true,
+      "all_revision_matched_and_accepted": true,
+      "warm_indexing_and_read_zero": true,
+      "actual_cache_hit_solving_zero": true,
+      "maximum_worker_partition_roundoff_ms": 1.4210854715202004e-14,
+      "minimum_outer_unattributed_ms": 0.011458999999945263,
+      "maximum_outer_unattributed_ms": 0.21562500000004547,
+      "tolerance": "64 floating-point ULPs of the largest duration, no wall-time overlap tolerance"
+    }
+  },
+  {
+    "kind": "10k",
+    "initial_acceptance_ms": 518.953709,
+    "initial_indexing_ms": 60.816334,
+    "initial_projection_ms": 2.819582,
+    "initial_solve_ms": 138.45925,
+    "initial_layout_job_ms": 209.28437499999998,
+    "hit_samples": 14,
+    "max_hit_acceptance_ms": 34.802583,
+    "miss_samples": 30,
+    "max_miss_acceptance_ms": 401.864042,
+    "rss_bytes": 290340864,
+    "steps": 46,
+    "phase_audit": {
+      "jobs": 45,
+      "unique_contiguous_job_ids": true,
+      "all_revision_matched_and_accepted": true,
+      "warm_indexing_and_read_zero": true,
+      "actual_cache_hit_solving_zero": true,
+      "maximum_worker_partition_roundoff_ms": 2.842170943040401e-14,
+      "minimum_outer_unattributed_ms": 0.0016260000000158925,
+      "maximum_outer_unattributed_ms": 0.013916999999999291,
+      "tolerance": "64 floating-point ULPs of the largest duration, no wall-time overlap tolerance"
+    }
+  },
+  {
+    "kind": "100k",
+    "initial_acceptance_ms": 1127.557083,
+    "initial_indexing_ms": 642.045083,
+    "initial_projection_ms": 17.371916,
+    "initial_solve_ms": 197.734458,
+    "initial_layout_job_ms": 873.3719159999999,
+    "hit_samples": 14,
+    "max_hit_acceptance_ms": 37.018334,
+    "miss_samples": 30,
+    "max_miss_acceptance_ms": 737.309791,
+    "rss_bytes": 363331584,
+    "steps": 46,
+    "phase_audit": {
+      "jobs": 45,
+      "unique_contiguous_job_ids": true,
+      "all_revision_matched_and_accepted": true,
+      "warm_indexing_and_read_zero": true,
+      "actual_cache_hit_solving_zero": true,
+      "maximum_worker_partition_roundoff_ms": 1.1368683772161603e-13,
+      "minimum_outer_unattributed_ms": 0.0018760000000099808,
+      "maximum_outer_unattributed_ms": 0.01270900000001518,
+      "tolerance": "64 floating-point ULPs of the largest duration, no wall-time overlap tolerance"
+    }
+  },
+  {
+    "kind": "million",
+    "initial_acceptance_ms": 6710.105833,
+    "initial_indexing_ms": 6294.755375000001,
+    "initial_projection_ms": 54.615376000000005,
+    "initial_solve_ms": 83.62879199999999,
+    "initial_layout_job_ms": 6450.680375,
+    "hit_samples": 14,
+    "max_hit_acceptance_ms": 36.519334,
+    "miss_samples": 30,
+    "max_miss_acceptance_ms": 352.427458,
+    "rss_bytes": 1113128960,
+    "steps": 46,
+    "phase_audit": {
+      "jobs": 45,
+      "unique_contiguous_job_ids": true,
+      "all_revision_matched_and_accepted": true,
+      "warm_indexing_and_read_zero": true,
+      "actual_cache_hit_solving_zero": true,
+      "maximum_worker_partition_roundoff_ms": 8.881784197001252e-16,
+      "minimum_outer_unattributed_ms": 0.0018330000000013058,
+      "maximum_outer_unattributed_ms": 0.004709000000019614,
+      "tolerance": "64 floating-point ULPs of the largest duration, no wall-time overlap tolerance"
+    }
+  }
+]

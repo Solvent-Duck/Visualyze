@@ -1,0 +1,73 @@
+{
+  "method": "index_profile in a fresh process/provider; no GPU or detail cache; recently accessed bundles; OS cache uncontrolled. These are observations, not release-gate percentiles.",
+  "reference_machine": "Apple M5,16 GiB,macOS26.6.2,Rust1.96.0; optimized development profile",
+  "samples": [
+    {
+      "after_full_bytes_finalize_ms": 264.002417,
+      "bundle_bytes": 604007331,
+      "cached_details": 0,
+      "estimated_index_bytes": 1063415349,
+      "full_byte_callbacks": 26670,
+      "model_id": "synthetic:scale-view:1000000",
+      "notes": "Fresh provider/process. First phase includes opening, record reads, JSON decode, record validation and incremental metadata indexing. Second phase starts at the first full-byte progress callback and includes final ownership/lens/endpoint validation/indexes, file fingerprint check and provider construction. Total is measured before querying manifest/stats or writing this report. OS cache state is not controlled. No scene, source-code dereference, GPU work or entity detail loading. Timings are observations, not work budgets or correctness gates; peak RSS must be joined from an external process measurement.",
+      "process_id": 64374,
+      "progress_callbacks": 28757,
+      "read_decode_record_validation_ms": 6477.910167,
+      "revision": 1,
+      "source": "visualyze-local/production/million-scale.bundle.jsonl",
+      "source_counts": {
+        "entities": 1000000,
+        "evidence": 0,
+        "relations": 1136229
+      },
+      "total_index_ms": 6741.912584,
+      "wrapper_exit_code": 1,
+      "maximum_resident_set_size_bytes": null,
+      "wrapper_failure": "The index example produced its report; sandboxed /usr/bin/time -l then failed to read sysctl kern.clockrate. No usable resource counters from this run."
+    },
+    {
+      "after_full_bytes_finalize_ms": 259.96404099999995,
+      "bundle_bytes": 604007331,
+      "cached_details": 0,
+      "estimated_index_bytes": 1063415349,
+      "full_byte_callbacks": 26670,
+      "model_id": "synthetic:scale-view:1000000",
+      "notes": "Fresh provider/process. First phase includes opening, record reads, JSON decode, record validation and incremental metadata indexing. Second phase starts at the first full-byte progress callback and includes final ownership/lens/endpoint validation/indexes, file fingerprint check and provider construction. Total is measured before querying manifest/stats or writing this report. OS cache state is not controlled. No scene, source-code dereference, GPU work or entity detail loading. Timings are observations, not work budgets or correctness gates; peak RSS must be joined from an external process measurement.",
+      "process_id": 64422,
+      "progress_callbacks": 28757,
+      "read_decode_record_validation_ms": 6224.594749999999,
+      "revision": 1,
+      "source": "visualyze-local/production/million-scale.bundle.jsonl",
+      "source_counts": {
+        "entities": 1000000,
+        "evidence": 0,
+        "relations": 1136229
+      },
+      "total_index_ms": 6484.5587909999995,
+      "wrapper_exit_code": 0,
+      "maximum_resident_set_size_bytes": 784744448
+    },
+    {
+      "after_full_bytes_finalize_ms": 7.272875,
+      "bundle_bytes": 40169745,
+      "cached_details": 0,
+      "estimated_index_bytes": 39821877,
+      "full_byte_callbacks": 1109,
+      "model_id": "model:788c0940ff544915",
+      "notes": "Fresh provider/process. First phase includes opening, record reads, JSON decode, record validation and incremental metadata indexing. Second phase starts at the first full-byte progress callback and includes final ownership/lens/endpoint validation/indexes, file fingerprint check and provider construction. Total is measured before querying manifest/stats or writing this report. OS cache state is not controlled. No scene, source-code dereference, GPU work or entity detail loading. Timings are observations, not work budgets or correctness gates; peak RSS must be joined from an external process measurement.",
+      "process_id": 64794,
+      "progress_callbacks": 1210,
+      "read_decode_record_validation_ms": 301.44016600000003,
+      "revision": 1,
+      "source": "visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl",
+      "source_counts": {
+        "entities": 27117,
+        "evidence": 31319,
+        "relations": 44019
+      },
+      "total_index_ms": 308.71304100000003,
+      "wrapper_exit_code": 0,
+      "maximum_resident_set_size_bytes": null
+    }
+  ]
+}

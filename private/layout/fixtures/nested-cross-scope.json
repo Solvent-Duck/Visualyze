@@ -1,0 +1,309 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "heldout-nested-cross-scope",
+  "revision": 1,
+  "system_id": "scope:system",
+  "snapshot": {
+    "id": "nested-cross-scope-001",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Held-out nested ownership: commerce and fulfillment have internal subassemblies while inventory, identity and a shared catalog are referenced across supplied scope boundaries.",
+    "omissions": [
+      "Synthetic architecture supplied specifically for validation; does not describe any real company or deployment.",
+      "Declared request/dependency relationships are not claims about traffic volume, latency or importance."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:system",
+      "kind": "scope",
+      "label": "Nested Cross Scope",
+      "subtype": "system",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "scope:commerce",
+      "kind": "scope",
+      "label": "Commerce",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "scope:fulfillment",
+      "kind": "scope",
+      "label": "Fulfillment",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "scope:shared",
+      "kind": "scope",
+      "label": "Shared",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "scope:checkout",
+      "kind": "scope",
+      "label": "Checkout",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "client:shop",
+      "kind": "client",
+      "label": "Shop",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:cart",
+      "kind": "service",
+      "label": "Cart",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:checkout",
+      "kind": "service",
+      "label": "Checkout",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:payment",
+      "kind": "service",
+      "label": "Payment",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:warehouse",
+      "kind": "service",
+      "label": "Warehouse",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:shipping",
+      "kind": "service",
+      "label": "Shipping",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:identity",
+      "kind": "service",
+      "label": "Identity",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:orders",
+      "kind": "datastore",
+      "label": "Orders",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:inventory",
+      "kind": "datastore",
+      "label": "Inventory",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:catalog",
+      "kind": "datastore",
+      "label": "Catalog",
+      "boundary": "internal",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "contains:scope:commerce",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "scope:commerce",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:scope:fulfillment",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "scope:fulfillment",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:scope:shared",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "scope:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:scope:checkout",
+      "kind": "contains",
+      "source": "scope:commerce",
+      "target": "scope:checkout",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:client:shop",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "client:shop",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:cart",
+      "kind": "contains",
+      "source": "scope:commerce",
+      "target": "service:cart",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:checkout",
+      "kind": "contains",
+      "source": "scope:checkout",
+      "target": "service:checkout",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:payment",
+      "kind": "contains",
+      "source": "scope:checkout",
+      "target": "service:payment",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:warehouse",
+      "kind": "contains",
+      "source": "scope:fulfillment",
+      "target": "service:warehouse",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:shipping",
+      "kind": "contains",
+      "source": "scope:fulfillment",
+      "target": "service:shipping",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:identity",
+      "kind": "contains",
+      "source": "scope:shared",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:orders",
+      "kind": "contains",
+      "source": "scope:checkout",
+      "target": "store:orders",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:inventory",
+      "kind": "contains",
+      "source": "scope:fulfillment",
+      "target": "store:inventory",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:catalog",
+      "kind": "contains",
+      "source": "scope:shared",
+      "target": "store:catalog",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:browse",
+      "kind": "requests",
+      "source": "client:shop",
+      "target": "service:cart",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:checkout",
+      "kind": "requests",
+      "source": "service:cart",
+      "target": "service:checkout",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:pay",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:payment",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:fulfill",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:warehouse",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:ship",
+      "kind": "requests",
+      "source": "service:warehouse",
+      "target": "service:shipping",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:delivery-feedback",
+      "kind": "requests",
+      "source": "service:shipping",
+      "target": "service:checkout",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:identity-checkout",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:identity-warehouse",
+      "kind": "requests",
+      "source": "service:warehouse",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:catalog-cart",
+      "kind": "reads",
+      "source": "service:cart",
+      "target": "store:catalog",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:catalog-warehouse",
+      "kind": "reads",
+      "source": "service:warehouse",
+      "target": "store:catalog",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:orders-checkout",
+      "kind": "writes",
+      "source": "service:checkout",
+      "target": "store:orders",
+      "basis": "declared"
+    },
+    {
+      "id": "flow:inventory-warehouse",
+      "kind": "reads",
+      "source": "service:warehouse",
+      "target": "store:inventory",
+      "basis": "declared"
+    }
+  ],
+  "evidence": []
+}

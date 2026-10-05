@@ -1,0 +1,181 @@
+{
+  "scope": "Historical first production display proof, before reference-budget pagination repair, routing-feedback quality profile 2, visual-group controls and reload. Transition timings include three settle frames; not the sub-100ms navigation acceptance measurement.",
+  "source_commit": "f667c282dad2c1419afb5836ded22a3ec263970e",
+  "bundle_sha256": "113c806186aacd4e5d67b24f6f1c9979b45d7ea4aae0f8eea5933cb07c767c36",
+  "report": {
+    "completed_steps": [
+      {
+        "cached": false,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 303.201666,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "objects": 33,
+        "original_routed_relations": 4075,
+        "routes": 108,
+        "screenshot": true,
+        "step": "repository",
+        "total_children": 81
+      },
+      {
+        "cached": false,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 51.749042,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "objects": 33,
+        "original_routed_relations": 4075,
+        "routes": 108,
+        "screenshot": false,
+        "step": "search",
+        "total_children": 81
+      },
+      {
+        "cached": false,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 1010.401791,
+        "focus": "package:d1c2531f3a0a9b57",
+        "has_more_relation_pages": false,
+        "objects": 83,
+        "original_routed_relations": 3166,
+        "routes": 206,
+        "screenshot": true,
+        "step": "package",
+        "total_children": 151
+      },
+      {
+        "cached": false,
+        "child_page": 1,
+        "elapsed_ms_including_3_settle_frames": 1611.089708,
+        "focus": "package:d1c2531f3a0a9b57",
+        "has_more_relation_pages": false,
+        "objects": 83,
+        "original_routed_relations": 3219,
+        "routes": 271,
+        "screenshot": true,
+        "step": "package-page-2",
+        "total_children": 151
+      },
+      {
+        "cached": true,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 156.049208,
+        "focus": "package:d1c2531f3a0a9b57",
+        "has_more_relation_pages": false,
+        "objects": 83,
+        "original_routed_relations": 3166,
+        "routes": 206,
+        "screenshot": false,
+        "step": "package-page-1-return",
+        "total_children": 151
+      },
+      {
+        "cached": false,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 147.02320899999998,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": false,
+        "objects": 96,
+        "original_routed_relations": 332,
+        "routes": 74,
+        "screenshot": true,
+        "step": "source-file",
+        "total_children": 31
+      },
+      {
+        "cached": false,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 69.685833,
+        "focus": "item:86c82b85a551c18a",
+        "has_more_relation_pages": false,
+        "objects": 33,
+        "original_routed_relations": 0,
+        "routes": 0,
+        "screenshot": true,
+        "step": "world-type",
+        "total_children": 150
+      },
+      {
+        "cached": false,
+        "child_page": 1,
+        "elapsed_ms_including_3_settle_frames": 67.88925,
+        "focus": "item:86c82b85a551c18a",
+        "has_more_relation_pages": false,
+        "objects": 33,
+        "original_routed_relations": 0,
+        "routes": 0,
+        "screenshot": true,
+        "step": "world-methods-page-2",
+        "total_children": 150
+      },
+      {
+        "cached": true,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 53.977958,
+        "focus": "item:86c82b85a551c18a",
+        "has_more_relation_pages": false,
+        "objects": 33,
+        "original_routed_relations": 0,
+        "routes": 0,
+        "screenshot": false,
+        "step": "world-methods-page-1-return",
+        "total_children": 150
+      },
+      {
+        "cached": true,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 65.220625,
+        "focus": "file:b6ae9420da8c77aa",
+        "has_more_relation_pages": false,
+        "objects": 96,
+        "original_routed_relations": 332,
+        "routes": 74,
+        "screenshot": false,
+        "step": "source-file-return",
+        "total_children": 31
+      },
+      {
+        "cached": true,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 142.86116600000003,
+        "focus": "package:d1c2531f3a0a9b57",
+        "has_more_relation_pages": false,
+        "objects": 83,
+        "original_routed_relations": 3166,
+        "routes": 206,
+        "screenshot": false,
+        "step": "package-return",
+        "total_children": 151
+      },
+      {
+        "cached": true,
+        "child_page": 0,
+        "elapsed_ms_including_3_settle_frames": 142.12425000000002,
+        "focus": "repository:05317a01f80959f2",
+        "has_more_relation_pages": true,
+        "objects": 33,
+        "original_routed_relations": 4075,
+        "routes": 108,
+        "screenshot": false,
+        "step": "repository-return",
+        "total_children": 81
+      }
+    ],
+    "frames": 229,
+    "initial_display_ms": 1423.690584,
+    "model_id": "model:b459b6f69394a519",
+    "notes": "Real native renderer. Original source records validated before app startup; OS bundle cache is warm. Frame intervals include worker navigation and screenshot capture. Cached geometry is compared exactly; all scenes are bounded to250 representations.",
+    "revision": 1,
+    "source_counts": {
+      "entities": 27117,
+      "evidence": 31319,
+      "relations": 44019
+    },
+    "update_interval_ms": {
+      "median": 16.6765,
+      "p95": 31.476875,
+      "p99": 75.05283299999999
+    }
+  },
+  "timing_interpretation": "The historical initial_display_ms field records scene acceptance by the app, not the first confirmed GPU presentation. Current proof renames this initial_acceptance_ms."
+}

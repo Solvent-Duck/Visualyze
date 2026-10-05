@@ -1,0 +1,377 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "heldout-shared-saas",
+  "revision": 1,
+  "system_id": "scope:system",
+  "snapshot": {
+    "id": "shared-saas-001",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Held-out shared-infrastructure SaaS: three tenant APIs, common identity and storage, explicit runtime feedback cycles and independently declared authorization coverage.",
+    "omissions": [
+      "Synthetic architecture supplied specifically for validation; does not describe any real company or deployment.",
+      "Declared request/dependency relationships are not claims about traffic volume, latency or importance."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:system",
+      "kind": "scope",
+      "label": "Shared Saas",
+      "subtype": "system",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "concern:auth",
+      "kind": "concern",
+      "label": "Auth",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "client:web",
+      "kind": "client",
+      "label": "Web",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:identity",
+      "kind": "service",
+      "label": "Identity",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:tenant-a",
+      "kind": "service",
+      "label": "Tenant A",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:tenant-b",
+      "kind": "service",
+      "label": "Tenant B",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:tenant-c",
+      "kind": "service",
+      "label": "Tenant C",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:billing",
+      "kind": "service",
+      "label": "Billing",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:audit",
+      "kind": "service",
+      "label": "Audit",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:shared",
+      "kind": "datastore",
+      "label": "Shared",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:identity",
+      "kind": "datastore",
+      "label": "Identity",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:ledger",
+      "kind": "datastore",
+      "label": "Ledger",
+      "boundary": "internal",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "contains:concern:auth",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "concern:auth",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:client:web",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "client:web",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:identity",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:tenant-a",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:tenant-a",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:tenant-b",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:tenant-b",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:tenant-c",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:tenant-c",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:billing",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:billing",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:audit",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:audit",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:shared",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:identity",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "store:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:ledger",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "store:ledger",
+      "basis": "declared"
+    },
+    {
+      "id": "request:web:tenant-a",
+      "kind": "requests",
+      "source": "client:web",
+      "target": "service:tenant-a",
+      "basis": "declared"
+    },
+    {
+      "id": "auth:tenant-a",
+      "kind": "applies_to",
+      "source": "concern:auth",
+      "target": "service:tenant-a",
+      "basis": "declared",
+      "aspect": "access_control"
+    },
+    {
+      "id": "identity:tenant-a",
+      "kind": "requests",
+      "source": "service:tenant-a",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "read:tenant-a",
+      "kind": "reads",
+      "source": "service:tenant-a",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "write:tenant-a",
+      "kind": "writes",
+      "source": "service:tenant-a",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "bill:tenant-a",
+      "kind": "requests",
+      "source": "service:tenant-a",
+      "target": "service:billing",
+      "basis": "declared"
+    },
+    {
+      "id": "audit:tenant-a",
+      "kind": "requests",
+      "source": "service:tenant-a",
+      "target": "service:audit",
+      "basis": "declared"
+    },
+    {
+      "id": "request:web:tenant-b",
+      "kind": "requests",
+      "source": "client:web",
+      "target": "service:tenant-b",
+      "basis": "declared"
+    },
+    {
+      "id": "auth:tenant-b",
+      "kind": "applies_to",
+      "source": "concern:auth",
+      "target": "service:tenant-b",
+      "basis": "declared",
+      "aspect": "access_control"
+    },
+    {
+      "id": "identity:tenant-b",
+      "kind": "requests",
+      "source": "service:tenant-b",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "read:tenant-b",
+      "kind": "reads",
+      "source": "service:tenant-b",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "write:tenant-b",
+      "kind": "writes",
+      "source": "service:tenant-b",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "bill:tenant-b",
+      "kind": "requests",
+      "source": "service:tenant-b",
+      "target": "service:billing",
+      "basis": "declared"
+    },
+    {
+      "id": "audit:tenant-b",
+      "kind": "requests",
+      "source": "service:tenant-b",
+      "target": "service:audit",
+      "basis": "declared"
+    },
+    {
+      "id": "request:web:tenant-c",
+      "kind": "requests",
+      "source": "client:web",
+      "target": "service:tenant-c",
+      "basis": "declared"
+    },
+    {
+      "id": "auth:tenant-c",
+      "kind": "applies_to",
+      "source": "concern:auth",
+      "target": "service:tenant-c",
+      "basis": "declared",
+      "aspect": "access_control"
+    },
+    {
+      "id": "identity:tenant-c",
+      "kind": "requests",
+      "source": "service:tenant-c",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "read:tenant-c",
+      "kind": "reads",
+      "source": "service:tenant-c",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "write:tenant-c",
+      "kind": "writes",
+      "source": "service:tenant-c",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "bill:tenant-c",
+      "kind": "requests",
+      "source": "service:tenant-c",
+      "target": "service:billing",
+      "basis": "declared"
+    },
+    {
+      "id": "audit:tenant-c",
+      "kind": "requests",
+      "source": "service:tenant-c",
+      "target": "service:audit",
+      "basis": "declared"
+    },
+    {
+      "id": "read:identity",
+      "kind": "reads",
+      "source": "service:identity",
+      "target": "store:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "read:billing",
+      "kind": "reads",
+      "source": "service:billing",
+      "target": "store:ledger",
+      "basis": "declared"
+    },
+    {
+      "id": "write:billing",
+      "kind": "writes",
+      "source": "service:billing",
+      "target": "store:ledger",
+      "basis": "declared"
+    },
+    {
+      "id": "cycle:billing-audit",
+      "kind": "requests",
+      "source": "service:billing",
+      "target": "service:audit",
+      "basis": "declared"
+    },
+    {
+      "id": "cycle:audit-billing",
+      "kind": "requests",
+      "source": "service:audit",
+      "target": "service:billing",
+      "basis": "declared"
+    },
+    {
+      "id": "cycle:identity-tenant",
+      "kind": "depends_on",
+      "source": "service:identity",
+      "target": "service:tenant-a",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    }
+  ],
+  "evidence": []
+}

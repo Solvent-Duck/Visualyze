@@ -1,0 +1,6 @@
+{
+  "id": "example-database",
+  "label": "Database",
+  "kind": "datastore",
+  "basis": "declared"
+}

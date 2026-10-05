@@ -1,0 +1,980 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "heldout-fanout-peers",
+  "revision": 1,
+  "system_id": "scope:system",
+  "snapshot": {
+    "id": "fanout-peers-001",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Held-out high-degree synchronous fan-out: one coordinator with 24 peer workers, a shared store, a ring of directed runtime dependencies and a disconnected diagnostic service. Workers are services, not message consumers.",
+    "omissions": [
+      "Synthetic architecture supplied specifically for validation; does not describe any real company or deployment.",
+      "Declared request/dependency relationships are not claims about traffic volume, latency or importance."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:system",
+      "kind": "scope",
+      "label": "Fanout Peers",
+      "subtype": "system",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "client:console",
+      "kind": "client",
+      "label": "Console",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:coordinator",
+      "kind": "service",
+      "label": "Coordinator",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "store:shared",
+      "kind": "datastore",
+      "label": "Shared",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:disconnected",
+      "kind": "service",
+      "label": "Disconnected",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-00",
+      "kind": "service",
+      "label": "Worker 00",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-01",
+      "kind": "service",
+      "label": "Worker 01",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-02",
+      "kind": "service",
+      "label": "Worker 02",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-03",
+      "kind": "service",
+      "label": "Worker 03",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-04",
+      "kind": "service",
+      "label": "Worker 04",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-05",
+      "kind": "service",
+      "label": "Worker 05",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-06",
+      "kind": "service",
+      "label": "Worker 06",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-07",
+      "kind": "service",
+      "label": "Worker 07",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-08",
+      "kind": "service",
+      "label": "Worker 08",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-09",
+      "kind": "service",
+      "label": "Worker 09",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-10",
+      "kind": "service",
+      "label": "Worker 10",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-11",
+      "kind": "service",
+      "label": "Worker 11",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-12",
+      "kind": "service",
+      "label": "Worker 12",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-13",
+      "kind": "service",
+      "label": "Worker 13",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-14",
+      "kind": "service",
+      "label": "Worker 14",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-15",
+      "kind": "service",
+      "label": "Worker 15",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-16",
+      "kind": "service",
+      "label": "Worker 16",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-17",
+      "kind": "service",
+      "label": "Worker 17",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-18",
+      "kind": "service",
+      "label": "Worker 18",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-19",
+      "kind": "service",
+      "label": "Worker 19",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-20",
+      "kind": "service",
+      "label": "Worker 20",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-21",
+      "kind": "service",
+      "label": "Worker 21",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-22",
+      "kind": "service",
+      "label": "Worker 22",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:worker-23",
+      "kind": "service",
+      "label": "Worker 23",
+      "boundary": "internal",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "contains:client:console",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "client:console",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:coordinator",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:coordinator",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:store:shared",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:disconnected",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:disconnected",
+      "basis": "declared"
+    },
+    {
+      "id": "request:start",
+      "kind": "requests",
+      "source": "client:console",
+      "target": "service:coordinator",
+      "basis": "declared"
+    },
+    {
+      "id": "contains:service:worker-00",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-00",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:00",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-00",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:00",
+      "kind": "reads",
+      "source": "service:worker-00",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:00",
+      "kind": "depends_on",
+      "source": "service:worker-00",
+      "target": "service:worker-01",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-01",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-01",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:01",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-01",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:01",
+      "kind": "reads",
+      "source": "service:worker-01",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:01",
+      "kind": "depends_on",
+      "source": "service:worker-01",
+      "target": "service:worker-02",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-02",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-02",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:02",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-02",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:02",
+      "kind": "reads",
+      "source": "service:worker-02",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:02",
+      "kind": "depends_on",
+      "source": "service:worker-02",
+      "target": "service:worker-03",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-03",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-03",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:03",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-03",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:03",
+      "kind": "reads",
+      "source": "service:worker-03",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:03",
+      "kind": "depends_on",
+      "source": "service:worker-03",
+      "target": "service:worker-04",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-04",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-04",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:04",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-04",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:04",
+      "kind": "reads",
+      "source": "service:worker-04",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:04",
+      "kind": "depends_on",
+      "source": "service:worker-04",
+      "target": "service:worker-05",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-05",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-05",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:05",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-05",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:05",
+      "kind": "reads",
+      "source": "service:worker-05",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:05",
+      "kind": "depends_on",
+      "source": "service:worker-05",
+      "target": "service:worker-06",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-06",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-06",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:06",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-06",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:06",
+      "kind": "reads",
+      "source": "service:worker-06",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:06",
+      "kind": "depends_on",
+      "source": "service:worker-06",
+      "target": "service:worker-07",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-07",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-07",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:07",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-07",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:07",
+      "kind": "reads",
+      "source": "service:worker-07",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:07",
+      "kind": "depends_on",
+      "source": "service:worker-07",
+      "target": "service:worker-08",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-08",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-08",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:08",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-08",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:08",
+      "kind": "reads",
+      "source": "service:worker-08",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:08",
+      "kind": "depends_on",
+      "source": "service:worker-08",
+      "target": "service:worker-09",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-09",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-09",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:09",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-09",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:09",
+      "kind": "reads",
+      "source": "service:worker-09",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:09",
+      "kind": "depends_on",
+      "source": "service:worker-09",
+      "target": "service:worker-10",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-10",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-10",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:10",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-10",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:10",
+      "kind": "reads",
+      "source": "service:worker-10",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:10",
+      "kind": "depends_on",
+      "source": "service:worker-10",
+      "target": "service:worker-11",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-11",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-11",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:11",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-11",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:11",
+      "kind": "reads",
+      "source": "service:worker-11",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:11",
+      "kind": "depends_on",
+      "source": "service:worker-11",
+      "target": "service:worker-12",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-12",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-12",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:12",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-12",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:12",
+      "kind": "reads",
+      "source": "service:worker-12",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:12",
+      "kind": "depends_on",
+      "source": "service:worker-12",
+      "target": "service:worker-13",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-13",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-13",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:13",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-13",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:13",
+      "kind": "reads",
+      "source": "service:worker-13",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:13",
+      "kind": "depends_on",
+      "source": "service:worker-13",
+      "target": "service:worker-14",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-14",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-14",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:14",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-14",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:14",
+      "kind": "reads",
+      "source": "service:worker-14",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:14",
+      "kind": "depends_on",
+      "source": "service:worker-14",
+      "target": "service:worker-15",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-15",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-15",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:15",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-15",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:15",
+      "kind": "reads",
+      "source": "service:worker-15",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:15",
+      "kind": "depends_on",
+      "source": "service:worker-15",
+      "target": "service:worker-16",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-16",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-16",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:16",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-16",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:16",
+      "kind": "reads",
+      "source": "service:worker-16",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:16",
+      "kind": "depends_on",
+      "source": "service:worker-16",
+      "target": "service:worker-17",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-17",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-17",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:17",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-17",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:17",
+      "kind": "reads",
+      "source": "service:worker-17",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:17",
+      "kind": "depends_on",
+      "source": "service:worker-17",
+      "target": "service:worker-18",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-18",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-18",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:18",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-18",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:18",
+      "kind": "reads",
+      "source": "service:worker-18",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:18",
+      "kind": "depends_on",
+      "source": "service:worker-18",
+      "target": "service:worker-19",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-19",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-19",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:19",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-19",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:19",
+      "kind": "reads",
+      "source": "service:worker-19",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:19",
+      "kind": "depends_on",
+      "source": "service:worker-19",
+      "target": "service:worker-20",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-20",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-20",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:20",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-20",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:20",
+      "kind": "reads",
+      "source": "service:worker-20",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:20",
+      "kind": "depends_on",
+      "source": "service:worker-20",
+      "target": "service:worker-21",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-21",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-21",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:21",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-21",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:21",
+      "kind": "reads",
+      "source": "service:worker-21",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:21",
+      "kind": "depends_on",
+      "source": "service:worker-21",
+      "target": "service:worker-22",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-22",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-22",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:22",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-22",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:22",
+      "kind": "reads",
+      "source": "service:worker-22",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:22",
+      "kind": "depends_on",
+      "source": "service:worker-22",
+      "target": "service:worker-23",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    },
+    {
+      "id": "contains:service:worker-23",
+      "kind": "contains",
+      "source": "scope:system",
+      "target": "service:worker-23",
+      "basis": "declared"
+    },
+    {
+      "id": "fanout:23",
+      "kind": "requests",
+      "source": "service:coordinator",
+      "target": "service:worker-23",
+      "basis": "declared"
+    },
+    {
+      "id": "shared:23",
+      "kind": "reads",
+      "source": "service:worker-23",
+      "target": "store:shared",
+      "basis": "declared"
+    },
+    {
+      "id": "ring:23",
+      "kind": "depends_on",
+      "source": "service:worker-23",
+      "target": "service:worker-00",
+      "basis": "declared",
+      "dependency_phase": "runtime",
+      "necessity": "required"
+    }
+  ],
+  "evidence": []
+}

@@ -1,0 +1,187 @@
+{
+  "scope": "Diagnostic occlusion correlation, not a responsiveness or GPU-presentation acceptance test. Existing user previews remained running. No sampler or screenshots during the native trial; normal focus/window/update policy unchanged.",
+  "command": "/usr/bin/time -l ./target/debug/examples/production_smoke visualyze-local/production/bevy-0.18.1-syntax-v2.bundle.jsonl visualyze-local/production/native-occlusion-trace-2026-10-02-a --persist --composed --trace-frames --repeat-navigation --no-captures",
+  "exit_code": 0,
+  "completed_actions": 38,
+  "persistence": {
+    "attempts": 33,
+    "enabled": true,
+    "failures": 0,
+    "isolated_directory": "/var/folders/cb/g4nz23k17yjbg76n7847np000000gn/T/visualyze-persistence-smoke-99625-1790980141245788000",
+    "last_64_attempts_ms": [
+      13.189875,
+      18.959791,
+      22.725083,
+      34.781,
+      16.174417,
+      9.286124999999998,
+      10.058124999999999,
+      8.641916,
+      7.407417000000001,
+      8.333541,
+      8.046125,
+      7.565458,
+      7.249625,
+      9.328958,
+      8.220416,
+      13.601833000000001,
+      22.005125,
+      18.738375,
+      11.61925,
+      8.719083000000001,
+      8.481625,
+      9.752624999999998,
+      9.735083,
+      25.296125,
+      14.598208999999999,
+      8.211875000000001,
+      12.938959,
+      10.723708,
+      9.924208,
+      13.151792,
+      11.925958,
+      10.028917,
+      13.545084000000001
+    ],
+    "max_ms": 34.781,
+    "scope": "Synchronous main-thread state preparation and atomic save, including existing-state validation, serialization, file/directory fsync. Acceptance and frame intervals include this cost when enabled. The fresh temp directory is retained for inspection; no user state is read or written.",
+    "total_ms": 422.96570599999995
+  },
+  "source_counts": {
+    "entities": 27117,
+    "evidence": 31319,
+    "relations": 44019
+  },
+  "model_id": "model:788c0940ff544915",
+  "revision": 1,
+  "trace_scope": "Opt-in CPU schedule boundaries and the unchanged pipelined renderer extract callback. render_join_and_extract includes waiting for the render world, main-thread render tasks, extraction and dispatch; it is not GPU presentation timing. between_updates and before_render_extract are residuals including event-loop/OS/other-subapp work, not proven sleep time. Residual metadata is sampled at the end; other phase metadata at the start. between_updates belongs to the frame it precedes. window_occlusion_changed is a zero-duration notification observed in PreUpdate, not the OS event timestamp. occluded is the last primary-window notification, independent of focus; null means none has been observed for that window. Screenshot CPU spans are nested, not additive, and have no focus/occlusion/loading/action sample. All offsets share the proof start. Startup, current unfinished schedule and later shutdown are excluded. Boundary instrumentation adds overhead; window focus and update settings are unchanged.",
+  "surface_scope": "CPU scheduling bracket before/after Bevy prepare_windows in the render schedule, including time to schedule either marker and concurrent render work. This is not exclusive function time or GPU time. It covers swapchain acquisition/reconfiguration for all extracted windows; a call may reuse an existing texture. Render invocation numbers are independent of main frame IDs. Correlate by shared-clock start/duration offsets. Markers add ordering constraints/overhead but leave prepare_windows and window settings unchanged.",
+  "occlusion_notifications": [
+    {
+      "capture_pending": false,
+      "duration_ms": 0.0,
+      "focused": true,
+      "frame": 1,
+      "last_action_id": 0,
+      "loading": false,
+      "metadata_at": "event_observed",
+      "occluded": false,
+      "phase": "window_occlusion_changed",
+      "start_ms": 987.235875
+    },
+    {
+      "capture_pending": false,
+      "duration_ms": 0.0,
+      "focused": false,
+      "frame": 258,
+      "last_action_id": 4,
+      "loading": false,
+      "metadata_at": "event_observed",
+      "occluded": true,
+      "phase": "window_occlusion_changed",
+      "start_ms": 8835.184167
+    }
+  ],
+  "longest_main_phases": [
+    {
+      "capture_pending": false,
+      "duration_ms": 708.434709,
+      "focused": true,
+      "frame": 2,
+      "last_action_id": 0,
+      "loading": true,
+      "metadata_at": "start",
+      "occluded": false,
+      "phase": "render_join_and_extract",
+      "start_ms": 1192.7445830000001
+    },
+    {
+      "capture_pending": false,
+      "duration_ms": 429.364083,
+      "focused": true,
+      "frame": 3,
+      "last_action_id": 0,
+      "loading": true,
+      "metadata_at": "start",
+      "occluded": false,
+      "phase": "render_join_and_extract",
+      "start_ms": 1929.315042
+    },
+    {
+      "capture_pending": false,
+      "duration_ms": 389.599667,
+      "focused": false,
+      "frame": 173,
+      "last_action_id": 4,
+      "loading": true,
+      "metadata_at": "start",
+      "occluded": false,
+      "phase": "render_join_and_extract",
+      "start_ms": 6681.145208
+    },
+    {
+      "capture_pending": false,
+      "duration_ms": 160.55187500000002,
+      "focused": true,
+      "frame": 37,
+      "last_action_id": 1,
+      "loading": true,
+      "metadata_at": "start",
+      "occluded": false,
+      "phase": "render_join_and_extract",
+      "start_ms": 3150.502708
+    },
+    {
+      "capture_pending": false,
+      "duration_ms": 84.303875,
+      "focused": false,
+      "frame": 148,
+      "last_action_id": 4,
+      "loading": true,
+      "metadata_at": "start",
+      "occluded": false,
+      "phase": "render_join_and_extract",
+      "start_ms": 5413.149625
+    }
+  ],
+  "longest_surface_brackets": [
+    {
+      "duration_ms": 62.00725,
+      "invocation": 173,
+      "start_ms": 7076.396875
+    },
+    {
+      "duration_ms": 29.88125,
+      "invocation": 254,
+      "start_ms": 8648.707957999999
+    },
+    {
+      "duration_ms": 29.193958,
+      "invocation": 146,
+      "start_ms": 5244.081875
+    },
+    {
+      "duration_ms": 17.958166000000002,
+      "invocation": 252,
+      "start_ms": 8604.088292
+    },
+    {
+      "duration_ms": 17.142791000000003,
+      "invocation": 2,
+      "start_ms": 1955.8535419999998
+    }
+  ],
+  "dropped_main_spans": 0,
+  "dropped_surface_spans": 0,
+  "conclusion": "This trial did not reproduce the previous one-second surface-acquisition bracket. The largest handoff occurred with last observed occluded=false; fully hidden was observed later. These data do not establish occlusion as a cause or justify a hidden-window rendering workaround. Renderer/GPU responsiveness remains open.",
+  "provenance": {
+    "recorded_utc": "2026-10-02T22:37:22.128088+00:00",
+    "raw_report": "visualyze-local/production/native-occlusion-trace-2026-10-02-a/native-report.json",
+    "raw_report_sha256": "092900adda262ab3940bda15bf702d54416f8f5840ae60a7f33369fcea6be611",
+    "executable_sha256": "23e8fcce430afa8baf1461136270a99a1a8a6ac8fd08a25b946c8a0f66a4cf36",
+    "trace_source_sha256": "378da23da4ba8e5292232c701c09f5424264655cee4da9801ac1cdc650befdc5",
+    "log": "/private/tmp/visualyze-occlusion-trace-native-2026-10-02-a.log",
+    "test_log": "/private/tmp/visualyze-occlusion-trace-tests.log",
+    "tests": "6 passed; scope text subsequently clarified without changing behavior"
+  }
+}
