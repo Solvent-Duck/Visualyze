@@ -310,11 +310,13 @@ fn evaluate(case: &Case) -> Result<Value, Box<dyn std::error::Error>> {
         });
         let elapsed_ms = started.elapsed().as_secs_f64() * 1000.0;
         rows.push(match result {
-            Ok((solution, components)) => json!({"algorithm": format!("{algorithm:?}"), "status": "valid",
+            Ok((solution, components)) => {
+                json!({"algorithm": format!("{algorithm:?}"), "status": "valid",
                 "milliseconds": elapsed_ms, "metrics": solution.metrics,
                 "score_components": components,
                 "objects": solution.boxes.len(), "routes": solution.routes.len(),
-                "solution": solution}),
+                "solution": solution})
+            }
             Err(error) => json!({"algorithm": format!("{algorithm:?}"), "status": "failed",
                 "milliseconds": elapsed_ms, "error": error.to_string()}),
         });
@@ -434,6 +436,48 @@ mod tests {
                 .unwrap_err()
                 .to_string()
                 .contains("not represented")
+        );
+    }
+
+    #[test]
+    fn score_components_reproduce_structural_cost_and_reject_foreign_scale() {
+        let model = Architecture::from_reader(
+            File::open(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/../../public/examples/notes-crud.json"
+            ))
+            .unwrap(),
+        )
+        .unwrap();
+        let graph = project(&model, &ViewState::default()).unwrap();
+        let pins = BTreeMap::new();
+        let cancel = AtomicBool::new(false);
+        let solution = solve(LayoutRequest {
+            projection: &graph,
+            algorithm: Algorithm::Floorplan,
+            pins: &pins,
+            previous: None,
+            quality: QualityProfile::default(),
+            work_budget: 32,
+            cancelled: &cancel,
+        })
+        .unwrap();
+        let scale = NormalizationScale::from_projection(&graph);
+        let components = capture_score_components(&graph, &solution, scale).unwrap();
+        let reconstructed = components.weighted_cost(SCORING_WEIGHTS);
+        assert!(
+            (reconstructed - solution.metrics.structural_cost).abs()
+                <= 1e-10 * reconstructed.abs().max(1.0)
+        );
+
+        let foreign = NormalizationScale {
+            reference_volume: scale.reference_volume * 2.0,
+            reference_length: scale.reference_length,
+        };
+        assert!(
+            capture_score_components(&graph, &solution, foreign)
+                .unwrap_err()
+                .contains("normalization differs")
         );
     }
 }
