@@ -201,6 +201,19 @@ The schema uses [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-1
 9. Validate locally, repair diagnostics, and publish a complete replacement with the expected revision.
 10. Request focus or a walkthrough separately using the resulting semantic IDs.
 
+### Readability guidance for producers
+
+The renderer shows one level of the hierarchy at a time, so the structure you supply decides how readable the result is. Reflect the system's real hierarchy; do not flatten it and do not pad it.
+
+- **Supply the real hierarchy.** State subsystems as `scope` entities with `contains` relations. A scope says "these parts belong to this subsystem"; it never says "place these near each other."
+- **The top level is the highest truthful abstraction.** It may be three boxes (frontend, application, data) when that is what the system is. Do not list every component at the root.
+- **Say how you know.** A grouping stated in the repository carries the basis that matches its evidence. A grouping you deduced rather than found stated is `inferred` and carries a rationale.
+- **Keep stable IDs on refresh and edit the previous model.** Start from the model you published before, change what changed, and keep the IDs of what did not. Do not regenerate from scratch.
+- **Cross-cutting parts keep one home.** Shared authentication or a database used by several domains lives in one place; other subsystems reach it through relations or concerns. Do not duplicate it to make the tree tidy.
+- **Roughly a dozen boxes per layer and a few dozen per view read comfortably.** A level with many more can still be correct, and then it should stay wide.
+
+Validation may return **advice** for a scope that would show too much at once. Advice is never a rejection: the model is accepted either way. Treat it as the question "is there a real subsystem these belong to?" If there is, supply it. If there is not, leave the level wide. Do not invent subgroups ("Services A to M") to silence advice; that makes the diagram less true without making it clearer.
+
 ## 10. Implementation boundary
 
 The Rust `architecture` module now supplies bounded parsing, schema validation, semantic graph checks, typed snapshots, and shared executable conformance cases. The native simulator loads embedded, file, or stdin snapshots and renders each entity as a separate specimen. The [seven-object fixture](../examples/objects.json) contains only required logical containment and interface ownership; no connections are drawn. The historical database-only type remains separate.

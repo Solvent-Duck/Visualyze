@@ -108,12 +108,12 @@ pub fn noise_from_counts(
     }
 }
 
-/// Score what a projection would draw. Counted as boxes: solid boxes, frames
-/// (`FRAME_WEIGHT` each), and external references. Not counted: the focused
+/// Box counts shared by every way of scoring a projection: total boxes and
+/// boxes per layer. Counted as boxes: solid boxes, frames (`FRAME_WEIGHT` each),
+/// and, when `include_references`, external references. Not counted: the focused
 /// root, which is the view itself, and interface pads attached to a solid owner,
-/// which belong to the owner. Every projected edge is one connector however many
-/// relations it carries.
-pub fn visual_noise(projection: &Projection) -> VisualNoise {
+/// which belong to the owner.
+fn count_boxes(projection: &Projection, include_references: bool) -> (f64, BTreeMap<i32, f64>) {
     let by_id: BTreeMap<&str, &Node> = projection
         .nodes
         .iter()
@@ -123,7 +123,11 @@ pub fn visual_noise(projection: &Projection) -> VisualNoise {
     let mut layers: BTreeMap<i32, f64> = BTreeMap::new();
     for node in &projection.nodes {
         let reference = projection.references.contains_key(&node.id);
-        if !reference {
+        if reference {
+            if !include_references {
+                continue;
+            }
+        } else {
             if node.id == projection.root {
                 continue;
             }
@@ -141,7 +145,30 @@ pub fn visual_noise(projection: &Projection) -> VisualNoise {
         boxes += weight;
         *layers.entry(node.band).or_default() += weight;
     }
+    (boxes, layers)
+}
+
+/// Score what a projection would draw: its boxes, including external
+/// references, and every projected edge as one connector however many relations
+/// it carries.
+pub fn visual_noise(projection: &Projection) -> VisualNoise {
+    let (boxes, layers) = count_boxes(projection, true);
     noise_from_counts(boxes, &layers, projection.edges.len())
+}
+
+/// Score only the interior of the projection's root: its direct children and
+/// the connectors among them. External references, and any edge that touches a
+/// reference or the root itself, belong to the surroundings and are left out.
+/// The box rules are those of `visual_noise`.
+pub fn interior_noise(projection: &Projection) -> VisualNoise {
+    let (boxes, layers) = count_boxes(projection, false);
+    let outside = |id: &String| *id == projection.root || projection.references.contains_key(id);
+    let connectors = projection
+        .edges
+        .iter()
+        .filter(|edge| !outside(&edge.source) && !outside(&edge.target))
+        .count();
+    noise_from_counts(boxes, &layers, connectors)
 }
 
 #[cfg(test)]
@@ -329,6 +356,37 @@ mod tests {
         ]);
         let n = visual_noise(&p);
         assert_eq!(n.boxes, 3.0);
+    }
+
+    #[test]
+    fn interior_noise_excludes_references_and_edges_touching_them_or_the_root() {
+        let nodes = vec![
+            node("root", NodeKind::Scope, None, 1, false),
+            node("a", NodeKind::Service, Some("root"), 1, true),
+            node("b", NodeKind::Datastore, Some("root"), 0, true),
+            node("view:reference:x", NodeKind::Group, Some("root"), 1, true),
+        ];
+        let mut p = projection(nodes, 0);
+        p.references = BTreeMap::from([("view:reference:x".into(), "x".into())]);
+        let edge = |id: &str, source: &str, target: &str| Edge {
+            id: id.into(),
+            source: source.into(),
+            target: target.into(),
+            semantic_ids: vec![id.into()],
+        };
+        p.edges = vec![
+            edge("inner", "a", "b"),
+            edge("outer", "a", "view:reference:x"),
+            edge("incoming", "view:reference:x", "b"),
+            edge("rooted", "root", "a"),
+        ];
+        let inside = interior_noise(&p);
+        assert_eq!(inside.boxes, 2.0);
+        assert_eq!(inside.layers, BTreeMap::from([(0, 1.0), (1, 1.0)]));
+        assert_eq!(inside.connectors, 1);
+        let whole = visual_noise(&p);
+        assert_eq!(whole.boxes, 3.0);
+        assert_eq!(whole.connectors, 4);
     }
 
     #[test]

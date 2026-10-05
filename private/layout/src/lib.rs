@@ -1,5 +1,6 @@
 //! Deterministic, renderer-independent placement. Coordinates are tenths of a
 //! scene unit. Semantic records remain in the public model; these are view data.
+pub mod advice;
 pub mod assembly;
 pub mod assembly_plan;
 pub mod composed;

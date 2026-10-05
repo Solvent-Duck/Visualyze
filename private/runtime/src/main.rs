@@ -26,6 +26,7 @@ fn run() -> Result<bevy::app::AppExit, Box<dyn std::error::Error>> {
                 bundle.manifest().revision,
                 bundle.stats().counts
             );
+            report_bundle_advice(bundle);
             return Ok(bevy::app::AppExit::Success);
         }
         return Ok(visualyze::app_with_bundle(path, options.layout).run());
@@ -43,6 +44,7 @@ fn run() -> Result<bevy::app::AppExit, Box<dyn std::error::Error>> {
         snapshot.relations.len(),
         model.warnings().len()
     );
+    print_advice(&visualyze_layout::advice::advise_snapshot(&model));
     if options.validate_only {
         return Ok(bevy::app::AppExit::Success);
     }
@@ -53,4 +55,29 @@ fn run() -> Result<bevy::app::AppExit, Box<dyn std::error::Error>> {
         _ => visualyze::app_with_layout(model, options.view, options.layout),
     };
     Ok(app.run())
+}
+
+/// Readability advice never rejects a model: print it, or say why it is
+/// unavailable, and carry on.
+fn report_bundle_advice(mut bundle: visualyze_model::provider::LocalBundle) {
+    match visualyze_layout::advice::advise_bundle(&mut bundle) {
+        Ok(advice) => print_advice(&advice),
+        Err(error) => eprintln!("Advice unavailable: {error}"),
+    }
+}
+
+/// Advice arrives noisiest first; a producer acts on the worst scopes before
+/// the rest, so very large models do not print every advised scope.
+const MAX_PRINTED_ADVICE: usize = 25;
+
+fn print_advice(advice: &[visualyze_layout::advice::ScopeAdvice]) {
+    for advice in advice.iter().take(MAX_PRINTED_ADVICE) {
+        eprintln!("Advice: {}: {}", advice.scope_id, advice.message);
+    }
+    if advice.len() > MAX_PRINTED_ADVICE {
+        eprintln!(
+            "Advice: {} more scopes have readability advice; address the scopes above first.",
+            advice.len() - MAX_PRINTED_ADVICE
+        );
+    }
 }
