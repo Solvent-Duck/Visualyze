@@ -74,6 +74,10 @@ class Model:
                 record["basis"] = "declared"
                 if entity["detail"]["subtype"] is not None:
                     record["subtype"] = entity["detail"]["subtype"]
+                if record["id"] == self.root:
+                    # Snapshot system_id must name a scope with subtype system;
+                    # bundle roots carry no subtype, so bundle bytes are unchanged.
+                    record["subtype"] = "system"
                 snapshot_entities.append(record)
             snapshot_relations = []
             for relation in relations:

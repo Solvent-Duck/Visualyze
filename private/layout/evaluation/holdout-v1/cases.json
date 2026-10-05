@@ -1,0 +1,160 @@
+{
+  "cases": [
+    {
+      "id": "holdout-v1-clinic-appointments",
+      "path": "private/layout/evaluation/holdout-v1/clinic-appointments.json",
+      "format": "snapshot",
+      "role": "held_out",
+      "sha256": "887972d1acc6180444dfa922d18a455c91daf857d13002f54e6b77e3dd1baa9e",
+      "view": {
+        "focus": "scope:clinic-appointments",
+        "expanded": [],
+        "policy": "crud",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-research-cooperative",
+      "path": "private/layout/evaluation/holdout-v1/research-cooperative.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "9559d227a363a1372301f90819d23dd7730c7e5b0bb68a594fbab4dd5916ba6e",
+      "view": {
+        "focus": "scope:research-cooperative",
+        "expanded": [
+          "scope:catalog",
+          "scope:field",
+          "scope:shared"
+        ],
+        "policy": "crud",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-parcel-events",
+      "path": "private/layout/evaluation/holdout-v1/parcel-events.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "65f087835d1ef311eec3c0e8debc07bcfb6b05ad6d4725179ac6d1004a15ea26",
+      "view": {
+        "focus": "scope:parcel-events",
+        "expanded": [],
+        "policy": "pipeline",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-museum-collections",
+      "path": "private/layout/evaluation/holdout-v1/museum-collections.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "93cc42b4ce9d69e6a088c1301c98806fcf611555237a32acf60361134e019a36",
+      "view": {
+        "focus": "scope:museum-collections",
+        "expanded": [
+          "datastore:catalog",
+          "datastore:loans"
+        ],
+        "policy": "crud",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-compiler-workspace",
+      "path": "private/layout/evaluation/holdout-v1/compiler-workspace.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "e231169b02c0b2b7c0df438b9f99770bfd895f28507df33c9d16e9d25c697c3d",
+      "view": {
+        "focus": "code_repository:compiler",
+        "expanded": [
+          "code_file:driver-core",
+          "code_file:driver-helpers",
+          "code_file:ir-core",
+          "code_file:ir-helpers",
+          "code_file:optimizer-core",
+          "code_file:optimizer-helpers",
+          "code_file:parser-core",
+          "code_file:parser-helpers",
+          "code_package:driver",
+          "code_package:ir",
+          "code_package:optimizer",
+          "code_package:parser",
+          "code_type:driver",
+          "code_type:ir",
+          "code_type:optimizer",
+          "code_type:parser"
+        ],
+        "policy": "code",
+        "lens": "code",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-regional-ledger",
+      "path": "private/layout/evaluation/holdout-v1/regional-ledger.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "2eb5cf5007d27775ca5a89627753f7b82ebc97766ba9439099cfe4b53c544d1c",
+      "view": {
+        "focus": "deployment:fleet",
+        "expanded": [
+          "deployment:east",
+          "deployment:east-a",
+          "deployment:east-b",
+          "deployment:west",
+          "deployment:west-a",
+          "deployment:west-b"
+        ],
+        "policy": "deployment",
+        "lens": "deployment",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-islands-and-claims",
+      "path": "private/layout/evaluation/holdout-v1/islands-and-claims.json",
+      "format": "snapshot",
+      "role": "held_out",
+      "sha256": "03b97775ae1bc12c857a15a508c990b8fe1079f0336049964bb029b7653512c6",
+      "view": {
+        "focus": "scope:islands-and-claims",
+        "expanded": [],
+        "policy": "peers",
+        "lens": null,
+        "child_page": 0,
+        "relation_page": 0
+      }
+    },
+    {
+      "id": "holdout-v1-water-control",
+      "path": "private/layout/evaluation/holdout-v1/water-control.bundle.jsonl",
+      "format": "bundle",
+      "role": "held_out",
+      "sha256": "05150d7796f207cc02dd41d509885eb238ee95f5025ffabd220aa500ddfbd9ed",
+      "view": {
+        "focus": "scope:water-control",
+        "expanded": [
+          "datastore:history",
+          "scope:analysis",
+          "scope:operations",
+          "scope:sensors"
+        ],
+        "policy": "pipeline",
+        "lens": "logical",
+        "child_page": 0,
+        "relation_page": 0
+      }
+    }
+  ]
+}

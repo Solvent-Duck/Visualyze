@@ -1,0 +1,314 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "holdout-v1:islands-and-claims",
+  "revision": 1,
+  "system_id": "scope:islands-and-claims",
+  "snapshot": {
+    "id": "holdout-v1:islands-and-claims:revision-1",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Synthetic disconnected runtime islands and distinct parallel request claims",
+    "omissions": [
+      "Independently authored synthetic architecture, not a claim about a real system.",
+      "Traffic volumes, failure handling, operational schedules, and unnamed dependencies are not supplied.",
+      "No physical deployment is implied except explicit deployment records in this fixture."
+    ]
+  },
+  "entities": [
+    {
+      "id": "client:crew",
+      "kind": "client",
+      "label": "crew",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "client:inspector",
+      "kind": "client",
+      "label": "inspector",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "concern:crew-access",
+      "kind": "concern",
+      "label": "crew access",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "authorization"
+    },
+    {
+      "id": "datastore:assignments",
+      "kind": "datastore",
+      "label": "assignments",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "datastore:reports",
+      "kind": "datastore",
+      "label": "reports",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "interface:planning",
+      "kind": "interface",
+      "label": "planning",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "interface:standby",
+      "kind": "interface",
+      "label": "standby",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "scope:islands-and-claims",
+      "kind": "scope",
+      "label": "Synthetic disconnected runtime islands and distinct parallel request claims",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "system"
+    },
+    {
+      "id": "service:archive",
+      "kind": "service",
+      "label": "archive",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:check",
+      "kind": "service",
+      "label": "check",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:dispatch",
+      "kind": "service",
+      "label": "dispatch",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:offline",
+      "kind": "service",
+      "label": "offline",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:planner",
+      "kind": "service",
+      "label": "planner",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:spare",
+      "kind": "service",
+      "label": "spare",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:standby",
+      "kind": "service",
+      "label": "standby",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:warm",
+      "kind": "service",
+      "label": "warm",
+      "boundary": "internal",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "owns:client:crew",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "client:crew",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:client:inspector",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "client:inspector",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:concern:crew-access",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "concern:crew-access",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:datastore:assignments",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "datastore:assignments",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:datastore:reports",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "datastore:reports",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:interface:planning",
+      "kind": "exposes",
+      "source": "service:planner",
+      "target": "interface:planning",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:interface:standby",
+      "kind": "exposes",
+      "source": "service:standby",
+      "target": "interface:standby",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:archive",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "service:archive",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:check",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "service:check",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:dispatch",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "service:dispatch",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:offline",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "service:offline",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:planner",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "service:planner",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:spare",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "service:spare",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:standby",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "service:standby",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:warm",
+      "kind": "contains",
+      "source": "scope:islands-and-claims",
+      "target": "service:warm",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:applies_to:concern:crew-access:service:dispatch",
+      "kind": "applies_to",
+      "source": "concern:crew-access",
+      "target": "service:dispatch",
+      "aspect": "access_control",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:reads:service:archive:datastore:reports",
+      "kind": "reads",
+      "source": "service:archive",
+      "target": "datastore:reports",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:reads:service:planner:datastore:assignments",
+      "kind": "reads",
+      "source": "service:planner",
+      "target": "datastore:assignments",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:client:crew:service:dispatch",
+      "kind": "requests",
+      "source": "client:crew",
+      "target": "service:dispatch",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:client:inspector:service:archive",
+      "kind": "requests",
+      "source": "client:inspector",
+      "target": "service:archive",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:service:archive:service:check",
+      "kind": "requests",
+      "source": "service:archive",
+      "target": "service:check",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:service:check:service:archive",
+      "kind": "requests",
+      "source": "service:check",
+      "target": "service:archive",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:service:dispatch:interface:planning:estimate",
+      "kind": "requests",
+      "source": "service:dispatch",
+      "target": "interface:planning",
+      "label": "Estimate assignment",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:service:dispatch:interface:planning:reserve",
+      "kind": "requests",
+      "source": "service:dispatch",
+      "target": "interface:planning",
+      "label": "Reserve assignment",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:writes:service:planner:datastore:assignments",
+      "kind": "writes",
+      "source": "service:planner",
+      "target": "datastore:assignments",
+      "basis": "declared"
+    }
+  ],
+  "evidence": []
+}

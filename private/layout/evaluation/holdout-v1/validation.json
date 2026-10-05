@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "cohort": "holdout-v1",
+  "validated_on": "2026-10-05",
+  "scored_before_validation": false,
+  "procedure": [
+    "Ran generate.py once in a scratch copy; validated each emitted file with `cargo run --locked -- --validate --model` (snapshots) or `--bundle` (bundles).",
+    "Both snapshot cases were rejected: `invalid_system at /system_id: root must be an internal scope with subtype system`.",
+    "Corrected generate.py so the snapshot root scope carries subtype `system`, as public/schema/architecture-format.md requires. Bundle roots carry no subtype, matching existing bundle fixtures.",
+    "Regenerated in place. All six bundle files are byte-identical to the pre-correction scratch output; each snapshot differs only by the added root subtype.",
+    "Re-validated all eight files and checked that every requested focus/expanded ID exists in its fixture and that cases.json hashes match the emitted bytes.",
+    "No layout, projection, metric or solver result was produced or inspected during these checks."
+  ],
+  "corrections": [
+    {
+      "files": [
+        "clinic-appointments.json",
+        "islands-and-claims.json"
+      ],
+      "error": "invalid_system at /system_id: root must be an internal scope with subtype system",
+      "change": "Root scope entity gains \"subtype\": \"system\" in snapshot output only. No topology, label, relation or requested view changed."
+    }
+  ],
+  "expected_warnings": [
+    {
+      "file": "islands-and-claims.json",
+      "warning": "duplicate_claim at /relations/23",
+      "reason": "Intentional: SELECTION.md scenario 7 declares two separately labelled request claims (Estimate assignment, Reserve assignment) on the same endpoint pair."
+    }
+  ],
+  "final_files": {
+    "clinic-appointments.json": "887972d1acc6180444dfa922d18a455c91daf857d13002f54e6b77e3dd1baa9e",
+    "research-cooperative.bundle.jsonl": "9559d227a363a1372301f90819d23dd7730c7e5b0bb68a594fbab4dd5916ba6e",
+    "parcel-events.bundle.jsonl": "65f087835d1ef311eec3c0e8debc07bcfb6b05ad6d4725179ac6d1004a15ea26",
+    "museum-collections.bundle.jsonl": "93cc42b4ce9d69e6a088c1301c98806fcf611555237a32acf60361134e019a36",
+    "compiler-workspace.bundle.jsonl": "e231169b02c0b2b7c0df438b9f99770bfd895f28507df33c9d16e9d25c697c3d",
+    "regional-ledger.bundle.jsonl": "2eb5cf5007d27775ca5a89627753f7b82ebc97766ba9439099cfe4b53c544d1c",
+    "islands-and-claims.json": "03b97775ae1bc12c857a15a508c990b8fe1079f0336049964bb029b7653512c6",
+    "water-control.bundle.jsonl": "05150d7796f207cc02dd41d509885eb238ee95f5025ffabd220aa500ddfbd9ed"
+  },
+  "generator_sha256": "7e1e3498c9ee9b57cb9cf59f47f8474dc084b2bcaaff44c63138af65d3d876ba",
+  "cases_sha256": "bab6df09123d802830c45be701376aa0cdb1800c2b60c8cf346320439001530d"
+}

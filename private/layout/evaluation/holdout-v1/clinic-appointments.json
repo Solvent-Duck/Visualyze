@@ -1,0 +1,461 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "holdout-v1:clinic-appointments",
+  "revision": 1,
+  "system_id": "scope:clinic-appointments",
+  "snapshot": {
+    "id": "holdout-v1:clinic-appointments:revision-1",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Synthetic clinic appointment and import responsibilities",
+    "omissions": [
+      "Independently authored synthetic architecture, not a claim about a real system.",
+      "Traffic volumes, failure handling, operational schedules, and unnamed dependencies are not supplied.",
+      "No physical deployment is implied except explicit deployment records in this fixture."
+    ]
+  },
+  "entities": [
+    {
+      "id": "client:public",
+      "kind": "client",
+      "label": "public",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "client:staff",
+      "kind": "client",
+      "label": "staff",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "concern:access",
+      "kind": "concern",
+      "label": "access",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "authentication"
+    },
+    {
+      "id": "concern:telemetry",
+      "kind": "concern",
+      "label": "telemetry",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "observability"
+    },
+    {
+      "id": "datastore:accounts",
+      "kind": "datastore",
+      "label": "accounts",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "datastore:appointments",
+      "kind": "datastore",
+      "label": "appointments",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "datastore:archive",
+      "kind": "datastore",
+      "label": "archive",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "datastore:availability",
+      "kind": "datastore",
+      "label": "availability",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "interface:booking-api",
+      "kind": "interface",
+      "label": "booking api",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "interface:gateway-api",
+      "kind": "interface",
+      "label": "gateway api",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "interface:records",
+      "kind": "interface",
+      "label": "records",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "scope:clinic-appointments",
+      "kind": "scope",
+      "label": "Synthetic clinic appointment and import responsibilities",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "system"
+    },
+    {
+      "id": "service:booking",
+      "kind": "service",
+      "label": "booking",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:gateway",
+      "kind": "service",
+      "label": "gateway",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:identity",
+      "kind": "service",
+      "label": "identity",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:import",
+      "kind": "service",
+      "label": "import",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:reminders",
+      "kind": "service",
+      "label": "reminders",
+      "boundary": "internal",
+      "basis": "declared"
+    },
+    {
+      "id": "service:schedules",
+      "kind": "service",
+      "label": "schedules",
+      "boundary": "internal",
+      "basis": "declared"
+    }
+  ],
+  "relations": [
+    {
+      "id": "observes:booking",
+      "kind": "applies_to",
+      "source": "concern:telemetry",
+      "target": "service:booking",
+      "aspect": "observability",
+      "basis": "declared"
+    },
+    {
+      "id": "observes:gateway",
+      "kind": "applies_to",
+      "source": "concern:telemetry",
+      "target": "service:gateway",
+      "aspect": "observability",
+      "basis": "declared"
+    },
+    {
+      "id": "observes:identity",
+      "kind": "applies_to",
+      "source": "concern:telemetry",
+      "target": "service:identity",
+      "aspect": "observability",
+      "basis": "declared"
+    },
+    {
+      "id": "observes:import",
+      "kind": "applies_to",
+      "source": "concern:telemetry",
+      "target": "service:import",
+      "aspect": "observability",
+      "basis": "declared"
+    },
+    {
+      "id": "observes:reminders",
+      "kind": "applies_to",
+      "source": "concern:telemetry",
+      "target": "service:reminders",
+      "aspect": "observability",
+      "basis": "declared"
+    },
+    {
+      "id": "observes:schedules",
+      "kind": "applies_to",
+      "source": "concern:telemetry",
+      "target": "service:schedules",
+      "aspect": "observability",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:client:public",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "client:public",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:client:staff",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "client:staff",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:concern:access",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "concern:access",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:concern:telemetry",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "concern:telemetry",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:datastore:accounts",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "datastore:accounts",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:datastore:appointments",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "datastore:appointments",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:datastore:archive",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "datastore:archive",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:datastore:availability",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "datastore:availability",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:interface:booking-api",
+      "kind": "exposes",
+      "source": "service:booking",
+      "target": "interface:booking-api",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:interface:gateway-api",
+      "kind": "exposes",
+      "source": "service:gateway",
+      "target": "interface:gateway-api",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:interface:records",
+      "kind": "exposes",
+      "source": "datastore:appointments",
+      "target": "interface:records",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:booking",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "service:booking",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:gateway",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "service:gateway",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:identity",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:import",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "service:import",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:reminders",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "service:reminders",
+      "basis": "declared"
+    },
+    {
+      "id": "owns:service:schedules",
+      "kind": "contains",
+      "source": "scope:clinic-appointments",
+      "target": "service:schedules",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:applies_to:concern:access:service:booking",
+      "kind": "applies_to",
+      "source": "concern:access",
+      "target": "service:booking",
+      "aspect": "access_control",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:applies_to:concern:access:service:gateway",
+      "kind": "applies_to",
+      "source": "concern:access",
+      "target": "service:gateway",
+      "aspect": "access_control",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:applies_to:concern:access:service:schedules",
+      "kind": "applies_to",
+      "source": "concern:access",
+      "target": "service:schedules",
+      "aspect": "access_control",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:implemented_by:concern:access:service:identity",
+      "kind": "implemented_by",
+      "source": "concern:access",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:reads:service:booking:datastore:availability",
+      "kind": "reads",
+      "source": "service:booking",
+      "target": "datastore:availability",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:reads:service:booking:interface:records",
+      "kind": "reads",
+      "source": "service:booking",
+      "target": "interface:records",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:reads:service:identity:datastore:accounts",
+      "kind": "reads",
+      "source": "service:identity",
+      "target": "datastore:accounts",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:reads:service:reminders:datastore:appointments",
+      "kind": "reads",
+      "source": "service:reminders",
+      "target": "datastore:appointments",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:client:public:interface:gateway-api",
+      "kind": "requests",
+      "source": "client:public",
+      "target": "interface:gateway-api",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:client:staff:interface:gateway-api",
+      "kind": "requests",
+      "source": "client:staff",
+      "target": "interface:gateway-api",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:client:staff:service:import",
+      "kind": "requests",
+      "source": "client:staff",
+      "target": "service:import",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:service:gateway:service:booking",
+      "kind": "requests",
+      "source": "service:gateway",
+      "target": "service:booking",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:service:gateway:service:identity",
+      "kind": "requests",
+      "source": "service:gateway",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:service:gateway:service:schedules",
+      "kind": "requests",
+      "source": "service:gateway",
+      "target": "service:schedules",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:requests:service:reminders:service:identity",
+      "kind": "requests",
+      "source": "service:reminders",
+      "target": "service:identity",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:writes:service:booking:datastore:appointments",
+      "kind": "writes",
+      "source": "service:booking",
+      "target": "datastore:appointments",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:writes:service:identity:datastore:accounts",
+      "kind": "writes",
+      "source": "service:identity",
+      "target": "datastore:accounts",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:writes:service:import:datastore:appointments",
+      "kind": "writes",
+      "source": "service:import",
+      "target": "datastore:appointments",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:writes:service:import:datastore:archive",
+      "kind": "writes",
+      "source": "service:import",
+      "target": "datastore:archive",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:writes:service:schedules:datastore:availability",
+      "kind": "writes",
+      "source": "service:schedules",
+      "target": "datastore:availability",
+      "basis": "declared"
+    }
+  ],
+  "evidence": []
+}
