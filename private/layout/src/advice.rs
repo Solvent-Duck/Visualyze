@@ -387,12 +387,30 @@ mod tests {
                 &format!("svc{b}"),
             ));
         }
+        // Each service requests each outside service at most once, because
+        // parallel relations of one kind between the same endpoints aggregate
+        // into a single connector (ADR 0007 section 4).
+        let width = services.max(1);
+        for k in 0..outer.div_ceil(width) {
+            entities.push(entity(
+                &format!("ext{k}"),
+                "service",
+                &format!("Ext {k}"),
+                "",
+            ));
+            rels.push(relation(
+                &format!("own-ext{k}"),
+                "contains",
+                "system",
+                &format!("ext{k}"),
+            ));
+        }
         for n in 0..outer {
             rels.push(relation(
                 &format!("out{n}"),
                 "requests",
-                &format!("svc{}", n % services.max(1)),
-                "other",
+                &format!("svc{}", n % width),
+                &format!("ext{}", n / width),
             ));
         }
         let json = format!(
@@ -472,7 +490,7 @@ mod tests {
         // noisy, but none of that belongs to the interior.
         let model = architecture(14, 0, &[], 60);
         let projection = crate::projection::project(&model, &unbudgeted_view("sub")).unwrap();
-        assert_eq!(projection.references.len(), 1);
+        assert_eq!(projection.references.len(), 5);
         assert_eq!(projection.edges.len(), 60);
         assert!(crate::noise::visual_noise(&projection).over_threshold());
         let inside = interior_noise(&projection);

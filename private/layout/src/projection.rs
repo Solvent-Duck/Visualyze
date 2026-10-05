@@ -679,7 +679,8 @@ pub fn project(model: &Architecture, view: &ViewState) -> Result<Projection, Lay
         &mut semantic_to_display,
     );
     let mut references: BTreeMap<String, String> = BTreeMap::new();
-    let mut edges = Vec::new();
+    let mut edge_groups: BTreeMap<(String, String, String, Option<String>), Vec<String>> =
+        BTreeMap::new();
     let mut internal_relation_ids = Vec::new();
     let mut metadata = BTreeMap::new();
     for relation in relations.values() {
@@ -722,15 +723,34 @@ pub fn project(model: &Architecture, view: &ViewState) -> Result<Projection, Lay
         if source == target {
             internal_relation_ids.push(relation.id.clone());
         } else {
-            // Keep parallel predicates independent; membership IDs permit future explicit bundles.
-            edges.push(Edge {
-                id: relation.id.clone(),
-                source,
-                target,
-                semantic_ids: vec![relation.id.clone()],
-            });
+            // Aggregate parallel relations of the same kind and aspect between
+            // the same displayed endpoints into one connector (ADR 0007
+            // section 4). Membership stays exact: the edge lists every
+            // original relation ID and `metadata` keeps every record.
+            edge_groups
+                .entry((
+                    source,
+                    target,
+                    format!("{:?}", relation.kind),
+                    relation.aspect.clone(),
+                ))
+                .or_default()
+                .push(relation.id.clone());
         }
     }
+    let mut edges: Vec<Edge> = edge_groups
+        .into_iter()
+        .map(|((source, target, _, _), mut semantic_ids)| {
+            semantic_ids.sort();
+            Edge {
+                id: semantic_ids[0].clone(),
+                source,
+                target,
+                semantic_ids,
+            }
+        })
+        .collect();
+    edges.sort_by(|a, b| a.id.cmp(&b.id));
     if view.policy == LayoutPolicy::Pipeline {
         rank_pipeline(&mut nodes, &edges);
     }
@@ -1439,6 +1459,139 @@ mod tests {
         assert!(project(&notes(), &view).is_err());
     }
 
+    /// `sub` holds three services that each read an outside datastore, one of
+    /// which also writes to it. An outside concern applies to all three, under
+    /// two aspects.
+    fn aggregation_model() -> Architecture {
+        let entity = |id: &str, kind: &str, extra: &str| {
+            format!(
+                r#"{{"id":"{id}","kind":"{kind}","label":"{id}","boundary":"internal","basis":"declared"{extra}}}"#
+            )
+        };
+        let relation = |id: &str, kind: &str, source: &str, target: &str, extra: &str| {
+            format!(
+                r#"{{"id":"{id}","kind":"{kind}","source":"{source}","target":"{target}","basis":"declared"{extra}}}"#
+            )
+        };
+        let entities = [
+            entity("system", "scope", r#","subtype":"system""#),
+            entity("sub", "scope", ""),
+            entity("svc0", "service", ""),
+            entity("svc1", "service", ""),
+            entity("svc2", "service", ""),
+            entity("store", "datastore", ""),
+            entity("auth", "concern", ""),
+        ];
+        let relations = [
+            relation("own-sub", "contains", "system", "sub", ""),
+            relation("own-store", "contains", "system", "store", ""),
+            relation("own-svc0", "contains", "sub", "svc0", ""),
+            relation("own-svc1", "contains", "sub", "svc1", ""),
+            relation("own-svc2", "contains", "sub", "svc2", ""),
+            relation("read0", "reads", "svc0", "store", ""),
+            relation("read1", "reads", "svc1", "store", ""),
+            relation("read2", "reads", "svc2", "store", ""),
+            relation("own-auth", "contains", "system", "auth", ""),
+            relation(
+                "cover0",
+                "applies_to",
+                "auth",
+                "svc0",
+                r#","aspect":"sign_in""#,
+            ),
+            relation(
+                "cover1",
+                "applies_to",
+                "auth",
+                "svc1",
+                r#","aspect":"sign_in""#,
+            ),
+            relation(
+                "cover2",
+                "applies_to",
+                "auth",
+                "svc2",
+                r#","aspect":"audit""#,
+            ),
+            relation("write0", "writes", "svc0", "store", ""),
+            relation("peer", "requests", "svc0", "svc1", ""),
+        ];
+        let json = format!(
+            r#"{{"schema_version":"0.1.0-draft.1","model_id":"aggregation","revision":1,"system_id":"system","snapshot":{{"id":"agg-001","source_revision":null,"coverage":"partial","scope_description":"test","omissions":[]}},"entities":[{}],"relations":[{}],"evidence":[]}}"#,
+            entities.join(","),
+            relations.join(",")
+        );
+        Architecture::from_json(json.as_bytes()).unwrap_or_else(|e| panic!("{e}"))
+    }
+
+    fn membership(p: &Projection) -> Vec<String> {
+        let mut ids: Vec<String> = p
+            .edges
+            .iter()
+            .flat_map(|edge| edge.semantic_ids.iter().cloned())
+            .chain(p.internal_relation_ids.iter().cloned())
+            .collect();
+        ids.sort();
+        ids
+    }
+
+    #[test]
+    fn collapsed_connectors_aggregate_by_endpoints_kind_and_aspect() {
+        let model = aggregation_model();
+        let collapsed = project(&model, &ViewState::default()).unwrap();
+        let edge = |id: &str| {
+            collapsed
+                .edges
+                .iter()
+                .find(|edge| edge.id == id)
+                .unwrap_or_else(|| panic!("no edge {id}: {:#?}", collapsed.edges))
+        };
+        // Same endpoints, kind and aspect: one connector, smallest ID, sorted members.
+        assert_eq!(edge("read0").semantic_ids, ["read0", "read1", "read2"]);
+        assert_eq!(
+            (edge("read0").source.as_str(), edge("read0").target.as_str()),
+            ("sub", "store")
+        );
+        // A different kind stays separate, and so does a different aspect.
+        assert_eq!(edge("write0").semantic_ids, ["write0"]);
+        assert_eq!(edge("cover0").semantic_ids, ["cover0", "cover1"]);
+        assert_eq!(edge("cover2").semantic_ids, ["cover2"]);
+        assert_eq!(collapsed.edges.len(), 4);
+        // `peer` is inside `sub`, so it is an internal record, not a line.
+        assert_eq!(collapsed.internal_relation_ids, ["peer"]);
+    }
+
+    #[test]
+    fn expanding_changes_the_visible_line_count_but_never_semantic_membership() {
+        let model = aggregation_model();
+        let mut view = ViewState::default();
+        let collapsed = project(&model, &view).unwrap();
+        view.set_expanded("sub", true);
+        let expanded = project(&model, &view).unwrap();
+        assert!(expanded.edges.len() > collapsed.edges.len());
+        assert_eq!(expanded.edges.len(), 8);
+        assert_eq!(expanded.internal_relation_ids.len(), 0);
+        let all = [
+            "cover0", "cover1", "cover2", "peer", "read0", "read1", "read2", "write0",
+        ];
+        assert_eq!(membership(&collapsed), all);
+        assert_eq!(membership(&expanded), all);
+        // Every record is still resident for inspection in both views.
+        assert_eq!(
+            collapsed.relation_metadata.len(),
+            model.snapshot().relations.len()
+        );
+        assert_eq!(
+            expanded.relation_metadata.len(),
+            model.snapshot().relations.len()
+        );
+        // Edge IDs are unique and each lists a relation at most once.
+        for p in [&collapsed, &expanded] {
+            let ids: BTreeSet<_> = p.edges.iter().map(|edge| &edge.id).collect();
+            assert_eq!(ids.len(), p.edges.len());
+        }
+    }
+
     #[test]
     fn grouping_and_input_order_do_not_change_semantic_membership() {
         let mut view = ViewState::with_budgets(3, 2, 250);
@@ -1450,7 +1603,14 @@ mod tests {
             notes().snapshot().entities.len()
         );
         assert_eq!(p.key, project(&notes(), &view).unwrap().key);
-        let count = p.edges.len() + p.internal_relation_ids.len();
+        // Connectors aggregate parallel relations, so membership (not the
+        // edge count) must account for every supplied non-structural relation.
+        let count = p
+            .edges
+            .iter()
+            .map(|edge| edge.semantic_ids.len())
+            .sum::<usize>()
+            + p.internal_relation_ids.len();
         assert_eq!(
             count,
             p.relation_metadata

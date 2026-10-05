@@ -27,6 +27,16 @@ fn layout(view: &ViewState, pins: &BTreeMap<String, Point>) -> LayoutSolution {
     solution
 }
 
+fn route_membership(solution: &LayoutSolution) -> Vec<String> {
+    let mut ids: Vec<String> = solution
+        .routes
+        .iter()
+        .flat_map(|route| route.semantic_ids.iter().cloned())
+        .collect();
+    ids.sort();
+    ids
+}
+
 #[test]
 fn compact_and_expanded_interface_views_route_every_visible_relationship() {
     let mut view = ViewState::default();
@@ -38,7 +48,10 @@ fn compact_and_expanded_interface_views_route_every_visible_relationship() {
     let interface = &expanded.boxes["interface:notes"];
     assert!(owner.solid);
     assert_eq!(owner.bounds.max.z, interface.bounds.min.z);
-    assert_eq!(compact.routes.len(), expanded.routes.len());
+    // Expanding splits the aggregated request connector into its members: the
+    // visible line count grows, but every relation stays routed exactly once.
+    assert!(expanded.routes.len() > compact.routes.len());
+    assert_eq!(route_membership(&compact), route_membership(&expanded));
 }
 
 #[test]
@@ -72,7 +85,7 @@ fn inferred_group_entry_preserves_every_supplied_relationship_as_route_or_intern
     let focused = project(&notes(), &view).unwrap();
     let solution = layout(&view, &BTreeMap::new());
     assert_eq!(
-        solution.routes.len() + focused.internal_relation_ids.len(),
+        route_membership(&solution).len() + focused.internal_relation_ids.len(),
         focused
             .relation_metadata
             .values()

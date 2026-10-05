@@ -222,6 +222,24 @@ pub(crate) fn color(kind: RelationKind) -> Color {
     Color::srgb_u8(r, g, b)
 }
 
+/// Extra line thickness per doubling of the relations an aggregated connector
+/// carries (ADR 0007 section 4). One relation is drawn at the base thickness.
+pub(crate) const AGGREGATE_THICKNESS_PER_DOUBLING: f32 = 0.5;
+/// Largest thickness multiplier. The base tube is 0.065 and the router keeps
+/// 0.2 scene units of clearance, so 2.5x (0.1625 wide, 0.081 either side of the
+/// centreline) stays inside that clearance. Routing never reads thickness; this
+/// factor is purely visual.
+pub(crate) const MAX_AGGREGATE_THICKNESS: f32 = 2.5;
+
+/// Thickness multiplier for a connector carrying `count` relations:
+/// `1 + 0.5 * log2(count)`, capped at `MAX_AGGREGATE_THICKNESS`.
+pub(crate) fn aggregate_thickness(count: usize) -> f32 {
+    if count <= 1 {
+        return 1.0;
+    }
+    (1.0 + AGGREGATE_THICKNESS_PER_DOUBLING * (count as f32).log2()).min(MAX_AGGREGATE_THICKNESS)
+}
+
 pub(crate) fn draw(
     commands: &mut Commands,
     meshes: &mut Assets<Mesh>,
@@ -237,6 +255,20 @@ pub(crate) fn draw_scaled(
     materials: &mut Assets<StandardMaterial>,
     route: &Route,
     scales: &[f32],
+) -> Entity {
+    draw_weighted(commands, meshes, materials, route, scales, 1.0)
+}
+
+/// Like `draw_scaled`, with the line (and arrowhead stroke) thickness
+/// multiplied by `weight`. Geometry, dash spacing and arrow length are
+/// unchanged, so a heavier line occupies the same routed corridor.
+pub(crate) fn draw_weighted(
+    commands: &mut Commands,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    route: &Route,
+    scales: &[f32],
+    weight: f32,
 ) -> Entity {
     let root = commands
         .spawn((
@@ -264,7 +296,7 @@ pub(crate) fn draw_scaled(
             | RelationKind::DependsOn
     );
     let dashed = logical || matches!(route.relation.basis, Basis::Inferred | Basis::Unknown);
-    let thickness = if logical { 0.035 } else { 0.065 };
+    let thickness = if logical { 0.035 } else { 0.065 } * weight;
     let mut segment = |start: Vec3, end: Vec3, width: f32| {
         let delta = end - start;
         if !delta.is_finite() || delta.length() <= 0.0 || !width.is_finite() || width <= 0.0 {
@@ -347,7 +379,7 @@ pub(crate) fn draw_scaled(
             segment(
                 tip - direction * (0.2 * arrow_scale) + side * (0.12 * arrow_scale * sign),
                 tip,
-                0.055 * arrow_scale,
+                0.055 * arrow_scale * weight,
             );
         }
     }
@@ -395,6 +427,55 @@ mod tests {
                     .map(|child| *world.get::<Transform>(child).unwrap())
                     .collect()
             })
+    }
+
+    #[test]
+    fn aggregate_thickness_grows_with_count_and_is_capped() {
+        assert_eq!(aggregate_thickness(0), 1.0);
+        assert_eq!(aggregate_thickness(1), 1.0);
+        assert!((aggregate_thickness(2) - 1.5).abs() < 1e-6);
+        assert!((aggregate_thickness(4) - 2.0).abs() < 1e-6);
+        assert!(aggregate_thickness(3) > aggregate_thickness(2));
+        assert_eq!(aggregate_thickness(16), MAX_AGGREGATE_THICKNESS);
+        assert_eq!(aggregate_thickness(10_000), MAX_AGGREGATE_THICKNESS);
+        // The widest tube stays within the router's 0.2 scene-unit clearance.
+        const { assert!(0.065 * MAX_AGGREGATE_THICKNESS < 0.2) };
+    }
+
+    #[test]
+    fn weight_only_changes_tube_width_not_route_geometry() {
+        let draw_with = |weight: f32| {
+            let mut world = World::new();
+            let mut queue = CommandQueue::default();
+            let root = draw_weighted(
+                &mut Commands::new(&mut queue, &world),
+                &mut Assets::<Mesh>::default(),
+                &mut Assets::<StandardMaterial>::default(),
+                &draw_fixture(
+                    RelationKind::Requests,
+                    Basis::Declared,
+                    vec![Vec3::ZERO, Vec3::X * 4.0],
+                ),
+                &[],
+                weight,
+            );
+            queue.apply(&mut world);
+            world
+                .get::<Children>(root)
+                .unwrap()
+                .iter()
+                .map(|child| *world.get::<Transform>(child).unwrap())
+                .collect::<Vec<_>>()
+        };
+        let base = draw_with(1.0);
+        let heavy = draw_with(2.0);
+        assert_eq!(base.len(), heavy.len());
+        for (a, b) in base.iter().zip(&heavy) {
+            assert_eq!(a.translation, b.translation);
+            assert_eq!(a.rotation, b.rotation);
+            assert_eq!(a.scale.z, b.scale.z);
+            assert!((b.scale.x - 2.0 * a.scale.x).abs() < 1e-6);
+        }
     }
 
     #[test]

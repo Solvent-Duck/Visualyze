@@ -421,6 +421,9 @@ pub enum ViewerAction {
     NextRelation,
     PreviousRelation,
     ClearRelationSelection,
+    /// Expand both endpoints of the selected path so its member relations
+    /// can be drawn as separate lines (ADR 0007 section 4).
+    ExpandPathEndpoints,
     NextPage,
     PreviousPage,
     Search(String),
@@ -518,7 +521,7 @@ struct InspectorViewport {
 }
 const DETAILS_BOTTOM: f32 = 60.0;
 const DETAILS_COLLAPSED_HEIGHT: f32 = 36.0;
-const ALL_CONTROLS: &str = "Controls\nClick / Tab: select | Enter: enter | Backspace: return | /: search\nPageUp / PageDown: children | Shift+PageUp / PageDown: relationship pages\nE: expand / collapse | M: mark | G: group | Shift+G: ungroup | Shift+M: clear marks | Z: semantic zoom\nSpace: separate layers | I: isolate | J / K: select path | Shift+I: clear path | B / N: browse claims\nP: pin | Shift+P: open pin origin | [ / ]: layer | L: policy | C: semantic view | O: reorganize | V: preview | A: apply | D: dismiss | U: undo\nDrag: orbit | Wheel: zoom | T: top | F: side | R: home | F1: Details | F5: reload | Esc: cancel\nOver open Details: wheel or PageUp / PageDown scrolls; Home / End reaches the beginning / end.";
+const ALL_CONTROLS: &str = "Controls\nClick / Tab: select | Enter: enter | Backspace: return | /: search\nPageUp / PageDown: children | Shift+PageUp / PageDown: relationship pages\nE: expand / collapse | M: mark | G: group | Shift+G: ungroup | Shift+M: clear marks | Z: semantic zoom\nSpace: separate layers | I: isolate | J / K: select path | X: expand both ends of path | Shift+I: clear path | B / N: browse claims\nP: pin | Shift+P: open pin origin | [ / ]: layer | L: policy | C: semantic view | O: reorganize | V: preview | A: apply | D: dismiss | U: undo\nDrag: orbit | Wheel: zoom | T: top | F: side | R: home | F1: Details | F5: reload | Esc: cancel\nOver open Details: wheel or PageUp / PageDown scrolls; Home / End reaches the beginning / end.";
 #[derive(Component)]
 struct NavigationText;
 #[derive(Component)]
@@ -552,6 +555,14 @@ impl Drop for Job {
         self.cancel.store(true, Ordering::Relaxed);
     }
 }
+/// Remembers which relations an expanded path carried, so the status message
+/// can report how many lines they became once the new view is accepted.
+#[derive(Debug, Clone)]
+struct PathExpansion {
+    members: Vec<String>,
+    expanded: Vec<String>,
+    skipped: Vec<String>,
+}
 #[derive(Resource, Default)]
 struct Viewer {
     view: ViewState,
@@ -561,6 +572,7 @@ struct Viewer {
     next_job_id: u64,
     retired_timings: VecDeque<LayoutTiming>,
     pending_expansion: Option<String>,
+    pending_path_expansion: Option<PathExpansion>,
     selected: Option<String>,
     selected_relation: Option<String>,
     inspector_expanded: bool,
@@ -1163,10 +1175,45 @@ fn apply_action(
             v.selected_relation = None;
             v.dirty = true;
         }
+        ViewerAction::ExpandPathEndpoints => {
+            let id = v
+                .selected_relation
+                .clone()
+                .ok_or("Select a path first (J / K), then X expands both of its endpoints")?;
+            let (p, _) = v.accepted.as_ref().ok_or("No accepted assembly yet")?;
+            let edge = selected_path_edge(v)
+                .ok_or_else(|| format!("Relationship {id} has no visible path to expand"))?;
+            let members = edge.semantic_ids.clone();
+            let mut expanded = Vec::new();
+            let mut skipped = Vec::new();
+            for end in [&edge.source, &edge.target] {
+                match endpoint_expansion_blocker(p, end) {
+                    None => expanded.push(end.clone()),
+                    Some(reason) => skipped.push(format!("{end} {reason}")),
+                }
+            }
+            if expanded.is_empty() {
+                return Err(format!(
+                    "Neither end of the selected path can be expanded: {}.",
+                    skipped.join("; ")
+                ));
+            }
+            for end in &expanded {
+                v.view.set_expanded(end.clone(), true);
+            }
+            start(model, engine, v, false);
+            v.pending_expansion = Some(expanded.join(" and "));
+            v.pending_path_expansion = Some(PathExpansion {
+                members,
+                expanded,
+                skipped,
+            });
+            return Ok(true);
+        }
         ViewerAction::NextClaims | ViewerAction::PreviousClaims => {
             let next = matches!(action, ViewerAction::NextClaims);
-            let count = selected_claims(v).len();
-            let last = count.saturating_sub(1) / 3;
+            let count = paged_claims(v).len();
+            let last = count.saturating_sub(1) / CLAIMS_PER_PAGE;
             v.relation_page = if next {
                 (v.relation_page + 1).min(last)
             } else {
@@ -1787,6 +1834,7 @@ fn start_job(
     }
     retire_job(v);
     v.pending_expansion = None;
+    v.pending_path_expansion = None;
     clear_preview(v);
     if !reorganize {
         v.dirty |= v.selected_relation.take().is_some();
@@ -2392,6 +2440,7 @@ fn abandon_pending(v: &mut Viewer) {
     }
     retire_job(v);
     v.pending_expansion = None;
+    v.pending_path_expansion = None;
     clear_preview(v);
     v.view = v.accepted_view.clone();
     if v.accepted.is_some() {
@@ -2758,13 +2807,13 @@ fn select_relation(viewer: &mut Viewer, id: &str) -> Result<(), String> {
         viewer.selected = Some(edge.source.clone());
     }
     viewer.selected_relation = Some(id.into());
-    viewer.relation_page = selected_claims(viewer)
+    viewer.relation_page = paged_claims(viewer)
         .iter()
         .position(|claim| claim.as_str() == id)
         .unwrap_or(0)
-        / 3;
+        / CLAIMS_PER_PAGE;
     viewer.message = format!(
-        "Selected relationship {id}. J / K changes path; I isolates it; Shift+I clears path selection."
+        "Selected relationship {id}. J / K changes path; X expands both ends of its path; I isolates it; Shift+I clears path selection."
     );
     viewer.dirty = true;
     Ok(())
@@ -2844,6 +2893,116 @@ fn claim_text(claim: &crate::layout_input::DisplayClaim) -> String {
         claim.aspect,
         claim.rationale.as_deref().unwrap_or("")
     )
+}
+/// Claims shown per Details page and stepped by B / N.
+const CLAIMS_PER_PAGE: usize = 3;
+/// The aggregated connector the selected relationship is drawn on, if loaded.
+fn selected_path_edge(viewer: &Viewer) -> Option<&layout::Edge> {
+    let id = viewer.selected_relation.as_ref()?;
+    let (p, _) = viewer.accepted.as_ref()?;
+    p.edges.iter().find(|edge| edge.semantic_ids.contains(id))
+}
+/// What B / N browse: the members of the selected path when one is selected
+/// (so an aggregated line can be decomposed), otherwise the selected
+/// component's linked claims.
+fn paged_claims(viewer: &Viewer) -> Vec<&String> {
+    selected_path_edge(viewer).map_or_else(
+        || selected_claims(viewer),
+        |edge| edge.semantic_ids.iter().collect(),
+    )
+}
+/// Why expanding the displayed endpoint `id` cannot reveal anything, or `None`
+/// when it is a collapsed container whose supplied children are hidden in it.
+fn endpoint_expansion_blocker(p: &DesktopProjection, id: &str) -> Option<&'static str> {
+    if p.references.contains_key(id) || id.starts_with("view:reference:") {
+        return Some("is a reference to an object outside this view; Enter it to see its interior");
+    }
+    if !p.nodes.iter().any(|node| node.id == id) {
+        return Some("is not in the current view");
+    }
+    // A collapsed container maps its hidden supplied descendants onto itself;
+    // an expanded one, or a leaf box, has nothing besides its own identity.
+    let hides_children = p
+        .semantic_to_display
+        .iter()
+        .any(|(semantic, display)| display == id && semantic != id);
+    (!hides_children)
+        .then_some("has no collapsed supplied children (a leaf box or already expanded)")
+}
+fn path_expansion_message(p: &DesktopProjection, expansion: &PathExpansion) -> String {
+    let lines = p
+        .edges
+        .iter()
+        .filter(|edge| {
+            edge.semantic_ids
+                .iter()
+                .any(|id| expansion.members.contains(id))
+        })
+        .count();
+    let both = expansion.skipped.is_empty();
+    let mut message = if both {
+        "Expanded both ends of the selected path".to_owned()
+    } else {
+        format!("Expanded {}", expansion.expanded.join(" and "))
+    };
+    message.push_str(&if lines == 0 {
+        format!(
+            "; its {} relationships are no longer drawn as lines in this view",
+            expansion.members.len()
+        )
+    } else {
+        format!(
+            "; its {} relationships are now shown as {} line{}",
+            expansion.members.len(),
+            lines,
+            if lines == 1 { "" } else { "s" }
+        )
+    });
+    if !both {
+        message.push_str(&format!(
+            " (not expanded: {})",
+            expansion.skipped.join("; ")
+        ));
+    }
+    message.push('.');
+    message
+}
+/// Details text for a selected path: how many relationships its line carries
+/// and one page of them with their original predicates and endpoints.
+fn path_details(viewer: &Viewer, p: &DesktopProjection) -> Option<String> {
+    let selected = p.claims.get(viewer.selected_relation.as_ref()?)?;
+    let edge = selected_path_edge(viewer)?;
+    let count = edge.semantic_ids.len();
+    let mut text = format!(
+        "Selected path: {}\nThis line carries {} relationship{}. X expands both ends so they become separate lines; J / K selects a claim; I isolates; Shift+I clears.\n",
+        claim_text(selected),
+        count,
+        if count == 1 { "" } else { "s" }
+    );
+    if count > 1 {
+        let pages = count.div_ceil(CLAIMS_PER_PAGE);
+        text.push_str(&format!(
+            "Relationships on this line (page {} of {}, B / N to browse):\n",
+            viewer.relation_page.min(pages - 1) + 1,
+            pages
+        ));
+        for id in edge
+            .semantic_ids
+            .iter()
+            .skip(viewer.relation_page * CLAIMS_PER_PAGE)
+            .take(CLAIMS_PER_PAGE)
+        {
+            match p.claims.get(id) {
+                Some(claim) => text.push_str(&format!(
+                    "{} {}\n",
+                    if *id == selected.id { ">" } else { "-" },
+                    claim_text(claim)
+                )),
+                None => text.push_str(&format!("- {id}: details not loaded in this view\n")),
+            }
+        }
+    }
+    Some(text)
 }
 #[cfg(test)]
 fn vec(p: Point) -> Vec3 {
@@ -3117,6 +3276,7 @@ fn poll(
             timing_snapshot_at(&job.timing.lock().unwrap(), "failed", acceptance_started);
         let queued = job.timing.lock().unwrap().queued;
         let expansion = viewer.pending_expansion.take();
+        let path_expansion = viewer.pending_path_expansion.take();
         viewer.restore_attempted = true;
         let mut refine_reloaded = false;
         match result {
@@ -3244,9 +3404,12 @@ fn poll(
                                 viewer.selected = None;
                             }
                             retain_valid_relation_selection(&mut viewer);
-                            viewer.relation_page = viewer
-                                .relation_page
-                                .min(selected_claims(&viewer).len().saturating_sub(1) / 3);
+                            viewer.relation_page = viewer.relation_page.min(
+                                paged_claims(&viewer).len().saturating_sub(1) / CLAIMS_PER_PAGE,
+                            );
+                            if let Some(expansion) = &path_expansion {
+                                viewer.message = path_expansion_message(&projection, expansion);
+                            }
                             viewer.dirty = true;
                         }
                     }
@@ -3442,12 +3605,13 @@ fn poll(
                     label: None,
                     label_position: Vec3::ZERO,
                 };
-                let root = connections::draw_scaled(
+                let root = connections::draw_weighted(
                     &mut commands,
                     &mut meshes,
                     &mut materials,
                     &route,
                     &r.segment_scales,
+                    connections::aggregate_thickness(r.semantic_ids.len()),
                 );
                 if selected.is_some() {
                     // Keep existing arrow/dash geometry and its semantic basis.
@@ -3613,22 +3777,30 @@ fn poll(
             if let Some(id) = &viewer.selected {
                 let label = p.labels.get(id);
                 let claims = selected_claims(&viewer);
-                let linked = claims
-                    .iter()
-                    .skip(viewer.relation_page * 3)
-                    .take(3)
-                    .filter_map(|id| p.claims.get(*id))
-                    .filter(|r| viewer.selected_relation.as_ref() != Some(&r.id))
-                    .map(claim_text)
-                    .collect::<Vec<_>>()
-                    .join("\n");
-                let selected = viewer.selected_relation.as_ref().and_then(|id| p.claims.get(id)).map_or(String::new(), |claim| {
-                    let members = p.edges.iter().filter(|edge| edge.semantic_ids.contains(&claim.id))
-                        .flat_map(|edge| &edge.semantic_ids).collect::<std::collections::BTreeSet<_>>().len();
-                    format!("Selected path: {}\n{} supplied claim(s) share this displayed path. J / K selects a claim; I isolates; Shift+I clears.\n", claim_text(claim), members)
-                });
+                let path = path_details(&viewer, p);
+                let linked = if path.is_some() {
+                    String::new()
+                } else {
+                    claims
+                        .iter()
+                        .skip(viewer.relation_page * CLAIMS_PER_PAGE)
+                        .take(CLAIMS_PER_PAGE)
+                        .filter_map(|id| p.claims.get(*id))
+                        .map(claim_text)
+                        .collect::<Vec<_>>()
+                        .join("\n")
+                };
+                let browse = if path.is_some() {
+                    "J / K selects path".to_owned()
+                } else {
+                    format!(
+                        "page {}, B / N to browse; J / K selects path",
+                        viewer.relation_page + 1
+                    )
+                };
+                let selected = path.unwrap_or_default();
                 format!(
-                    "{} / {}\nSelected component: {}\n{}{} | {} linked claims (page {}, B / N to browse; J / K selects path) | {}\n{}{}\n{}",
+                    "{} / {}\nSelected component: {}\n{}{} | {} linked claims ({}) | {}\n{}{}\n{}",
                     p.model_id,
                     viewer.view.focus.as_deref().unwrap_or("Overview"),
                     label.map_or("unknown", |label| label.label.as_str()),
@@ -3644,7 +3816,7 @@ fn poll(
                         String::new()
                     },
                     claims.len(),
-                    viewer.relation_page + 1,
+                    browse,
                     label.map_or("unknown", |l| l.original_kind.as_str()),
                     selected,
                     linked,
@@ -4006,6 +4178,9 @@ fn controls(
             });
         }
     }
+    if keys.just_pressed(KeyCode::KeyX) {
+        let _ = actions.submit(ViewerAction::ExpandPathEndpoints);
+    }
     if keys.just_pressed(KeyCode::KeyL) {
         use layout::projection::LayoutPolicy;
         let policy = match viewer.view.policy {
@@ -4155,10 +4330,10 @@ fn navigation_status(
         .iter()
         .map(|group| group.id.clone())
         .collect();
-    status.inspected_relation_ids = selected_claims(&viewer)
+    status.inspected_relation_ids = paged_claims(&viewer)
         .into_iter()
-        .skip(viewer.relation_page * 3)
-        .take(3)
+        .skip(viewer.relation_page * CLAIMS_PER_PAGE)
+        .take(CLAIMS_PER_PAGE)
         .cloned()
         .collect();
     if let Some(id) = &viewer.selected_relation
@@ -4389,6 +4564,7 @@ mod tests {
     include!("composed_state_tests.rs");
     include!("presentation_pin_tests.rs");
     include!("pin_provenance_tests.rs");
+    include!("aggregated_path_tests.rs");
 
     // These regressions exercise the flat engine. Mutations must rebuild both
     // authoritative solver data and the renderer geometry, just as acceptance does.
