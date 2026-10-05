@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "meaning": "Relative importance of a typical within-view difference in each score component. fit.py converts importance to a prior weight by dividing by the mean absolute within-pair difference of that component across all pairs (layout data only, no ratings). Only the relative shape is a prior; overall scale is free.",
+  "prior_log_sd": 1.0,
+  "importance": {
+    "congestion": 3.0,
+    "bends": 2.0,
+    "occlusion": 2.0,
+    "route_length": 1.5,
+    "compactness": 1.0,
+    "aspect_ratio": 0.5,
+    "distortion": 0.5
+  },
+  "basis": {
+    "congestion": "Literature. Edge crossings had the largest effect on graph comprehension in Purchase (1997) and Purchase, Carrington and Allder (2002), and on path-tracing in Ware, Purchase, Colpoys and McGill (2002). Congestion here combines crossing points with shared lane length.",
+    "bends": "Literature. Bends ranked second after crossings in Purchase (1997); path continuity mattered in Ware et al. (2002).",
+    "occlusion": "Judgment, informed by 3D graph studies such as Ware and Franck (1996): hidden objects and paths cannot be read. No 2D study measures this term directly.",
+    "route_length": "Literature, weaker. Ware et al. (2002) found total path length affects path tracing, but less than crossings or continuity.",
+    "compactness": "Judgment. Area and overall compactness show weak or inconsistent effects in 2D studies; kept moderate for an overview-first 3D view.",
+    "aspect_ratio": "Judgment. No strong empirical support; kept low.",
+    "distortion": "Judgment. Size distortion from preferred dimensions is a presentation-fidelity term; kept low."
+  }
+}

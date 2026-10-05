@@ -1,0 +1,313 @@
+<title>Visualyze Layout Rating</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one working screen; a prompt bar, two synchronized 3D stages, an answer bar. */
+:root {
+  --bg: #eef0f3; --panel: #ffffff; --fg: #1b2230; --muted: #5d6879; --line: #d4d9e1;
+  --accent: #2f5fd0; --accent-fg: #ffffff; --stage: #f7f8fa; --route: #3b4456; --frame: #8b95a7;
+  --ok: #1f7a4d; --warn: #a3520f;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #10141b; --panel: #171c25; --fg: #e4e8ef; --muted: #98a2b3; --line: #2a313d;
+  --accent: #7ea2ff; --accent-fg: #0c1220; --stage: #121720; --route: #c9d1de; --frame: #6b7587;
+  --ok: #5fc995; --warn: #f0a35e; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #10141b; --panel: #171c25; --fg: #e4e8ef; --muted: #98a2b3; --line: #2a313d;
+  --accent: #7ea2ff; --accent-fg: #0c1220; --stage: #121720; --route: #c9d1de; --frame: #6b7587;
+  --ok: #5fc995; --warn: #f0a35e; color-scheme: dark }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.45 var(--sans); }
+.app { box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; gap: 12px;
+  padding-inline: 16px; padding-block: 14px; max-width: 1600px; margin: 0 auto; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+h1 { font-size: 1.15rem; font-weight: 600; margin: 0; text-wrap: balance; }
+.hint { color: var(--muted); margin: 0; font-size: 0.875rem; flex: 1 1 320px; min-width: 0; }
+.progress { display: flex; align-items: center; gap: 10px; font: 500 0.8rem var(--mono);
+  color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar { width: 140px; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+.stages { flex: 1 1 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-height: 360px; }
+.stage { position: relative; background: var(--stage); border: 1px solid var(--line); border-radius: 6px;
+  overflow: hidden; min-width: 0; min-height: 300px; touch-action: none; cursor: grab; }
+.stage.dragging { cursor: grabbing; }
+.stage canvas { display: block; width: 100%; height: 100%; }
+.tag { position: absolute; top: 10px; left: 12px; font: 600 0.72rem var(--mono); letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); pointer-events: none; }
+.tip { position: absolute; pointer-events: none; font: 0.75rem var(--mono); background: var(--panel);
+  color: var(--fg); border: 1px solid var(--line); border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
+.answers { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.answers .spacer { flex: 1 1 auto; }
+button { font: 500 0.9rem var(--sans); border-radius: 6px; border: 1px solid var(--line); background: var(--panel);
+  color: var(--fg); padding: 10px 16px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: .45; cursor: default; }
+kbd { font: 0.75rem var(--mono); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; opacity: .75; }
+.status { font: 0.8rem var(--mono); color: var(--muted); }
+.status.ok { color: var(--ok); } .status.warn { color: var(--warn); }
+.done { display: grid; place-items: center; text-align: center; gap: 10px; padding-block: 40px; }
+.done p { max-width: 52ch; margin: 0 auto; color: var(--muted); }
+@media (max-width: 760px) { .stages { grid-template-columns: 1fr; } .bar { width: 90px; } }
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+
+<div class="app">
+  <header>
+    <h1 id="question">Which layout makes the architecture's structure easier to read?</h1>
+    <div class="progress"><span id="count">0 / 0</span><span class="bar"><i id="fill"></i></span></div>
+    <p class="hint">Judge where objects sit and how connections route. Colors and labels are placeholders. Drag to orbit both views together, scroll to zoom, hover a box to see its ID.</p>
+  </header>
+  <section class="stages" id="stages">
+    <div class="stage" id="stage-left"><span class="tag">Left</span></div>
+    <div class="stage" id="stage-right"><span class="tag">Right</span></div>
+  </section>
+  <section class="done" id="done" hidden>
+    <h1>All judgments are recorded</h1>
+    <p id="done-note">Tell Claude you're finished and it will fit the weights.</p>
+  </section>
+  <div class="answers" id="answers">
+    <button id="pick-left" class="primary"><kbd>←</kbd> Left is clearer</button>
+    <button id="pick-same"><kbd>↓</kbd> About the same</button>
+    <button id="pick-right" class="primary">Right is clearer <kbd>→</kbd></button>
+    <span class="spacer"></span>
+    <button id="reset">Reset view</button>
+    <button id="back" disabled>Back</button>
+    <button id="copy">Copy picks</button>
+    <span class="status" id="status" role="status">Loading</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const DATA = /*__DATA__*/null;
+const KIND = {
+  client: 0x4f8fd6, service: 0x8a78d8, datastore: 0x2fa7a0, store: 0x2fa7a0, table: 0x5cc1b8,
+  interface: 0xd9a441, concern: 0xc9617a, deployment: 0x7f8aa0, deployment_instance: 0x99a3b8,
+  message_channel: 0xd98b4a, channel: 0xd98b4a, message_type: 0xe0b07a, message: 0xe0b07a,
+  code_repository: 0xb59a6a, code_package: 0xc2a774, code_file: 0xcdb586, code_type: 0xd6c095,
+  code_function: 0xe0cca8, code: 0xc2a774, view: 0x9aa3b2, scope: 0x9aa3b2
+};
+const YAW = 0.28, PITCH = 0.18, FOV = 45;
+const KEY = "visualyze-calibration-v1-picks";
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+let picks = {};
+try { picks = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (_) { picks = {}; }
+let index = 0, history = [], db = null, uid = null, raterMarked = false;
+const view = { yaw: YAW, pitch: PITCH, zoom: 1 };
+
+function makeSide(el) {
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  el.appendChild(renderer.domElement);
+  const camera = new THREE.PerspectiveCamera(FOV, 1, 0.5, 5000);
+  const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true; el.appendChild(tip);
+  return { el, renderer, camera, scene: null, pickables: [], center: new THREE.Vector3(), half: new THREE.Vector3(), home: 100, tip };
+}
+const sides = { left: makeSide(document.getElementById("stage-left")), right: makeSide(document.getElementById("stage-right")) };
+
+function buildScene(side, layout) {
+  const scene = new THREE.Scene();
+  scene.add(new THREE.AmbientLight(0xffffff, 0.62));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.55); sun.position.set(0.6, 1, 0.8); scene.add(sun);
+  const min = new THREE.Vector3(Infinity, Infinity, Infinity), max = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+  const frameColor = new THREE.Color(css("--frame")), routeColor = new THREE.Color(css("--route"));
+  side.pickables = [];
+  for (const [id, x0, y0, z0, x1, y1, z1, solid] of layout.boxes) {
+    const w = x1 - x0, h = y1 - y0, d = z1 - z0;
+    min.min(new THREE.Vector3(x0, y0, z0)); max.max(new THREE.Vector3(x1, y1, z1));
+    const geometry = new THREE.BoxGeometry(Math.max(w, 0.2), Math.max(h, 0.2), Math.max(d, 0.2));
+    const kind = id.split(":")[0];
+    const material = solid
+      ? new THREE.MeshLambertMaterial({ color: KIND[kind] ?? 0xa0a8b6 })
+      : new THREE.MeshBasicMaterial({ visible: false });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x0 + w / 2, y0 + h / 2, z0 + d / 2);
+    mesh.userData = { id, solid };
+    scene.add(mesh); side.pickables.push(mesh);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry),
+      new THREE.LineBasicMaterial({ color: solid ? 0x000000 : frameColor, transparent: true, opacity: solid ? 0.25 : 0.8 }));
+    edges.position.copy(mesh.position); scene.add(edges);
+  }
+  const tube = new THREE.MeshBasicMaterial({ color: routeColor });
+  const up = new THREE.Vector3(0, 1, 0);
+  for (const points of layout.routes) {
+    for (let i = 1; i < points.length; i++) {
+      const a = new THREE.Vector3(...points[i - 1]), b = new THREE.Vector3(...points[i]);
+      min.min(a); max.max(a); min.min(b); max.max(b);
+      const length = a.distanceTo(b); if (length < 1e-6) continue;
+      const segment = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, length, 6, 1, true), tube);
+      segment.position.copy(a).add(b).multiplyScalar(0.5);
+      segment.quaternion.setFromUnitVectors(up, b.clone().sub(a).normalize());
+      scene.add(segment);
+    }
+    if (points.length >= 2) {
+      const a = new THREE.Vector3(...points[points.length - 2]), b = new THREE.Vector3(...points[points.length - 1]);
+      const dir = b.clone().sub(a); if (dir.length() > 1e-6) {
+        dir.normalize();
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.85, 2.2, 10), tube);
+        cone.position.copy(b).addScaledVector(dir, -1.1);
+        cone.quaternion.setFromUnitVectors(up, dir);
+        scene.add(cone);
+      }
+    }
+  }
+  side.center = min.clone().add(max).multiplyScalar(0.5);
+  side.half = max.clone().sub(min).multiplyScalar(0.5);
+  side.scene = scene;
+  scene.background = new THREE.Color(css("--stage"));
+}
+
+function fitDistance(side, aspect) {
+  const hv = THREE.MathUtils.degToRad(FOV) / 2, hh = Math.atan(Math.tan(hv) * aspect);
+  const rotation = new THREE.Quaternion().setFromEuler(new THREE.Euler(-PITCH, YAW, 0, "YXZ")).invert();
+  let fit = side.half.length() + 1.5;
+  for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) {
+    const c = new THREE.Vector3(sx * side.half.x, sy * side.half.y, sz * side.half.z).applyQuaternion(rotation);
+    fit = Math.max(fit, c.z + Math.max(Math.abs(c.x) / Math.tan(hh), Math.abs(c.y) / Math.tan(hv)));
+  }
+  return fit * 1.12;
+}
+
+function render(side) {
+  const w = side.el.clientWidth, h = side.el.clientHeight;
+  if (!side.scene || w === 0 || h === 0) return;
+  side.renderer.setSize(w, h, false);
+  side.camera.aspect = w / h; side.camera.updateProjectionMatrix();
+  side.home = fitDistance(side, w / h);
+  const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-view.pitch, view.yaw, 0, "YXZ"));
+  side.camera.position.copy(side.center).add(new THREE.Vector3(0, 0, side.home * view.zoom).applyQuaternion(q));
+  side.camera.quaternion.copy(q);
+  side.renderer.render(side.scene, side.camera);
+}
+const renderBoth = () => { render(sides.left); render(sides.right); };
+
+function show() {
+  const total = DATA.pairs.length, answered = DATA.pairs.filter(p => picks[p.id]).length;
+  document.getElementById("count").textContent = `${answered} / ${total}`;
+  document.getElementById("fill").style.width = `${(100 * answered) / total}%`;
+  document.getElementById("back").disabled = history.length === 0;
+  const finished = index >= total;
+  document.getElementById("stages").hidden = finished;
+  document.getElementById("done").hidden = !finished;
+  for (const id of ["pick-left", "pick-same", "pick-right", "reset"]) document.getElementById(id).disabled = finished;
+  if (finished) return;
+  const pair = DATA.pairs[index];
+  buildScene(sides.left, DATA.layouts[pair.left]);
+  buildScene(sides.right, DATA.layouts[pair.right]);
+  view.yaw = YAW; view.pitch = PITCH; view.zoom = 1;
+  renderBoth();
+}
+
+function nextUnanswered(from) {
+  for (let i = from; i < DATA.pairs.length; i++) if (!picks[DATA.pairs[i].id]) return i;
+  for (let i = 0; i < from; i++) if (!picks[DATA.pairs[i].id]) return i;
+  return DATA.pairs.length;
+}
+
+function setStatus(text, tone) {
+  const el = document.getElementById("status");
+  el.textContent = text; el.className = "status" + (tone ? " " + tone : "");
+}
+
+async function save(pair, choice) {
+  const record = { pair: pair.id, choice, left: pair.left, right: pair.right, at: new Date().toISOString() };
+  try { localStorage.setItem(KEY, JSON.stringify(picks)); } catch (_) {}
+  if (!db || !uid) { setStatus("Saved in this browser only. Use Copy picks when done.", "warn"); return; }
+  setStatus("Saving");
+  try {
+    if (!raterMarked) { await db.doc(`picks/${uid}`).set({ rater: uid, started_at: record.at }); raterMarked = true; }
+    await db.collection(`picks/${uid}/items`).doc(pair.id).set(record);
+    setStatus("Saved", "ok");
+  } catch (error) {
+    setStatus(`Not saved (${error && error.code || "error"}). Your pick is kept in this browser.`, "warn");
+  }
+}
+
+function pick(choice) {
+  if (index >= DATA.pairs.length) return;
+  const pair = DATA.pairs[index];
+  picks[pair.id] = choice;
+  history.push(index);
+  save(pair, choice);
+  index = nextUnanswered(index + 1);
+  show();
+}
+
+document.getElementById("pick-left").onclick = () => pick("left");
+document.getElementById("pick-right").onclick = () => pick("right");
+document.getElementById("pick-same").onclick = () => pick("same");
+document.getElementById("reset").onclick = () => { view.yaw = YAW; view.pitch = PITCH; view.zoom = 1; renderBoth(); };
+document.getElementById("back").onclick = () => { if (history.length) { index = history.pop(); show(); } };
+document.getElementById("copy").onclick = async () => {
+  const text = JSON.stringify({ picks: Object.entries(picks).map(([pair, choice]) => ({ pair, choice })) });
+  try { await navigator.clipboard.writeText(text); setStatus("Copied picks to the clipboard", "ok"); }
+  catch (_) { setStatus("Copy was blocked. Picks are also saved to the artifact when signed in.", "warn"); }
+};
+document.addEventListener("keydown", event => {
+  if (event.target.closest && event.target.closest("input, textarea")) return;
+  const map = { ArrowLeft: "left", ArrowRight: "right", ArrowDown: "same" };
+  if (map[event.key]) { event.preventDefault(); pick(map[event.key]); }
+});
+
+let drag = null;
+for (const side of Object.values(sides)) {
+  const el = side.el;
+  el.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.classList.add("dragging"); });
+  el.addEventListener("pointerup", e => { drag = null; el.classList.remove("dragging"); });
+  el.addEventListener("pointermove", e => {
+    if (drag) {
+      view.yaw -= (e.clientX - drag.x) * 0.006;
+      view.pitch = Math.max(-1.4, Math.min(1.4, view.pitch + (e.clientY - drag.y) * 0.006));
+      drag = { x: e.clientX, y: e.clientY }; side.tip.hidden = true; renderBoth(); return;
+    }
+    const rect = el.getBoundingClientRect();
+    const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+    const ray = new THREE.Raycaster(); ray.setFromCamera(ndc, side.camera);
+    const hits = ray.intersectObjects(side.pickables);
+    const hit = hits.find(h => h.object.userData.solid) || hits[0];
+    if (hit) {
+      side.tip.textContent = hit.object.userData.id; side.tip.hidden = false;
+      side.tip.style.left = `${Math.min(e.clientX - rect.left + 12, rect.width - side.tip.offsetWidth - 6)}px`;
+      side.tip.style.top = `${e.clientY - rect.top + 12}px`;
+    } else side.tip.hidden = true;
+  });
+  el.addEventListener("pointerleave", () => { side.tip.hidden = true; });
+  el.addEventListener("wheel", e => {
+    e.preventDefault();
+    view.zoom = Math.max(0.3, Math.min(3, view.zoom * Math.exp(e.deltaY * 0.001)));
+    renderBoth();
+  }, { passive: false });
+  new ResizeObserver(() => render(side)).observe(el);
+}
+const scheme = window.matchMedia("(prefers-color-scheme: dark)");
+const retheme = () => { if (index < DATA.pairs.length) show(); };
+scheme.addEventListener && scheme.addEventListener("change", retheme);
+new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+index = nextUnanswered(0);
+show();
+setStatus("Picks save in this browser until storage connects");
+
+(async () => {
+  if (!window.claude || !window.claude.use) { setStatus("Saved in this browser only. Use Copy picks when done.", "warn"); return; }
+  const [dbNs, userNs] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+  uid = userNs ? await userNs.id() : null;
+  db = dbNs;
+  if (!db || !uid) { setStatus("Saved in this browser only. Use Copy picks when done.", "warn"); return; }
+  try {
+    const snap = await db.collection(`picks/${uid}/items`).get();
+    raterMarked = !snap.empty;
+    for (const doc of snap.docs) { const data = doc.data(); if (data && data.choice) picks[data.pair] = data.choice; }
+    try { localStorage.setItem(KEY, JSON.stringify(picks)); } catch (_) {}
+    index = nextUnanswered(index);
+    show();
+    setStatus(snap.empty ? "Connected. Each pick saves as you go." : `Resumed with ${snap.size} saved picks`, "ok");
+  } catch (error) {
+    setStatus(`Saved storage unavailable (${error && error.code || "error"}). Picks stay in this browser.`, "warn");
+  }
+})();
+</script>
