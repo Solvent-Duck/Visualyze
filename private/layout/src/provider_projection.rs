@@ -175,10 +175,8 @@ pub fn project_provider(
         provisional
     };
     // Advisory only, on the final graph; diagnostics are not part of the key.
-    result
-        .graph
-        .diagnostics
-        .extend(crate::noise::visual_noise(&result.graph).advisory());
+    let advisories = crate::noise::advisories(&result.graph);
+    result.graph.diagnostics.extend(advisories);
     Ok(result)
 }
 

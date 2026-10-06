@@ -13,7 +13,7 @@ use visualyze_layout::{
     QualityProfile, measure,
     noise::{
         BOX_KNEE, CONNECTOR_KNEE, FALLBACK_NOISE, LAYER_KNEE, NOISE_THRESHOLD, layer_capacity,
-        visual_noise,
+        region_noise, visual_noise,
     },
     projection::{LayoutPolicy, ViewState, project},
     provider_projection::{ProviderViewRequest, project_provider},
@@ -338,6 +338,7 @@ fn evaluate(case: &Case) -> Result<Value, Box<dyn std::error::Error>> {
         "projection_key": graph.key, "completeness": completeness,
         "normalization_scale": normalization_scale,
         "visual_noise": visual_noise(&graph),
+        "visual_noise_regions": region_noise(&graph),
         "indexing_ms": indexing_ms, "projection_ms": projection_ms, "results": rows}),
     )
 }

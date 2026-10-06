@@ -3,31 +3,42 @@ mod planned_detail_tests {
     use super::*;
     use layout::composed::persistence::{self as composed_file};
 
-    /// `big` holds eighteen services in one layer: noise 25, over the threshold
-    /// of 10 but far under the fallback-grouping level, so shown whole when asked.
-    fn wide_model() -> visualyze_model::architecture::Architecture {
+    /// Scopes `s0`, `s1`, ... under `system`, each holding the given number of
+    /// services, all in one layer.
+    fn scopes_model(sizes: &[usize]) -> visualyze_model::architecture::Architecture {
         let mut entities = vec![
             r#"{"id":"system","kind":"scope","label":"System","boundary":"internal","subtype":"system","basis":"declared"}"#.to_owned(),
-            r#"{"id":"big","kind":"scope","label":"Big","boundary":"internal","basis":"declared"}"#.to_owned(),
         ];
-        let mut relations = vec![
-            r#"{"id":"own-big","kind":"contains","source":"system","target":"big","basis":"declared"}"#.to_owned(),
-        ];
-        for i in 0..18 {
+        let mut relations = vec![];
+        for (scope, size) in sizes.iter().enumerate() {
             entities.push(format!(
-                r#"{{"id":"svc{i:02}","kind":"service","label":"Service {i}","boundary":"internal","basis":"declared"}}"#
+                r#"{{"id":"s{scope}","kind":"scope","label":"Scope {scope}","boundary":"internal","basis":"declared"}}"#
             ));
             relations.push(format!(
-                r#"{{"id":"own-svc{i:02}","kind":"contains","source":"big","target":"svc{i:02}","basis":"declared"}}"#
+                r#"{{"id":"own-s{scope}","kind":"contains","source":"system","target":"s{scope}","basis":"declared"}}"#
             ));
+            for i in 0..*size {
+                entities.push(format!(
+                    r#"{{"id":"s{scope}-svc{i:02}","kind":"service","label":"Service {scope}.{i}","boundary":"internal","basis":"declared"}}"#
+                ));
+                relations.push(format!(
+                    r#"{{"id":"own-s{scope}-svc{i:02}","kind":"contains","source":"s{scope}","target":"s{scope}-svc{i:02}","basis":"declared"}}"#
+                ));
+            }
         }
         let json = format!(
-            r#"{{"schema_version":"0.1.0-draft.1","model_id":"wide","revision":1,"system_id":"system","snapshot":{{"id":"wide-001","source_revision":null,"coverage":"partial","scope_description":"test","omissions":[]}},"entities":[{}],"relations":[{}],"evidence":[]}}"#,
+            r#"{{"schema_version":"0.1.0-draft.1","model_id":"scopes","revision":1,"system_id":"system","snapshot":{{"id":"scopes-001","source_revision":null,"coverage":"partial","scope_description":"test","omissions":[]}},"entities":[{}],"relations":[{}],"evidence":[]}}"#,
             entities.join(","),
             relations.join(",")
         );
         visualyze_model::architecture::Architecture::from_json(json.as_bytes())
             .unwrap_or_else(|e| panic!("{e}"))
+    }
+
+    /// `s0` holds eighteen services in one layer: noise 25, over the threshold
+    /// of 10 but far under the fallback-grouping level, so shown whole when asked.
+    fn wide_model() -> visualyze_model::architecture::Architecture {
+        scopes_model(&[18])
     }
 
     fn viewer(app: &App) -> &Viewer {
@@ -115,22 +126,102 @@ mod planned_detail_tests {
         let mut app = action_app(LayoutInput::snapshot(wide_model()), ViewState::default());
         // Eighteen services in one row would be noisy, so none are opened.
         assert!(projection(&app).auto_opened.is_empty());
-        assert!(!displayed(&app).contains("svc00"));
+        assert!(!displayed(&app).contains("s0-svc00"));
         assert!(app.world().resource::<LayoutStatus>().noise <= layout::noise::NOISE_THRESHOLD);
-        complete(&mut app, ViewerAction::Expand("big".into()));
+        assert!(app.world().resource::<LayoutStatus>().densest_interior.is_none());
+        complete(&mut app, ViewerAction::Expand("s0".into()));
         let status = app.world().resource::<LayoutStatus>();
         assert!(status.action_error.is_none(), "{:?}", status.action_error);
-        assert!(displayed(&app).contains("svc00") && displayed(&app).contains("svc17"));
+        assert!(displayed(&app).contains("s0-svc00") && displayed(&app).contains("s0-svc17"));
+        // The focused view stays quiet: the box counts once. Its interior is the
+        // dense one, and the status line says so.
+        assert!(status.noise <= layout::noise::NOISE_THRESHOLD, "{}", status.noise);
+        let (id, interior) = status.densest_interior.clone().unwrap();
+        assert_eq!(id, "s0");
         assert!(
-            status.noise > layout::noise::NOISE_THRESHOLD,
-            "{}",
-            status.noise
+            interior > layout::noise::NOISE_THRESHOLD,
+            "{interior}"
         );
         let line = brief_status(viewer(&app), status);
-        assert!(line.ends_with("(dense)"), "{line}");
-        // Collapsing again is just as free, and the view quiets down.
-        complete(&mut app, ViewerAction::Collapse("big".into()));
-        assert!(app.world().resource::<LayoutStatus>().noise <= layout::noise::NOISE_THRESHOLD);
+        assert!(
+            line.ends_with("| noise 0.0 | densest interior 25 (dense)"),
+            "{line}"
+        );
+        // Details for the expanded box carry its interior noise line.
+        let inspector = app.world_mut().spawn((Inspector, Text::default())).id();
+        complete(&mut app, ViewerAction::Select("s0".into()));
+        let text = inspector_text(&mut app, inspector);
+        assert!(
+            text.contains(
+                "Interior: visual noise 25.0 (18 boxes, widest layer 18, 0 connectors) (dense)"
+            ),
+            "{text}"
+        );
+        // Collapsing again is just as free, and the note goes away.
+        complete(&mut app, ViewerAction::Collapse("s0".into()));
+        let status = app.world().resource::<LayoutStatus>();
+        assert!(status.noise <= layout::noise::NOISE_THRESHOLD);
+        assert!(status.densest_interior.is_none());
+        assert!(!brief_status(viewer(&app), status).contains("densest interior"));
+        let text = inspector_text(&mut app, inspector);
+        assert!(!text.contains("Interior:"), "{text}");
+    }
+
+    #[test]
+    fn status_line_names_the_densest_interior_only_when_it_is_dense() {
+        let mut app = action_app(LayoutInput::snapshot(wide_model()), ViewState::default());
+        let mut status = LayoutStatus {
+            noise: 4.2,
+            densest_interior: Some(("s0".into(), 31.4)),
+            ..LayoutStatus::default()
+        };
+        let line = brief_status(viewer(&app), &status);
+        assert!(line.ends_with("| noise 4.2 | densest interior 31 (dense)"), "{line}");
+        status.densest_interior = Some(("s0".into(), 6.0));
+        assert!(!brief_status(viewer(&app), &status).contains("densest"));
+        // An interior at the threshold is quiet, like a view at the threshold.
+        status.densest_interior = Some(("s0".into(), layout::noise::NOISE_THRESHOLD));
+        assert!(!brief_status(viewer(&app), &status).contains("densest"));
+        complete(&mut app, ViewerAction::Expand("s0".into()));
+    }
+
+    #[test]
+    fn expanding_a_sibling_explicitly_never_closes_a_planned_box() {
+        // Two quiet scopes beside one whose eighteen services are dense.
+        let mut app = action_app(
+            LayoutInput::snapshot(scopes_model(&[3, 3, 18])),
+            ViewState::default(),
+        );
+        let planned = BTreeSet::from(["s0".to_owned(), "s1".to_owned()]);
+        assert_eq!(projection(&app).auto_opened, planned);
+        for action in [
+            ViewerAction::Expand("s2".into()),
+            ViewerAction::Collapse("s2".into()),
+            ViewerAction::Expand("s2".into()),
+        ] {
+            let expanding = matches!(action, ViewerAction::Expand(_));
+            complete(&mut app, action);
+            let status = app.world().resource::<LayoutStatus>();
+            assert!(status.action_error.is_none(), "{:?}", status.action_error);
+            assert_eq!(projection(&app).auto_opened, planned, "expanding={expanding}");
+            for svc in ["s0-svc00", "s0-svc02", "s1-svc00", "s1-svc02"] {
+                assert!(displayed(&app).contains(svc), "{svc}");
+            }
+            assert_eq!(displayed(&app).contains("s2-svc00"), expanding);
+            assert!(status.noise <= layout::noise::NOISE_THRESHOLD);
+            // The planned interiors are quiet; only s2 can be dense.
+            let (id, noise) = status.densest_interior.clone().unwrap();
+            assert_eq!(noise > layout::noise::NOISE_THRESHOLD, expanding);
+            assert_eq!(id == "s2", expanding);
+        }
+        // Expanding a planned box makes it the user's; the other stays planned.
+        complete(&mut app, ViewerAction::Expand("s0".into()));
+        assert_eq!(
+            projection(&app).auto_opened,
+            BTreeSet::from(["s1".to_owned()])
+        );
+        assert!(displayed(&app).contains("s1-svc00"));
+        assert!(viewer(&app).view.expanded.contains("s0"));
     }
 
     #[test]
@@ -142,9 +233,10 @@ mod planned_detail_tests {
         let cancel = AtomicBool::new(false);
         let mut view = ViewState::default();
         let root = input.project(&view, &cancel).unwrap();
+        // One level opens at the root: the table the datastore reveals waits.
         assert_eq!(
             root.auto_opened,
-            BTreeSet::from(["datastore:orders".into(), "table:orders".into()])
+            BTreeSet::from(["datastore:orders".into()])
         );
         // The memoized view returns the same plan.
         let mut timings = SourceTimings::default();

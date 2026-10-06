@@ -351,9 +351,14 @@ pub struct LayoutStatus {
     pub error: Option<String>,
     pub object_count: usize,
     pub relation_count: usize,
-    /// Visual noise of the accepted projection (ADR 0007). Above
-    /// `layout::noise::NOISE_THRESHOLD` the view is dense but still allowed.
+    /// Visual noise of the focused region of the accepted projection (ADR 0007):
+    /// what the focused view shows at its own level, not the interiors of boxes
+    /// expanded in it. Above `layout::noise::NOISE_THRESHOLD` the view is dense
+    /// but still allowed.
     pub noise: f64,
+    /// The densest expanded interior of the accepted projection, by region id
+    /// and noise, when there is one. Each interior is scored on its own.
+    pub densest_interior: Option<(String, f64)>,
     pub composition_frames: usize,
     pub maximum_scale_shift: u8,
     pub model_id: Option<String>,
@@ -922,6 +927,13 @@ fn noise_label(noise: f64) -> String {
         format!("noise {noise:.1}")
     }
 }
+/// A note for the densest expanded interior, shown only when it is over the
+/// threshold. The focused view can be quiet while a box opened in it is not.
+fn interior_note(status: &LayoutStatus) -> Option<String> {
+    let (_, noise) = status.densest_interior.as_ref()?;
+    (*noise > layout::noise::NOISE_THRESHOLD)
+        .then(|| format!("densest interior {noise:.0} (dense)"))
+}
 fn brief_status(viewer: &Viewer, status: &LayoutStatus) -> String {
     if status.error.is_some() {
         return "Update unavailable - F1 opens full details".into();
@@ -938,13 +950,18 @@ fn brief_status(viewer: &Viewer, status: &LayoutStatus) -> String {
         .into();
     }
     if let Some((p, s)) = &viewer.accepted {
-        return format!(
+        let mut line = format!(
             "{} objects | {} paths | revision {} | {}",
             s.geometry.boxes.len(),
             s.geometry.routes.len(),
             p.revision,
             noise_label(status.noise)
         );
+        if let Some(note) = interior_note(status) {
+            line.push_str(" | ");
+            line.push_str(&note);
+        }
+        return line;
     }
     "Preparing the first view".into()
 }
@@ -3684,6 +3701,8 @@ fn poll(
             status.object_count = s.geometry.boxes.len();
             status.relation_count = s.geometry.routes.len();
             status.noise = layout::noise::visual_noise(&p.graph).total;
+            status.densest_interior =
+                layout::noise::densest_interior(&p.graph).map(|(id, noise)| (id, noise.total));
             status.composition_frames = s
                 .composed_solution()
                 .map_or(0, |solution| solution.assembly.frame_ids().count());
@@ -3825,8 +3844,23 @@ fn poll(
                 } else {
                     ""
                 };
+                // An expanded box is its own region with its own readability budget.
+                let interior = layout::noise::region_noise(&p.graph)
+                    .get(id)
+                    .filter(|_| *id != p.graph.root)
+                    .map_or_else(String::new, |noise| {
+                        format!(
+                            "Interior: {}{}\n",
+                            noise.summary(),
+                            if noise.over_threshold() {
+                                " (dense)"
+                            } else {
+                                ""
+                            }
+                        )
+                    });
                 format!(
-                    "{} / {}\nSelected component: {}\n{}{} | {} linked claims ({}) | {}\n{}{}{}\n{}",
+                    "{} / {}\nSelected component: {}\n{}{} | {} linked claims ({}) | {}\n{}{}{}{}\n{}",
                     p.model_id,
                     viewer.view.focus.as_deref().unwrap_or("Overview"),
                     label.map_or("unknown", |label| label.label.as_str()),
@@ -3845,6 +3879,7 @@ fn poll(
                     browse,
                     label.map_or("unknown", |l| l.original_kind.as_str()),
                     automatic,
+                    interior,
                     selected,
                     linked,
                     p.detail_note

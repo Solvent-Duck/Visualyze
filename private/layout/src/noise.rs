@@ -6,7 +6,7 @@
 //! The knees are private tuning constants, not public contract.
 use crate::{Node, NodeKind, Projection};
 use serde::Serialize;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 /// Visible boxes in a whole view that cost nothing.
 pub const BOX_KNEE: f64 = 27.0;
@@ -63,6 +63,18 @@ impl VisualNoise {
         self.over_threshold().then(|| {
             format!(
                 "Visual noise {:.1} is over the {} readability threshold ({}); explicit expansion is still allowed.",
+                self.total,
+                NOISE_THRESHOLD,
+                self.counts_summary()
+            )
+        })
+    }
+
+    /// The advisory for an expanded box's interior, naming the region.
+    pub fn region_advisory(&self, region: &str) -> Option<String> {
+        self.over_threshold().then(|| {
+            format!(
+                "{region}: visual noise {:.1} inside this box is over the {} readability threshold ({}); explicit expansion is still allowed.",
                 self.total,
                 NOISE_THRESHOLD,
                 self.counts_summary()
@@ -190,67 +202,212 @@ pub fn layer_capacity(limit: f64) -> usize {
         .unwrap_or(2)
 }
 
-/// Box counts shared by every way of scoring a projection: total boxes and
-/// boxes per layer. Counted as boxes: solid boxes, frames (`FRAME_WEIGHT` each),
-/// and, when `include_references`, external references. Not counted: the focused
-/// root, which is the view itself, and interface pads attached to a solid owner,
-/// which belong to the owner.
-fn count_boxes(projection: &Projection, include_references: bool) -> (f64, BTreeMap<i32, f64>) {
+/// What one region draws, before scoring: its boxes, boxes per layer, and
+/// connectors.
+#[derive(Default)]
+struct RegionCounts {
+    boxes: f64,
+    layers: BTreeMap<i32, f64>,
+    connectors: usize,
+}
+
+/// Counts for every region of a projection (see `region_noise`). The one
+/// counting routine that `region_noise`, `visual_noise` and `interior_noise`
+/// share, so they cannot drift.
+///
+/// Counted as boxes, in the region they are parented to: solid boxes, frames
+/// (`FRAME_WEIGHT` each, whatever they hold), and, when `include_references`,
+/// external references. Not counted: the focused root, which is the view
+/// itself, and interface pads attached to a solid owner, which belong to the
+/// owner. With `include_references` false, references are neither boxes nor
+/// ends of a counted connector.
+fn region_counts(
+    projection: &Projection,
+    include_references: bool,
+) -> BTreeMap<String, RegionCounts> {
     let by_id: BTreeMap<&str, &Node> = projection
         .nodes
         .iter()
         .map(|node| (node.id.as_str(), node))
         .collect();
-    let mut boxes = 0.0;
-    let mut layers: BTreeMap<i32, f64> = BTreeMap::new();
-    for node in &projection.nodes {
-        let reference = projection.references.contains_key(&node.id);
-        if reference {
-            if !include_references {
-                continue;
-            }
-        } else {
-            if node.id == projection.root {
-                continue;
-            }
-            let pad = node.kind == NodeKind::Interface
-                && node
-                    .parent
-                    .as_deref()
-                    .and_then(|parent| by_id.get(parent))
-                    .is_some_and(|owner| owner.solid);
-            if pad {
-                continue;
-            }
-        }
-        let weight = if node.solid { 1.0 } else { FRAME_WEIGHT };
-        boxes += weight;
-        *layers.entry(node.band).or_default() += weight;
-    }
-    (boxes, layers)
-}
-
-/// Score what a projection would draw: its boxes, including external
-/// references, and every projected edge as one connector however many relations
-/// it carries.
-pub fn visual_noise(projection: &Projection) -> VisualNoise {
-    let (boxes, layers) = count_boxes(projection, true);
-    noise_from_counts(boxes, &layers, projection.edges.len())
-}
-
-/// Score only the interior of the projection's root: its direct children and
-/// the connectors among them. External references, and any edge that touches a
-/// reference or the root itself, belong to the surroundings and are left out.
-/// The box rules are those of `visual_noise`.
-pub fn interior_noise(projection: &Projection) -> VisualNoise {
-    let (boxes, layers) = count_boxes(projection, false);
-    let outside = |id: &String| *id == projection.root || projection.references.contains_key(id);
-    let connectors = projection
-        .edges
+    let is_reference = |id: &str| projection.references.contains_key(id);
+    // Interface pad id -> its solid owner, which the pad is drawn as part of.
+    let pad_of: BTreeMap<&str, &str> = projection
+        .nodes
         .iter()
-        .filter(|edge| !outside(&edge.source) && !outside(&edge.target))
-        .count();
-    noise_from_counts(boxes, &layers, connectors)
+        .filter_map(|node| {
+            let owner = node.parent.as_deref()?;
+            (node.kind == NodeKind::Interface && by_id.get(owner).is_some_and(|o| o.solid))
+                .then_some((node.id.as_str(), owner))
+        })
+        .collect();
+    let counted = |node: &Node| {
+        node.id != projection.root
+            && if is_reference(&node.id) {
+                include_references
+            } else {
+                !pad_of.contains_key(node.id.as_str())
+            }
+    };
+    // A region is the root, or any node that shows a counted child.
+    let mut regions: BTreeSet<&str> = BTreeSet::from([projection.root.as_str()]);
+    for node in projection.nodes.iter().filter(|node| counted(node)) {
+        if let Some(parent) = node.parent.as_deref().filter(|p| by_id.contains_key(p)) {
+            regions.insert(parent);
+        }
+    }
+    let mut counts: BTreeMap<String, RegionCounts> = regions
+        .iter()
+        .map(|id| ((*id).to_owned(), RegionCounts::default()))
+        .collect();
+    for node in projection.nodes.iter().filter(|node| counted(node)) {
+        let region = node
+            .parent
+            .as_deref()
+            .filter(|parent| regions.contains(parent))
+            .unwrap_or(&projection.root);
+        let weight = if node.solid { 1.0 } else { FRAME_WEIGHT };
+        let entry = counts.get_mut(region).expect("every region has counts");
+        entry.boxes += weight;
+        *entry.layers.entry(node.band).or_default() += weight;
+    }
+    // The regions an endpoint sits in, innermost first. An endpoint that is a
+    // region starts at itself, any other (a pad counts as its owner) at its
+    // parent; the root always ends the chain.
+    let root = projection.root.as_str();
+    let chain = |id: &str| {
+        let id = pad_of.get(id).copied().unwrap_or(id);
+        let mut chain = Vec::new();
+        let mut at = by_id.get_key_value(id).map(|(key, node)| {
+            if regions.contains(key) {
+                *key
+            } else {
+                node.parent.as_deref().unwrap_or(root)
+            }
+        });
+        while let Some(id) = at {
+            if chain.len() > by_id.len() {
+                break;
+            }
+            if regions.contains(id) {
+                chain.push(id);
+            }
+            at = by_id.get(id).and_then(|node| node.parent.as_deref());
+        }
+        if chain.last() != Some(&root) {
+            chain.push(root);
+        }
+        chain
+    };
+    for edge in &projection.edges {
+        if !include_references && (is_reference(&edge.source) || is_reference(&edge.target)) {
+            continue;
+        }
+        let target = chain(&edge.target);
+        let region = chain(&edge.source)
+            .into_iter()
+            .find(|region| target.contains(region))
+            .unwrap_or(projection.root.as_str());
+        counts
+            .get_mut(region)
+            .expect("every chain holds regions")
+            .connectors += 1;
+    }
+    counts
+}
+
+fn score(counts: &RegionCounts) -> VisualNoise {
+    noise_from_counts(counts.boxes, &counts.layers, counts.connectors)
+}
+
+/// Visual noise of every region of a projection, keyed by region id; the
+/// focused root is always present. Boxes inside an expanded box are their own
+/// setup, so they never count toward the box or layer totals of the region
+/// around it.
+///
+/// A region is the focused root and every displayed node that shows displayed
+/// children: an expanded scope or group frame, or an expanded component with
+/// children other than its interface pads.
+///
+/// * In its parent region an expanded box counts as exactly one box
+///   (`FRAME_WEIGHT`); its interior counts only in its own region.
+/// * A connector counts once, in the region where it is drawn: the lowest
+///   region that contains both ends. A region itself is an end that sits in it,
+///   so a connector from a frame to one of its own children counts in that
+///   frame, and one from a child to a neighbour of the frame counts in the
+///   region around the frame.
+/// * External references are boxes in whichever region they are parented to.
+///   Interface pads on solid owners belong to the owner and are not counted.
+pub fn region_noise(projection: &Projection) -> BTreeMap<String, VisualNoise> {
+    region_counts(projection, true)
+        .iter()
+        .map(|(id, counts)| (id.clone(), score(counts)))
+        .collect()
+}
+
+/// Score the focused view: its root region, that is, what the focused root
+/// shows at its own level, including external references. A box opened inside
+/// it counts once there, and its interior is scored by `region_noise`.
+pub fn visual_noise(projection: &Projection) -> VisualNoise {
+    let mut regions = region_counts(projection, true);
+    score(&regions.remove(&projection.root).unwrap_or_default())
+}
+
+/// Score only the interior of the projection's root: the root region without
+/// external references, and without any connector that touches one. These
+/// belong to the surroundings. The box rules are those of `region_noise`, and
+/// for a view focused on a scope the result is that scope's region.
+pub fn interior_noise(projection: &Projection) -> VisualNoise {
+    let mut regions = region_counts(projection, false);
+    score(&regions.remove(&projection.root).unwrap_or_default())
+}
+
+/// The densest region of the projection (highest total) and its noise. The
+/// focused root wins a tie, then the smaller id.
+pub fn densest_region(projection: &Projection) -> (String, VisualNoise) {
+    let mut regions = region_noise(projection);
+    let root = regions
+        .remove(&projection.root)
+        .unwrap_or_else(|| score(&RegionCounts::default()));
+    match densest_of(regions) {
+        Some((id, noise)) if noise.total > root.total => (id, noise),
+        _ => (projection.root.clone(), root),
+    }
+}
+
+/// The densest region other than the focused root, if there is one: the
+/// interior of an expanded box, where a view shows its busiest setup. The
+/// smaller id wins a tie.
+pub fn densest_interior(projection: &Projection) -> Option<(String, VisualNoise)> {
+    let mut regions = region_noise(projection);
+    regions.remove(&projection.root);
+    densest_of(regions)
+}
+
+fn densest_of(regions: BTreeMap<String, VisualNoise>) -> Option<(String, VisualNoise)> {
+    regions.into_iter().reduce(|best, next| {
+        if next.1.total > best.1.total {
+            next
+        } else {
+            best
+        }
+    })
+}
+
+/// Advisory diagnostics for a projection: one for the focused view when it is
+/// over the threshold, and one for each expanded box whose interior is, each
+/// naming its region. Expansion that causes them is still allowed.
+pub fn advisories(projection: &Projection) -> Vec<String> {
+    region_noise(projection)
+        .into_iter()
+        .filter_map(|(id, noise)| {
+            if id == projection.root {
+                noise.advisory()
+            } else {
+                noise.region_advisory(&id)
+            }
+        })
+        .collect()
 }
 
 #[cfg(test)]
@@ -411,9 +568,14 @@ mod tests {
             node("inner", NodeKind::Service, Some("open"), 1, true),
             node("closed", NodeKind::Group, Some("root"), 0, true),
         ];
-        let n = visual_noise(&projection(nodes, 0));
-        assert_eq!(n.boxes, 2.0 * 1.0 + FRAME_WEIGHT);
-        assert_eq!(n.layers, BTreeMap::from([(0, 1.0), (1, 2.0)]));
+        let p = projection(nodes, 0);
+        // The open frame is one box in the root; its member is in its own region.
+        let n = visual_noise(&p);
+        assert_eq!(n.boxes, 1.0 + FRAME_WEIGHT);
+        assert_eq!(n.layers, BTreeMap::from([(0, 1.0), (1, FRAME_WEIGHT)]));
+        let regions = region_noise(&p);
+        assert_eq!(regions["open"].boxes, 1.0);
+        assert_eq!(regions["open"].layers, BTreeMap::from([(1, 1.0)]));
     }
 
     #[test]
@@ -441,7 +603,7 @@ mod tests {
     }
 
     #[test]
-    fn interior_noise_excludes_references_and_edges_touching_them_or_the_root() {
+    fn interior_noise_excludes_references_and_edges_touching_them() {
         let nodes = vec![
             node("root", NodeKind::Scope, None, 1, false),
             node("a", NodeKind::Service, Some("root"), 1, true),
@@ -465,10 +627,270 @@ mod tests {
         let inside = interior_noise(&p);
         assert_eq!(inside.boxes, 2.0);
         assert_eq!(inside.layers, BTreeMap::from([(0, 1.0), (1, 1.0)]));
-        assert_eq!(inside.connectors, 1);
+        // The root frame draws a connector to its own child inside itself.
+        assert_eq!(inside.connectors, 2);
         let whole = visual_noise(&p);
         assert_eq!(whole.boxes, 3.0);
         assert_eq!(whole.connectors, 4);
+    }
+
+    fn edges(p: &mut Projection, ends: &[(&str, &str)]) {
+        p.edges = ends
+            .iter()
+            .enumerate()
+            .map(|(i, (source, target))| Edge {
+                id: format!("e{i}"),
+                source: (*source).into(),
+                target: (*target).into(),
+                semantic_ids: vec![format!("e{i}")],
+            })
+            .collect();
+    }
+
+    /// root > (open frame `a` > `members` services, solid `b`)
+    fn nested(members: usize) -> Projection {
+        let mut nodes = vec![
+            node("root", NodeKind::Scope, None, 1, false),
+            node("a", NodeKind::Scope, Some("root"), 1, false),
+            node("b", NodeKind::Service, Some("root"), 1, true),
+        ];
+        for i in 0..members {
+            nodes.push(node(
+                &format!("a{i}"),
+                NodeKind::Service,
+                Some("a"),
+                1,
+                true,
+            ));
+        }
+        projection(nodes, 0)
+    }
+
+    #[test]
+    fn an_expanded_interior_counts_as_one_box_in_its_parent_region() {
+        for members in [3, 20, 60] {
+            let p = nested(members);
+            let regions = region_noise(&p);
+            assert_eq!(regions.len(), 2, "the root and the one expanded frame");
+            let root = &regions["root"];
+            assert_eq!(root.boxes, 1.0 + FRAME_WEIGHT, "the frame and b only");
+            assert_eq!(root.layers, BTreeMap::from([(1, 2.0)]));
+            assert_eq!(root.total, 0.0);
+            assert_eq!(regions["a"].boxes, members as f64);
+            assert_eq!(regions["a"].layers, BTreeMap::from([(1, members as f64)]));
+            // The view is the focused root region.
+            assert_eq!(visual_noise(&p), *root);
+        }
+        let dense = nested(60);
+        assert!(!visual_noise(&dense).over_threshold());
+        assert!(region_noise(&dense)["a"].over_threshold());
+    }
+
+    #[test]
+    fn a_nested_frame_is_a_region_of_its_own_and_counts_once_in_its_parent() {
+        // root > a > (inner > 4 services, 2 services), b
+        let mut p = nested(2);
+        p.nodes
+            .push(node("inner", NodeKind::Scope, Some("a"), 1, false));
+        for i in 0..4 {
+            p.nodes.push(node(
+                &format!("i{i}"),
+                NodeKind::Service,
+                Some("inner"),
+                1,
+                true,
+            ));
+        }
+        let regions = region_noise(&p);
+        assert_eq!(
+            regions.keys().map(String::as_str).collect::<Vec<_>>(),
+            ["a", "inner", "root"]
+        );
+        assert_eq!(regions["root"].boxes, 2.0);
+        assert_eq!(regions["a"].boxes, 2.0 + FRAME_WEIGHT);
+        assert_eq!(regions["inner"].boxes, 4.0);
+    }
+
+    #[test]
+    fn a_connector_counts_in_the_lowest_region_holding_both_ends() {
+        let mut p = nested(3);
+        p.nodes
+            .push(node("c", NodeKind::Scope, Some("root"), 1, false));
+        p.nodes
+            .push(node("c0", NodeKind::Service, Some("c"), 1, true));
+        edges(
+            &mut p,
+            &[
+                // Both inside a.
+                ("a0", "a1"),
+                // Across two sibling frames: drawn in the root.
+                ("a0", "c0"),
+                // From inside a frame to a solid sibling of the frame.
+                ("a2", "b"),
+                // Between solid siblings in the root.
+                ("b", "b"),
+                // Frame to a sibling frame.
+                ("a", "c"),
+            ],
+        );
+        let regions = region_noise(&p);
+        assert_eq!(regions["a"].connectors, 1);
+        assert_eq!(regions["c"].connectors, 0);
+        assert_eq!(regions["root"].connectors, 4);
+        assert_eq!(
+            regions.values().map(|n| n.connectors).sum::<usize>(),
+            p.edges.len(),
+            "every connector counts exactly once"
+        );
+    }
+
+    #[test]
+    fn a_connector_from_a_frame_to_its_own_child_counts_in_that_frame() {
+        let mut p = nested(2);
+        edges(&mut p, &[("a", "a0"), ("a1", "a")]);
+        let regions = region_noise(&p);
+        assert_eq!(regions["a"].connectors, 2);
+        assert_eq!(regions["root"].connectors, 0);
+        // The root frame's own connector to a direct child lies in the root.
+        edges(&mut p, &[("root", "a"), ("root", "b")]);
+        assert_eq!(region_noise(&p)["root"].connectors, 2);
+        // A connector from a child of the frame to a sibling of the frame is the
+        // root's, not the frame's.
+        edges(&mut p, &[("a0", "b")]);
+        let regions = region_noise(&p);
+        assert_eq!(
+            (regions["a"].connectors, regions["root"].connectors),
+            (0, 1)
+        );
+    }
+
+    #[test]
+    fn interface_pads_stay_with_their_owner_in_every_region() {
+        // `s` is an expanded solid component with a pad and one real child.
+        let mut p = projection(
+            vec![
+                node("root", NodeKind::Scope, None, 1, false),
+                node("s", NodeKind::Service, Some("root"), 1, true),
+                node("pad", NodeKind::Interface, Some("s"), 1, true),
+                node("inside", NodeKind::Service, Some("s"), 1, true),
+                node("peer", NodeKind::Service, Some("root"), 1, true),
+            ],
+            0,
+        );
+        edges(
+            &mut p,
+            &[("pad", "peer"), ("pad", "inside"), ("peer", "pad")],
+        );
+        let regions = region_noise(&p);
+        assert_eq!(
+            regions["root"].boxes, 2.0,
+            "s and peer; the pad is not a box"
+        );
+        assert_eq!(regions["s"].boxes, 1.0, "inside only");
+        // A pad is the owner: to a peer it is drawn in the root, to the
+        // owner's own child inside the owner.
+        assert_eq!(regions["root"].connectors, 2);
+        assert_eq!(regions["s"].connectors, 1);
+        // A component that holds only pads is not a region.
+        let mut flat = p.clone();
+        flat.nodes.retain(|node| node.id != "inside");
+        edges(&mut flat, &[("pad", "peer")]);
+        let regions = region_noise(&flat);
+        assert_eq!(regions.len(), 1);
+        assert_eq!(regions["root"].connectors, 1);
+    }
+
+    #[test]
+    fn references_are_boxes_in_the_region_they_hang_on() {
+        let mut p = nested(2);
+        p.nodes.push(node(
+            "view:reference:x",
+            NodeKind::Group,
+            Some("root"),
+            1,
+            true,
+        ));
+        p.nodes.push(node(
+            "view:reference:y",
+            NodeKind::Group,
+            Some("a"),
+            1,
+            true,
+        ));
+        p.references = BTreeMap::from([
+            ("view:reference:x".into(), "x".into()),
+            ("view:reference:y".into(), "y".into()),
+        ]);
+        edges(
+            &mut p,
+            &[
+                ("a0", "view:reference:x"),
+                ("a1", "view:reference:y"),
+                ("b", "view:reference:x"),
+            ],
+        );
+        let regions = region_noise(&p);
+        assert_eq!(regions["root"].boxes, 1.0 + FRAME_WEIGHT + 1.0);
+        assert_eq!(regions["a"].boxes, 2.0 + 1.0);
+        // a0 inside the frame to a reference outside it: the root's connector.
+        assert_eq!(regions["root"].connectors, 2);
+        assert_eq!(regions["a"].connectors, 1);
+        // Left out, the references and the connectors that touch them vanish.
+        let inside = interior_noise(&p);
+        assert_eq!(inside.boxes, 1.0 + FRAME_WEIGHT);
+        assert_eq!(inside.connectors, 0);
+    }
+
+    #[test]
+    fn interior_noise_is_the_root_region_without_references() {
+        // A view focused on a scope that holds an open frame, with references.
+        let mut p = nested(40);
+        p.nodes.push(node(
+            "view:reference:x",
+            NodeKind::Group,
+            Some("root"),
+            0,
+            true,
+        ));
+        p.references = BTreeMap::from([("view:reference:x".into(), "x".into())]);
+        edges(
+            &mut p,
+            &[("b", "a"), ("a5", "view:reference:x"), ("a0", "a1")],
+        );
+        let inside = interior_noise(&p);
+        assert_eq!(
+            inside.boxes, 2.0,
+            "the frame counts once, its members never"
+        );
+        assert_eq!(inside.connectors, 1);
+        // The same projection without the references scores identically as a region.
+        let mut bare = p.clone();
+        bare.nodes.retain(|node| node.id != "view:reference:x");
+        bare.references.clear();
+        edges(&mut bare, &[("b", "a"), ("a0", "a1")]);
+        assert_eq!(region_noise(&bare)["root"], inside);
+        assert_eq!(visual_noise(&bare), inside);
+        assert_eq!(visual_noise(&p).boxes, 3.0, "the view adds its reference");
+    }
+
+    #[test]
+    fn the_densest_region_and_the_advisories_name_where_the_noise_is() {
+        let quiet = nested(3);
+        assert_eq!(densest_region(&quiet).0, "root");
+        assert_eq!(densest_interior(&quiet).unwrap().0, "a");
+        assert!(advisories(&quiet).is_empty());
+        let flat = projection(vec![node("root", NodeKind::Scope, None, 1, false)], 0);
+        assert!(densest_interior(&flat).is_none());
+
+        let dense = nested(40);
+        let (id, noise) = densest_region(&dense);
+        assert_eq!(id, "a");
+        assert!(noise.over_threshold());
+        assert_eq!(densest_interior(&dense).unwrap().0, "a");
+        let advice = advisories(&dense);
+        assert_eq!(advice.len(), 1, "{advice:?}");
+        assert!(advice[0].starts_with("a: visual noise "), "{}", advice[0]);
+        assert!(advice[0].contains("40 boxes"), "{}", advice[0]);
     }
 
     #[test]

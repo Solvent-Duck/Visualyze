@@ -213,6 +213,11 @@ them:
 - Producer advice is computed by `visualyze_layout::advice`, the single entry
   point for the CLI validator and the future MCP bridge. The CLI prints the 25
   noisiest scopes.
+- Noise is scored per region. Each expanded box's interior is its own region
+  with its own budget; in its parent it counts as one box. A connector counts in
+  the lowest region containing both ends. Automatic opening goes one level below
+  the focused view, and each candidate opens on its own interior's noise alone,
+  so a sibling's expansion never closes it (except at the 250-object guard).
 - `peer_ceiling` and `group_target` remain on saved views as ignored legacy
   fields so older files still load.
 - The page-size estimate ignores connectors, which are unknown before routing,

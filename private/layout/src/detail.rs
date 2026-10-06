@@ -1,17 +1,23 @@
-//! Automatic level of detail (ADR 0007 section 3): among the views the
-//! projector could show, pick the one that opens the most supplied structure
-//! while its visual noise stays at or under `NOISE_THRESHOLD`.
+//! Automatic level of detail (ADR 0007 section 3): open the supplied boxes of
+//! the focused view whose own interiors are readable.
+//!
+//! Every expanded box is its own region with its own noise budget
+//! (`noise::region_noise`): what a box holds never counts toward the view
+//! around it. So whether a box opens depends only on that box's interior, not on
+//! its siblings and not on how dense the focused view already is. The planner
+//! opens one level: the direct children of the focused root. Opening a box
+//! shows its children collapsed; the user expands or enters them, and entering
+//! one plans its own level.
 //!
 //! Only supplied structure is ever opened. Display groups (suggested or manual)
-//! are never candidates, and a trial that makes the projector invent a new
-//! suggested group is rejected. A user's explicit choices are never touched:
-//! the planner works on a clone of the view, `collapsed` wins over what it
-//! opens, explicit expansions stay as they are, and a view that is already over
-//! the threshold is returned as it is.
+//! are never candidates, and a box whose opening makes the projector invent a
+//! suggested group inside it is left closed. A user's explicit choices are never
+//! touched: the planner works on a clone of the view, `collapsed` wins over what
+//! it opens, and explicit expansions stay as they are.
 //!
 //! The planner is a pure, deterministic function of the view and the source,
 //! so cached projections stay valid for the same view.
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::sync::atomic::AtomicBool;
 
 use visualyze_model::architecture::Architecture;
@@ -19,29 +25,32 @@ use visualyze_model::provider::{EntityKind, ModelProvider, SemanticLens};
 
 use crate::{
     LayoutError, Projection,
-    noise::{BOX_KNEE, NOISE_THRESHOLD, visual_noise},
-    projection::{self, ViewState},
+    noise::{BOX_KNEE, NOISE_THRESHOLD, VisualNoise, region_noise},
+    projection::{self, DisplayGroup, ViewState},
     provider_projection::{
-        BundleProjection, ProviderViewRequest, child_count, children_at, project_provider,
-        provider_error,
+        BundleProjection, Continuation, ProviderViewRequest, child_count, children_at,
+        project_provider, provider_error,
     },
 };
 
-/// Trials for one snapshot view. A snapshot projects in well under a
-/// millisecond, and a readable view holds about 27 boxes, so 32 trials can test
-/// every container a view could open and a few more revealed by earlier ones.
+/// Projections for one snapshot view. A snapshot projects in well under a
+/// millisecond. Boxes open in batches (all candidates at once, then once more
+/// with the ones that fit), so a view needs two or three; a batch that hits the
+/// object limit is halved, which costs one more per cut, so 32 leaves room for
+/// a long run of cuts.
 pub const SNAPSHOT_MAX_TRIALS: usize = 32;
-/// Trials for one bundle view. Each trial is a bounded provider projection that
+/// Projections for one bundle view. Each is a bounded provider projection that
 /// loads children and scans relationship pages, which costs far more than a
 /// snapshot projection (tens to hundreds of milliseconds on a production
-/// bundle), and the focused interior it opens is small. Eight keeps the first
-/// view's planning within the same order as one projection.
+/// bundle). A view needs two or three; eight keeps the first view's planning
+/// within the same order as one projection and still allows a few cuts when a
+/// batch exceeds the object limit.
 pub const BUNDLE_MAX_TRIALS: usize = 8;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PlanBudget {
     /// Projections the planner may run beyond the base view. Each focused
-    /// interior is planned separately with its own budget.
+    /// view is planned separately with its own budget.
     pub max_trials: usize,
 }
 
@@ -69,25 +78,38 @@ pub trait DetailSource {
     /// planner has tentatively opened.
     fn project(&mut self, view: &ViewState) -> Result<Self::Output, LayoutError>;
     fn graph(output: &Self::Output) -> &Projection;
+    /// Whether `trial`, projected from `view`, ran into the hard visible-object
+    /// limit where `before` did not: a region left collapsed or the limit
+    /// exceeded. The planner then tries fewer boxes.
+    fn hit_visible_budget(view: &ViewState, before: &Self::Output, trial: &Self::Output) -> bool;
     /// How many supplied children opening the displayed box `id` would reveal
     /// as structure; zero for a leaf, or for a component whose children are only
     /// interfaces (pads on its own face).
     fn hidden_structure(&mut self, output: &Self::Output, id: &str) -> Result<usize, LayoutError>;
 }
 
-/// Open supplied structure on a clone of `view` until the next opening would
-/// push noise over `NOISE_THRESHOLD`, or `budget` trials are spent.
+/// Open supplied boxes on a clone of `view` while each one's own interior stays
+/// within `NOISE_THRESHOLD`, or `budget` trials are spent.
 ///
-/// 1. Project the view as given. Over the threshold: return it, opening nothing.
-/// 2. Candidates are displayed, collapsed boxes that are not the root, a
-///    reference, a display group, collapsed by the user or already open, and
-///    that hide supplied structure. They are tried shallowest first, then with
-///    the fewest hidden children (more containers open within the budget), then
-///    by ID.
-/// 3. A trial opens one candidate and is kept when the projection reveals it,
-///    adds no suggested group, and stays within the threshold.
-/// 4. After a pass that kept anything, containers it revealed become
-///    candidates; rejected ones are not retried. Stop when a pass keeps nothing.
+/// 1. Project the view as given. Its own noise does not matter: it is the
+///    focused region, and a box opened beside others never changes what they
+///    hold.
+/// 2. Candidates are the focused root's direct children that are displayed,
+///    collapsed boxes that are not a reference, a display group, collapsed by
+///    the user or already open, and that hide supplied structure. Their order,
+///    which every cut below keeps, is fewest hidden children first, then by ID.
+/// 3. A batch is projected with all of its boxes open. A box passes when the
+///    projection reveals it, its own region scores within the threshold, and
+///    it adds no suggested group inside it. Boxes that pass are projected again
+///    on their own, which adopts them if they all still pass.
+/// 4. A batch that fails to project, or that hits the visible-object limit, is
+///    cut into two halves in candidate order; a single box that does is left
+///    closed. Explicit choices are never changed, and stay as they are.
+///
+/// Boxes are independent, so a sibling's state never decides whether a box
+/// opens. The one exception is the visible-object limit (`visible_budget`, 250
+/// by default): what the view already shows counts against it, so when it is
+/// reached later candidates may not fit.
 pub fn plan_detail<S: DetailSource>(
     source: &mut S,
     view: &ViewState,
@@ -95,87 +117,105 @@ pub fn plan_detail<S: DetailSource>(
 ) -> Result<Planned<S::Output>, LayoutError> {
     let mut current = source.project(view)?;
     let mut opened = BTreeSet::new();
-    if visual_noise(S::graph(&current)).total > NOISE_THRESHOLD {
-        return Ok(Planned {
-            result: current,
-            opened,
-        });
-    }
     let mut working = view.clone();
-    let mut declined: BTreeSet<String> = BTreeSet::new();
+    let candidates = candidates(source, &current, view, max_boxes_within(NOISE_THRESHOLD))?;
+    let mut batches: VecDeque<Vec<String>> = VecDeque::new();
+    if !candidates.is_empty() {
+        batches.push_back(candidates);
+    }
     let mut trials = 0;
-    let max_boxes = max_boxes_within(NOISE_THRESHOLD);
-    loop {
-        let candidates = candidates(source, &current, view, &declined, max_boxes)?;
-        let mut kept_any = false;
-        for id in candidates {
-            if trials >= budget.max_trials {
-                return Ok(Planned {
-                    result: current,
-                    opened,
-                });
-            }
-            trials += 1;
-            working.plan_open(id.clone());
-            let kept = match source.project(&working) {
-                Ok(trial) if keeps(S::graph(&current), S::graph(&trial), &id) => Some(trial),
-                Ok(_) => None,
-                // Automatic detail never makes a view that renders fail.
-                Err(LayoutError::Cancelled) => return Err(LayoutError::Cancelled),
-                Err(_) => None,
-            };
-            match kept {
-                Some(trial) => {
-                    current = trial;
-                    opened.insert(id);
-                    kept_any = true;
-                }
-                None => {
-                    working.plan_close(&id);
-                    declined.insert(id);
-                }
-            }
+    while let Some(batch) = batches.pop_front() {
+        if trials >= budget.max_trials {
+            break;
         }
-        if !kept_any {
-            return Ok(Planned {
-                result: current,
-                opened,
-            });
+        trials += 1;
+        let mut trial_view = working.clone();
+        for id in &batch {
+            trial_view.plan_open(id.clone());
+        }
+        let cut = |batch: Vec<String>, batches: &mut VecDeque<Vec<String>>| {
+            if batch.len() > 1 {
+                let second = batch[batch.len() / 2..].to_vec();
+                let mut first = batch;
+                first.truncate(first.len() - second.len());
+                batches.push_front(second);
+                batches.push_front(first);
+            }
+        };
+        let trial = match source.project(&trial_view) {
+            Ok(trial) => trial,
+            // Automatic detail never makes a view that renders fail.
+            Err(LayoutError::Cancelled) => return Err(LayoutError::Cancelled),
+            Err(_) => {
+                cut(batch, &mut batches);
+                continue;
+            }
+        };
+        if S::hit_visible_budget(&trial_view, &current, &trial) {
+            cut(batch, &mut batches);
+            continue;
+        }
+        let interiors = region_noise(S::graph(&trial));
+        let fits: Vec<String> = batch
+            .iter()
+            .filter(|id| fits(S::graph(&current), S::graph(&trial), &interiors, id))
+            .cloned()
+            .collect();
+        if fits.len() == batch.len() {
+            for id in batch {
+                working.plan_open(id.clone());
+                opened.insert(id);
+            }
+            current = trial;
+        } else if !fits.is_empty() {
+            batches.push_front(fits);
         }
     }
+    Ok(Planned {
+        result: current,
+        opened,
+    })
 }
 
-/// Most boxes a view can hold at or under `limit` noise, whatever their layers.
+/// Most boxes a region can hold at or under `limit` noise, whatever their layers.
 fn max_boxes_within(limit: f64) -> usize {
     (BOX_KNEE * (1.0 + (limit / 100.0).sqrt())).floor() as usize
 }
 
-/// A trial is kept when it opened the box, invented no suggested group, and is
-/// still within the threshold.
-fn keeps(before: &Projection, trial: &Projection, id: &str) -> bool {
+/// A box fits when the trial revealed it, its own region is within the
+/// threshold, and opening it invented no suggested group inside it.
+fn fits(
+    before: &Projection,
+    trial: &Projection,
+    interiors: &BTreeMap<String, VisualNoise>,
+    id: &str,
+) -> bool {
     let revealed = trial
         .nodes
         .iter()
         .any(|node| node.parent.as_deref() == Some(id));
+    // The projector lists the suggestions it could make for a collapsed box
+    // too, so a group counts only when the trial draws it.
+    let drawn = |projection: &Projection, group: &DisplayGroup| {
+        projection.nodes.iter().any(|node| node.id == group.id)
+    };
     let invented = trial.suggested_groups.iter().any(|group| {
-        group.suggested
-            && !before
-                .suggested_groups
-                .iter()
-                .any(|known| known.id == group.id)
+        group.suggested && group.parent == id && drawn(trial, group) && !drawn(before, group)
     });
-    revealed && !invented && visual_noise(trial).total <= NOISE_THRESHOLD
+    revealed
+        && !invented
+        && interiors
+            .get(id)
+            .is_some_and(|noise| noise.total <= NOISE_THRESHOLD)
 }
 
 fn candidates<S: DetailSource>(
     source: &mut S,
     current: &S::Output,
     view: &ViewState,
-    declined: &BTreeSet<String>,
     max_boxes: usize,
 ) -> Result<Vec<String>, LayoutError> {
     let graph = S::graph(current);
-    let depth = depths(graph);
     let groups: BTreeSet<&str> = graph
         .suggested_groups
         .iter()
@@ -183,52 +223,25 @@ fn candidates<S: DetailSource>(
         .collect();
     let mut ranked = Vec::new();
     for node in &graph.nodes {
-        if node.id == graph.root
+        if node.parent.as_deref() != Some(graph.root.as_str())
+            || node.id == graph.root
             || !node.solid
             || graph.references.contains_key(&node.id)
             || groups.contains(node.id.as_str())
-            || declined.contains(&node.id)
             || view.collapsed.contains(&node.id)
             || view.is_expanded(&node.id)
         {
             continue;
         }
         let hidden = source.hidden_structure(current, &node.id)?;
-        // More children than any readable view can hold would be rejected.
+        // More children than any readable region can hold would be rejected.
         if hidden == 0 || hidden > max_boxes {
             continue;
         }
-        ranked.push((
-            depth.get(node.id.as_str()).copied().unwrap_or(usize::MAX),
-            hidden,
-            node.id.clone(),
-        ));
+        ranked.push((hidden, node.id.clone()));
     }
     ranked.sort();
-    Ok(ranked.into_iter().map(|(_, _, id)| id).collect())
-}
-
-/// Distance from the root through displayed parents.
-fn depths(graph: &Projection) -> BTreeMap<&str, usize> {
-    let parents: BTreeMap<&str, Option<&str>> = graph
-        .nodes
-        .iter()
-        .map(|node| (node.id.as_str(), node.parent.as_deref()))
-        .collect();
-    let mut depth = BTreeMap::new();
-    for node in &graph.nodes {
-        let mut steps = 0;
-        let mut at = node.id.as_str();
-        while at != graph.root && steps <= graph.nodes.len() {
-            match parents.get(at).copied().flatten() {
-                Some(parent) => at = parent,
-                None => break,
-            }
-            steps += 1;
-        }
-        depth.insert(node.id.as_str(), steps);
-    }
-    depth
+    Ok(ranked.into_iter().map(|(_, id)| id).collect())
 }
 
 /// A snapshot to plan: its projection is `projection::project`, and a box
@@ -255,6 +268,9 @@ impl DetailSource for SnapshotDetail<'_> {
     }
     fn graph(output: &Projection) -> &Projection {
         output
+    }
+    fn hit_visible_budget(view: &ViewState, before: &Projection, trial: &Projection) -> bool {
+        trial.nodes.len() > view.visible_budget && before.nodes.len() <= view.visible_budget
     }
     fn hidden_structure(&mut self, _: &Projection, id: &str) -> Result<usize, LayoutError> {
         Ok(self.hidden.get(id).copied().unwrap_or(0))
@@ -288,6 +304,24 @@ impl<P: ModelProvider, F: Fn(&ViewState) -> ProviderViewRequest> DetailSource
     }
     fn graph(output: &BundleProjection) -> &Projection {
         &output.graph
+    }
+    fn hit_visible_budget(
+        _: &ViewState,
+        before: &BundleProjection,
+        trial: &BundleProjection,
+    ) -> bool {
+        // A region the object limit left collapsed is reported as pending.
+        let pending = |output: &BundleProjection| {
+            output
+                .continuations
+                .iter()
+                .filter_map(|continuation| match continuation {
+                    Continuation::PendingChildren { parent } => Some(parent.clone()),
+                    _ => None,
+                })
+                .collect::<BTreeSet<String>>()
+        };
+        !pending(trial).is_subset(&pending(before))
     }
     fn hidden_structure(
         &mut self,

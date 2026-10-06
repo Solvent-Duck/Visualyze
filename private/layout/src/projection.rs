@@ -495,10 +495,6 @@ impl ViewState {
         self.planned.insert(id.into());
     }
 
-    pub(crate) fn plan_close(&mut self, id: &str) {
-        self.planned.remove(id);
-    }
-
     /// Boxes opened by the planner on this working copy.
     pub fn planned_ids(&self) -> &BTreeSet<String> {
         &self.planned
@@ -820,7 +816,7 @@ fn project_with(
     // Advisory only; diagnostics are not part of the projection key.
     projection
         .diagnostics
-        .extend(crate::noise::visual_noise(&projection).advisory());
+        .extend(crate::noise::advisories(&projection));
     Ok(projection)
 }
 
