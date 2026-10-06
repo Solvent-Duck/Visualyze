@@ -218,6 +218,12 @@ them:
   the lowest region containing both ends. Automatic opening goes one level below
   the focused view, and each candidate opens on its own interior's noise alone,
   so a sibling's expansion never closes it (except at the 250-object guard).
+- Lines that cross an expanded box are bundled at its boundary. In the parent,
+  one trunk runs between the outer boxes, routed exactly as the collapsed line
+  would be. Inside each expanded box, a branch runs from the trunk's boundary
+  point to each inner endpoint. Opening a box therefore never changes its
+  parent's lines. Noise counts a trunk once in the parent and each branch inside
+  its box. Where no legal branch exists, the bundle keeps per-edge routes.
 - `peer_ceiling` and `group_target` remain on saved views as ignored legacy
   fields so older files still load.
 - The page-size estimate ignores connectors, which are unknown before routing,
