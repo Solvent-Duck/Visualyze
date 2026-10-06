@@ -1082,6 +1082,8 @@ fn routing_units<'a>(
             .iter()
             .map(|edge| bundle_outer(boxes, edge))
             .collect();
+        // A member may run between the outer boxes themselves (a relation of
+        // the opened box beside its children's); its path is the trunk alone.
         let consistent = outer
             .first()
             .and_then(|first| first.clone())
@@ -1089,7 +1091,7 @@ fn routing_units<'a>(
             .filter(|(source, target)| {
                 members
                     .iter()
-                    .all(|edge| &edge.source != source || &edge.target != target)
+                    .any(|edge| &edge.source != source || &edge.target != target)
             });
         match consistent {
             Some((source, target)) => units.push(RoutingUnit::Bundle(BundlePlan {

@@ -869,26 +869,7 @@ fn project_provider_once(
                 .push(relation.id.clone());
         }
     }
-    let mut edges: Vec<Edge> = edge_groups
-        .into_iter()
-        .map(|((source, target, kind, aspect), mut semantic_ids)| {
-            semantic_ids.sort();
-            Edge {
-                id: semantic_ids[0].clone(),
-                bundle: crate::projection::bundle_key(
-                    &nodes,
-                    &source,
-                    &target,
-                    &kind,
-                    aspect.as_deref(),
-                ),
-                source,
-                target,
-                semantic_ids,
-            }
-        })
-        .collect();
-    edges.sort_by(|a, b| a.id.cmp(&b.id));
+    let edges = crate::projection::bundled_edges(&nodes, edge_groups);
     let complete = request.child_page == 0
         && request.children_after.is_none()
         && request.boundary_after.is_none()

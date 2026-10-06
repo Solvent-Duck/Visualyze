@@ -757,20 +757,7 @@ fn project_with(
                 .push(relation.id.clone());
         }
     }
-    let mut edges: Vec<Edge> = edge_groups
-        .into_iter()
-        .map(|((source, target, kind, aspect), mut semantic_ids)| {
-            semantic_ids.sort();
-            Edge {
-                id: semantic_ids[0].clone(),
-                bundle: bundle_key(&nodes, &source, &target, &kind, aspect.as_deref()),
-                source,
-                target,
-                semantic_ids,
-            }
-        })
-        .collect();
-    edges.sort_by(|a, b| a.id.cmp(&b.id));
+    let edges = bundled_edges(&nodes, edge_groups);
     if view.policy == LayoutPolicy::Pipeline {
         rank_pipeline(&mut nodes, &edges);
     }
@@ -1236,6 +1223,47 @@ fn display_enclosures<'a>(node_of: &impl Fn(&str) -> Option<&'a Node>, id: &str)
         next = node.parent.as_deref().and_then(node_of);
     }
     chain
+}
+
+/// Turn aggregation groups `(source, target, kind, aspect) -> relation ids`
+/// into edges sorted by id, each tagged with its bundle key. An edge that
+/// already runs between the outer boxes joins the bundle of the same line when
+/// one exists (a relation of the opened box itself beside its children's), so
+/// the parent still shows exactly the collapsed line.
+pub(crate) fn bundled_edges(
+    nodes: &BTreeMap<String, Node>,
+    groups: BTreeMap<(String, String, String, Option<String>), Vec<String>>,
+) -> Vec<Edge> {
+    let crossing: Vec<Option<String>> = groups
+        .keys()
+        .map(|(source, target, kind, aspect)| {
+            bundle_key(nodes, source, target, kind, aspect.as_deref())
+        })
+        .collect();
+    let lines: BTreeSet<&String> = crossing.iter().flatten().collect();
+    let mut edges: Vec<Edge> = groups
+        .iter()
+        .zip(&crossing)
+        .map(
+            |(((source, target, kind, aspect), semantic_ids), crossing)| {
+                let mut semantic_ids = semantic_ids.clone();
+                semantic_ids.sort();
+                let bundle = crossing.clone().or_else(|| {
+                    let line = encode_bundle_key(source, target, kind, aspect.as_deref());
+                    lines.contains(&line).then_some(line)
+                });
+                Edge {
+                    id: semantic_ids[0].clone(),
+                    bundle,
+                    source: source.clone(),
+                    target: target.clone(),
+                    semantic_ids,
+                }
+            },
+        )
+        .collect();
+    edges.sort_by(|a, b| a.id.cmp(&b.id));
+    edges
 }
 
 /// The outer boxes `(S', T')` of an edge between `source` and `target`, or
@@ -2187,6 +2215,60 @@ mod tests {
             projection_key(&first.root, &nodes, &first.edges, &view),
             projection_key(&first.root, &nodes, &changed, &view)
         );
+    }
+
+    #[test]
+    fn a_relation_of_the_opened_box_itself_joins_its_childrens_bundle() {
+        // Open `a` has its own relation to `b` beside its child's, as a
+        // package does beside its files; a different kind stays separate.
+        let node = |id: &str, parent: Option<&str>, solid: bool| Node {
+            id: id.into(),
+            semantic_ids: vec![id.into()],
+            parent: parent.map(Into::into),
+            kind: NodeKind::Service,
+            band: 1,
+            min_size: Point::new(4, 4, 4),
+            max_size: Point::new(40, 40, 40),
+            preferred_size: Point::new(8, 8, 8),
+            solid,
+        };
+        let nodes: BTreeMap<_, _> = [
+            node("root", None, false),
+            node("a", Some("root"), false),
+            node("a1", Some("a"), true),
+            node("b", Some("root"), true),
+        ]
+        .into_iter()
+        .map(|node| (node.id.clone(), node))
+        .collect();
+        let group = |source: &str, target: &str, kind: &str, id: &str| {
+            (
+                (source.to_owned(), target.to_owned(), kind.to_owned(), None),
+                vec![id.to_owned()],
+            )
+        };
+        let edges = bundled_edges(
+            &nodes,
+            [
+                group("a", "b", "Requests", "own"),
+                group("a1", "b", "Requests", "child"),
+                group("a", "b", "Reads", "other"),
+            ]
+            .into_iter()
+            .collect(),
+        );
+        let bundle = |id: &str| {
+            edges
+                .iter()
+                .find(|edge| edge.id == id)
+                .unwrap()
+                .bundle
+                .clone()
+        };
+        let line = encode_bundle_key("a", "b", "Requests", None);
+        assert_eq!(bundle("own"), Some(line.clone()));
+        assert_eq!(bundle("child"), Some(line));
+        assert_eq!(bundle("other"), None);
     }
 
     #[test]

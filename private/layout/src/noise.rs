@@ -319,10 +319,13 @@ fn region_counts(
         if !include_references && (is_reference(&edge.source) || is_reference(&edge.target)) {
             continue;
         }
-        let ends = edge
-            .bundle
-            .as_deref()
-            .and_then(|key| bundle_ends(&node_of, &edge.source, &edge.target).zip(Some(key)));
+        // A member that runs between the outer boxes themselves (a relation of
+        // the opened box beside its children's) is the trunk alone.
+        let ends = edge.bundle.as_deref().map(|key| {
+            let ends = bundle_ends(&node_of, &edge.source, &edge.target)
+                .unwrap_or_else(|| (edge.source.clone(), edge.target.clone()));
+            (ends, key)
+        });
         let Some(((outer_source, outer_target), key)) = ends else {
             counts
                 .get_mut(lowest_common(&edge.source, &edge.target))
@@ -891,6 +894,19 @@ mod tests {
             regions["a"].connectors, 2,
             "the router draws a branch from each"
         );
+    }
+
+    #[test]
+    fn a_member_between_the_outer_boxes_is_the_trunk_not_another_line() {
+        // `a` is open; its own relation to `b` joins its child's bundle.
+        let mut p = nested(1);
+        p.edges = vec![
+            bundle_edge("own", "a", "b", Some("a>b")),
+            bundle_edge("child", "a0", "b", Some("a>b")),
+        ];
+        let regions = region_noise(&p);
+        assert_eq!(regions["root"].connectors, 1, "one trunk");
+        assert_eq!(regions["a"].connectors, 1, "one branch, from a0");
     }
 
     #[test]
