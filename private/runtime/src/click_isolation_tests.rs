@@ -155,6 +155,40 @@ mod click_isolation_tests {
     }
 
     #[test]
+    fn backspace_leaves_isolation_before_the_navigation_trail() {
+        let model = visualyze_model::architecture::Architecture::from_json(include_bytes!(
+            "../../../public/examples/sketch-crud.json"
+        ))
+        .unwrap();
+        let mut app = action_app(LayoutInput::snapshot(model), ViewState::default());
+        let id = {
+            let v = app.world().resource::<Viewer>();
+            let (p, _) = v.accepted.as_ref().unwrap();
+            p.nodes
+                .iter()
+                .find(|n| n.id != p.root && n.solid)
+                .unwrap()
+                .id
+                .clone()
+        };
+        complete(&mut app, ViewerAction::Enter(id.clone()));
+        {
+            let mut v = app.world_mut().resource_mut::<Viewer>();
+            let mut last = None;
+            let click = tap(Some(&id), &mut last, 0);
+            assert!(apply_click(&mut v, click).is_none());
+            assert!(v.isolate);
+        }
+        complete(&mut app, ViewerAction::Back);
+        let v = app.world().resource::<Viewer>();
+        assert!(!v.isolate, "the first Backspace clears isolation");
+        assert_eq!(v.view.focus.as_deref(), Some(id.as_str()), "and stays put");
+        complete(&mut app, ViewerAction::Back);
+        let v = app.world().resource::<Viewer>();
+        assert_eq!(v.view.focus, None, "the next Backspace returns");
+    }
+
+    #[test]
     fn mouse_release_decides_the_click_and_a_drag_never_changes_isolation() {
         use bevy::input::mouse::AccumulatedMouseMotion;
         let mut app = App::new();

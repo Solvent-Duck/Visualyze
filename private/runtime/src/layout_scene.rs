@@ -529,7 +529,7 @@ struct InspectorViewport {
 }
 const DETAILS_BOTTOM: f32 = 60.0;
 const DETAILS_COLLAPSED_HEIGHT: f32 = 36.0;
-const ALL_CONTROLS: &str = "Controls\nClick: select and isolate | click empty space: clear | double-click: enter | Tab: select | Enter: enter | Backspace: return | /: search\nPageUp / PageDown: children | Shift+PageUp / PageDown: relationship pages\nE: expand / collapse | M: mark | G: group | Shift+G: ungroup | Shift+M: clear marks | Z: semantic zoom\nSpace: separate layers | I: isolate | J / K: select path | X: expand both ends of path | Shift+I: clear path | B / N: browse claims\nP: pin | Shift+P: open pin origin | [ / ]: layer | L: policy | C: semantic view | O: reorganize | V: preview | A: apply | D: dismiss | U: undo\nDrag: orbit | Wheel: zoom | T: top | F: side | R: home | F1: Details | F5: reload | Esc: cancel\nOver open Details: wheel or PageUp / PageDown scrolls; Home / End reaches the beginning / end.";
+const ALL_CONTROLS: &str = "Controls\nClick: select and isolate | click empty space: clear | double-click: enter | Tab: select | Enter: enter | Backspace: clear isolation, then return | /: search\nPageUp / PageDown: children | Shift+PageUp / PageDown: relationship pages\nE: expand / collapse | M: mark | G: group | Shift+G: ungroup | Shift+M: clear marks | Z: semantic zoom\nSpace: separate layers | I: isolate | J / K: select path | X: expand both ends of path | Shift+I: clear path | B / N: browse claims\nP: pin | Shift+P: open pin origin | [ / ]: layer | L: policy | C: semantic view | O: reorganize | V: preview | A: apply | D: dismiss | U: undo\nDrag: orbit | Wheel: zoom | T: top | F: side | R: home | F1: Details | F5: reload | Esc: cancel\nOver open Details: wheel or PageUp / PageDown scrolls; Home / End reaches the beginning / end.";
 #[derive(Component)]
 struct NavigationText;
 #[derive(Component)]
@@ -1154,6 +1154,14 @@ fn apply_action(
             return Ok(true);
         }
         ViewerAction::Back => {
+            // Backspace first leaves isolation, then the navigation trail.
+            if v.isolate {
+                v.isolate = false;
+                v.selected_relation = None;
+                v.dirty = true;
+                v.message = "Isolation cleared.".into();
+                return Ok(false);
+            }
             v.view.save_frame_pins();
             if !v.view.back() {
                 v.message = "Already at the start of this navigation trail.".into();
@@ -3764,8 +3772,12 @@ fn poll(
                     },
                     ..default()
                 });
+                // The focused root encloses the whole view and is named by the
+                // navigation trail; drawing its outline adds nothing.
                 let parts = if b.solid {
                     vec![primitives::block(half)]
+                } else if n.id == p.root {
+                    vec![]
                 } else {
                     primitives::frame(half)
                 };
