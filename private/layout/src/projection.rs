@@ -4,7 +4,10 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use visualyze_model::architecture::{Architecture, EntityKind, Relation, RelationKind};
 
-use crate::{Edge, LayoutError, Point};
+use crate::{
+    Edge, LayoutError, Point,
+    noise::{FALLBACK_NOISE, NOISE_THRESHOLD, layer_capacity, level_noise},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum NodeKind {
@@ -115,7 +118,14 @@ pub struct ViewState {
     #[serde(default)]
     pub dismissed_groups: BTreeSet<String>,
     pub policy: LayoutPolicy,
+    /// Legacy, ignored by projection (ADR 0007): the peer ceiling was replaced
+    /// by noise-driven paging and fallback grouping. Kept so that saved views
+    /// that carry it still load, and still written so older builds can read
+    /// what this one saves.
+    #[serde(default = "legacy_peer_ceiling")]
     pub peer_ceiling: usize,
+    /// Legacy, ignored by projection (ADR 0007); see `peer_ceiling`.
+    #[serde(default = "legacy_group_target")]
     pub group_target: usize,
     pub visible_budget: usize,
     breadcrumbs: Vec<Option<String>>,
@@ -141,8 +151,8 @@ impl Default for ViewState {
             group_overrides: Vec::new(),
             dismissed_groups: BTreeSet::new(),
             policy: LayoutPolicy::Crud,
-            peer_ceiling: 64,
-            group_target: 32,
+            peer_ceiling: legacy_peer_ceiling(),
+            group_target: legacy_group_target(),
             visible_budget: 250,
             breadcrumbs: Vec::new(),
             auto_expanded: BTreeSet::new(),
@@ -153,6 +163,14 @@ impl Default for ViewState {
 
 fn semantic_zoom_default() -> bool {
     true
+}
+
+fn legacy_peer_ceiling() -> usize {
+    64
+}
+
+fn legacy_group_target() -> usize {
+    32
 }
 
 impl ViewState {
@@ -191,10 +209,10 @@ impl ViewState {
         }
     }
 
-    pub fn with_budgets(peer_ceiling: usize, group_target: usize, visible_budget: usize) -> Self {
+    /// A default view with a different hard visible-object budget, the only
+    /// readability-independent limit left (ADR 0007).
+    pub fn with_visible_budget(visible_budget: usize) -> Self {
         Self {
-            peer_ceiling,
-            group_target,
             visible_budget,
             ..Self::default()
         }
@@ -520,8 +538,27 @@ struct Item {
 }
 
 /// Project a validated snapshot without reinterpreting any relation or evidence.
+///
+/// A level that is too noisy to read (ADR 0007: estimated noise above
+/// `FALLBACK_NOISE`) gets suggested fallback groups; a snapshot has no child
+/// paging, so grouping is the only way to bring such a level down.
 pub fn project(model: &Architecture, view: &ViewState) -> Result<Projection, LayoutError> {
-    if view.group_target < 2 || view.peer_ceiling < view.group_target || view.visible_budget == 0 {
+    project_with(model, view, true)
+}
+
+/// The projection exactly as supplied: no fallback grouping, whatever the
+/// noise. Producer advice and comparison tools measure the structure the
+/// producer gave.
+pub fn project_supplied(model: &Architecture, view: &ViewState) -> Result<Projection, LayoutError> {
+    project_with(model, view, false)
+}
+
+fn project_with(
+    model: &Architecture,
+    view: &ViewState,
+    fallback_groups: bool,
+) -> Result<Projection, LayoutError> {
+    if view.visible_budget == 0 {
         return Err(LayoutError::Invalid("invalid presentation budgets".into()));
     }
     if view
@@ -639,12 +676,19 @@ pub fn project(model: &Architecture, view: &ViewState) -> Result<Projection, Lay
     let parents: Vec<_> = children.keys().cloned().collect();
     for parent in parents {
         let peers = children[&parent].clone();
-        if peers.len() <= view.peer_ceiling
+        if !fallback_groups
             || !matches!(items[&parent].kind, NodeKind::Scope | NodeKind::Group)
+            || level_noise(&peer_bands(&peers, &items, view)).total <= FALLBACK_NOISE
         {
             continue;
         }
-        for members in coarsen(&peers, &relations, view.group_target) {
+        // Group so that one layer of groups reads at `NOISE_THRESHOLD`.
+        let groups_wanted = layer_capacity(NOISE_THRESHOLD);
+        for members in coarsen(
+            &peers,
+            &relations,
+            peers.len().div_ceil(groups_wanted).max(2),
+        ) {
             let id = fresh_id(&items, &format!("view:group:{}:{}", parent, members[0]));
             let group = DisplayGroup {
                 id,
@@ -799,6 +843,27 @@ pub fn project(model: &Architecture, view: &ViewState) -> Result<Projection, Lay
         .diagnostics
         .extend(crate::noise::visual_noise(&projection).advisory());
     Ok(projection)
+}
+
+/// Boxes per layer for the peers of one level, before nodes exist. This is an
+/// estimate: it uses each peer's own layer under the view's policy and layer
+/// preferences, and ignores layers a `Pipeline` ranking assigns from edges
+/// later.
+fn peer_bands(
+    peers: &[String],
+    items: &BTreeMap<String, Item>,
+    view: &ViewState,
+) -> BTreeMap<i32, usize> {
+    let mut bands = BTreeMap::new();
+    for id in peers {
+        let band = view
+            .layer_preferences
+            .get(id)
+            .copied()
+            .unwrap_or_else(|| make_node(id, &items[id], None, true, view).band);
+        *bands.entry(band).or_default() += 1;
+    }
+    bands
 }
 
 fn child_index(items: &BTreeMap<String, Item>) -> BTreeMap<String, Vec<String>> {
@@ -1126,6 +1191,33 @@ mod tests {
         Architecture::from_json(include_bytes!("../../../public/examples/notes-crud.json")).unwrap()
     }
 
+    /// The notes example with 25 more services in its scope: 26 peers share one
+    /// layer, so the level is noisy enough (above `FALLBACK_NOISE`) for
+    /// suggested fallback groups.
+    fn wide_notes() -> Architecture {
+        Architecture::from_json(&serde_json::to_vec(&wide_notes_json()).unwrap()).unwrap()
+    }
+
+    fn wide_notes_json() -> serde_json::Value {
+        let mut value: serde_json::Value =
+            serde_json::from_slice(include_bytes!("../../../public/examples/notes-crud.json"))
+                .unwrap();
+        for i in 0..25 {
+            let id = format!("service:extra:{i:02}");
+            value["entities"].as_array_mut().unwrap().push(serde_json::json!({
+                "id": id, "kind": "service", "label": id, "boundary": "internal", "basis": "declared"
+            }));
+            value["relations"]
+                .as_array_mut()
+                .unwrap()
+                .push(serde_json::json!({
+                    "id": format!("rel:contains-{id}"), "source": "scope:notes", "target": id,
+                    "kind": "contains", "basis": "declared"
+                }));
+        }
+        value
+    }
+
     fn protected_group(index: usize, suggested: bool) -> DisplayGroup {
         DisplayGroup {
             id: format!("view:group:{index:03}"),
@@ -1313,13 +1405,13 @@ mod tests {
 
     #[test]
     fn protected_snapshot_suggestion_keeps_its_supplied_members_after_eviction() {
-        let mut view = ViewState::with_budgets(3, 2, 250);
-        let first = project(&notes(), &view).unwrap();
+        let mut view = ViewState::default();
+        let first = project(&wide_notes(), &view).unwrap();
         let protected = first.suggested_groups.clone();
         assert!(!protected.is_empty());
         view.retained_groups = (0..64).map(|i| protected_group(i, true)).collect();
         view.protect_groups(&protected).unwrap();
-        let next = project(&notes(), &view).unwrap();
+        let next = project(&wide_notes(), &view).unwrap();
         assert_eq!(next.semantic_to_display, first.semantic_to_display);
         let mut expected = first.suggested_groups.clone();
         for group in &mut expected {
@@ -1594,15 +1686,15 @@ mod tests {
 
     #[test]
     fn grouping_and_input_order_do_not_change_semantic_membership() {
-        let mut view = ViewState::with_budgets(3, 2, 250);
-        let p = project(&notes(), &view).unwrap();
+        let mut view = ViewState::default();
+        let p = project(&wide_notes(), &view).unwrap();
         assert!(!p.suggested_groups.is_empty());
         assert!(p.suggested_groups.iter().all(|g| g.suggested));
         assert_eq!(
             p.semantic_to_display.len(),
-            notes().snapshot().entities.len()
+            wide_notes().snapshot().entities.len()
         );
-        assert_eq!(p.key, project(&notes(), &view).unwrap().key);
+        assert_eq!(p.key, project(&wide_notes(), &view).unwrap().key);
         // Connectors aggregate parallel relations, so membership (not the
         // edge count) must account for every supplied non-structural relation.
         let count = p
@@ -1623,11 +1715,9 @@ mod tests {
         );
         assert_eq!(
             p.relation_metadata.len(),
-            notes().snapshot().relations.len()
+            wide_notes().snapshot().relations.len()
         );
-        let mut json: serde_json::Value =
-            serde_json::from_slice(include_bytes!("../../../public/examples/notes-crud.json"))
-                .unwrap();
+        let mut json = wide_notes_json();
         json["entities"].as_array_mut().unwrap().reverse();
         json["relations"].as_array_mut().unwrap().reverse();
         let reordered = Architecture::from_json(&serde_json::to_vec(&json).unwrap()).unwrap();
@@ -1665,8 +1755,8 @@ mod tests {
 
     #[test]
     fn grouped_snapshot_members_preserve_explicit_expansion_without_opening_siblings() {
-        let base = ViewState::with_budgets(3, 2, 250);
-        let collapsed = project(&notes(), &base).unwrap();
+        let base = ViewState::default();
+        let collapsed = project(&wide_notes(), &base).unwrap();
         for mode in 0..3 {
             let mut view = base.clone();
             if mode == 1 {
@@ -1680,7 +1770,7 @@ mod tests {
                 });
             }
             view.set_expanded("service:notes", true);
-            let projection = project(&notes(), &view).unwrap();
+            let projection = project(&wide_notes(), &view).unwrap();
             assert_eq!(
                 projection.semantic_to_display["interface:notes"],
                 "interface:notes"

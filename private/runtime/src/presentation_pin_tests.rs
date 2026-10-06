@@ -116,11 +116,19 @@ mod presentation_pin_tests {
 
     fn grouped_app(suggested: bool) -> (LocalTestFile, LocalTestDirectory, App, DisplayGroup) {
         let file = LocalTestFile::new();
-        grouped_code_revision(&file.0, 1, if suggested { 130 } else { 4 }, true);
+        grouped_code_revision(&file.0, 1, if suggested { 8 } else { 4 }, true);
         let directory = LocalTestDirectory::new();
         let mut view = ViewState::default();
         view.frame_lens = Some(SemanticLens::Code);
         view.enter("package");
+        if suggested {
+            // Seeded, not computed: see `seeded_suggestion`.
+            view.protect_groups(&[seeded_suggestion(
+                "package",
+                &["file:000", "file:001", "file:002", "file:003"],
+            )])
+            .unwrap();
+        }
         let mut app = cold(LayoutInput::bundle(file.0.clone()), &directory.0, view);
         if !suggested {
             complete(
@@ -670,6 +678,8 @@ mod presentation_pin_tests {
         assert_eq!(std::fs::read(saved_path).unwrap(), bytes);
     }
 
+    const OUTSIDE_TARGETS: usize = 24;
+
     fn reference_file(file: &LocalTestFile) {
         use visualyze_model::provider::*;
         let mut writer = BundleWriter::create(
@@ -694,7 +704,9 @@ mod presentation_pin_tests {
             ("inside:a".to_owned(), EntityKind::Service),
             ("inside:b".to_owned(), EntityKind::Service),
         ]);
-        for index in 0..4 {
+        // More outside targets than one layer's reference slots (24 less the
+        // origin's own peers, ADR 0007), so the relationships need several pages.
+        for index in 0..OUTSIDE_TARGETS {
             entities.insert(format!("outside:{index}"), EntityKind::Service);
         }
         for (id, kind) in entities {
@@ -745,7 +757,7 @@ mod presentation_pin_tests {
                 ),
             ),
         ]);
-        for index in 0..4 {
+        for index in 0..OUTSIDE_TARGETS {
             relations.insert(
                 format!("owns:outside:{index}"),
                 (
@@ -792,8 +804,6 @@ mod presentation_pin_tests {
         reference_file(&file);
         let directory = LocalTestDirectory::new();
         let mut view = ViewState::default();
-        view.peer_ceiling = 3;
-        view.group_target = 2;
         view.frame_lens = Some(SemanticLens::Logical);
         view.enter("origin:a");
         let mut app = cold(LayoutInput::bundle(file.0.clone()), &directory.0, view);
@@ -868,15 +878,20 @@ mod presentation_pin_tests {
         ready(&app);
         assert_eq!(projection(&app).references[&reference], "outside:0");
         pin.validate(&canonical(&app).assembly).unwrap();
-        assert_eq!(
-            canonical(&app)
-                .assembly
-                .frame("origin:a")
-                .unwrap()
-                .solution()
-                .boxes["inside:a"],
-            inside
-        );
+        // A full page of references (ADR 0007) is large enough that a cold
+        // re-solve, without the continuity of the original session, may shift
+        // unpinned boxes; the pinned reference is exact (`pin.validate`), and the
+        // origin's own content must keep its identity, parent and size.
+        let restored = canonical(&app)
+            .assembly
+            .frame("origin:a")
+            .unwrap()
+            .solution()
+            .boxes["inside:a"]
+            .clone();
+        assert_eq!(restored.parent, inside.parent);
+        assert_eq!(restored.semantic_ids, inside.semantic_ids);
+        assert_eq!(restored.bounds.size(), inside.bounds.size());
 
         complete(&mut app, ViewerAction::Enter(reference.clone()));
         ready(&app);

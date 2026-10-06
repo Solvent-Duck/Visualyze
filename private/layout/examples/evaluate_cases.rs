@@ -11,7 +11,10 @@ use std::{
 use visualyze_layout::{
     Algorithm, LAYOUT_VERSION, LayoutRequest, LayoutSolution, Projection, QUALITY_VERSION,
     QualityProfile, measure,
-    noise::visual_noise,
+    noise::{
+        BOX_KNEE, CONNECTOR_KNEE, FALLBACK_NOISE, LAYER_KNEE, NOISE_THRESHOLD, layer_capacity,
+        visual_noise,
+    },
     projection::{LayoutPolicy, ViewState, project},
     provider_projection::{ProviderViewRequest, project_provider},
     quality::{NORMALIZATION, SCORING_WEIGHTS, ScoringWeights},
@@ -32,10 +35,18 @@ fn active_profile() -> Value {
             "routed_candidates": q.routed_candidates, "feedback_candidates": q.feedback_candidates,
             "size_candidates": q.size_candidates, "movement_weight": q.movement_weight},
         "work_budget": 32,
-        "projection": {"peer_ceiling": v.peer_ceiling, "group_target": v.group_target,
+        // ADR 0007: what to show is decided by visual noise, not by peer counts.
+        // `max_children` only caps a page, `visible_budget` is the one hard limit.
+        "projection": {"decision": "noise-driven",
             "visible_budget": v.visible_budget, "max_children": v.max_children,
+            "page_by_noise": v.page_by_noise,
             "max_relation_records": v.max_relation_records, "max_references": v.max_references,
-            "automatic_groups": v.automatic_groups, "load_focus_detail": v.load_focus_detail},
+            "automatic_groups": v.automatic_groups, "load_focus_detail": v.load_focus_detail,
+            "noise": {"box_knee": BOX_KNEE, "layer_knee": LAYER_KNEE,
+                "connector_knee": CONNECTOR_KNEE, "noise_threshold": NOISE_THRESHOLD,
+                "fallback_noise": FALLBACK_NOISE,
+                "single_layer_page": layer_capacity(FALLBACK_NOISE),
+                "fallback_group_count": layer_capacity(NOISE_THRESHOLD)}},
         "algorithms": ["Layered", "Floorplan", "Constrained", "Treemap"],
         "continuity": "reported separately; no predecessor in initial-placement cases",
         "normalization_equations": {

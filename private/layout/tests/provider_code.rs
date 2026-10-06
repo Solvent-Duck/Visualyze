@@ -3,7 +3,9 @@ use std::{
     path::PathBuf,
     sync::atomic::{AtomicBool, AtomicUsize, Ordering},
 };
-use visualyze_layout::provider_projection::{ProviderViewRequest, project_provider};
+use visualyze_layout::provider_projection::{
+    BundleProjection, ProviderViewRequest, project_provider,
+};
 use visualyze_model::provider::*;
 
 struct Fixture {
@@ -211,6 +213,136 @@ fn code_fixture_with_external_peers(
     }
 }
 
+/// A logical level that paging cannot make uniformly quiet. `hub` holds 128
+/// children in alternating layers (a datastore and a service per pair), so its
+/// first window of 128 measures as an even mix, then `tail` scopes in a single
+/// layer. Pages are cut from the even mix (38 children), so later pages made of
+/// tail services alone exceed the fallback noise and get suggested groups, while
+/// the earlier pages do not. Every tail service exposes one interface and calls
+/// the next tail service. With `outside_claims`, `outside` services beside `hub`
+/// are each called by one tail service, giving the hub many disjoint references;
+/// `inside_claims` adds pairs of tail services that attract each other.
+fn hub_fixture(tail: usize, outside: usize, outside_claims: bool) -> Fixture {
+    static NEXT: AtomicUsize = AtomicUsize::new(0);
+    let path = std::env::temp_dir().join(format!(
+        "visualyze-hub-projection-{}-{}.jsonl",
+        std::process::id(),
+        NEXT.fetch_add(1, Ordering::Relaxed)
+    ));
+    let mut writer = BundleWriter::create(
+        &path,
+        Manifest {
+            format: FORMAT_VERSION.into(),
+            model_id: "hub".into(),
+            revision: 3,
+            root_id: "root".into(),
+            profiles: vec![Profile::Architecture],
+            coverage: Coverage::Complete,
+            scope_description: "Mixed-layer level fixture".into(),
+            omissions: vec![],
+        },
+        Limits::default(),
+    )
+    .unwrap();
+    let mut entities = BTreeMap::new();
+    let mut relations = BTreeMap::new();
+    let mut add_entity = |id: String, kind| {
+        entities.insert(
+            id.clone(),
+            BundleRecord::Entity(EntityRecord {
+                summary: EntitySummary {
+                    id: id.clone(),
+                    kind,
+                    label: id,
+                    boundary: Boundary::Internal,
+                    claim: Claim::declared(),
+                },
+                detail: None,
+            }),
+        );
+    };
+    let mut add_relation = |kind, source: &str, target: &str| {
+        let id = format!("r:{}:{source}:{target}", format!("{kind:?}").to_lowercase());
+        relations.insert(
+            id.clone(),
+            BundleRecord::Relation(RelationRecord {
+                id,
+                kind,
+                source: source.into(),
+                target: target.into(),
+                claim: Claim::declared(),
+                label: None,
+                aspect: None,
+            }),
+        );
+    };
+    add_entity("root".into(), EntityKind::Scope);
+    add_entity("hub".into(), EntityKind::Scope);
+    add_relation(RelationKind::Contains, "root", "hub");
+    for i in 0..64 {
+        let (store, service) = (format!("m:{i:03}:d"), format!("m:{i:03}:s"));
+        add_entity(store.clone(), EntityKind::Datastore);
+        add_entity(service.clone(), EntityKind::Service);
+        add_relation(RelationKind::Contains, "hub", &store);
+        add_relation(RelationKind::Contains, "hub", &service);
+        add_relation(RelationKind::Reads, &service, &store);
+    }
+    for j in 0..tail {
+        let scope = format!("t:{j:03}");
+        let service = format!("t:{j:03}:s");
+        add_entity(scope.clone(), EntityKind::Scope);
+        add_entity(service.clone(), EntityKind::Service);
+        add_relation(RelationKind::Contains, "hub", &scope);
+        add_relation(RelationKind::Contains, &scope, &service);
+        if j + 1 < tail {
+            add_relation(
+                RelationKind::Requests,
+                &service,
+                &format!("t:{:03}:s", j + 1),
+            );
+        }
+    }
+    for k in 0..outside {
+        let id = format!("outside:{k:03}");
+        add_entity(id.clone(), EntityKind::Service);
+        add_relation(RelationKind::Contains, "root", &id);
+        if outside_claims {
+            add_relation(
+                RelationKind::Requests,
+                &format!("t:{:03}:s", k % tail.max(1)),
+                &id,
+            );
+        }
+    }
+    for entity in entities.into_values() {
+        writer.push(&entity).unwrap();
+    }
+    for relation in relations.into_values() {
+        writer.push(&relation).unwrap();
+    }
+    Fixture {
+        bundle: writer.finish().unwrap(),
+        path,
+    }
+}
+
+/// The noise-driven page size of `hub` (an even mix of two layers), and the
+/// first page that lies wholly in the single-layer tail.
+const HUB_PAGE: usize = 38;
+const HUB_TAIL_PAGE: usize = 4;
+
+fn hub_page(fixture: &mut Fixture, request: ProviderViewRequest) -> BundleProjection {
+    project_provider(
+        &mut fixture.bundle,
+        &ProviderViewRequest {
+            focus: Some("hub".into()),
+            ..request
+        },
+        &AtomicBool::new(false),
+    )
+    .unwrap()
+}
+
 #[test]
 fn collapsed_subtrees_aggregate_direction_and_keep_inspectable_original_membership() {
     let mut fixture = code_fixture();
@@ -267,17 +399,18 @@ fn code_child_pages_cover_every_file_without_expanding_neighbor_regions() {
     let mut fixture = code_fixture();
     let mut ids = BTreeSet::new();
     let mut keys = BTreeSet::new();
-    for child_page in 0..5 {
+    // 130 files share one layer, so noise (ADR 0007) pages them 24 at a time.
+    for child_page in 0..6 {
         let request = ProviderViewRequest {
             focus: Some("package:a".into()),
             child_page,
-            max_children: 32,
             automatic_groups: false,
             ..Default::default()
         };
         let projection =
             project_provider(&mut fixture.bundle, &request, &AtomicBool::new(false)).unwrap();
         assert_eq!(projection.total_children, 130);
+        assert_eq!(projection.child_page_size, 24);
         assert!(projection.graph.nodes.len() <= 34);
         assert!(keys.insert(projection.graph.key));
         for entity in projection
@@ -304,8 +437,7 @@ fn code_child_pages_cover_every_file_without_expanding_neighbor_regions() {
             &mut fixture.bundle,
             &ProviderViewRequest {
                 focus: Some("package:a".into()),
-                child_page: 5,
-                max_children: 32,
+                child_page: 6,
                 automatic_groups: false,
                 ..Default::default()
             },
@@ -461,7 +593,9 @@ fn reference_budget_pages_resume_before_overflow_and_reach_every_original_claim(
             projection.unrepresented_relation_ids.is_empty(),
             "loaded claims must all have displayed endpoints"
         );
-        assert!(projection.graph.references.len() <= 64);
+        // A focus without children leaves one layer's worth of slots (24) for
+        // references, whatever `max_references` allows.
+        assert!(projection.graph.references.len() <= 24);
         assert!(projection.graph.nodes.len() <= 250);
         let represented: BTreeSet<_> = projection
             .graph
@@ -496,7 +630,7 @@ fn reference_budget_pages_resume_before_overflow_and_reach_every_original_claim(
         }
         assert!(pages < 10, "bounded pages must advance");
     }
-    assert_eq!(pages, 3);
+    assert_eq!(pages, 6);
     assert_eq!(seen.len(), 131);
     assert!(seen.contains("fan:129"));
     assert!(seen.contains("call:a"));
@@ -506,45 +640,43 @@ fn reference_budget_pages_resume_before_overflow_and_reach_every_original_claim(
 #[test]
 fn immediate_peer_budget_preserves_groups_and_pages_every_disjoint_external_claim() {
     use visualyze_layout::provider_projection::Continuation;
-    let mut fixture = code_fixture_with_external_peers(false, 130, 96);
-    let cancelled = AtomicBool::new(false);
-    // Both ceilings use the same 128-summary window and 32-group target. The
-    // generous one exposes the provisional grouping before reference repair.
-    let provisional = project_provider(
-        &mut fixture.bundle,
-        &ProviderViewRequest {
-            focus: Some("package:a".into()),
-            peer_ceiling: 128,
-            ..Default::default()
-        },
-        &cancelled,
-    )
-    .unwrap();
-    assert_eq!(provisional.graph.suggested_groups.len(), 32);
-    assert_eq!(provisional.graph.references.len(), 64);
-    let mut request = ProviderViewRequest {
-        focus: Some("package:a".into()),
+    // Same hub and chain, without outside claims: nothing needs a second
+    // reference-budget pass, so these are the groups the abstraction should have.
+    let mut quiet = hub_fixture(200, 0, false);
+    let request = ProviderViewRequest {
+        child_page: HUB_TAIL_PAGE,
         ..Default::default()
     };
-    let first = project_provider(&mut fixture.bundle, &request, &cancelled).unwrap();
+    let baseline = hub_page(&mut quiet, request.clone());
+    assert!(!baseline.graph.suggested_groups.is_empty());
+    // Ninety-six disjoint outside peers want far more reference slots than a
+    // page of groups leaves in one layer's budget.
+    let mut fixture = hub_fixture(200, 96, true);
+    let cancelled = AtomicBool::new(false);
+    let first = hub_page(&mut fixture, request.clone());
     assert_eq!(
-        first.graph.suggested_groups,
-        provisional.graph.suggested_groups
+        first.graph.suggested_groups, baseline.graph.suggested_groups,
+        "the smaller reference sample must not resample the groups"
     );
-    assert_eq!(first.graph.references.len(), 32);
+    let slots = visualyze_layout::noise::layer_capacity(visualyze_layout::noise::FALLBACK_NOISE)
+        - first.graph.suggested_groups.len();
+    assert_eq!(first.graph.references.len(), slots);
     assert!(!first.complete);
     assert!(first.region_diagnostics.contains_key("view:peer-budget"));
     let first_key = first.graph.key;
     let groups = first.graph.suggested_groups;
-    request.retained_groups = groups.clone();
-    let expected: BTreeSet<String> =
-        ["call:a", "call:b", "call:c", "call:internal"]
-            .into_iter()
-            .map(str::to_owned)
-            .chain((0..96).flat_map(|i| {
-                ["inside", "outside"].map(|suffix| format!("external:{i:03}:{suffix}"))
-            }))
-            .collect();
+    let mut request = ProviderViewRequest {
+        focus: Some("hub".into()),
+        retained_groups: groups.clone(),
+        ..request
+    };
+    // Visible on this page: tail scopes 024..=061, so their chain claims and
+    // outside claims 024..=061 are the claims the page must eventually reach,
+    // plus the chain claims that enter the page from 023 and leave to 062.
+    let expected: BTreeSet<String> = (23..=61)
+        .map(|j| format!("r:requests:t:{j:03}:s:t:{:03}:s", j + 1))
+        .chain((24..=61).map(|k| format!("r:requests:t:{k:03}:s:outside:{k:03}")))
+        .collect();
     let mut seen = BTreeSet::new();
     let mut pages = 0;
     loop {
@@ -557,9 +689,9 @@ fn immediate_peer_budget_preserves_groups_and_pages_every_disjoint_external_clai
             page.graph
                 .nodes
                 .iter()
-                .filter(|node| { node.parent.as_ref() == Some(&page.graph.root) })
+                .filter(|node| node.parent.as_ref() == Some(&page.graph.root))
                 .count()
-                <= 64
+                <= 24 + 2
         );
         let represented: BTreeSet<_> = page
             .graph
@@ -574,7 +706,6 @@ fn immediate_peer_budget_preserves_groups_and_pages_every_disjoint_external_clai
             .filter(|relation| !relation.kind.is_ownership())
         {
             assert!(represented.contains(&relation.id));
-            assert_eq!(relation.claim.evidence_ids, ["evidence:code"]);
         }
         for id in represented.into_iter().filter(|id| expected.contains(*id)) {
             assert!(seen.insert(id.clone()), "resumed page repeated {id}");
@@ -589,9 +720,9 @@ fn immediate_peer_budget_preserves_groups_and_pages_every_disjoint_external_clai
         let Some(cursor) = next else { break };
         assert_ne!(request.boundary_after, Some(cursor.clone()));
         request.boundary_after = Some(cursor);
-        assert!(pages < 10, "every deferred claim must remain reachable");
+        assert!(pages < 20, "every deferred claim must remain reachable");
     }
-    assert!(pages >= 4);
+    assert!(pages >= 3);
     assert_eq!(seen, expected);
     request.boundary_after = None;
     let returned = project_provider(&mut fixture.bundle, &request, &cancelled).unwrap();
@@ -600,7 +731,7 @@ fn immediate_peer_budget_preserves_groups_and_pages_every_disjoint_external_clai
 }
 
 #[test]
-fn explicit_expansion_preserves_members_and_reports_its_peer_ceiling_exception() {
+fn explicit_expansion_is_never_refused_on_noise_and_respects_the_page_and_budget() {
     let mut fixture = code_fixture_with_external_peers(false, 130, 96);
     let group = visualyze_layout::projection::DisplayGroup {
         id: "view:local-group:expanded".into(),
@@ -608,76 +739,68 @@ fn explicit_expansion_preserves_members_and_reports_its_peer_ceiling_exception()
         members: (0..128).map(|i| format!("file:a:{i:03}")).collect(),
         suggested: false,
     };
-    let projection = project_provider(
-        &mut fixture.bundle,
-        &ProviderViewRequest {
-            focus: Some("package:a".into()),
-            groups: vec![group.clone()],
-            expanded: BTreeSet::from([group.id.clone()]),
-            ..Default::default()
-        },
-        &AtomicBool::new(false),
-    )
-    .unwrap();
-    assert_eq!(
+    let members_under = |projection: &visualyze_layout::provider_projection::BundleProjection| {
         projection
             .graph
             .nodes
             .iter()
-            .filter(|node| { node.parent.as_ref() == Some(&group.id) })
-            .count(),
-        128
-    );
-    assert!(projection.graph.nodes.len() <= 250);
-    assert!(projection.unrepresented_relation_ids.is_empty());
-    assert!(
-        projection.region_diagnostics[&format!("view:peer-budget:{}", group.id)]
-            .contains("requested expansion/grouping settings take priority")
-    );
+            .filter(|node| node.parent.as_ref() == Some(&group.id))
+            .count()
+    };
+    let request = ProviderViewRequest {
+        focus: Some("package:a".into()),
+        groups: vec![group.clone()],
+        expanded: BTreeSet::from([group.id.clone()]),
+        ..Default::default()
+    };
+    // Paged by noise: the expanded group shows the members on this page and
+    // says the rest are on other pages.
+    let paged = project_provider(&mut fixture.bundle, &request, &AtomicBool::new(false)).unwrap();
+    assert_eq!(members_under(&paged), 24);
+    assert!(paged.region_diagnostics[&group.id].contains("other child pages"));
+    assert!(paged.graph.nodes.len() <= 250);
+    // Without noise paging, explicit expansion shows all 128 members and is
+    // limited only by the visible-object budget.
+    let whole = project_provider(
+        &mut fixture.bundle,
+        &ProviderViewRequest {
+            page_by_noise: false,
+            ..request
+        },
+        &AtomicBool::new(false),
+    )
+    .unwrap();
+    assert_eq!(members_under(&whole), 128);
+    assert!(whole.graph.nodes.len() <= 250);
+    assert!(whole.unrepresented_relation_ids.is_empty());
 }
 
 #[test]
 fn explicit_semantic_expansion_opens_only_its_fresh_or_retained_containing_group() {
-    let mut fixture = code_fixture_with_external_peers(false, 130, 96);
-    let cancelled = AtomicBool::new(false);
+    let mut fixture = hub_fixture(200, 96, true);
     let base = ProviderViewRequest {
-        focus: Some("package:a".into()),
+        child_page: HUB_TAIL_PAGE,
         ..Default::default()
     };
-    let collapsed = project_provider(&mut fixture.bundle, &base, &cancelled).unwrap();
+    let collapsed = hub_page(&mut fixture, base.clone());
     for retained_groups in [Vec::new(), collapsed.graph.suggested_groups.clone()] {
-        let has_retained_groups = !retained_groups.is_empty();
         let request = ProviderViewRequest {
-            expanded: BTreeSet::from(["file:a:000".into()]),
+            expanded: BTreeSet::from(["t:030".into()]),
             retained_groups,
             ..base.clone()
         };
-        let provisional = project_provider(
-            &mut fixture.bundle,
-            &ProviderViewRequest {
-                peer_ceiling: 128,
-                ..request.clone()
-            },
-            &cancelled,
-        )
-        .unwrap();
-        let expanded = project_provider(&mut fixture.bundle, &request, &cancelled).unwrap();
+        let expanded = hub_page(&mut fixture, request);
         let group = expanded
             .graph
             .suggested_groups
             .iter()
-            .find(|group| group.members.iter().any(|member| member == "file:a:000"))
+            .find(|group| group.members.iter().any(|member| member == "t:030"))
             .unwrap();
+        // Expansion does not change which groups the page has.
         assert_eq!(
             expanded.graph.suggested_groups,
-            provisional.graph.suggested_groups
+            collapsed.graph.suggested_groups
         );
-        if has_retained_groups {
-            assert_eq!(
-                expanded.graph.suggested_groups,
-                collapsed.graph.suggested_groups
-            );
-        }
         assert!(
             expanded.region_diagnostics.contains_key("view:peer-budget"),
             "the regression must exercise the second reference-budget pass"
@@ -692,18 +815,11 @@ fn explicit_semantic_expansion_opens_only_its_fresh_or_retained_containing_group
             .map(|node| (node.id.as_str(), node))
             .collect();
         assert!(!nodes[group.id.as_str()].solid);
-        assert!(!nodes["file:a:000"].solid);
-        assert_eq!(nodes["file:a:000"].parent.as_ref(), Some(&group.id));
-        for i in 0..4 {
-            let id = format!("function:a:000:{i}");
-            assert_eq!(nodes[id.as_str()].parent.as_deref(), Some("file:a:000"));
-            assert_eq!(expanded.graph.semantic_to_display[&id], id);
-        }
-        for sibling in group
-            .members
-            .iter()
-            .filter(|id| id.as_str() != "file:a:000")
-        {
+        assert!(!nodes["t:030"].solid);
+        assert_eq!(nodes["t:030"].parent.as_ref(), Some(&group.id));
+        assert_eq!(nodes["t:030:s"].parent.as_deref(), Some("t:030"));
+        assert_eq!(expanded.graph.semantic_to_display["t:030:s"], "t:030:s");
+        for sibling in group.members.iter().filter(|id| id.as_str() != "t:030") {
             assert!(nodes[sibling.as_str()].solid);
             assert!(
                 !expanded
@@ -932,15 +1048,34 @@ fn local_groups_reject_cross_owner_duplicate_and_semantic_identity_collisions() 
 }
 
 #[test]
-fn automatic_groups_are_bounded_repeatable_enterable_and_dismissible() {
-    let mut fixture = code_fixture();
+fn suggested_groups_run_only_when_paging_cannot_quiet_a_page_and_are_bounded_repeatable_enterable_and_dismissible()
+ {
+    let mut fixture = hub_fixture(200, 0, false);
+    // Paging by noise is enough for the evenly mixed pages: no invented groups.
+    for child_page in 0..HUB_TAIL_PAGE - 1 {
+        let page = hub_page(
+            &mut fixture,
+            ProviderViewRequest {
+                child_page,
+                ..Default::default()
+            },
+        );
+        assert_eq!(page.child_page_size, HUB_PAGE);
+        assert!(page.graph.suggested_groups.is_empty(), "page {child_page}");
+        assert_eq!(page.graph.nodes.len(), HUB_PAGE + 1);
+    }
+    // A page of tail scopes alone is one noisy layer; only then does fallback
+    // grouping run, with a count one readable layer can hold.
     let request = ProviderViewRequest {
-        focus: Some("package:a".into()),
+        child_page: HUB_TAIL_PAGE,
         ..Default::default()
     };
-    let first = project_provider(&mut fixture.bundle, &request, &AtomicBool::new(false)).unwrap();
-    assert_eq!(first.graph.suggested_groups.len(), 32);
-    assert_eq!(first.child_page_size, 128);
+    let first = hub_page(&mut fixture, request.clone());
+    assert_eq!(first.child_page_size, HUB_PAGE);
+    let fallback =
+        visualyze_layout::noise::layer_capacity(visualyze_layout::noise::NOISE_THRESHOLD);
+    assert!(first.graph.suggested_groups.len() <= fallback);
+    assert!(first.graph.suggested_groups.len() >= 2);
     assert_eq!(
         first
             .graph
@@ -948,25 +1083,23 @@ fn automatic_groups_are_bounded_repeatable_enterable_and_dismissible() {
             .iter()
             .map(|group| group.members.len())
             .sum::<usize>(),
-        128
+        HUB_PAGE
     );
     assert!(
         first
             .graph
             .suggested_groups
             .iter()
-            .all(|group| group.suggested && group.members.len() <= 4)
+            .all(|group| group.suggested && group.members.len() <= HUB_PAGE.div_ceil(fallback))
     );
     let group = first.graph.suggested_groups[0].clone();
-    let repeated = project_provider(
-        &mut fixture.bundle,
-        &ProviderViewRequest {
+    let repeated = hub_page(
+        &mut fixture,
+        ProviderViewRequest {
             retained_groups: first.graph.suggested_groups.clone(),
             ..request.clone()
         },
-        &AtomicBool::new(false),
-    )
-    .unwrap();
+    );
     assert_eq!(first.graph.key, repeated.graph.key);
     let focused = project_provider(
         &mut fixture.bundle,
@@ -984,20 +1117,18 @@ fn automatic_groups_are_bounded_repeatable_enterable_and_dismissible() {
         focused
             .entities
             .keys()
-            .filter(|id| id.starts_with("file:"))
+            .filter(|id| id.starts_with("t:") && !id.ends_with(":s"))
             .all(|id| group.members.contains(id))
     );
     assert!(focused.graph.nodes.len() <= 250);
-    let expanded = project_provider(
-        &mut fixture.bundle,
-        &ProviderViewRequest {
+    let expanded = hub_page(
+        &mut fixture,
+        ProviderViewRequest {
             expanded: BTreeSet::from([group.id.clone()]),
             retained_groups: first.graph.suggested_groups.clone(),
             ..request.clone()
         },
-        &AtomicBool::new(false),
-    )
-    .unwrap();
+    );
     for id in &group.members {
         assert_eq!(
             expanded
@@ -1012,19 +1143,17 @@ fn automatic_groups_are_bounded_repeatable_enterable_and_dismissible() {
         );
         assert_eq!(
             fixture.bundle.owner_id(3, id).unwrap().as_deref(),
-            Some("package:a")
+            Some("hub")
         );
     }
-    let dismissed = project_provider(
-        &mut fixture.bundle,
-        &ProviderViewRequest {
+    let dismissed = hub_page(
+        &mut fixture,
+        ProviderViewRequest {
             retained_groups: first.graph.suggested_groups.clone(),
             dismissed_groups: BTreeSet::from([group.id.clone()]),
             ..request
         },
-        &AtomicBool::new(false),
-    )
-    .unwrap();
+    );
     assert!(
         !dismissed
             .graph
@@ -1044,7 +1173,8 @@ fn automatic_groups_are_bounded_repeatable_enterable_and_dismissible() {
 fn manual_groups_can_span_child_pages_without_creating_unreachable_members() {
     let mut fixture = code_fixture();
     let group = local_group("package:a", &["file:a:000", "file:a:129"]);
-    for child_page in [0, 4] {
+    // Pages hold 24 files: page 0 has file 000, page 5 (files 120-129) has file 129.
+    for child_page in [0, 5] {
         let projection = project_provider(
             &mut fixture.bundle,
             &ProviderViewRequest {
@@ -1327,22 +1457,20 @@ fn held_out_ai_deployment_view_navigates_independent_forest_and_preserves_instan
 
 #[test]
 fn retained_groups_from_prior_pages_do_not_prevent_bounded_coarsening_of_later_pages() {
-    let mut fixture = code_fixture_sized(false, 390);
+    // 300 tail scopes: tail pages 4 through 10 are each a full page.
+    let mut fixture = hub_fixture(300, 0, false);
     let mut retained = Vec::new();
     let mut seen = BTreeSet::new();
-    for child_page in 0..4 {
-        let p = project_provider(
-            &mut fixture.bundle,
-            &ProviderViewRequest {
-                focus: Some("package:a".into()),
+    for child_page in HUB_TAIL_PAGE..=10 {
+        let p = hub_page(
+            &mut fixture,
+            ProviderViewRequest {
                 child_page,
                 retained_groups: retained.clone(),
                 ..Default::default()
             },
-            &AtomicBool::new(false),
-        )
-        .unwrap();
-        assert_eq!(p.child_page_size, 128);
+        );
+        assert_eq!(p.child_page_size, HUB_PAGE);
         assert!(p.graph.nodes.len() <= 40);
         assert!(!p.graph.suggested_groups.is_empty());
         for group in &p.graph.suggested_groups {
@@ -1355,7 +1483,7 @@ fn retained_groups_from_prior_pages_do_not_prevent_bounded_coarsening_of_later_p
             retained.drain(..retained.len() - 64);
         }
     }
-    assert_eq!(seen.len(), 390);
+    assert_eq!(seen.len(), 7 * HUB_PAGE);
 }
 
 #[test]
@@ -1431,4 +1559,40 @@ fn production_navigation_preserves_group_membership_after_other_regions_fill_ret
         original.graph.key, returned.graph.key,
         "return must reuse the same validated geometry cache identity"
     );
+}
+
+#[test]
+fn a_focused_virtual_group_pages_by_noise_like_any_other_level() {
+    let mut fixture = code_fixture();
+    let members: Vec<_> = (0..60).map(|i| format!("file:a:{i:03}")).collect();
+    let group = visualyze_layout::projection::DisplayGroup {
+        id: "view:local-group:wide".into(),
+        parent: "package:a".into(),
+        members: members.clone(),
+        suggested: false,
+    };
+    let mut seen = BTreeSet::new();
+    for child_page in 0..3 {
+        let page = project_provider(
+            &mut fixture.bundle,
+            &ProviderViewRequest {
+                focus: Some(group.id.clone()),
+                groups: vec![group.clone()],
+                child_page,
+                ..Default::default()
+            },
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(page.total_children, 60);
+        assert_eq!(page.child_page_size, 24);
+        assert!(page.graph.suggested_groups.iter().all(|g| !g.suggested));
+        seen.extend(
+            page.entities
+                .keys()
+                .filter(|id| id.starts_with("file:a:"))
+                .cloned(),
+        );
+    }
+    assert_eq!(seen, members.into_iter().collect());
 }

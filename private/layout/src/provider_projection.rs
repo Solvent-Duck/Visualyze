@@ -12,6 +12,7 @@ use visualyze_model::provider::{
 
 use crate::{
     Edge, LayoutError, Node, NodeKind, Point, Projection, check_cancel,
+    noise::{FALLBACK_NOISE, NOISE_THRESHOLD, layer_capacity, level_noise, page_size_in_order},
     projection::{DisplayGroup, LayoutPolicy},
 };
 
@@ -21,18 +22,25 @@ pub struct ProviderViewRequest {
     /// None preserves the complete supplied ownership view for comparison tools.
     pub lens: Option<SemanticLens>,
     pub expected_revision: Option<u64>,
+    /// Hard cap on the children of one level shown at once. The actual page
+    /// size is chosen from the level's visual noise (ADR 0007) and never
+    /// exceeds this.
     pub max_children: usize,
+    /// Choose the page size from visual noise: a level whose estimated noise is
+    /// within `FALLBACK_NOISE` is shown whole, a noisier one is paged so that
+    /// one page is. When false, a level is cut only at `max_children`; producer
+    /// advice uses this to measure a level unpaged.
+    pub page_by_noise: bool,
     pub child_page: usize,
     pub boundary_after: Option<PageCursor>,
     pub expanded: BTreeSet<String>,
     pub groups: Vec<DisplayGroup>,
     pub retained_groups: Vec<DisplayGroup>,
     pub dismissed_groups: BTreeSet<String>,
+    /// Allow suggested fallback groups on a page whose noise is still above
+    /// `FALLBACK_NOISE` after paging.
     pub automatic_groups: bool,
-    /// Preferred immediate peers per assembly, including external references.
-    /// Explicit expansion can exceed it while respecting `visible_budget`.
-    pub peer_ceiling: usize,
-    pub group_target: usize,
+    /// The hard object limit; the only limit that is not about readability.
     pub visible_budget: usize,
     pub max_relation_records: usize,
     pub max_references: usize,
@@ -48,7 +56,8 @@ impl Default for ProviderViewRequest {
             focus: None,
             lens: None,
             expected_revision: None,
-            max_children: 32,
+            max_children: 128,
+            page_by_noise: true,
             child_page: 0,
             boundary_after: None,
             expanded: BTreeSet::new(),
@@ -56,8 +65,6 @@ impl Default for ProviderViewRequest {
             retained_groups: Vec::new(),
             dismissed_groups: BTreeSet::new(),
             automatic_groups: true,
-            peer_ceiling: 64,
-            group_target: 32,
             visible_budget: 250,
             max_relation_records: 4096,
             max_references: 64,
@@ -131,12 +138,14 @@ pub fn project_provider(
     // coarsening, then repeat the same bounded query only when necessary. Keep
     // the provisional groups exactly: changing the relationship sample must
     // not change the abstraction that determined this allowance.
-    // Two reference slots guarantee progress for a claim with two outside
-    // endpoints. Explicit expansion/grouping settings may therefore exceed the
-    // soft peer ceiling; the hard total-object budget remains unchanged.
+    // Immediate peers share one layer budget: what one layer may hold at
+    // `FALLBACK_NOISE` (ADR 0007). Two reference slots guarantee progress for a
+    // claim with two outside endpoints, so a full level may exceed that budget
+    // by them; the hard total-object budget remains unchanged.
+    let peer_allowance = layer_capacity(FALLBACK_NOISE);
     let reference_budget = request
         .max_references
-        .min(request.peer_ceiling.saturating_sub(semantic_peers).max(2));
+        .min(peer_allowance.saturating_sub(semantic_peers).max(2));
     let mut result = if provisional.graph.references.len() > reference_budget {
         let reduced = ProviderViewRequest {
             expected_revision: Some(provisional.graph.revision),
@@ -165,26 +174,6 @@ pub fn project_provider(
     } else {
         provisional
     };
-    let mut peer_counts: BTreeMap<&str, usize> = BTreeMap::new();
-    for node in &result.graph.nodes {
-        if node.id != result.graph.root {
-            *peer_counts
-                .entry(node.parent.as_deref().unwrap_or(&result.graph.root))
-                .or_default() += 1;
-        }
-    }
-    for (parent, count) in peer_counts {
-        if count > request.peer_ceiling {
-            let note = format!(
-                "{parent} has {count} immediate peers above the preferred ceiling of {}; requested expansion/grouping settings take priority, with two reference slots reserved for page progress.",
-                request.peer_ceiling
-            );
-            result.graph.diagnostics.push(note.clone());
-            result
-                .region_diagnostics
-                .insert(format!("view:peer-budget:{parent}"), note);
-        }
-    }
     // Advisory only, on the final graph; diagnostics are not part of the key.
     result
         .graph
@@ -207,10 +196,6 @@ fn project_provider_once(
         || request.max_references > 128
         || request.visible_budget == 0
         || request.visible_budget > 250
-        || request.peer_ceiling == 0
-        || request.peer_ceiling > 128
-        || request.group_target < 2
-        || request.group_target > 128
         || request.retained_groups.len() > 64
         || request.dismissed_groups.len() > 256
     {
@@ -323,7 +308,15 @@ fn project_provider_once(
     } else {
         child_count(provider, revision, request.lens, &root).map_err(provider_error)?
     };
-    let child_page_size = summary_window(request, total_children, focused_group.is_some());
+    let child_page_size = level_page_size(
+        provider,
+        request,
+        revision,
+        &root,
+        total_children,
+        focused_group.map(|group| group.members.as_slice()),
+        cancelled,
+    )?;
     let child_offset = request
         .child_page
         .checked_mul(child_page_size)
@@ -360,11 +353,9 @@ fn project_provider_once(
         let window = if parent == root {
             child_page_size
         } else {
-            summary_window(
-                request,
-                child_count(provider, revision, request.lens, &parent).map_err(provider_error)?,
-                false,
-            )
+            let count =
+                child_count(provider, revision, request.lens, &parent).map_err(provider_error)?;
+            level_page_size(provider, request, revision, &parent, count, None, cancelled)?
         };
         let limit = window.min(remaining);
         let mut children = if let (true, Some(group)) = (parent == root, focused_group) {
@@ -727,10 +718,7 @@ fn project_provider_once(
             .collect();
         for parent in parents_to_consider {
             check_cancel(cancelled)?;
-            if focused_group.is_some_and(|group| group.parent == parent)
-                || child_count(provider, revision, request.lens, &parent).map_err(provider_error)?
-                    <= request.peer_ceiling
-            {
+            if focused_group.is_some_and(|group| group.parent == parent) {
                 continue;
             }
             let peers: BTreeSet<_> = nodes
@@ -740,14 +728,20 @@ fn project_provider_once(
                 })
                 .map(|node| node.id.clone())
                 .collect();
-            let cap = nodes
-                .values()
-                .filter(|node| {
-                    node.parent.as_ref() == Some(&parent) && node.kind != NodeKind::Interface
-                })
-                .count()
-                .div_ceil(request.max_children.clamp(12, 40))
-                .clamp(2, request.group_target);
+            // Paging sizes a page from the level's first children, so a page
+            // can still be noisier than the estimate when its children sit
+            // in fewer layers. Only then does fallback grouping run. The
+            // check uses every loaded peer, supplied groups included, so that
+            // it does not change as retained suggestions come and go.
+            let mut bands = BTreeMap::new();
+            for id in &peers {
+                *bands.entry(nodes[id].band).or_default() += 1;
+            }
+            if level_noise(&bands).total <= FALLBACK_NOISE {
+                continue;
+            }
+            // Group so that one layer of groups reads at `NOISE_THRESHOLD`.
+            let cap = peers.len().div_ceil(layer_capacity(NOISE_THRESHOLD)).max(2);
             for members in coarsen_region(&peers, &occupied, &relations, &representatives, cap) {
                 if display_candidates.len() >= 64 {
                     break;
@@ -966,18 +960,53 @@ fn project_provider_once(
     })
 }
 
-fn summary_window(request: &ProviderViewRequest, child_count: usize, virtual_focus: bool) -> usize {
-    if request.automatic_groups
-        && request.max_children >= 12
-        && !virtual_focus
-        && child_count > request.peer_ceiling
-    {
-        // The summary window is bounded independently of total model size. It
-        // yields useful groups instead of adding a second tier above 2–3 peers.
-        128.min(request.visible_budget.saturating_sub(3).max(1))
-    } else {
-        request.max_children
+/// How many children of one level a page shows (ADR 0007). The size depends on
+/// the level alone, never on which page is shown, so paging stays consistent.
+///
+/// A level that one layer could hold at `FALLBACK_NOISE` is shown whole, as is
+/// any level whose estimated noise is within it. A noisier level is paged at
+/// the largest size whose pages are within `FALLBACK_NOISE` (`noise::
+/// page_size_in_order`): the proportional size for the layer mix, lowered until
+/// every whole page of the measured children fits. The measured children are
+/// the first `max_children` of the level, loaded from offset 0 in paging
+/// order; connectors are ignored, being unknown until the relationships are
+/// scanned. `max_children` always caps the result. A virtual group is a level
+/// too: its members are measured the same way, so it pages rather than
+/// refusing. Children beyond the measured ones are not seen, so a later page
+/// can still be noisier than the estimate; fallback grouping covers that.
+fn level_page_size(
+    provider: &mut impl ModelProvider,
+    request: &ProviderViewRequest,
+    revision: u64,
+    parent: &str,
+    child_count: usize,
+    members: Option<&[String]>,
+    cancelled: &AtomicBool,
+) -> Result<usize, LayoutError> {
+    let cap = request.max_children.max(1);
+    let whole = child_count.min(cap).max(1);
+    // One layer's worth is the worst case for any mix: noise adds over layers.
+    if !request.page_by_noise || child_count <= layer_capacity(FALLBACK_NOISE) {
+        return Ok(whole);
     }
+    let sample = child_count.min(cap);
+    let mut entities = Vec::new();
+    if let Some(members) = members {
+        for id in &members[..sample.min(members.len())] {
+            check_cancel(cancelled)?;
+            entities.extend(provider.summary(revision, id).map_err(provider_error)?);
+        }
+    } else {
+        check_cancel(cancelled)?;
+        entities = children_at(provider, revision, request.lens, parent, 0, sample)
+            .map_err(provider_error)?
+            .items;
+    }
+    let bands: Vec<i32> = entities
+        .iter()
+        .map(|entity| node_for(entity, None, request.policy).band)
+        .collect();
+    Ok(page_size_in_order(&bands, FALLBACK_NOISE).clamp(1, cap))
 }
 
 fn child_count(

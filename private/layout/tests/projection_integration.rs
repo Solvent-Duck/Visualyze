@@ -11,8 +11,40 @@ fn notes() -> Architecture {
     Architecture::from_json(include_bytes!("../../../public/examples/notes-crud.json")).unwrap()
 }
 
+/// The notes example with 25 more services in its scope: 26 peers share one
+/// layer, which is noisy enough (above `FALLBACK_NOISE`) for fallback groups.
+fn wide_notes() -> Architecture {
+    let mut value: serde_json::Value =
+        serde_json::from_slice(include_bytes!("../../../public/examples/notes-crud.json")).unwrap();
+    for i in 0..25 {
+        let id = format!("service:extra:{i:02}");
+        value["entities"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!({
+                "id": id, "kind": "service", "label": id, "boundary": "internal", "basis": "declared"
+            }));
+        value["relations"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!({
+                "id": format!("rel:contains-{id}"), "source": "scope:notes", "target": id,
+                "kind": "contains", "basis": "declared"
+            }));
+    }
+    Architecture::from_json(&serde_json::to_vec(&value).unwrap()).unwrap()
+}
+
 fn layout(view: &ViewState, pins: &BTreeMap<String, Point>) -> LayoutSolution {
-    let projection = project(&notes(), view).unwrap();
+    layout_of(&notes(), view, pins)
+}
+
+fn layout_of(
+    model: &Architecture,
+    view: &ViewState,
+    pins: &BTreeMap<String, Point>,
+) -> LayoutSolution {
+    let projection = project(model, view).unwrap();
     let solution = solve(LayoutRequest {
         projection: &projection,
         algorithm: Algorithm::Floorplan,
@@ -76,14 +108,15 @@ fn entering_a_component_routes_boundary_references_outside_its_solid_box() {
 
 #[test]
 fn inferred_group_entry_preserves_every_supplied_relationship_as_route_or_internal_record() {
-    let mut view = ViewState::with_budgets(3, 2, 250);
-    let projection = project(&notes(), &view).unwrap();
-    layout(&view, &BTreeMap::new());
+    let model = wide_notes();
+    let mut view = ViewState::default();
+    let projection = project(&model, &view).unwrap();
+    layout_of(&model, &view, &BTreeMap::new());
     view.remember_groups(&projection);
     let group = projection.suggested_groups[0].id.clone();
     view.enter(&group);
-    let focused = project(&notes(), &view).unwrap();
-    let solution = layout(&view, &BTreeMap::new());
+    let focused = project(&model, &view).unwrap();
+    let solution = layout_of(&model, &view, &BTreeMap::new());
     assert_eq!(
         route_membership(&solution).len() + focused.internal_relation_ids.len(),
         focused

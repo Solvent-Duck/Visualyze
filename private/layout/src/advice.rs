@@ -130,10 +130,10 @@ fn sorted(advice: impl IntoIterator<Item = ScopeAdvice>) -> Vec<ScopeAdvice> {
     advice
 }
 
-/// Budgets large enough that neither fallback grouping nor automatic expansion
-/// changes what the producer supplied.
+/// A budget large enough that it never changes what the producer supplied.
+/// Fallback grouping is switched off by projecting with `project_supplied`.
 fn unbudgeted_view(scope: &str) -> ViewState {
-    let mut view = ViewState::with_budgets(usize::MAX, usize::MAX, usize::MAX);
+    let mut view = ViewState::with_visible_budget(usize::MAX);
     view.focus = Some(scope.to_owned());
     view
 }
@@ -174,7 +174,8 @@ pub fn advise_snapshot(model: &Architecture) -> Vec<ScopeAdvice> {
     for scope in candidates {
         // A scope that cannot be projected (for example an unusual focus) simply
         // gets no advice: advice must never reject.
-        let Ok(projection) = crate::projection::project(model, &unbudgeted_view(scope)) else {
+        let Ok(projection) = crate::projection::project_supplied(model, &unbudgeted_view(scope))
+        else {
             continue;
         };
         let noise = interior_noise(&projection);
@@ -193,8 +194,8 @@ pub fn advise_snapshot(model: &Architecture) -> Vec<ScopeAdvice> {
 ///
 /// Walks each lens's ownership forest from the root through the provider's
 /// indexed child counts and projects only scopes with at least
-/// `MIN_CHILDREN_FOR_ADVICE` children, as one bounded first page of 128 with
-/// automatic grouping off. A scope with more children than one page is advised
+/// `MIN_CHILDREN_FOR_ADVICE` children, as one bounded first page of 128, unpaged
+/// by noise and with automatic grouping off. A scope with more children than one page is advised
 /// from that page: its box count is the full child count, its layer counts are
 /// the page's, scaled up to the full child count, and its connectors are those
 /// found among the page. Such results are marked `partial`, as are scopes whose
@@ -271,8 +272,7 @@ fn bundle_scope_advice(
         lens: Some(lens),
         max_children: BUNDLE_PAGE,
         automatic_groups: false,
-        peer_ceiling: 128,
-        group_target: 128,
+        page_by_noise: false,
         max_references: 128,
         load_focus_detail: false,
         ..ProviderViewRequest::default()
@@ -489,7 +489,8 @@ mod tests {
         // Sixty requests from `sub` to a service outside it make the whole view
         // noisy, but none of that belongs to the interior.
         let model = architecture(14, 0, &[], 60);
-        let projection = crate::projection::project(&model, &unbudgeted_view("sub")).unwrap();
+        let projection =
+            crate::projection::project_supplied(&model, &unbudgeted_view("sub")).unwrap();
         assert_eq!(projection.references.len(), 5);
         assert_eq!(projection.edges.len(), 60);
         assert!(crate::noise::visual_noise(&projection).over_threshold());

@@ -1520,9 +1520,6 @@ fn check_view(
 ) -> Result<(), PersistenceError> {
     if view.visible_budget == 0
         || view.visible_budget > 1024
-        || view.group_target < 2
-        || view.peer_ceiling < view.group_target
-        || view.peer_ceiling > 1024
         || view.pins.len() > 4096
         || view.frame_pins.len() > 64
         || view.layer_preferences.len() > 4096

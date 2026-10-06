@@ -192,8 +192,6 @@ fn projection_request_key(view: &ViewState) -> Option<Vec<u8>> {
         groups: &'a [projection::DisplayGroup],
         retained: &'a [projection::DisplayGroup],
         dismissed: &'a std::collections::BTreeSet<String>,
-        peer_ceiling: usize,
-        group_target: usize,
         visible_budget: usize,
     }
     struct BoundedKey(Vec<u8>);
@@ -223,8 +221,6 @@ fn projection_request_key(view: &ViewState) -> Option<Vec<u8>> {
         groups: &view.group_overrides,
         retained: view.retained_suggestions(),
         dismissed: &view.dismissed_groups,
-        peer_ceiling: view.peer_ceiling,
-        group_target: view.group_target,
         visible_budget: view.visible_budget,
     };
     let mut key = BoundedKey(Vec::new());
@@ -958,13 +954,10 @@ fn project_bundle(
             child_page: view.child_page,
             boundary_after: view.relation_cursor.clone(),
             policy: view.policy,
-            max_children: view.group_target.min(view.peer_ceiling).clamp(1, 128),
             expanded: view.expanded_ids(),
             groups: view.group_overrides.clone(),
             retained_groups: view.retained_suggestions().to_vec(),
             dismissed_groups: view.dismissed_groups.clone(),
-            peer_ceiling: view.peer_ceiling.clamp(1, 128),
-            group_target: view.group_target.clamp(2, 128),
             visible_budget: view.visible_budget.clamp(1, 250),
             ..ProviderViewRequest::default()
         },
@@ -1372,7 +1365,7 @@ mod tests {
     #[test]
     fn exact_projection_memo_invalidates_grouping_policy_pages_and_overrides() {
         let source = memo_fixture();
-        let base = ViewState::with_budgets(2, 2, 250);
+        let base = ViewState::default();
         let first = memo_project(&source, &base, false);
         let mut variations = vec![];
         let mut v = base.clone();
@@ -1408,13 +1401,7 @@ mod tests {
             .insert("view:suggested-group:memo".into());
         variations.push(v);
         let mut v = base.clone();
-        v.group_target = 3;
-        variations.push(v);
-        let mut v = base.clone();
         v.visible_budget = 200;
-        variations.push(v);
-        let mut v = base.clone();
-        v.peer_ceiling = 3;
         variations.push(v);
         let mut v = base.clone();
         v.lens = Some(SemanticLens::Code);
@@ -1445,6 +1432,16 @@ mod tests {
         same.relation_history.push(None);
         assert_eq!(projection_request_key(&same), projection_request_key(&base));
         memo_project(&source, &same, true);
+        // The legacy peer ceiling and group target are ignored by projection
+        // (ADR 0007), so they must not split the memo either.
+        let mut legacy = base.clone();
+        legacy.group_target = 3;
+        legacy.peer_ceiling = 3;
+        assert_eq!(
+            projection_request_key(&legacy),
+            projection_request_key(&base)
+        );
+        memo_project(&source, &legacy, true);
     }
 
     #[test]

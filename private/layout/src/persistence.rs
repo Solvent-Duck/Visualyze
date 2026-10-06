@@ -294,11 +294,10 @@ fn validate_shape(state: &PersistedView) -> Result<(), PersistenceError> {
         }
     }
     let view = &state.view;
+    // `peer_ceiling` and `group_target` are legacy and ignored (ADR 0007), so
+    // whatever an old file stored is accepted.
     if view.visible_budget == 0
         || view.visible_budget > 1024
-        || view.group_target < 2
-        || view.peer_ceiling < view.group_target
-        || view.peer_ceiling > 1024
         || view.pins.len() > 4096
         || view.frame_pins.len() > 64
         || view.layer_preferences.len() > 4096

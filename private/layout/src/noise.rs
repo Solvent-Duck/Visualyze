@@ -108,6 +108,88 @@ pub fn noise_from_counts(
     }
 }
 
+/// Estimate the noise of one level (the direct children of one region) from how
+/// many boxes it has per layer. Boxes are the sum of the counts. Connectors are
+/// unknown before routing, so the estimate ignores them (it counts zero) and is
+/// a lower bound on what the drawn level will score.
+pub fn level_noise(band_counts: &BTreeMap<i32, usize>) -> VisualNoise {
+    let layers: BTreeMap<i32, f64> = band_counts
+        .iter()
+        .filter(|(_, n)| **n > 0)
+        .map(|(band, n)| (*band, *n as f64))
+        .collect();
+    noise_from_counts(layers.values().sum(), &layers, 0)
+}
+
+/// The largest page of a level, in boxes, whose noise stays at or under `limit`.
+///
+/// The level's layer distribution is scaled proportionally to `p` boxes (each
+/// layer rounds up, so the result is deterministic) and scored with
+/// `level_noise`; the largest such `p` between 2 and the level's total wins. A
+/// level that already fits returns its whole total. A level of at most two
+/// boxes is returned whole.
+pub fn page_size_within(band_counts: &BTreeMap<i32, usize>, limit: f64) -> usize {
+    let counts: Vec<usize> = band_counts.values().copied().filter(|n| *n > 0).collect();
+    let total: usize = counts.iter().sum();
+    if total <= 2 {
+        return total;
+    }
+    (2..=total)
+        .rev()
+        .find(|page| {
+            let scaled: BTreeMap<i32, usize> = counts
+                .iter()
+                .enumerate()
+                .map(|(band, n)| (band as i32, (n * page).div_ceil(total)))
+                .collect();
+            level_noise(&scaled).total <= limit
+        })
+        .unwrap_or(2)
+}
+
+/// Like `page_size_within`, for a level whose children are known in the order
+/// they will be paged, each given by its layer.
+///
+/// It starts from the proportional size for the level's layer mix, then lowers
+/// it until every whole page of that size, cut from the front of `bands` as
+/// paging cuts it, is within `limit`. A level sorted into runs of one layer
+/// therefore pages smaller than an evenly mixed one: every page that is
+/// measured fits, not only the average one.
+pub fn page_size_in_order(bands: &[i32], limit: f64) -> usize {
+    let mut counts: BTreeMap<i32, usize> = BTreeMap::new();
+    for band in bands {
+        *counts.entry(*band).or_default() += 1;
+    }
+    let start = page_size_within(&counts, limit);
+    let fits = |page: usize| {
+        bands.chunks(page).all(|chunk| {
+            let mut counts: BTreeMap<i32, usize> = BTreeMap::new();
+            for band in chunk {
+                *counts.entry(*band).or_default() += 1;
+            }
+            level_noise(&counts).total <= limit
+        })
+    };
+    (2..=start)
+        .rev()
+        .find(|page| fits(*page))
+        .unwrap_or(start.min(2))
+}
+
+/// The most boxes one layer can hold, alone in a view, within `limit` noise
+/// (at least 2). With `FALLBACK_NOISE` this is the single-layer page size; with
+/// `NOISE_THRESHOLD` it is how many fallback groups fit one readable level.
+pub fn layer_capacity(limit: f64) -> usize {
+    let alone = |n: usize| {
+        let boxes = n as f64;
+        overshoot(boxes, BOX_KNEE) + overshoot(boxes, LAYER_KNEE)
+    };
+    (3..=4096)
+        .take_while(|n| alone(*n) <= limit)
+        .last()
+        .unwrap_or(2)
+}
+
 /// Box counts shared by every way of scoring a projection: total boxes and
 /// boxes per layer. Counted as boxes: solid boxes, frames (`FRAME_WEIGHT` each),
 /// and, when `include_references`, external references. Not counted: the focused
@@ -394,6 +476,85 @@ mod tests {
         let mut p = projection(vec![node("root", NodeKind::Scope, None, 1, false)], 1);
         p.edges[0].semantic_ids = (0..50).map(|i| format!("r{i}")).collect();
         assert_eq!(visual_noise(&p).connectors, 1);
+    }
+
+    fn level(counts: &[(i32, usize)]) -> BTreeMap<i32, usize> {
+        counts.iter().copied().collect()
+    }
+
+    #[test]
+    fn level_noise_scores_layer_counts_and_ignores_connectors() {
+        let n = level_noise(&level(&[(0, 14), (1, 16)]));
+        assert_eq!(n.boxes, 30.0);
+        assert_eq!(n.connectors, 0);
+        assert_eq!(n.layers, BTreeMap::from([(0, 14.0), (1, 16.0)]));
+        near(n.total, 1.2 + 2.8 + 11.1);
+        // Empty layers carry no boxes.
+        assert_eq!(level_noise(&level(&[(0, 0)])).total, 0.0);
+    }
+
+    #[test]
+    fn single_layer_page_sizes_match_the_formula() {
+        assert_eq!(layer_capacity(FALLBACK_NOISE), 24);
+        assert_eq!(layer_capacity(NOISE_THRESHOLD), 15);
+        let wide = level(&[(1, 500)]);
+        assert_eq!(page_size_within(&wide, FALLBACK_NOISE), 24);
+        assert_eq!(page_size_within(&wide, NOISE_THRESHOLD), 15);
+        assert_eq!(level_noise(&level(&[(1, 24)])).total, 100.0);
+        near(level_noise(&level(&[(1, 15)])).total, 6.25);
+        assert!(level_noise(&level(&[(1, 16)])).total > NOISE_THRESHOLD);
+    }
+
+    #[test]
+    fn a_level_that_fits_is_paged_whole() {
+        assert_eq!(page_size_within(&level(&[(1, 24)]), FALLBACK_NOISE), 24);
+        assert_eq!(
+            page_size_within(&level(&[(0, 15), (1, 15)]), FALLBACK_NOISE),
+            30
+        );
+        assert_eq!(page_size_within(&level(&[(1, 2)]), 0.0), 2);
+        assert_eq!(page_size_within(&level(&[(1, 1)]), 0.0), 1);
+        assert_eq!(page_size_within(&BTreeMap::new(), 0.0), 0);
+    }
+
+    #[test]
+    fn ordered_pages_fit_even_when_the_level_is_sorted_into_runs() {
+        // Evenly interleaved: every page matches the mix, so the size is the
+        // proportional one.
+        let mixed: Vec<i32> = (0..100).map(|i| i % 2).collect();
+        let even = page_size_in_order(&mixed, FALLBACK_NOISE);
+        assert_eq!(
+            even,
+            page_size_within(&level(&[(0, 50), (1, 50)]), FALLBACK_NOISE)
+        );
+        // The same mix sorted into two runs: a page may hold only one layer.
+        let sorted: Vec<i32> = (0..100).map(|i| i32::from(i >= 50)).collect();
+        let runs = page_size_in_order(&sorted, FALLBACK_NOISE);
+        assert_eq!(runs, 24);
+        for page in sorted.chunks(runs) {
+            let mut counts = BTreeMap::new();
+            for band in page {
+                *counts.entry(*band).or_insert(0usize) += 1;
+            }
+            assert!(level_noise(&counts).total <= FALLBACK_NOISE);
+        }
+        // Small levels are returned whole.
+        assert_eq!(page_size_in_order(&[1, 1, 1], FALLBACK_NOISE), 3);
+        assert_eq!(page_size_in_order(&[], FALLBACK_NOISE), 0);
+    }
+
+    #[test]
+    fn mixed_layers_scale_proportionally_and_round_up() {
+        let mixed = level(&[(0, 40), (1, 60)]);
+        let page = page_size_within(&mixed, FALLBACK_NOISE);
+        assert!(page > 24 && page < 100, "{page}");
+        let scaled = |p: usize| level(&[(0, (40 * p).div_ceil(100)), (1, (60 * p).div_ceil(100))]);
+        assert!(level_noise(&scaled(page)).total <= FALLBACK_NOISE);
+        assert!(level_noise(&scaled(page + 1)).total > FALLBACK_NOISE);
+        // Deterministic.
+        assert_eq!(page, page_size_within(&mixed, FALLBACK_NOISE));
+        // A tighter limit never gives a bigger page.
+        assert!(page_size_within(&mixed, NOISE_THRESHOLD) <= page);
     }
 
     #[test]

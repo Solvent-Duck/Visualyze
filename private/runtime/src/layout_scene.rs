@@ -5072,6 +5072,20 @@ mod tests {
         }
         writer.finish().unwrap();
     }
+    /// A suggested group as the fallback grouper would have produced and the view
+    /// retained. In a bundle, paging by noise keeps every page of one layer within
+    /// the fallback noise, so suggested groups only appear on later pages of a
+    /// level that mixes layers (ADR 0007), and the code lens has a single layer.
+    /// These tests are about what happens to a retained suggestion (pins, focus,
+    /// reload, dismissal), not about when one is made, so they seed it.
+    fn seeded_suggestion(parent: &str, members: &[&str]) -> layout::projection::DisplayGroup {
+        layout::projection::DisplayGroup {
+            id: format!("view:suggested-group:{parent}:{}", members[0]),
+            parent: parent.into(),
+            members: members.iter().map(|id| (*id).to_owned()).collect(),
+            suggested: true,
+        }
+    }
     fn grouped_code_file(path: &std::path::Path) {
         grouped_code_revision(path, 1, 130, true);
     }
@@ -5155,6 +5169,54 @@ mod tests {
                     aspect: None,
                 }))
                 .unwrap();
+        }
+        writer.finish().unwrap();
+    }
+    /// The data-messaging example with `extra` more services in its root scope.
+    /// More than 24 same-layer children are noisy enough (ADR 0007) to be paged,
+    /// which the small example never is.
+    fn paged_messaging_file(path: &std::path::Path, extra: usize) {
+        use visualyze_model::provider::*;
+        let mut manifest = None;
+        let mut records = Vec::new();
+        for line in include_str!("../../../public/examples/data-messaging.bundle.jsonl").lines() {
+            match serde_json::from_str::<BundleRecord>(line).unwrap() {
+                BundleRecord::Manifest(value) => manifest = Some(value),
+                BundleRecord::Complete(_) => (),
+                record => records.push(record),
+            }
+        }
+        for index in 0..extra {
+            let id = format!("service:extra:{index:03}");
+            records.push(BundleRecord::Entity(EntityRecord {
+                summary: EntitySummary {
+                    label: id.clone(),
+                    id: id.clone(),
+                    kind: EntityKind::Service,
+                    boundary: Boundary::Internal,
+                    claim: Claim::declared(),
+                },
+                detail: None,
+            }));
+            records.push(BundleRecord::Relation(RelationRecord {
+                id: format!("rel:contains:{id}"),
+                kind: RelationKind::Contains,
+                source: "scope:orders".into(),
+                target: id,
+                claim: Claim::declared(),
+                label: None,
+                aspect: None,
+            }));
+        }
+        records.sort_by_key(|record| match record {
+            BundleRecord::Evidence(record) => (0, record.id.clone()),
+            BundleRecord::Entity(record) => (1, record.summary.id.clone()),
+            BundleRecord::Relation(record) => (2, record.id.clone()),
+            _ => unreachable!(),
+        });
+        let mut writer = BundleWriter::create(path, manifest.unwrap(), Limits::default()).unwrap();
+        for record in records {
+            writer.push(&record).unwrap();
         }
         writer.finish().unwrap();
     }
@@ -6035,12 +6097,11 @@ mod tests {
     }
     #[test]
     fn native_actions_navigate_search_page_and_recover_from_invalid_jump() {
-        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../public/examples/data-messaging.bundle.jsonl");
-        let mut app = action_app(
-            LayoutInput::bundle(path),
-            ViewState::with_budgets(2, 2, 250),
-        );
+        // Thirty extra services in the root scope make the level noisy enough
+        // to be paged by noise (24 per page), so there is a next page.
+        let file = LocalTestFile::new();
+        paged_messaging_file(&file.0, 30);
+        let mut app = action_app(LayoutInput::bundle(file.0.clone()), ViewState::default());
         let original = app
             .world()
             .resource::<Viewer>()
@@ -6567,7 +6628,13 @@ mod tests {
         for package_survives in [true, false] {
             let file = LocalTestFile::new();
             grouped_code_file(&file.0);
-            let mut app = action_app(LayoutInput::bundle(file.0.clone()), ViewState::default());
+            let mut view = ViewState::default();
+            view.protect_groups(&[seeded_suggestion(
+                "package",
+                &["file:000", "file:001", "file:002", "file:003"],
+            )])
+            .unwrap();
+            let mut app = action_app(LayoutInput::bundle(file.0.clone()), view);
             complete(&mut app, ViewerAction::Jump("repo".into()));
             complete(&mut app, ViewerAction::Pin("repo".into()));
             complete(&mut app, ViewerAction::Enter("package".into()));
@@ -7212,7 +7279,7 @@ mod tests {
     fn reload_with_conflicting_established_pins_keeps_the_accepted_source() {
         let file = LocalTestFile::new();
         pipeline_file(&file.0, 1, false);
-        let mut view = ViewState::with_budgets(64, 32, 250);
+        let mut view = ViewState::default();
         view.policy = layout::projection::LayoutPolicy::Pipeline;
         let mut app = action_app(LayoutInput::bundle(file.0.clone()), view);
         complete(&mut app, ViewerAction::Pin("a".into()));
@@ -7363,14 +7430,29 @@ mod tests {
     }
     #[test]
     fn suggested_group_dismissal_survives_navigation_and_undo() {
-        let model = visualyze_model::architecture::Architecture::from_json(include_bytes!(
-            "../../../public/examples/notes-crud.json"
-        ))
+        // Twenty-five extra services in the scope put 26 peers in one layer, so
+        // the level is noisy enough for suggested fallback groups.
+        let mut value: serde_json::Value =
+            serde_json::from_slice(include_bytes!("../../../public/examples/notes-crud.json"))
+                .unwrap();
+        for index in 0..25 {
+            let id = format!("service:extra:{index:02}");
+            value["entities"].as_array_mut().unwrap().push(serde_json::json!({
+                "id": id, "kind": "service", "label": id, "boundary": "internal", "basis": "declared"
+            }));
+            value["relations"]
+                .as_array_mut()
+                .unwrap()
+                .push(serde_json::json!({
+                    "id": format!("rel:contains-{id}"), "source": "scope:notes", "target": id,
+                    "kind": "contains", "basis": "declared"
+                }));
+        }
+        let model = visualyze_model::architecture::Architecture::from_json(
+            &serde_json::to_vec(&value).unwrap(),
+        )
         .unwrap();
-        let mut app = action_app(
-            LayoutInput::snapshot(model),
-            ViewState::with_budgets(3, 2, 250),
-        );
+        let mut app = action_app(LayoutInput::snapshot(model), ViewState::default());
         let id = app
             .world()
             .resource::<Viewer>()
@@ -7430,6 +7512,11 @@ mod tests {
             grouped_code_file(&file.0);
             let mut view = ViewState::default();
             view.enter("package");
+            view.protect_groups(&[seeded_suggestion(
+                "package",
+                &["file:000", "file:001", "file:002", "file:003"],
+            )])
+            .unwrap();
             let mut app = action_app(LayoutInput::bundle(file.0.clone()), view);
             let group = app
                 .world()

@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use visualyze_layout::{
     LayoutSolution, NodeKind, Point, Projection,
-    projection::{ViewState, project},
+    projection::{ViewState, project_supplied},
 };
 use visualyze_model::architecture::{Architecture, EntityKind, RelationKind};
 
@@ -34,10 +34,10 @@ fn point(p: Point) -> DVec3 {
 }
 
 pub fn compatible_projection(model: &Architecture) -> Result<Projection, String> {
-    let mut view = ViewState::with_budgets(512, 512, 512);
+    let mut view = ViewState::with_visible_budget(512);
     view.expanded
         .extend(model.snapshot().entities.iter().map(|e| e.id.clone()));
-    let p = project(model, &view).map_err(|e| e.to_string())?;
+    let p = project_supplied(model, &view).map_err(|e| e.to_string())?;
     let expected: BTreeSet<_> = model
         .snapshot()
         .entities
