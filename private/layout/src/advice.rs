@@ -2,6 +2,11 @@
 //! much at once, graded, with prose that asks the producer whether a real
 //! subsystem groups some of the parts. Advice never rejects a model.
 //!
+//! Only scopes are advised. A scope is an architectural grouping, so asking
+//! whether a real subsystem groups some of its parts is meaningful. Components,
+//! code inventory (repositories, packages, files) and data (datastores, tables)
+//! have no truthful grouping to supply: a wide one stays wide and pages.
+//!
 //! This is the single advice entry point. The command-line loader and the future
 //! MCP bridge must both call [`advise_snapshot`] / [`advise_bundle`] (the bridge
 //! reaches them through the private runtime, for example `visualyze
@@ -22,8 +27,8 @@ use std::{
     sync::atomic::AtomicBool,
 };
 use visualyze_model::{
-    architecture::{Architecture, RelationKind},
-    provider::{ModelProvider, PageRequest, SemanticLens},
+    architecture::{Architecture, EntityKind, RelationKind},
+    provider::{self, ModelProvider, PageRequest, SemanticLens},
 };
 
 /// Interior noise above this, and up to `FALLBACK_NOISE`, is `Recommend`.
@@ -139,8 +144,8 @@ fn unbudgeted_view(scope: &str) -> ViewState {
 }
 
 /// Advice for every scope of a validated snapshot that shows at least
-/// `MIN_CHILDREN_FOR_ADVICE` direct children: any entity with that many
-/// `contains`/`exposes` children, and the system root, which also shows the
+/// `MIN_CHILDREN_FOR_ADVICE` direct children: any scope with that many
+/// `contains` children, and the system root, which also shows the
 /// uncontained external objects the projection parents to it. Each is projected
 /// as the focus with its children collapsed and the automatic fallback grouping
 /// disabled, so advice sees the structure as supplied. Connectors are projected
@@ -159,9 +164,15 @@ pub fn advise_snapshot(model: &Architecture) -> Vec<ScopeAdvice> {
                 .insert(relation.target.as_str());
         }
     }
+    let scopes: BTreeSet<&str> = snapshot
+        .entities
+        .iter()
+        .filter(|entity| entity.kind == EntityKind::Scope)
+        .map(|entity| entity.id.as_str())
+        .collect();
     let mut candidates: BTreeSet<&str> = children
         .iter()
-        .filter(|(_, kids)| kids.len() >= MIN_CHILDREN_FOR_ADVICE)
+        .filter(|(scope, kids)| scopes.contains(*scope) && kids.len() >= MIN_CHILDREN_FOR_ADVICE)
         .map(|(scope, _)| *scope)
         .collect();
     candidates.insert(snapshot.system_id.as_str());
@@ -192,7 +203,8 @@ pub fn advise_snapshot(model: &Architecture) -> Vec<ScopeAdvice> {
 /// Advice for every supplied scope of a bundle, in each semantic lens it
 /// appears in; a scope in more than one lens keeps its noisiest reading.
 ///
-/// Walks each lens's ownership forest from the root through the provider's
+/// Walks each lens's scopes from the root (scopes only nest under scopes, so
+/// code and data inventories are never visited) through the provider's
 /// indexed child counts and projects only scopes with at least
 /// `MIN_CHILDREN_FOR_ADVICE` children, as one bounded first page of 128, unpaged
 /// by noise and with automatic grouping off. A scope with more children than one page is advised
@@ -249,7 +261,9 @@ pub fn advise_bundle(provider: &mut impl ModelProvider) -> Result<Vec<ScopeAdvic
                     break;
                 }
                 for child in page.items {
-                    stack.push(child.id);
+                    if child.kind == provider::EntityKind::Scope {
+                        stack.push(child.id);
+                    }
                 }
                 match page.next {
                     Some(next) if Some(&next) != after.as_ref() => after = Some(next),

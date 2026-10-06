@@ -186,7 +186,7 @@ fn small_and_example_models_get_no_advice() {
 }
 
 #[test]
-fn wide_bundle_scope_gets_advice_on_stderr() {
+fn bundle_inventory_containers_get_no_advice() {
     let result = Command::new(env!("CARGO_BIN_EXE_visualyze"))
         .args([
             "--validate",
@@ -205,9 +205,6 @@ fn wide_bundle_scope_gets_advice_on_stderr() {
         "{}",
         String::from_utf8_lossy(&result.stdout)
     );
-    assert!(
-        stderr.contains("Advice: datastore:conversations: "),
-        "{stderr}"
-    );
-    assert!(!stderr.contains("Advice unavailable"), "{stderr}");
+    // Its widest container is a datastore's tables: inventory, not architecture.
+    assert!(!stderr.contains("Advice"), "{stderr}");
 }

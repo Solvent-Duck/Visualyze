@@ -151,7 +151,7 @@ The viewer shows one level of ownership at a time, so the ownership you supply d
 - **Cross-cutting parts keep one home.** A shared component has one owner; others reach it through relations. Do not duplicate it to make the tree tidy.
 - **Roughly a dozen boxes per layer and a few dozen per view read comfortably.** A parent with many more children can still be correct, and then it should stay wide.
 
-Validation may return **advice** for a parent that would show too much at once. Advice is never a rejection: the bundle is accepted either way. A parent with more children than one page is advised from its first page and the advice says it is partial. Treat advice as the question "is there a real subsystem these belong to?" If there is, supply it. If there is not, leave the level wide. Do not invent subgroups to silence advice.
+Validation may return **advice** for a scope that would show too much at once. Only scopes are advised: they are the architecture's groupings. Code inventory (repositories, packages, files) and data (datastores, tables) are never advised, because the model reflects architecture rather than folder layout; a wide inventory level stays wide and pages. Advice is never a rejection: the bundle is accepted either way. A scope with more children than one page is advised from its first page and the advice says it is partial. Treat advice as the question "is there a real subsystem these belong to?" If there is, supply it. If there is not, leave the level wide. Do not invent subgroups to silence advice.
 
 ## Validation
 
