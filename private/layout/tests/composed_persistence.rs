@@ -70,6 +70,7 @@ fn fixture() -> (Projection, PersistedComposedView) {
             node("leaf", Some("inner"), true, 0),
         ],
         edges: vec![Edge {
+            bundle: None,
             id: "auth-leaf".into(),
             source: "auth".into(),
             target: "leaf".into(),

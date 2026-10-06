@@ -140,6 +140,19 @@ These measurements include descendant intervals, compact relation endpoints, ind
 
 No details are cached immediately after indexing. The query sample retains 100 details, charged at approximately 0.43 MiB. The resident index remains proportional to the graph; full detail is never held resident by this provider. This benchmark establishes provider-scale behavior for a synthetic tree only. It does not measure 3D placement, scene rendering, high-degree distributed graphs, comprehension, or actual Google/OpenAI architecture, and it does not establish all product release gates.
 
+## Readability guidance for producers
+
+The viewer shows one level of ownership at a time, so the ownership you supply decides how readable a bundle is. Reflect the real hierarchy; do not flatten it and do not pad it.
+
+- **Supply the real hierarchy.** Use `scope` with `contains` and the profiles' typed ownership: datastore to table, repository to package to file, and so on. A parent says "these belong to me"; it never says "place these near each other."
+- **The top level is the highest truthful abstraction.** It may be a handful of boxes when that is what the system is.
+- **Say how you know.** A grouping stated in the source carries the basis that matches its evidence. A grouping you deduced rather than found stated is `inferred` and carries a rationale.
+- **Keep stable IDs on refresh and edit the previous model.** Start from the bundle you published before and keep the IDs of what did not change. Do not regenerate from scratch.
+- **Cross-cutting parts keep one home.** A shared component has one owner; others reach it through relations. Do not duplicate it to make the tree tidy.
+- **Roughly a dozen boxes per layer and a few dozen per view read comfortably.** A parent with many more children can still be correct, and then it should stay wide.
+
+Validation may return **advice** for a scope that would show too much at once. Only scopes are advised: they are the architecture's groupings. Code inventory (repositories, packages, files) and data (datastores, tables) are never advised, because the model reflects architecture rather than folder layout; a wide inventory level stays wide and pages. Advice is never a rejection: the bundle is accepted either way. A scope with more children than one page is advised from its first page and the advice says it is partial. Treat advice as the question "is there a real subsystem these belong to?" If there is, supply it. If there is not, leave the level wide. Do not invent subgroups to silence advice.
+
 ## Validation
 
 `cargo test -p visualyze-model --locked` preserves the snapshot conformance suite and adds provider coverage for all profiles, endpoint and ownership semantics, evidence, revision checks, cross-query cursors, unsupplied versus unloaded detail, count/byte cache eviction, page-byte bounds, runtime cycles and parallel claims, structural cycles, cancellation during indexing, file mutation, incomplete records, malformed/duplicate/unknown fields, excessive nesting, symlinks, and streaming-writer non-overwrite behavior.

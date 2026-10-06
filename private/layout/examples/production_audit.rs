@@ -7,6 +7,7 @@ use std::{
 };
 use visualyze_layout::{
     Algorithm, LayoutRequest, QualityProfile,
+    noise::{region_noise, visual_noise},
     projection::LayoutPolicy,
     provider_projection::{ProviderViewRequest, project_provider},
     solve, validate,
@@ -103,6 +104,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "original_relations_loaded":p.relations.len(),
             "internal_original_relations":p.graph.internal_relation_ids.len(),
             "unrepresented_loaded_relations":p.unrepresented_relation_ids.len(),
+            "visual_noise":visual_noise(&p.graph),
+            "visual_noise_regions":region_noise(&p.graph),
             "diagnostics":p.graph.diagnostics});
         match result {
             Ok(s) => {

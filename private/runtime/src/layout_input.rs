@@ -1,7 +1,7 @@
 //! Semantic source adapter for the experimental viewer. Bundle indexing and
 //! projection run on its worker; the render thread only sees completed results.
 use std::{
-    collections::{BTreeMap, VecDeque},
+    collections::{BTreeMap, BTreeSet, VecDeque},
     fmt::Write as _,
     io,
     ops::{ControlFlow, Deref},
@@ -16,8 +16,9 @@ use std::{
 use bevy::prelude::Resource;
 use visualyze_layout::{
     LayoutError, Projection,
+    detail::{PlanBudget, plan_provider, plan_snapshot},
     projection::{self, ViewState},
-    provider_projection::{Continuation, ProviderViewRequest, project_provider},
+    provider_projection::{Continuation, ProviderViewRequest},
 };
 use visualyze_model::{
     architecture::{Architecture, Basis, RelationKind},
@@ -107,6 +108,11 @@ pub(crate) struct DesktopProjection {
     pub labels: BTreeMap<String, DisplayLabel>,
     pub claims: BTreeMap<String, DisplayClaim>,
     pub detail_note: String,
+    /// Boxes the projector opened on its own to show supplied structure while
+    /// the view stays readable (ADR 0007). Never includes a box the user
+    /// expanded or collapsed. Recomputed from the user's view on every
+    /// projection; it is not saved.
+    pub auto_opened: BTreeSet<String>,
     pub page: Option<DisplayPage>,
     pub relation_page: Option<DisplayRelationPage>,
     // Detail residency can change independently of supplied semantic records.
@@ -192,8 +198,6 @@ fn projection_request_key(view: &ViewState) -> Option<Vec<u8>> {
         groups: &'a [projection::DisplayGroup],
         retained: &'a [projection::DisplayGroup],
         dismissed: &'a std::collections::BTreeSet<String>,
-        peer_ceiling: usize,
-        group_target: usize,
         visible_budget: usize,
     }
     struct BoundedKey(Vec<u8>);
@@ -223,8 +227,6 @@ fn projection_request_key(view: &ViewState) -> Option<Vec<u8>> {
         groups: &view.group_overrides,
         retained: view.retained_suggestions(),
         dismissed: &view.dismissed_groups,
-        peer_ceiling: view.peer_ceiling,
-        group_target: view.group_target,
         visible_budget: view.visible_budget,
     };
     let mut key = BoundedKey(Vec::new());
@@ -865,7 +867,8 @@ fn project_snapshot(
     });
     let mut effective_view = view.clone();
     effective_view.lens = Some(lens);
-    let graph = projection::project(model, &effective_view)?;
+    let planned = plan_snapshot(model, &effective_view, PlanBudget::SNAPSHOT)?;
+    let (graph, auto_opened) = (planned.result, planned.opened);
     let supplied: BTreeMap<_, _> = model
         .snapshot()
         .entities
@@ -938,6 +941,7 @@ fn project_snapshot(
         labels,
         claims,
         detail_note,
+        auto_opened,
         page: None,
         relation_page: None,
         bundle_detail_ids: vec![],
@@ -950,26 +954,23 @@ fn project_bundle(
     cancel: &AtomicBool,
 ) -> Result<DesktopProjection, LayoutError> {
     let lens = resolve_bundle_lens(provider, view)?;
-    let projected = project_provider(
-        provider,
-        &ProviderViewRequest {
-            focus: view.focus.clone(),
-            lens: Some(lens),
-            child_page: view.child_page,
-            boundary_after: view.relation_cursor.clone(),
-            policy: view.policy,
-            max_children: view.group_target.min(view.peer_ceiling).clamp(1, 128),
-            expanded: view.expanded_ids(),
-            groups: view.group_overrides.clone(),
-            retained_groups: view.retained_suggestions().to_vec(),
-            dismissed_groups: view.dismissed_groups.clone(),
-            peer_ceiling: view.peer_ceiling.clamp(1, 128),
-            group_target: view.group_target.clamp(2, 128),
-            visible_budget: view.visible_budget.clamp(1, 250),
-            ..ProviderViewRequest::default()
-        },
-        cancel,
-    )?;
+    // The planner opens supplied structure on its own copy of the view, so the
+    // request is built from whichever view it is projecting.
+    let request = |view: &ViewState| ProviderViewRequest {
+        focus: view.focus.clone(),
+        lens: Some(lens),
+        child_page: view.child_page,
+        boundary_after: view.relation_cursor.clone(),
+        policy: view.policy,
+        expanded: view.expanded_ids(),
+        groups: view.group_overrides.clone(),
+        retained_groups: view.retained_suggestions().to_vec(),
+        dismissed_groups: view.dismissed_groups.clone(),
+        visible_budget: view.visible_budget.clamp(1, 250),
+        ..ProviderViewRequest::default()
+    };
+    let planned = plan_provider(provider, view, request, PlanBudget::BUNDLE, cancel)?;
+    let (projected, auto_opened) = (planned.result, planned.opened);
     let mut labels = BTreeMap::new();
     for node in &projected.graph.nodes {
         check_cancel(cancel)?;
@@ -1095,6 +1096,7 @@ fn project_bundle(
         labels,
         claims,
         detail_note,
+        auto_opened,
         page,
         relation_page,
         bundle_detail_ids,
@@ -1372,7 +1374,7 @@ mod tests {
     #[test]
     fn exact_projection_memo_invalidates_grouping_policy_pages_and_overrides() {
         let source = memo_fixture();
-        let base = ViewState::with_budgets(2, 2, 250);
+        let base = ViewState::default();
         let first = memo_project(&source, &base, false);
         let mut variations = vec![];
         let mut v = base.clone();
@@ -1408,13 +1410,7 @@ mod tests {
             .insert("view:suggested-group:memo".into());
         variations.push(v);
         let mut v = base.clone();
-        v.group_target = 3;
-        variations.push(v);
-        let mut v = base.clone();
         v.visible_budget = 200;
-        variations.push(v);
-        let mut v = base.clone();
-        v.peer_ceiling = 3;
         variations.push(v);
         let mut v = base.clone();
         v.lens = Some(SemanticLens::Code);
@@ -1445,6 +1441,16 @@ mod tests {
         same.relation_history.push(None);
         assert_eq!(projection_request_key(&same), projection_request_key(&base));
         memo_project(&source, &same, true);
+        // The legacy peer ceiling and group target are ignored by projection
+        // (ADR 0007), so they must not split the memo either.
+        let mut legacy = base.clone();
+        legacy.group_target = 3;
+        legacy.peer_ceiling = 3;
+        assert_eq!(
+            projection_request_key(&legacy),
+            projection_request_key(&base)
+        );
+        memo_project(&source, &legacy, true);
     }
 
     #[test]

@@ -65,9 +65,13 @@ mod pin_provenance_tests {
         let mut view = ViewState::default();
         view.semantic_zoom = false;
         view.frame_lens = Some(SemanticLens::Code);
-        view.peer_ceiling = 128;
-        view.group_target = 128;
         view.enter("package");
+        // Seeded, not computed: see `seeded_suggestion`.
+        view.protect_groups(&[seeded_suggestion(
+            "package",
+            &["file:000", "file:001", "file:002", "file:003"],
+        )])
+        .unwrap();
         let projection = input.project(&view, &AtomicBool::new(false)).unwrap();
         let group = projection
             .suggested_groups

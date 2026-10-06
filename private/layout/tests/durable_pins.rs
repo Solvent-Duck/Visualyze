@@ -40,6 +40,7 @@ fn fixture() -> (Projection, CompositionContext) {
             node("row", Some("table"), true, 0),
         ],
         edges: vec![Edge {
+            bundle: None,
             id: "auth-row".into(),
             source: "auth".into(),
             target: "row".into(),

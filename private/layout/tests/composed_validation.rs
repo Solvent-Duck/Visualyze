@@ -105,6 +105,7 @@ fn fixture(obstacle: bool) -> (Projection, ComposedSolution) {
         preferred_size: p(20, 20, 20),
     });
     let edge = Edge {
+        bundle: None,
         id: "coverage".into(),
         source: "auth".into(),
         target: "middleware".into(),
@@ -520,6 +521,7 @@ fn multiplied_membership_capacity_is_rejected_before_any_placement_allowance() {
     let (mut projection, _) = fixture(false);
     projection.edges = (0..600)
         .map(|index| Edge {
+            bundle: None,
             id: format!("e:{index}"),
             source: "auth".into(),
             target: "middleware".into(),

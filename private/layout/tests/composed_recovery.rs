@@ -46,6 +46,7 @@ fn fixture() -> (Projection, CanonicalPins) {
             node("back", Some("db"), true, Point::new(16, 16, 6)),
         ],
         edges: vec![Edge {
+            bundle: None,
             id: "coverage".into(),
             source: "auth".into(),
             target: "target".into(),

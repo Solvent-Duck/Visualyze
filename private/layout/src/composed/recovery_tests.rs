@@ -40,6 +40,7 @@ fn fixture() -> (Projection, CanonicalPins) {
             node("blocker", Some("db"), true, 0, Point::new(20, 4, 20)),
         ],
         edges: vec![Edge {
+            bundle: None,
             id: "auth-inside".into(),
             source: "auth".into(),
             target: "inside".into(),

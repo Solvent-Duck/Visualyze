@@ -63,6 +63,7 @@ fn peers(projection: &mut Projection, prefix: &str, count: usize, band: i32) {
 
 fn edge(id: &str, source: &str, target: &str) -> Edge {
     Edge {
+        bundle: None,
         id: id.into(),
         semantic_ids: vec![id.into()],
         source: source.into(),

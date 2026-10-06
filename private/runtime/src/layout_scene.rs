@@ -25,7 +25,7 @@ use std::{
         atomic::{AtomicBool, Ordering},
         mpsc,
     },
-    time::Instant,
+    time::{Duration, Instant},
 };
 use visualyze_layout::{
     self as layout, Algorithm, LayoutRequest, LayoutSolution, Point, QUALITY_VERSION,
@@ -351,6 +351,14 @@ pub struct LayoutStatus {
     pub error: Option<String>,
     pub object_count: usize,
     pub relation_count: usize,
+    /// Visual noise of the focused region of the accepted projection (ADR 0007):
+    /// what the focused view shows at its own level, not the interiors of boxes
+    /// expanded in it. Above `layout::noise::NOISE_THRESHOLD` the view is dense
+    /// but still allowed.
+    pub noise: f64,
+    /// The densest expanded interior of the accepted projection, by region id
+    /// and noise, when there is one. Each interior is scored on its own.
+    pub densest_interior: Option<(String, f64)>,
     pub composition_frames: usize,
     pub maximum_scale_shift: u8,
     pub model_id: Option<String>,
@@ -421,6 +429,9 @@ pub enum ViewerAction {
     NextRelation,
     PreviousRelation,
     ClearRelationSelection,
+    /// Expand both endpoints of the selected path so its member relations
+    /// can be drawn as separate lines (ADR 0007 section 4).
+    ExpandPathEndpoints,
     NextPage,
     PreviousPage,
     Search(String),
@@ -518,7 +529,7 @@ struct InspectorViewport {
 }
 const DETAILS_BOTTOM: f32 = 60.0;
 const DETAILS_COLLAPSED_HEIGHT: f32 = 36.0;
-const ALL_CONTROLS: &str = "Controls\nClick / Tab: select | Enter: enter | Backspace: return | /: search\nPageUp / PageDown: children | Shift+PageUp / PageDown: relationship pages\nE: expand / collapse | M: mark | G: group | Shift+G: ungroup | Shift+M: clear marks | Z: semantic zoom\nSpace: separate layers | I: isolate | J / K: select path | Shift+I: clear path | B / N: browse claims\nP: pin | Shift+P: open pin origin | [ / ]: layer | L: policy | C: semantic view | O: reorganize | V: preview | A: apply | D: dismiss | U: undo\nDrag: orbit | Wheel: zoom | T: top | F: side | R: home | F1: Details | F5: reload | Esc: cancel\nOver open Details: wheel or PageUp / PageDown scrolls; Home / End reaches the beginning / end.";
+const ALL_CONTROLS: &str = "Controls\nClick: select and isolate | click empty space: clear | double-click: enter | Tab: select | Enter: enter | Backspace: clear isolation, then return | /: search\nPageUp / PageDown: children | Shift+PageUp / PageDown: relationship pages\nE: expand / collapse | M: mark | G: group | Shift+G: ungroup | Shift+M: clear marks | Z: semantic zoom\nSpace: separate layers | I: isolate | J / K: select path | X: expand both ends of path | Shift+I: clear path | B / N: browse claims\nP: pin | Shift+P: open pin origin | [ / ]: layer | L: policy | C: semantic view | O: reorganize | V: preview | A: apply | D: dismiss | U: undo\nDrag: orbit | Wheel: zoom | T: top | F: side | R: home | F1: Details | F5: reload | Esc: cancel\nOver open Details: wheel or PageUp / PageDown scrolls; Home / End reaches the beginning / end.";
 #[derive(Component)]
 struct NavigationText;
 #[derive(Component)]
@@ -552,6 +563,14 @@ impl Drop for Job {
         self.cancel.store(true, Ordering::Relaxed);
     }
 }
+/// Remembers which relations an expanded path carried, so the status message
+/// can report how many lines they became once the new view is accepted.
+#[derive(Debug, Clone)]
+struct PathExpansion {
+    members: Vec<String>,
+    expanded: Vec<String>,
+    skipped: Vec<String>,
+}
 #[derive(Resource, Default)]
 struct Viewer {
     view: ViewState,
@@ -561,6 +580,7 @@ struct Viewer {
     next_job_id: u64,
     retired_timings: VecDeque<LayoutTiming>,
     pending_expansion: Option<String>,
+    pending_path_expansion: Option<PathExpansion>,
     selected: Option<String>,
     selected_relation: Option<String>,
     inspector_expanded: bool,
@@ -579,6 +599,7 @@ struct Viewer {
     cache_order: VecDeque<String>,
     explode: bool,
     isolate: bool,
+    click: ClickState,
     dirty: bool,
     fit_requested: bool,
     origin: Vec3,
@@ -676,7 +697,7 @@ fn setup(
         LayoutText,
     ));
     spawn_inspector(&mut commands);
-    commands.spawn((Text::new("Click: select | Enter: enter | Backspace: back | /: find | E: expand | I: isolate\nDrag: orbit | Wheel: zoom | J/K: path | P: pin | F5: reload | F1: Details and controls"),TextFont{font_size:11.0,..default()},TextLayout::default().with_no_wrap(),TextColor(Color::srgb_u8(145,165,181)),Node{position_type:PositionType::Absolute,left:px(24),bottom:px(16),right:px(24),height:px(32),overflow:Overflow::clip(),..default()}));
+    commands.spawn((Text::new("Click: select and isolate | click empty space: clear | double-click: enter | Enter: enter | Backspace: back\n/: find | E: expand | I: isolate | Drag: orbit | Wheel: zoom | J/K: path | P: pin | F5: reload | F1: Details and controls"),TextFont{font_size:11.0,..default()},TextLayout::default().with_no_wrap(),TextColor(Color::srgb_u8(145,165,181)),Node{position_type:PositionType::Absolute,left:px(24),bottom:px(16),right:px(24),height:px(32),overflow:Overflow::clip(),..default()}));
     commands.spawn((
         NavigationText,
         Text::new("/ Find component | PageUp / PageDown: browse children"),
@@ -898,6 +919,22 @@ fn full_navigation(viewer: &Viewer, p: &DesktopProjection) -> String {
     }
     trail
 }
+/// The status-line noise level. A view over the threshold is shown, never
+/// refused, and is marked so it is visible: explicit expansion can cause it.
+fn noise_label(noise: f64) -> String {
+    if noise > layout::noise::NOISE_THRESHOLD {
+        format!("noise {noise:.0} (dense)")
+    } else {
+        format!("noise {noise:.1}")
+    }
+}
+/// A note for the densest expanded interior, shown only when it is over the
+/// threshold. The focused view can be quiet while a box opened in it is not.
+fn interior_note(status: &LayoutStatus) -> Option<String> {
+    let (_, noise) = status.densest_interior.as_ref()?;
+    (*noise > layout::noise::NOISE_THRESHOLD)
+        .then(|| format!("densest interior {noise:.0} (dense)"))
+}
 fn brief_status(viewer: &Viewer, status: &LayoutStatus) -> String {
     if status.error.is_some() {
         return "Update unavailable - F1 opens full details".into();
@@ -914,12 +951,18 @@ fn brief_status(viewer: &Viewer, status: &LayoutStatus) -> String {
         .into();
     }
     if let Some((p, s)) = &viewer.accepted {
-        return format!(
-            "{} objects | {} paths | revision {}",
+        let mut line = format!(
+            "{} objects | {} paths | revision {} | {}",
             s.geometry.boxes.len(),
             s.geometry.routes.len(),
-            p.revision
+            p.revision,
+            noise_label(status.noise)
         );
+        if let Some(note) = interior_note(status) {
+            line.push_str(" | ");
+            line.push_str(&note);
+        }
+        return line;
     }
     "Preparing the first view".into()
 }
@@ -1102,12 +1145,23 @@ fn apply_action(
             v.view.enter(id);
             v.view.restore_frame_pins();
             v.selected = None;
+            // Isolation belongs to the box it was set on; it does not follow
+            // the user into a different view.
+            v.isolate = false;
             v.search_open = false;
             v.group_marks.clear();
             start(model, engine, v, false);
             return Ok(true);
         }
         ViewerAction::Back => {
+            // Backspace first leaves isolation, then the navigation trail.
+            if v.isolate {
+                v.isolate = false;
+                v.selected_relation = None;
+                v.dirty = true;
+                v.message = "Isolation cleared.".into();
+                return Ok(false);
+            }
             v.view.save_frame_pins();
             if !v.view.back() {
                 v.message = "Already at the start of this navigation trail.".into();
@@ -1163,10 +1217,45 @@ fn apply_action(
             v.selected_relation = None;
             v.dirty = true;
         }
+        ViewerAction::ExpandPathEndpoints => {
+            let id = v
+                .selected_relation
+                .clone()
+                .ok_or("Select a path first (J / K), then X expands both of its endpoints")?;
+            let (p, _) = v.accepted.as_ref().ok_or("No accepted assembly yet")?;
+            let edge = selected_path_edge(v)
+                .ok_or_else(|| format!("Relationship {id} has no visible path to expand"))?;
+            let members = edge.semantic_ids.clone();
+            let mut expanded = Vec::new();
+            let mut skipped = Vec::new();
+            for end in [&edge.source, &edge.target] {
+                match endpoint_expansion_blocker(p, end) {
+                    None => expanded.push(end.clone()),
+                    Some(reason) => skipped.push(format!("{end} {reason}")),
+                }
+            }
+            if expanded.is_empty() {
+                return Err(format!(
+                    "Neither end of the selected path can be expanded: {}.",
+                    skipped.join("; ")
+                ));
+            }
+            for end in &expanded {
+                v.view.set_expanded(end.clone(), true);
+            }
+            start(model, engine, v, false);
+            v.pending_expansion = Some(expanded.join(" and "));
+            v.pending_path_expansion = Some(PathExpansion {
+                members,
+                expanded,
+                skipped,
+            });
+            return Ok(true);
+        }
         ViewerAction::NextClaims | ViewerAction::PreviousClaims => {
             let next = matches!(action, ViewerAction::NextClaims);
-            let count = selected_claims(v).len();
-            let last = count.saturating_sub(1) / 3;
+            let count = paged_claims(v).len();
+            let last = count.saturating_sub(1) / CLAIMS_PER_PAGE;
             v.relation_page = if next {
                 (v.relation_page + 1).min(last)
             } else {
@@ -1651,7 +1740,14 @@ fn expansion_toggle(viewer: &Viewer, id: &str) -> ViewerAction {
         p.suggested_groups.iter().any(|group| group.id == id)
             && p.nodes.iter().any(|node| node.id == id && !node.solid)
     });
-    if displayed_open_group || viewer.view.is_expanded(id) {
+    // A box the projector opened on its own is open as far as the user can
+    // tell: E collapses it, and the explicit collapse keeps it closed. Expand
+    // on one makes the opening explicit.
+    let opened_automatically = viewer
+        .accepted
+        .as_ref()
+        .is_some_and(|(p, _)| p.auto_opened.contains(id));
+    if displayed_open_group || opened_automatically || viewer.view.is_expanded(id) {
         ViewerAction::Collapse(id.to_owned())
     } else {
         ViewerAction::Expand(id.to_owned())
@@ -1787,6 +1883,7 @@ fn start_job(
     }
     retire_job(v);
     v.pending_expansion = None;
+    v.pending_path_expansion = None;
     clear_preview(v);
     if !reorganize {
         v.dirty |= v.selected_relation.take().is_some();
@@ -2392,6 +2489,7 @@ fn abandon_pending(v: &mut Viewer) {
     }
     retire_job(v);
     v.pending_expansion = None;
+    v.pending_path_expansion = None;
     clear_preview(v);
     v.view = v.accepted_view.clone();
     if v.accepted.is_some() {
@@ -2710,11 +2808,40 @@ fn visible_id(v: &Viewer, p: &DesktopProjection, id: &str) -> bool {
                     || display_ancestor(p, id, &edge.target)
             });
     }
-    v.selected.as_ref().is_none_or(|f| {
-        id == f
-            || p.edges
-                .iter()
-                .any(|e| (e.source == *f && e.target == id) || (e.target == *f && e.source == id))
+    v.selected
+        .as_ref()
+        .is_none_or(|f| isolation_shows(p, f, id))
+}
+/// `id` is the selected box or one of its displayed descendants.
+fn within_selection(p: &DesktopProjection, selected: &str, id: &str) -> bool {
+    id == selected || display_ancestor(p, selected, id)
+}
+/// Isolating a box shows it, everything displayed inside it, and the boxes its
+/// connectors reach. For an opened box those connectors include its
+/// descendants', and the far end's ancestors stay so no line ends in a hidden
+/// container (not the focused root, nor one that also holds the selection).
+/// A box with nothing displayed inside it isolates as a plain box.
+fn isolation_shows(p: &DesktopProjection, selected: &str, id: &str) -> bool {
+    if within_selection(p, selected, id) {
+        return true;
+    }
+    let opened = p
+        .nodes
+        .iter()
+        .any(|node| node.parent.as_deref() == Some(selected));
+    p.edges.iter().any(|e| {
+        let other = if within_selection(p, selected, &e.source) {
+            &e.target
+        } else if within_selection(p, selected, &e.target) {
+            &e.source
+        } else {
+            return false;
+        };
+        other == id
+            || (opened
+                && id != p.root
+                && !display_ancestor(p, id, selected)
+                && display_ancestor(p, id, other))
     })
 }
 fn display_ancestor(p: &DesktopProjection, ancestor: &str, id: &str) -> bool {
@@ -2735,15 +2862,38 @@ fn display_ancestor(p: &DesktopProjection, ancestor: &str, id: &str) -> bool {
     }
     false
 }
-fn visible_edge(v: &Viewer, edge: &layout::Edge) -> bool {
+fn visible_edge(v: &Viewer, p: &DesktopProjection, edge: &layout::Edge) -> bool {
     !v.isolate
         || if let Some(id) = &v.selected_relation {
             edge.semantic_ids.contains(id)
         } else {
-            v.selected
-                .as_ref()
-                .is_none_or(|id| edge.source == *id || edge.target == *id)
+            v.selected.as_ref().is_none_or(|id| {
+                within_selection(p, id, &edge.source) || within_selection(p, id, &edge.target)
+            })
         }
+}
+/// Makes a drawn connector read as the selected path: its private materials
+/// become the selection colour. Arrow/dash geometry is unchanged.
+fn highlight_path(commands: &mut Commands, root: Entity) {
+    commands.queue(move |world: &mut World| {
+        let handles: Vec<_> = world
+            .get::<Children>(root)
+            .into_iter()
+            .flat_map(|children| children.iter())
+            .filter_map(|child| {
+                world
+                    .get::<MeshMaterial3d<StandardMaterial>>(child)
+                    .map(|material| material.0.clone())
+            })
+            .collect();
+        let mut materials = world.resource_mut::<Assets<StandardMaterial>>();
+        for handle in handles {
+            if let Some(material) = materials.get_mut(&handle) {
+                material.base_color = Color::srgb_u8(255, 222, 125);
+                material.emissive = LinearRgba::rgb(0.15, 0.09, 0.02);
+            }
+        }
+    });
 }
 fn select_relation(viewer: &mut Viewer, id: &str) -> Result<(), String> {
     let (p, _) = viewer.accepted.as_ref().ok_or("No accepted assembly yet")?;
@@ -2758,13 +2908,13 @@ fn select_relation(viewer: &mut Viewer, id: &str) -> Result<(), String> {
         viewer.selected = Some(edge.source.clone());
     }
     viewer.selected_relation = Some(id.into());
-    viewer.relation_page = selected_claims(viewer)
+    viewer.relation_page = paged_claims(viewer)
         .iter()
         .position(|claim| claim.as_str() == id)
         .unwrap_or(0)
-        / 3;
+        / CLAIMS_PER_PAGE;
     viewer.message = format!(
-        "Selected relationship {id}. J / K changes path; I isolates it; Shift+I clears path selection."
+        "Selected relationship {id}. J / K changes path; X expands both ends of its path; I isolates it; Shift+I clears path selection."
     );
     viewer.dirty = true;
     Ok(())
@@ -2784,6 +2934,145 @@ fn retain_valid_relation_selection(viewer: &mut Viewer) {
         viewer.selected_relation = None;
         viewer.dirty = true;
     }
+}
+/// Largest cursor travel between press and release that still counts as a
+/// click (logical pixels); anything further is a drag and only orbits.
+const CLICK_DRAG_THRESHOLD: f32 = 5.0;
+/// Longest gap between two clicks on one box that makes them a double click.
+const DOUBLE_CLICK_WINDOW: Duration = Duration::from_millis(400);
+
+/// What a completed left-button press and release means for the scene.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Click {
+    /// A drag, or a press that began outside the scene: no selection change.
+    None,
+    /// A click on empty space.
+    Clear,
+    Single(String),
+    Double(String),
+}
+#[derive(Debug, Clone, PartialEq)]
+struct LastClick {
+    id: String,
+    at: Duration,
+}
+#[derive(Debug, Clone, Default)]
+struct ClickState {
+    /// Cursor position when the left button went down, unless that was over
+    /// Details.
+    press: Option<Vec2>,
+    last: Option<LastClick>,
+}
+/// Decides what a left press/release pair means. `hit` is the box under the
+/// release position, `last` the previous click that could pair into a double
+/// click, and `now` the time of this release.
+fn classify_click(
+    press: Option<Vec2>,
+    release: Vec2,
+    hit: Option<&str>,
+    last: &mut Option<LastClick>,
+    now: Duration,
+) -> Click {
+    let Some(press) = press else {
+        return Click::None;
+    };
+    if press.distance(release) >= CLICK_DRAG_THRESHOLD {
+        *last = None;
+        return Click::None;
+    }
+    let Some(id) = hit else {
+        *last = None;
+        return Click::Clear;
+    };
+    let double = last
+        .as_ref()
+        .is_some_and(|l| l.id == id && now.saturating_sub(l.at) <= DOUBLE_CLICK_WINDOW);
+    if double {
+        *last = None;
+        Click::Double(id.to_owned())
+    } else {
+        *last = Some(LastClick {
+            id: id.to_owned(),
+            at: now,
+        });
+        Click::Single(id.to_owned())
+    }
+}
+/// Applies a click to the viewer. A double click returns the Enter action the
+/// Enter key would submit; its first click already isolated the box.
+fn apply_click(v: &mut Viewer, click: Click) -> Option<ViewerAction> {
+    let double = matches!(click, Click::Double(_));
+    match click {
+        Click::None => None,
+        Click::Clear => {
+            let changed = v.isolate || v.selected.is_some() || v.selected_relation.is_some();
+            v.isolate = false;
+            v.selected = None;
+            v.selected_relation = None;
+            v.relation_page = 0;
+            v.dirty |= changed;
+            None
+        }
+        Click::Single(id) | Click::Double(id) => {
+            let changed =
+                !v.isolate || v.selected.as_ref() != Some(&id) || v.selected_relation.is_some();
+            v.isolate = true;
+            v.selected = Some(id.clone());
+            v.selected_relation = None;
+            v.relation_page = 0;
+            v.dirty |= changed;
+            double.then_some(ViewerAction::Enter(id))
+        }
+    }
+}
+/// The box under the cursor, if any.
+fn pick_at(
+    v: &Viewer,
+    camera: &Camera,
+    transform: &GlobalTransform,
+    cursor: Vec2,
+) -> Option<String> {
+    let (p, _) = v.accepted.as_ref()?;
+    let s = displayed_solution(v)?;
+    let ray = camera.viewport_to_world(transform, cursor).ok()?;
+    pick_box(v, p, s, ray.origin, *ray.direction)
+}
+/// Solid boxes win, nearest first. When the ray hits none, the innermost
+/// (smallest) visible frame it passes through is picked, so boxes opened
+/// automatically or with E can be selected and entered too. The focused root
+/// is never picked.
+fn pick_box(
+    v: &Viewer,
+    p: &DesktopProjection,
+    s: &NativeLayout,
+    origin: Vec3,
+    direction: Vec3,
+) -> Option<String> {
+    let hits = |solid: bool| {
+        s.geometry
+            .boxes
+            .iter()
+            .filter(move |(id, b)| {
+                b.solid == solid && (solid || **id != p.root) && visible_id(v, p, id)
+            })
+            .filter_map(|(id, b)| {
+                let lo = s.geometry.display(b.min, v.explode, v.origin);
+                let hi = s.geometry.display(b.max, v.explode, v.origin);
+                let size = hi - lo;
+                ray_box(origin, direction, lo, hi)
+                    .map(|d| (d, size.x * size.y * size.z, id.clone()))
+            })
+    };
+    hits(true)
+        .min_by(|a, b| a.0.total_cmp(&b.0).then(a.2.cmp(&b.2)))
+        .or_else(|| {
+            hits(false).min_by(|a, b| {
+                a.1.total_cmp(&b.1)
+                    .then(a.0.total_cmp(&b.0))
+                    .then(a.2.cmp(&b.2))
+            })
+        })
+        .map(|(_, _, id)| id)
 }
 fn ray_box(origin: Vec3, direction: Vec3, min: Vec3, max: Vec3) -> Option<f32> {
     let mut near = 0.0_f32;
@@ -2844,6 +3133,116 @@ fn claim_text(claim: &crate::layout_input::DisplayClaim) -> String {
         claim.aspect,
         claim.rationale.as_deref().unwrap_or("")
     )
+}
+/// Claims shown per Details page and stepped by B / N.
+const CLAIMS_PER_PAGE: usize = 3;
+/// The aggregated connector the selected relationship is drawn on, if loaded.
+fn selected_path_edge(viewer: &Viewer) -> Option<&layout::Edge> {
+    let id = viewer.selected_relation.as_ref()?;
+    let (p, _) = viewer.accepted.as_ref()?;
+    p.edges.iter().find(|edge| edge.semantic_ids.contains(id))
+}
+/// What B / N browse: the members of the selected path when one is selected
+/// (so an aggregated line can be decomposed), otherwise the selected
+/// component's linked claims.
+fn paged_claims(viewer: &Viewer) -> Vec<&String> {
+    selected_path_edge(viewer).map_or_else(
+        || selected_claims(viewer),
+        |edge| edge.semantic_ids.iter().collect(),
+    )
+}
+/// Why expanding the displayed endpoint `id` cannot reveal anything, or `None`
+/// when it is a collapsed container whose supplied children are hidden in it.
+fn endpoint_expansion_blocker(p: &DesktopProjection, id: &str) -> Option<&'static str> {
+    if p.references.contains_key(id) || id.starts_with("view:reference:") {
+        return Some("is a reference to an object outside this view; Enter it to see its interior");
+    }
+    if !p.nodes.iter().any(|node| node.id == id) {
+        return Some("is not in the current view");
+    }
+    // A collapsed container maps its hidden supplied descendants onto itself;
+    // an expanded one, or a leaf box, has nothing besides its own identity.
+    let hides_children = p
+        .semantic_to_display
+        .iter()
+        .any(|(semantic, display)| display == id && semantic != id);
+    (!hides_children)
+        .then_some("has no collapsed supplied children (a leaf box or already expanded)")
+}
+fn path_expansion_message(p: &DesktopProjection, expansion: &PathExpansion) -> String {
+    let lines = p
+        .edges
+        .iter()
+        .filter(|edge| {
+            edge.semantic_ids
+                .iter()
+                .any(|id| expansion.members.contains(id))
+        })
+        .count();
+    let both = expansion.skipped.is_empty();
+    let mut message = if both {
+        "Expanded both ends of the selected path".to_owned()
+    } else {
+        format!("Expanded {}", expansion.expanded.join(" and "))
+    };
+    message.push_str(&if lines == 0 {
+        format!(
+            "; its {} relationships are no longer drawn as lines in this view",
+            expansion.members.len()
+        )
+    } else {
+        format!(
+            "; its {} relationships are now shown as {} line{}",
+            expansion.members.len(),
+            lines,
+            if lines == 1 { "" } else { "s" }
+        )
+    });
+    if !both {
+        message.push_str(&format!(
+            " (not expanded: {})",
+            expansion.skipped.join("; ")
+        ));
+    }
+    message.push('.');
+    message
+}
+/// Details text for a selected path: how many relationships its line carries
+/// and one page of them with their original predicates and endpoints.
+fn path_details(viewer: &Viewer, p: &DesktopProjection) -> Option<String> {
+    let selected = p.claims.get(viewer.selected_relation.as_ref()?)?;
+    let edge = selected_path_edge(viewer)?;
+    let count = edge.semantic_ids.len();
+    let mut text = format!(
+        "Selected path: {}\nThis line carries {} relationship{}. X expands both ends so they become separate lines; J / K selects a claim; I isolates; Shift+I clears.\n",
+        claim_text(selected),
+        count,
+        if count == 1 { "" } else { "s" }
+    );
+    if count > 1 {
+        let pages = count.div_ceil(CLAIMS_PER_PAGE);
+        text.push_str(&format!(
+            "Relationships on this line (page {} of {}, B / N to browse):\n",
+            viewer.relation_page.min(pages - 1) + 1,
+            pages
+        ));
+        for id in edge
+            .semantic_ids
+            .iter()
+            .skip(viewer.relation_page * CLAIMS_PER_PAGE)
+            .take(CLAIMS_PER_PAGE)
+        {
+            match p.claims.get(id) {
+                Some(claim) => text.push_str(&format!(
+                    "{} {}\n",
+                    if *id == selected.id { ">" } else { "-" },
+                    claim_text(claim)
+                )),
+                None => text.push_str(&format!("- {id}: details not loaded in this view\n")),
+            }
+        }
+    }
+    Some(text)
 }
 #[cfg(test)]
 fn vec(p: Point) -> Vec3 {
@@ -3117,6 +3516,7 @@ fn poll(
             timing_snapshot_at(&job.timing.lock().unwrap(), "failed", acceptance_started);
         let queued = job.timing.lock().unwrap().queued;
         let expansion = viewer.pending_expansion.take();
+        let path_expansion = viewer.pending_path_expansion.take();
         viewer.restore_attempted = true;
         let mut refine_reloaded = false;
         match result {
@@ -3244,9 +3644,12 @@ fn poll(
                                 viewer.selected = None;
                             }
                             retain_valid_relation_selection(&mut viewer);
-                            viewer.relation_page = viewer
-                                .relation_page
-                                .min(selected_claims(&viewer).len().saturating_sub(1) / 3);
+                            viewer.relation_page = viewer.relation_page.min(
+                                paged_claims(&viewer).len().saturating_sub(1) / CLAIMS_PER_PAGE,
+                            );
+                            if let Some(expansion) = &path_expansion {
+                                viewer.message = path_expansion_message(&projection, expansion);
+                            }
                             viewer.dirty = true;
                         }
                     }
@@ -3369,8 +3772,12 @@ fn poll(
                     },
                     ..default()
                 });
+                // The focused root encloses the whole view and is named by the
+                // navigation trail; drawing its outline adds nothing.
                 let parts = if b.solid {
                     vec![primitives::block(half)]
+                } else if n.id == p.root {
+                    vec![]
                 } else {
                     primitives::frame(half)
                 };
@@ -3412,9 +3819,12 @@ fn poll(
                     ));
                 }
             }
+            // Filter by isolation first, then merge coincident segments, so an
+            // isolated path always draws as a normal single route.
+            let mut visible = Vec::new();
             for r in &s.geometry.routes {
                 let edge = p.edges.iter().find(|e| e.id == r.edge_id).unwrap();
-                if !visible_edge(&viewer, edge) {
+                if !visible_edge(&viewer, p, edge) {
                     continue;
                 }
                 let selected = viewer
@@ -3430,6 +3840,39 @@ fn poll(
                 for point in &points {
                     scene_bounds = scene_bounds.max(point.abs() + Vec3::splat(0.5));
                 }
+                visible.push((r, relation, selected.is_some(), points));
+            }
+            let sources: Vec<_> = visible
+                .iter()
+                .map(|(r, relation, _, points)| connections::SegmentSource {
+                    kind: relation.visual_kind,
+                    basis: relation.basis,
+                    points,
+                    scales: &r.segment_scales,
+                    relations: r.semantic_ids.len(),
+                })
+                .collect();
+            let shared = connections::shared_segments(&sources);
+            let skips = connections::skip_masks(&sources, &shared);
+            // A shared trunk is drawn once; it is highlighted when any route
+            // through it is the selected path.
+            let shared_selected: Vec<bool> = shared
+                .iter()
+                .map(|segment| segment.members.iter().any(|&(route, _)| visible[route].2))
+                .collect();
+            for (segment, selected) in shared.iter().zip(shared_selected) {
+                let root = connections::draw_shared_segment(
+                    &mut commands,
+                    &mut meshes,
+                    &mut materials,
+                    segment,
+                );
+                if selected {
+                    highlight_path(&mut commands, root);
+                }
+                commands.entity(root).insert(LayoutOwned);
+            }
+            for ((r, relation, selected, points), skip) in visible.into_iter().zip(&skips) {
                 let route = connections::Route {
                     relation: connections::RenderedRelation {
                         id: relation.id.clone(),
@@ -3442,35 +3885,19 @@ fn poll(
                     label: None,
                     label_position: Vec3::ZERO,
                 };
-                let root = connections::draw_scaled(
+                let root = connections::draw_skipping(
                     &mut commands,
                     &mut meshes,
                     &mut materials,
                     &route,
                     &r.segment_scales,
+                    connections::aggregate_thickness(r.semantic_ids.len()),
+                    skip,
                 );
-                if selected.is_some() {
+                if selected {
                     // Keep existing arrow/dash geometry and its semantic basis.
                     // Only the private route material becomes more prominent.
-                    commands.queue(move |world: &mut World| {
-                        let handles: Vec<_> = world
-                            .get::<Children>(root)
-                            .into_iter()
-                            .flat_map(|children| children.iter())
-                            .filter_map(|child| {
-                                world
-                                    .get::<MeshMaterial3d<StandardMaterial>>(child)
-                                    .map(|material| material.0.clone())
-                            })
-                            .collect();
-                        let mut materials = world.resource_mut::<Assets<StandardMaterial>>();
-                        for handle in handles {
-                            if let Some(material) = materials.get_mut(&handle) {
-                                material.base_color = Color::srgb_u8(255, 222, 125);
-                                material.emissive = LinearRgba::rgb(0.15, 0.09, 0.02);
-                            }
-                        }
-                    });
+                    highlight_path(&mut commands, root);
                 }
                 commands
                     .entity(root)
@@ -3499,6 +3926,9 @@ fn poll(
             status.ready = true;
             status.object_count = s.geometry.boxes.len();
             status.relation_count = s.geometry.routes.len();
+            status.noise = layout::noise::visual_noise(&p.graph).total;
+            status.densest_interior =
+                layout::noise::densest_interior(&p.graph).map(|(id, noise)| (id, noise.total));
             status.composition_frames = s
                 .composed_solution()
                 .map_or(0, |solution| solution.assembly.frame_ids().count());
@@ -3613,22 +4043,50 @@ fn poll(
             if let Some(id) = &viewer.selected {
                 let label = p.labels.get(id);
                 let claims = selected_claims(&viewer);
-                let linked = claims
-                    .iter()
-                    .skip(viewer.relation_page * 3)
-                    .take(3)
-                    .filter_map(|id| p.claims.get(*id))
-                    .filter(|r| viewer.selected_relation.as_ref() != Some(&r.id))
-                    .map(claim_text)
-                    .collect::<Vec<_>>()
-                    .join("\n");
-                let selected = viewer.selected_relation.as_ref().and_then(|id| p.claims.get(id)).map_or(String::new(), |claim| {
-                    let members = p.edges.iter().filter(|edge| edge.semantic_ids.contains(&claim.id))
-                        .flat_map(|edge| &edge.semantic_ids).collect::<std::collections::BTreeSet<_>>().len();
-                    format!("Selected path: {}\n{} supplied claim(s) share this displayed path. J / K selects a claim; I isolates; Shift+I clears.\n", claim_text(claim), members)
-                });
+                let path = path_details(&viewer, p);
+                let linked = if path.is_some() {
+                    String::new()
+                } else {
+                    claims
+                        .iter()
+                        .skip(viewer.relation_page * CLAIMS_PER_PAGE)
+                        .take(CLAIMS_PER_PAGE)
+                        .filter_map(|id| p.claims.get(*id))
+                        .map(claim_text)
+                        .collect::<Vec<_>>()
+                        .join("\n")
+                };
+                let browse = if path.is_some() {
+                    "J / K selects path".to_owned()
+                } else {
+                    format!(
+                        "page {}, B / N to browse; J / K selects path",
+                        viewer.relation_page + 1
+                    )
+                };
+                let selected = path.unwrap_or_default();
+                let automatic = if p.auto_opened.contains(id) {
+                    "Opened automatically to show supplied structure within the readability budget; E collapses it.\n"
+                } else {
+                    ""
+                };
+                // An expanded box is its own region with its own readability budget.
+                let interior = layout::noise::region_noise(&p.graph)
+                    .get(id)
+                    .filter(|_| *id != p.graph.root)
+                    .map_or_else(String::new, |noise| {
+                        format!(
+                            "Interior: {}{}\n",
+                            noise.summary(),
+                            if noise.over_threshold() {
+                                " (dense)"
+                            } else {
+                                ""
+                            }
+                        )
+                    });
                 format!(
-                    "{} / {}\nSelected component: {}\n{}{} | {} linked claims (page {}, B / N to browse; J / K selects path) | {}\n{}{}\n{}",
+                    "{} / {}\nSelected component: {}\n{}{} | {} linked claims ({}) | {}\n{}{}{}{}\n{}",
                     p.model_id,
                     viewer.view.focus.as_deref().unwrap_or("Overview"),
                     label.map_or("unknown", |label| label.label.as_str()),
@@ -3644,8 +4102,10 @@ fn poll(
                         String::new()
                     },
                     claims.len(),
-                    viewer.relation_page + 1,
+                    browse,
                     label.map_or("unknown", |l| l.original_kind.as_str()),
+                    automatic,
+                    interior,
                     selected,
                     linked,
                     p.detail_note
@@ -3690,6 +4150,7 @@ fn append_search_text(query: &mut String, text: &str) {
 fn controls(
     keys: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
+    time: Res<Time<Real>>,
     window: Single<&Window, With<PrimaryWindow>>,
     camera: Single<(&Camera, &GlobalTransform), With<Camera3d>>,
     mut keyboard: MessageReader<KeyboardInput>,
@@ -3872,29 +4333,23 @@ fn controls(
             viewer.dirty = true;
         }
     }
-    if mouse.just_pressed(MouseButton::Left)
-        && !over_details
-        && let Some(cursor) = window.cursor_position()
-        && let Some((p, _)) = &viewer.accepted
-        && let Some(s) = displayed_solution(&viewer)
-        && let Ok(ray) = camera.0.viewport_to_world(camera.1, cursor)
-    {
-        let picked = s
-            .geometry
-            .boxes
-            .iter()
-            .filter(|(id, b)| b.solid && visible_id(&viewer, p, id))
-            .filter_map(|(id, b)| {
-                let lo = s.geometry.display(b.min, viewer.explode, viewer.origin);
-                let hi = s.geometry.display(b.max, viewer.explode, viewer.origin);
-                ray_box(ray.origin, *ray.direction, lo, hi).map(|d| (d, id.clone()))
-            })
-            .min_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
-        if let Some((_, id)) = picked {
-            viewer.selected = Some(id);
-            viewer.selected_relation = None;
-            viewer.relation_page = 0;
-            viewer.dirty = true;
+    // A click is decided on release, so a drag that starts on a box only
+    // orbits. A press over Details is never a click on the scene.
+    if mouse.just_pressed(MouseButton::Left) {
+        viewer.click.press = window.cursor_position().filter(|_| !over_details);
+    }
+    if mouse.just_released(MouseButton::Left) {
+        let press = viewer.click.press.take();
+        if let (Some(_), Some(cursor)) = (press, window.cursor_position()) {
+            let hit = pick_at(&viewer, camera.0, camera.1, cursor);
+            let mut last = viewer.click.last.take();
+            let click = classify_click(press, cursor, hit.as_deref(), &mut last, time.elapsed());
+            viewer.click.last = last;
+            if let Some(action) = apply_click(&mut viewer, click) {
+                let _ = actions.submit(action);
+            }
+        } else {
+            viewer.click.last = None;
         }
     }
     let shift = keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight);
@@ -4005,6 +4460,9 @@ fn controls(
                 band: (old + delta).clamp(-16, 16),
             });
         }
+    }
+    if keys.just_pressed(KeyCode::KeyX) {
+        let _ = actions.submit(ViewerAction::ExpandPathEndpoints);
     }
     if keys.just_pressed(KeyCode::KeyL) {
         use layout::projection::LayoutPolicy;
@@ -4155,10 +4613,10 @@ fn navigation_status(
         .iter()
         .map(|group| group.id.clone())
         .collect();
-    status.inspected_relation_ids = selected_claims(&viewer)
+    status.inspected_relation_ids = paged_claims(&viewer)
         .into_iter()
-        .skip(viewer.relation_page * 3)
-        .take(3)
+        .skip(viewer.relation_page * CLAIMS_PER_PAGE)
+        .take(CLAIMS_PER_PAGE)
         .cloned()
         .collect();
     if let Some(id) = &viewer.selected_relation
@@ -4389,6 +4847,9 @@ mod tests {
     include!("composed_state_tests.rs");
     include!("presentation_pin_tests.rs");
     include!("pin_provenance_tests.rs");
+    include!("aggregated_path_tests.rs");
+    include!("planned_detail_tests.rs");
+    include!("click_isolation_tests.rs");
 
     // These regressions exercise the flat engine. Mutations must rebuild both
     // authoritative solver data and the renderer geometry, just as acceptance does.
@@ -4406,6 +4867,7 @@ mod tests {
             pipeline_file(&file.0, 1, false);
             let mut app = action_app(LayoutInput::bundle(file.0.clone()), ViewState::default());
             app.add_plugins(InputPlugin)
+                .init_resource::<Time<Real>>()
                 .init_resource::<crate::camera::CameraInputLock>()
                 .add_systems(Update, controls.before(process_actions));
             if isolated {
@@ -4566,6 +5028,7 @@ mod tests {
         .init_resource::<ButtonInput<KeyCode>>()
         .init_resource::<ButtonInput<MouseButton>>()
         .init_resource::<Time>()
+        .init_resource::<Time<Real>>()
         .init_resource::<AccumulatedMouseMotion>()
         .add_message::<MouseWheel>()
         .add_message::<KeyboardInput>()
@@ -4896,6 +5359,20 @@ mod tests {
         }
         writer.finish().unwrap();
     }
+    /// A suggested group as the fallback grouper would have produced and the view
+    /// retained. In a bundle, paging by noise keeps every page of one layer within
+    /// the fallback noise, so suggested groups only appear on later pages of a
+    /// level that mixes layers (ADR 0007), and the code lens has a single layer.
+    /// These tests are about what happens to a retained suggestion (pins, focus,
+    /// reload, dismissal), not about when one is made, so they seed it.
+    fn seeded_suggestion(parent: &str, members: &[&str]) -> layout::projection::DisplayGroup {
+        layout::projection::DisplayGroup {
+            id: format!("view:suggested-group:{parent}:{}", members[0]),
+            parent: parent.into(),
+            members: members.iter().map(|id| (*id).to_owned()).collect(),
+            suggested: true,
+        }
+    }
     fn grouped_code_file(path: &std::path::Path) {
         grouped_code_revision(path, 1, 130, true);
     }
@@ -4979,6 +5456,54 @@ mod tests {
                     aspect: None,
                 }))
                 .unwrap();
+        }
+        writer.finish().unwrap();
+    }
+    /// The data-messaging example with `extra` more services in its root scope.
+    /// More than 24 same-layer children are noisy enough (ADR 0007) to be paged,
+    /// which the small example never is.
+    fn paged_messaging_file(path: &std::path::Path, extra: usize) {
+        use visualyze_model::provider::*;
+        let mut manifest = None;
+        let mut records = Vec::new();
+        for line in include_str!("../../../public/examples/data-messaging.bundle.jsonl").lines() {
+            match serde_json::from_str::<BundleRecord>(line).unwrap() {
+                BundleRecord::Manifest(value) => manifest = Some(value),
+                BundleRecord::Complete(_) => (),
+                record => records.push(record),
+            }
+        }
+        for index in 0..extra {
+            let id = format!("service:extra:{index:03}");
+            records.push(BundleRecord::Entity(EntityRecord {
+                summary: EntitySummary {
+                    label: id.clone(),
+                    id: id.clone(),
+                    kind: EntityKind::Service,
+                    boundary: Boundary::Internal,
+                    claim: Claim::declared(),
+                },
+                detail: None,
+            }));
+            records.push(BundleRecord::Relation(RelationRecord {
+                id: format!("rel:contains:{id}"),
+                kind: RelationKind::Contains,
+                source: "scope:orders".into(),
+                target: id,
+                claim: Claim::declared(),
+                label: None,
+                aspect: None,
+            }));
+        }
+        records.sort_by_key(|record| match record {
+            BundleRecord::Evidence(record) => (0, record.id.clone()),
+            BundleRecord::Entity(record) => (1, record.summary.id.clone()),
+            BundleRecord::Relation(record) => (2, record.id.clone()),
+            _ => unreachable!(),
+        });
+        let mut writer = BundleWriter::create(path, manifest.unwrap(), Limits::default()).unwrap();
+        for record in records {
+            writer.push(&record).unwrap();
         }
         writer.finish().unwrap();
     }
@@ -5859,12 +6384,11 @@ mod tests {
     }
     #[test]
     fn native_actions_navigate_search_page_and_recover_from_invalid_jump() {
-        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../public/examples/data-messaging.bundle.jsonl");
-        let mut app = action_app(
-            LayoutInput::bundle(path),
-            ViewState::with_budgets(2, 2, 250),
-        );
+        // Thirty extra services in the root scope make the level noisy enough
+        // to be paged by noise (24 per page), so there is a next page.
+        let file = LocalTestFile::new();
+        paged_messaging_file(&file.0, 30);
+        let mut app = action_app(LayoutInput::bundle(file.0.clone()), ViewState::default());
         let original = app
             .world()
             .resource::<Viewer>()
@@ -6391,7 +6915,13 @@ mod tests {
         for package_survives in [true, false] {
             let file = LocalTestFile::new();
             grouped_code_file(&file.0);
-            let mut app = action_app(LayoutInput::bundle(file.0.clone()), ViewState::default());
+            let mut view = ViewState::default();
+            view.protect_groups(&[seeded_suggestion(
+                "package",
+                &["file:000", "file:001", "file:002", "file:003"],
+            )])
+            .unwrap();
+            let mut app = action_app(LayoutInput::bundle(file.0.clone()), view);
             complete(&mut app, ViewerAction::Jump("repo".into()));
             complete(&mut app, ViewerAction::Pin("repo".into()));
             complete(&mut app, ViewerAction::Enter("package".into()));
@@ -7036,7 +7566,7 @@ mod tests {
     fn reload_with_conflicting_established_pins_keeps_the_accepted_source() {
         let file = LocalTestFile::new();
         pipeline_file(&file.0, 1, false);
-        let mut view = ViewState::with_budgets(64, 32, 250);
+        let mut view = ViewState::default();
         view.policy = layout::projection::LayoutPolicy::Pipeline;
         let mut app = action_app(LayoutInput::bundle(file.0.clone()), view);
         complete(&mut app, ViewerAction::Pin("a".into()));
@@ -7187,14 +7717,29 @@ mod tests {
     }
     #[test]
     fn suggested_group_dismissal_survives_navigation_and_undo() {
-        let model = visualyze_model::architecture::Architecture::from_json(include_bytes!(
-            "../../../public/examples/notes-crud.json"
-        ))
+        // Twenty-five extra services in the scope put 26 peers in one layer, so
+        // the level is noisy enough for suggested fallback groups.
+        let mut value: serde_json::Value =
+            serde_json::from_slice(include_bytes!("../../../public/examples/notes-crud.json"))
+                .unwrap();
+        for index in 0..25 {
+            let id = format!("service:extra:{index:02}");
+            value["entities"].as_array_mut().unwrap().push(serde_json::json!({
+                "id": id, "kind": "service", "label": id, "boundary": "internal", "basis": "declared"
+            }));
+            value["relations"]
+                .as_array_mut()
+                .unwrap()
+                .push(serde_json::json!({
+                    "id": format!("rel:contains-{id}"), "source": "scope:notes", "target": id,
+                    "kind": "contains", "basis": "declared"
+                }));
+        }
+        let model = visualyze_model::architecture::Architecture::from_json(
+            &serde_json::to_vec(&value).unwrap(),
+        )
         .unwrap();
-        let mut app = action_app(
-            LayoutInput::snapshot(model),
-            ViewState::with_budgets(3, 2, 250),
-        );
+        let mut app = action_app(LayoutInput::snapshot(model), ViewState::default());
         let id = app
             .world()
             .resource::<Viewer>()
@@ -7254,6 +7799,11 @@ mod tests {
             grouped_code_file(&file.0);
             let mut view = ViewState::default();
             view.enter("package");
+            view.protect_groups(&[seeded_suggestion(
+                "package",
+                &["file:000", "file:001", "file:002", "file:003"],
+            )])
+            .unwrap();
             let mut app = action_app(LayoutInput::bundle(file.0.clone()), view);
             let group = app
                 .world()

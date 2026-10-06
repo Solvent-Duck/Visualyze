@@ -31,6 +31,7 @@ fn node(id: &str, parent: Option<&str>, kind: NodeKind, solid: bool) -> Node {
 
 fn edge(id: &str, source: &str, target: &str) -> Edge {
     Edge {
+        bundle: None,
         id: id.into(),
         source: source.into(),
         target: target.into(),

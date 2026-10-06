@@ -452,6 +452,8 @@ struct WireEdge {
     source: String,
     target: String,
     semantic_ids: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    bundle: Option<String>,
 }
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -538,6 +540,7 @@ impl WireState {
                         source: route.edge.source.clone(),
                         target: route.edge.target.clone(),
                         semantic_ids: route.edge.semantic_ids.clone(),
+                        bundle: route.edge.bundle.clone(),
                     },
                     fragments: route
                         .fragments
@@ -712,6 +715,7 @@ impl WireState {
                 id,
                 ComposedRoute {
                     edge: Edge {
+                        bundle: route.edge.bundle,
                         id: route.edge.id,
                         source: route.edge.source,
                         target: route.edge.target,
@@ -1044,12 +1048,21 @@ fn check_shape(
         for f in &route.fragments {
             check_cancel(cancelled)?;
             budget.text(&f.frame_id, 4096)?;
+            // A fragment is the route's own, or its bundle's shared trunk
+            // (ADR 0007), which carries every member's relationships. The
+            // composition validator later rebuilds the exact expectation.
+            let own = f.request.id == *id && f.request.semantic_ids == route.edge.semantic_ids;
+            let trunk = route.edge.bundle.as_ref() == Some(&f.request.id)
+                && route
+                    .edge
+                    .semantic_ids
+                    .iter()
+                    .all(|member| f.request.semantic_ids.contains(member));
             if !frames.contains(f.frame_id.as_str())
                 || !distinct.insert(&f.frame_id)
-                || f.request.id != *id
-                || f.route.id != *id
-                || f.request.semantic_ids != route.edge.semantic_ids
-                || f.route.semantic_ids != route.edge.semantic_ids
+                || !(own || trunk)
+                || f.route.id != f.request.id
+                || f.route.semantic_ids != f.request.semantic_ids
                 || f.route.points.len() < 2
             {
                 return Err(invalid(
@@ -1520,9 +1533,6 @@ fn check_view(
 ) -> Result<(), PersistenceError> {
     if view.visible_budget == 0
         || view.visible_budget > 1024
-        || view.group_target < 2
-        || view.peer_ceiling < view.group_target
-        || view.peer_ceiling > 1024
         || view.pins.len() > 4096
         || view.frame_pins.len() > 64
         || view.layer_preferences.len() > 4096

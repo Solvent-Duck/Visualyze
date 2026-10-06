@@ -5,6 +5,7 @@ use crate::{
     assembly_plan::FramePlan,
     check_cancel, measure,
 };
+use std::collections::BTreeSet;
 
 impl ComposedSolution {
     /// Present a validated composition in its root frame. Every display object
@@ -110,11 +111,14 @@ pub(super) fn measure_validated(
         check_cancel(cancelled)?;
         let frame = solution.assembly.frame(id).map_err(assembly_error)?;
         let mut local = frame.solution().clone();
+        // A bundle's shared trunk is stored on every member: measure it once.
+        let mut measured_ids = BTreeSet::new();
         local.routes = solution
             .routes
             .values()
             .flat_map(|route| &route.fragments)
             .filter(|fragment| fragment.frame_id == *id)
+            .filter(|fragment| measured_ids.insert(fragment.request.id.clone()))
             .map(|fragment| Route {
                 edge_id: fragment.route.id.clone(),
                 semantic_ids: fragment.route.semantic_ids.clone(),

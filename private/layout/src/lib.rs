@@ -1,9 +1,12 @@
 //! Deterministic, renderer-independent placement. Coordinates are tenths of a
 //! scene unit. Semantic records remain in the public model; these are view data.
+pub mod advice;
 pub mod assembly;
 pub mod assembly_plan;
 pub mod composed;
+pub mod detail;
 pub mod metrics;
+pub mod noise;
 pub mod oracle;
 pub mod persistence;
 pub mod projection;
@@ -135,6 +138,13 @@ pub struct Edge {
     pub source: String,
     pub target: String,
     pub semantic_ids: Vec<String>,
+    /// Identifies the line this edge would be if the outermost expanded boxes
+    /// it crosses were collapsed: `(S', T', kind, aspect)`. Edges that cross
+    /// at least one expanded box boundary below their lowest common enclosure
+    /// carry it, and edges sharing a key are drawn as one trunk in that
+    /// enclosure. `None` when both ends already sit directly in their common
+    /// enclosure. Built by `projection::bundle_key`.
+    pub bundle: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
