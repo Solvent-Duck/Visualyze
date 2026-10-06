@@ -67,6 +67,62 @@ pub struct PlacedObject {
     pub semantic_ids: Vec<String>,
     pub kind: String,
     pub basis: Basis,
+    /// Half extents of the drawn box, for framing.
+    pub half: Vec3,
+}
+
+/// A displayed object or connector drawn faded because a staged scene puts it
+/// in context rather than in focus.
+#[derive(Component, Debug)]
+pub struct Dimmed;
+
+/// Which supplied IDs a staged scene is about. Everything else is context.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Spotlight {
+    pub lit: BTreeSet<String>,
+    pub relations: BTreeSet<String>,
+    pub context: SpotContext,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpotContext {
+    Dim,
+    Hide,
+    Show,
+}
+
+/// A view an agent asks for: where to stand, what to open, what to light.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct StagedScene {
+    /// None shows the system root.
+    pub root: Option<String>,
+    pub expand: Vec<String>,
+    pub spotlight: Option<Spotlight>,
+    pub explode: bool,
+}
+
+/// A validated model supplied by a local agent, replacing the current one.
+#[derive(Clone)]
+pub struct Published(pub(crate) LayoutInput, pub(crate) String);
+impl Published {
+    pub(crate) fn new(
+        model: visualyze_model::architecture::Architecture,
+        path: Option<std::path::PathBuf>,
+    ) -> Self {
+        let id = model.snapshot().model_id.clone();
+        Self(
+            match path {
+                Some(path) => LayoutInput::snapshot_file(model, path),
+                None => LayoutInput::snapshot(model),
+            },
+            id,
+        )
+    }
+}
+impl std::fmt::Debug for Published {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Published({})", self.1)
+    }
 }
 #[derive(Component, Debug)]
 pub struct PlacedRelation {
@@ -436,6 +492,10 @@ pub enum ViewerAction {
     PreviousPage,
     Search(String),
     Reload,
+    /// Replace the model with an agent-supplied one, which may be a different model.
+    Publish(Published),
+    /// Show a scene an agent asked for, replacing navigation and emphasis.
+    Stage(Box<StagedScene>),
     NextClaims,
     PreviousClaims,
     NextRelations,
@@ -482,7 +542,11 @@ pub struct ViewerActions {
 
 impl ViewerActions {
     pub fn submit(&mut self, action: ViewerAction) -> Result<u64, &'static str> {
-        if self.queue.len() >= 64 && !matches!(action, ViewerAction::Cancel | ViewerAction::Reload)
+        if self.queue.len() >= 64
+            && !matches!(
+                action,
+                ViewerAction::Cancel | ViewerAction::Reload | ViewerAction::Publish(_)
+            )
         {
             return Err("viewer action queue is full");
         }
@@ -491,7 +555,10 @@ impl ViewerActions {
             .checked_add(1)
             .ok_or("viewer action sequence exhausted")?;
         let id = self.next_id;
-        if matches!(action, ViewerAction::Cancel | ViewerAction::Reload) {
+        if matches!(
+            action,
+            ViewerAction::Cancel | ViewerAction::Reload | ViewerAction::Publish(_)
+        ) {
             self.queue.clear();
             self.queue.push_front((id, action));
         } else {
@@ -525,6 +592,10 @@ const MARK_COLOR: Color = Color::srgb(0.95, 0.74, 0.3);
 struct Inspector;
 #[derive(Component)]
 struct InspectorPanel;
+/// Exploration HUD: status, trail, hints, and Details. Hidden while an agent's
+/// walkthrough presents, so the frame shows only the explanation.
+#[derive(Component)]
+pub(crate) struct DevChrome;
 #[derive(Component)]
 struct InspectorDisclosure;
 #[derive(Component, Default)]
@@ -628,8 +699,17 @@ struct Viewer {
     canonical_cache: Arc<layout::composed::CanonicalPlacementCache>,
     composed_constraints: ConstraintRegistry,
     accepted_composed_constraints: Arc<ConstraintRegistry>,
+    spotlight: Option<Spotlight>,
+    /// The next job replaces the model with a different one: no identity check
+    /// against the accepted model and no reuse of its layout.
+    switching_model: bool,
 }
 type ConstraintRegistry = BTreeMap<(SemanticLens, String), ComposedConstraints>;
+
+/// Action processing through status publication. Readers of `LayoutStatus`
+/// that must see a finished action's effects run after this set.
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub(crate) struct LayoutUpdate;
 
 pub(crate) struct LayoutScenePlugin;
 impl Plugin for LayoutScenePlugin {
@@ -643,12 +723,14 @@ impl Plugin for LayoutScenePlugin {
                 Update,
                 (process_actions, controls, poll, navigation_status)
                     .chain()
+                    .in_set(LayoutUpdate)
                     .before(crate::camera::CameraControls),
             )
             .add_systems(
                 PostUpdate,
                 (labels, semantic_zoom).after(CameraUpdateSystems),
-            );
+            )
+            .add_systems(PostUpdate, dim_context);
     }
 }
 fn setup(
@@ -689,11 +771,13 @@ fn setup(
             ..default()
         },
         LayoutText,
+        DevChrome,
     ));
     spawn_inspector(&mut commands);
-    commands.spawn((Text::new("Click: select and isolate | click empty space: clear | double-click: enter | Enter: enter | Backspace: back\n/: find | E: expand | I: isolate | Drag: orbit | Wheel: zoom | J/K: path | P: pin | F5: reload | F1: Details and controls"),TextFont{font_size:11.0,..default()},TextLayout::default().with_no_wrap(),TextColor(Color::srgb_u8(145,165,181)),Node{position_type:PositionType::Absolute,left:px(24),bottom:px(16),right:px(24),height:px(32),overflow:Overflow::clip(),..default()}));
+    commands.spawn((DevChrome, Text::new("Click: select and isolate | click empty space: clear | double-click: enter | Enter: enter | Backspace: back\n/: find | E: expand | I: isolate | Drag: orbit | Wheel: zoom | J/K: path | P: pin | F5: reload | F1: Details and controls"),TextFont{font_size:11.0,..default()},TextLayout::default().with_no_wrap(),TextColor(Color::srgb_u8(145,165,181)),Node{position_type:PositionType::Absolute,left:px(24),bottom:px(16),right:px(24),height:px(32),overflow:Overflow::clip(),..default()}));
     commands.spawn((
         NavigationText,
+        DevChrome,
         Text::new("/ Find component | PageUp / PageDown: browse children"),
         TextFont {
             font_size: 13.0,
@@ -750,6 +834,7 @@ fn spawn_inspector(commands: &mut Commands) {
     commands
         .spawn((
             InspectorPanel,
+            DevChrome,
             GlobalZIndex(10),
             BackgroundColor(Color::srgba(0.055, 0.07, 0.09, 0.97)),
             Node {
@@ -1022,10 +1107,9 @@ fn process_actions(
         .queue
         .front()
         .is_some_and(|(_, action)| matches!(action, ViewerAction::Cancel));
-    let reload = actions
-        .queue
-        .front()
-        .is_some_and(|(_, action)| matches!(action, ViewerAction::Reload));
+    let reload = actions.queue.front().is_some_and(|(_, action)| {
+        matches!(action, ViewerAction::Reload | ViewerAction::Publish(_))
+    });
     // Automatic reorganization is speculative. A user navigation, search or
     // constraint edit supersedes it immediately, including a result already in
     // its channel. Dropping the job cancels work and makes late results inert.
@@ -1123,6 +1207,58 @@ fn apply_action(
                 Some(candidate.clone()),
                 Some(model.clone()),
             );
+            return Ok(true);
+        }
+        ViewerAction::Publish(published) => {
+            v.search_job.take();
+            v.search_results.clear();
+            abandon_pending(v);
+            v.view.reset_relation_pages();
+            v.search_open = false;
+            let same = v
+                .accepted
+                .as_ref()
+                .is_some_and(|(p, _)| p.model_id == published.1);
+            if !same {
+                let policy = v.view.policy;
+                v.view = ViewState::default();
+                v.view.policy = policy;
+                v.switching_model = true;
+                v.restore_attempted = false;
+                v.selected = None;
+                v.isolate = false;
+                v.explode = false;
+                v.spotlight = None;
+                v.group_marks.clear();
+            }
+            start_job(
+                &published.0,
+                engine,
+                v,
+                false,
+                Some(published.0.clone()),
+                same.then(|| model.clone()),
+            );
+            return Ok(true);
+        }
+        ViewerAction::Stage(scene) => {
+            let scene = *scene;
+            v.view.reset_focus();
+            if let Some(root) = scene.root {
+                v.view.enter(root);
+            }
+            v.view.expanded.clear();
+            v.view.collapsed.clear();
+            for id in scene.expand {
+                v.view.set_expanded(id, true);
+            }
+            v.explode = scene.explode;
+            v.isolate = false;
+            v.selected = None;
+            v.selected_relation = None;
+            v.spotlight = scene.spotlight;
+            v.dirty = true;
+            start(model, engine, v, false);
             return Ok(true);
         }
         ViewerAction::Enter(id) | ViewerAction::Jump(id) => {
@@ -1884,9 +2020,11 @@ fn start_job(
     }
     let input = model.clone();
     let reload = replacement_input.is_some();
+    let switching = std::mem::take(&mut v.switching_model);
     let accepted_identity = v
         .accepted
         .as_ref()
+        .filter(|_| !switching)
         .map(|(p, _)| (p.model_id.clone(), p.revision));
     let mut view = v.view.clone();
     let storage = v.storage.clone();
@@ -1895,7 +2033,7 @@ fn start_job(
     let cached_order = v.cache_order.clone();
     let canonical_cache = v.canonical_cache.clone();
     let composed_constraints = v.composed_constraints.clone();
-    let previous = v.accepted.as_ref().map(|(p, s)| {
+    let previous = v.accepted.as_ref().filter(|_| !switching).map(|(p, s)| {
         v.cache
             .get(&s.projection_key)
             .cloned()
@@ -2868,6 +3006,71 @@ fn visible_edge(v: &Viewer, p: &DesktopProjection, edge: &layout::Edge) -> bool 
 }
 /// Makes a drawn connector read as the selected path: its private materials
 /// become the selection colour. Arrow/dash geometry is unchanged.
+const DIMMED_ALPHA: f32 = 0.14;
+
+/// Display IDs a spotlight lights, plus the containers that frame them.
+struct Spotlit {
+    focus: BTreeSet<String>,
+    frames: BTreeSet<String>,
+    relations: BTreeSet<String>,
+    context: SpotContext,
+}
+
+fn spotlit(
+    spotlight: &Spotlight,
+    p: &DesktopProjection,
+    parents: &BTreeMap<&str, &str>,
+) -> Spotlit {
+    let mut focus = BTreeSet::new();
+    for id in &spotlight.lit {
+        let display = if p.nodes.iter().any(|n| n.id == *id) {
+            Some(id.clone())
+        } else {
+            p.semantic_to_display.get(id).cloned()
+        };
+        focus.extend(display);
+    }
+    let mut frames = BTreeSet::new();
+    for id in &focus {
+        let mut at = id.as_str();
+        while let Some(parent) = parents.get(at) {
+            if !frames.insert((*parent).to_owned()) {
+                break;
+            }
+            at = parent;
+        }
+    }
+    Spotlit {
+        focus,
+        frames,
+        relations: spotlight.relations.clone(),
+        context: spotlight.context,
+    }
+}
+
+/// Fade every standard material under a dimmed root, after it is spawned.
+fn dim_context(
+    added: Query<Entity, Added<Dimmed>>,
+    children: Query<&Children>,
+    handles: Query<&MeshMaterial3d<StandardMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    for root in &added {
+        for entity in std::iter::once(root).chain(children.iter_descendants(root)) {
+            let Ok(handle) = handles.get(entity) else {
+                continue;
+            };
+            if let Some(material) = materials.get_mut(&handle.0)
+                && material.alpha_mode != AlphaMode::Blend
+            {
+                material.base_color = material.base_color.with_alpha(DIMMED_ALPHA);
+                material.emissive *= 0.15;
+                material.alpha_mode = AlphaMode::Blend;
+            }
+        }
+    }
+}
+
 fn highlight_path(commands: &mut Commands, root: Entity) {
     commands.queue(move |world: &mut World| {
         let handles: Vec<_> = world
@@ -3722,6 +3925,10 @@ fn poll(
                 .iter()
                 .filter_map(|n| Some((n.id.as_str(), n.parent.as_deref()?)))
                 .collect();
+            let spot = viewer
+                .spotlight
+                .as_ref()
+                .map(|spotlight| spotlit(spotlight, p, &parents));
             for n in &p.nodes {
                 let b = &s.geometry.boxes[&n.id];
                 let lo = s.geometry.display(b.min, viewer.explode, center);
@@ -3732,6 +3939,18 @@ fn poll(
                 if !visible_id(&viewer, p, &n.id) {
                     continue;
                 }
+                let (lit, dimmed) = match &spot {
+                    None => (false, false),
+                    Some(spot) => {
+                        let lit = spot.focus.contains(&n.id);
+                        let framed = lit || spot.frames.contains(&n.id);
+                        match spot.context {
+                            SpotContext::Hide if !framed && n.id != p.root => continue,
+                            SpotContext::Dim => (lit, !framed && n.id != p.root),
+                            _ => (lit, false),
+                        }
+                    }
+                };
                 let display = p.labels.get(&n.id);
                 let k = match display.map(|d| d.original_kind.as_str()) {
                     Some("table" | "column") => EntityKind::Datastore,
@@ -3755,6 +3974,7 @@ fn poll(
                             kind: display
                                 .map_or_else(|| "unknown".into(), |d| d.original_kind.clone()),
                             basis,
+                            half,
                         },
                         Transform::from_translation(position),
                         Visibility::default(),
@@ -3762,9 +3982,21 @@ fn poll(
                     .id();
                 let color = object_color(display.map(|label| label.original_kind.as_str()), k);
                 let marked = viewer.group_marks.contains_key(&n.id);
+                if dimmed {
+                    commands.entity(root).insert(Dimmed);
+                }
                 if b.solid {
                     let material = materials.add(StandardMaterial {
-                        base_color: color,
+                        base_color: if dimmed {
+                            color.with_alpha(DIMMED_ALPHA)
+                        } else {
+                            color
+                        },
+                        alpha_mode: if dimmed {
+                            AlphaMode::Blend
+                        } else {
+                            AlphaMode::Opaque
+                        },
                         perceptual_roughness: 0.6,
                         // Curved corners must not flash to white under the key light.
                         reflectance: 0.25,
@@ -3773,6 +4005,8 @@ fn poll(
                         } else if focus == Some(&n.id) {
                             // Glow in the object's own hue so selection never washes it grey.
                             color.to_linear() * 0.3
+                        } else if lit {
+                            color.to_linear() * 0.18
                         } else {
                             LinearRgba::BLACK
                         },
@@ -3792,8 +4026,10 @@ fn poll(
                     let depth = nesting_depth(&parents, &p.root, &n.id);
                     let (tint, emphasis) = if marked {
                         (MARK_COLOR, 1.6)
-                    } else if focus == Some(&n.id) {
+                    } else if focus == Some(&n.id) || lit {
                         (color, 1.7)
+                    } else if dimmed {
+                        (color, 0.3)
                     } else {
                         (color, 1.0)
                     };
@@ -3810,7 +4046,7 @@ fn poll(
                         ));
                     }
                 }
-                if b.solid || focus == Some(&n.id) {
+                if (b.solid && !dimmed) || focus == Some(&n.id) || lit {
                     let caption = label_caption(&if marked {
                         format!("[marked] {title}")
                     } else {
@@ -3836,6 +4072,21 @@ fn poll(
                 if !visible_edge(&viewer, p, edge) {
                     continue;
                 }
+                let edge_lit = spot.as_ref().is_none_or(|spot| {
+                    r.semantic_ids.iter().any(|id| spot.relations.contains(id))
+                        || (spot.focus.contains(&edge.source) && spot.focus.contains(&edge.target))
+                });
+                if !edge_lit
+                    && spot
+                        .as_ref()
+                        .is_some_and(|spot| spot.context == SpotContext::Hide)
+                {
+                    continue;
+                }
+                let edge_dimmed = !edge_lit
+                    && spot
+                        .as_ref()
+                        .is_some_and(|spot| spot.context == SpotContext::Dim);
                 let selected = viewer
                     .selected_relation
                     .as_ref()
@@ -3849,11 +4100,11 @@ fn poll(
                 for point in &points {
                     scene_bounds = scene_bounds.max(point.abs() + Vec3::splat(0.5));
                 }
-                visible.push((r, relation, selected.is_some(), points));
+                visible.push((r, relation, selected.is_some(), points, edge_dimmed));
             }
             let sources: Vec<_> = visible
                 .iter()
-                .map(|(r, relation, _, points)| connections::SegmentSource {
+                .map(|(r, relation, _, points, _)| connections::SegmentSource {
                     kind: relation.visual_kind,
                     basis: relation.basis,
                     points,
@@ -3879,9 +4130,12 @@ fn poll(
                 if selected {
                     highlight_path(&mut commands, root);
                 }
+                if segment.members.iter().all(|&(route, _)| visible[route].4) {
+                    commands.entity(root).insert(Dimmed);
+                }
                 commands.entity(root).insert(LayoutOwned);
             }
-            for ((r, relation, selected, points), skip) in visible.into_iter().zip(&skips) {
+            for ((r, relation, selected, points, dimmed), skip) in visible.into_iter().zip(&skips) {
                 let route = connections::Route {
                     relation: connections::RenderedRelation {
                         id: relation.id.clone(),
@@ -3907,6 +4161,9 @@ fn poll(
                     // Keep existing arrow/dash geometry and its semantic basis.
                     // Only the private route material becomes more prominent.
                     highlight_path(&mut commands, root);
+                }
+                if dimmed {
+                    commands.entity(root).insert(Dimmed);
                 }
                 commands
                     .entity(root)

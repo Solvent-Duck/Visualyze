@@ -2,12 +2,15 @@ mod camera;
 mod composition;
 mod connections;
 pub mod input;
+mod ipc;
 mod layout_geometry;
 mod layout_input;
 mod layout_scene;
 mod native_layout;
 mod pin_provenance;
+mod playback;
 mod primitives;
+pub mod report;
 mod scene;
 mod shutdown;
 mod style;
@@ -76,6 +79,48 @@ fn app_with_snapshot_source(
             .add_plugins(layout_scene::LayoutScenePlugin);
     }
     app
+}
+
+/// Shown until an agent publishes a model.
+const WAITING_MODEL: &str = include_str!("waiting.json");
+
+/// The viewer agents drive through `visualyze mcp`. An initial model, if any,
+/// arrives as validated bytes so walkthroughs can be checked against it.
+pub fn app_serving(
+    initial: Option<(Vec<u8>, Option<std::path::PathBuf>)>,
+    engine: LayoutEngine,
+) -> Result<App, Box<dyn std::error::Error>> {
+    let (inbox, guard) = ipc::bind()?;
+    let (bytes, path) = initial.unwrap_or_else(|| (WAITING_MODEL.as_bytes().to_vec(), None));
+    let model = Architecture::from_json(&bytes)?;
+    let served = if model.snapshot().model_id == "visualyze-waiting" {
+        ipc::Served::default()
+    } else {
+        ipc::Served::with(Architecture::from_json(&bytes)?, bytes)
+    };
+    let input = match path {
+        Some(path) => layout_input::LayoutInput::snapshot_file(model, path),
+        None => layout_input::LayoutInput::snapshot(model),
+    };
+    let mut app = base_app();
+    app.insert_resource(ViewMode::Architecture)
+        .insert_resource(input)
+        .insert_resource(if engine == LayoutEngine::Legacy {
+            LayoutEngine::Composed
+        } else {
+            engine
+        })
+        .insert_resource(inbox)
+        .insert_resource(guard)
+        .insert_resource(served)
+        .add_plugins((layout_scene::LayoutScenePlugin, playback::PlaybackPlugin))
+        .add_systems(
+            Update,
+            ipc::serve_requests
+                .after(layout_scene::LayoutUpdate)
+                .before(crate::camera::CameraControls),
+        );
+    Ok(app)
 }
 
 /// Index supplied local bundle data in the background; no source paths are opened.

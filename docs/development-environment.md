@@ -38,7 +38,7 @@ For manual gallery checks: confirm seven distinct labeled objects and no connect
 
 ## Deferred tooling and local data
 
-The TypeScript/Node.js bridge has no manifest yet; its runtime, package manager, SDK, and IPC choice will be pinned when that slice starts. It is not required to render the database.
+The MCP bridge is Rust (`public/mcp-server`, `rmcp` 3.5.1 and `tokio` 1.53.2, pinned) and runs as `visualyze mcp`. `cargo run --locked --example walkthrough_smoke` serves agents, acts as one over the socket, and saves a frame per walkthrough step to `$TMPDIR/visualyze-walkthrough/`. See [ADR 0008](decisions/0008-agent-walkthroughs.md).
 
 The runtime embeds its default synthetic object fixture and schema at compile time. `--model <path>` reads an explicitly supplied model file; `--model -` reads standard input. Add `--validate` for a headless input check. File and stdin payloads share the same 2 MiB bound, strict JSON parsing, JSON Schema validation, and graph checks as the embedded fixture.
 

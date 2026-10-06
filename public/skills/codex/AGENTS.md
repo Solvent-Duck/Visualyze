@@ -1,0 +1,9 @@
+# Visualyze walkthroughs (Codex)
+
+When the user asks to be walked through or shown how part of their system works,
+and the `visualyze` MCP server is configured, follow
+[`../shared/visualyze-walkthrough.md`](../shared/visualyze-walkthrough.md). It is
+also served as the MCP resource `visualyze://guide/walkthroughs`.
+
+You narrate in chat. Visualyze only shows the model, the camera moves, the traces,
+and your short labels.

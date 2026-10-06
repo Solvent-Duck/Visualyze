@@ -4,7 +4,7 @@ use std::{ffi::OsString, fs::File, io, path::PathBuf};
 use crate::{LayoutEngine, ViewMode};
 use visualyze_model::architecture::{Architecture, OBJECTS_FIXTURE};
 
-pub const HELP: &str = "Visualyze — architecture simulator\n\nUsage: visualyze [--model <path|->] [--view auto|gallery|architecture] [--layout legacy|floorplan|composed|layered|constrained|treemap] [--validate]\n\n  --model <path>  Read an architecture JSON snapshot\n  --model -       Read a snapshot from standard input\n  --view <mode>   Automatic (default), standalone gallery, or connected architecture\n  --bundle <path> Read a versioned local semantic bundle instead of --model\n  --layout <mode> Experimental placement; legacy is the default\n  --validate      Validate and report without opening a window\n  --help          Show this help\n\nWithout --model, load the embedded seven-object specimen.\nAuto assembles models that contain non-structural relationships.";
+pub const HELP: &str = "Visualyze — architecture simulator\n\nUsage: visualyze [--model <path|->] [--view auto|gallery|architecture] [--layout legacy|floorplan|composed|layered|constrained|treemap] [--validate [--json] [--walkthrough <path>]] [--serve]\n       visualyze mcp\n\n  --model <path>  Read an architecture JSON snapshot\n  --model -       Read a snapshot from standard input\n  --view <mode>   Automatic (default), standalone gallery, or connected architecture\n  --bundle <path> Read a versioned local semantic bundle instead of --model\n  --layout <mode> Experimental placement; legacy is the default\n  --validate      Validate and report without opening a window\n  --json          With --validate, report diagnostics and advice as JSON on stdout\n  --walkthrough <path>  With --validate, also check a walkthrough against the model\n  --serve         Accept models and walkthroughs from local agents (see visualyze mcp)\n  mcp             Run the MCP bridge for a coding agent over standard input/output\n  --help          Show this help\n\nWithout --model, load the embedded seven-object specimen.\nAuto assembles models that contain non-structural relationships.";
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Source {
@@ -20,6 +20,9 @@ pub struct Options {
     pub view: ViewMode,
     pub layout: LayoutEngine,
     pub bundle: Option<PathBuf>,
+    pub json: bool,
+    pub walkthrough: Option<PathBuf>,
+    pub serve: bool,
 }
 
 pub fn parse(args: impl IntoIterator<Item = OsString>) -> Result<Option<Options>, String> {
@@ -30,6 +33,9 @@ pub fn parse(args: impl IntoIterator<Item = OsString>) -> Result<Option<Options>
     let mut view = None;
     let mut layout = None;
     let mut bundle = None;
+    let mut json = false;
+    let mut walkthrough = None;
+    let mut serve = false;
     while let Some(arg) = args.next() {
         match arg.to_str() {
             Some("--bundle") if bundle.is_none() && !has_source => {
@@ -55,6 +61,17 @@ pub fn parse(args: impl IntoIterator<Item = OsString>) -> Result<Option<Options>
                     });
             }
             Some("--help" | "-h") => return Ok(None),
+            Some("--json") if !json => json = true,
+            Some("--serve") if !serve => serve = true,
+            Some("--walkthrough") if walkthrough.is_none() => {
+                let path = args
+                    .next()
+                    .ok_or("--walkthrough requires a JSON file path")?;
+                if path.is_empty() || path.to_string_lossy().starts_with("--") || path == "-" {
+                    return Err("--walkthrough requires a JSON file path".into());
+                }
+                walkthrough = Some(PathBuf::from(path));
+            }
             Some("--validate") if !validate_only => validate_only = true,
             Some("--view") if view.is_none() => {
                 view = Some(match args.next().as_deref().and_then(|s| s.to_str()) {
@@ -86,12 +103,24 @@ pub fn parse(args: impl IntoIterator<Item = OsString>) -> Result<Option<Options>
             }
         }
     }
+    if (json || walkthrough.is_some()) && !validate_only {
+        return Err("--json and --walkthrough require --validate".into());
+    }
+    if walkthrough.is_some() && bundle.is_some() {
+        return Err("--walkthrough checks against a --model snapshot".into());
+    }
+    if serve && (validate_only || bundle.is_some()) {
+        return Err("--serve cannot be combined with --validate or --bundle".into());
+    }
     Ok(Some(Options {
         source,
         validate_only,
         view: view.unwrap_or_default(),
         layout: layout.unwrap_or_default(),
         bundle,
+        json,
+        walkthrough,
+        serve,
     }))
 }
 
@@ -138,6 +167,18 @@ mod tests {
                 .validate_only
         );
         assert!(options(&["--help"]).unwrap().is_none());
+        let checked = options(&[
+            "--validate",
+            "--json",
+            "--model",
+            "m.json",
+            "--walkthrough",
+            "w.json",
+        ])
+        .unwrap()
+        .unwrap();
+        assert!(checked.json && checked.walkthrough.is_some());
+        assert!(options(&["--serve"]).unwrap().unwrap().serve);
         assert_eq!(
             options(&["--view", "architecture"]).unwrap().unwrap().view,
             ViewMode::Architecture
@@ -172,6 +213,13 @@ mod tests {
             vec!["model.json"],
             vec!["--validate", "--validate"],
             vec!["--model", "a", "--model", "b"],
+            vec!["--json"],
+            vec!["--walkthrough", "w.json"],
+            vec!["--validate", "--walkthrough"],
+            vec!["--validate", "--bundle", "b", "--walkthrough", "w.json"],
+            vec!["--serve", "--validate"],
+            vec!["--serve", "--bundle", "b"],
+            vec!["--serve", "--serve"],
         ] {
             assert!(options(&args).is_err(), "accepted {args:?}");
         }

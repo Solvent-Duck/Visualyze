@@ -31,7 +31,7 @@ Validate a payload without opening a window or initializing the GPU:
 cargo run --locked -- --validate --model public/examples/objects.json
 ```
 
-Input passes through bounded JSON decoding, the embedded JSON Schema, graph validation, typed model construction, and scene creation. Invalid input exits with diagnostics before opening a window. The runtime reads only the explicitly supplied model; it does not inspect source references, scan a repository, connect to services, or start a listener.
+Input passes through bounded JSON decoding, the embedded JSON Schema, graph validation, typed model construction, and scene creation. Invalid input exits with diagnostics before opening a window. The runtime reads only the explicitly supplied model; it does not inspect source references, scan a repository, connect to services, or start a listener. The exception is `--serve`: it accepts models and walkthroughs from local agents over a per-user Unix socket ([ADR 0008](docs/decisions/0008-agent-walkthroughs.md)).
 
 ## Run a connected CRUD design
 
@@ -110,6 +110,6 @@ The last two commands need a graphical desktop. The gallery check verifies a sep
 
 Read [`docs/development-environment.md`](./docs/development-environment.md) and [`docs/decisions/0001-repository-boundaries.md`](./docs/decisions/0001-repository-boundaries.md) before changing the implementation. [`ADR 0003`](./docs/decisions/0003-single-database-proof.md) records this slice and its dependency choices.
 
-See [ADR 0004](docs/decisions/0004-contract-ingestion-and-object-gallery.md) for the ingestion and object-gallery slice. [ADR 0005](docs/decisions/0005-connected-crud-design.md) adds the first connected assembly. [ADR 0006](docs/decisions/0006-placement-engine.md) adds the experimental headless placement engine, bounded bundle views, inspection, and private persistence. Live snapshot publication, MCP integration, production comprehension gates, and packaging remain incomplete.
+See [ADR 0004](docs/decisions/0004-contract-ingestion-and-object-gallery.md) for the ingestion and object-gallery slice. [ADR 0005](docs/decisions/0005-connected-crud-design.md) adds the first connected assembly. [ADR 0006](docs/decisions/0006-placement-engine.md) adds the experimental headless placement engine, bounded bundle views, inspection, and private persistence. [ADR 0008](docs/decisions/0008-agent-walkthroughs.md) adds the MCP bridge (`visualyze mcp`), serve mode, and agent-narrated walkthroughs. Production comprehension gates and packaging remain incomplete.
 
-The draft agent-to-renderer format is documented in [the architecture contract](public/schema/architecture-format.md). Single-snapshot schema and graph validation now run in the native ingestion path; revision synchronization and command/view schemas remain proposed.
+The draft agent-to-renderer format is documented in [the architecture contract](public/schema/architecture-format.md). Single-snapshot schema and graph validation now run in the native ingestion path; walkthroughs have their own [format](public/schema/walkthrough-format.md), and serve mode enforces forward-only revisions.

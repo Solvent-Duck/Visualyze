@@ -128,6 +128,8 @@ Publication is atomic replacement of a full snapshot, including when its extract
 
 The later publication command should carry `expected_revision` outside the model: `null` for creation, otherwise the revision being replaced. The receiver atomically rejects stale replacements and requires the new revision to be the prior revision plus one. An exact retry of the same snapshot and request is idempotent; reusing a snapshot ID with different contents is an error. Loading a saved historical snapshot is a separate read operation, not a new publication. These are command requirements, not implemented APIs.
 
+**Amended by [ADR 0008](../../docs/decisions/0008-agent-walkthroughs.md).** `publish_model` implements this command with one change. Models are shared through git, where a pull can skip revisions, so the new revision must be strictly greater than the accepted one rather than exactly one more. A supplied `expected_revision` must still equal the accepted revision. Republishing the same revision with different content is rejected as `revision_reused`.
+
 ## 6. Evidence and uncertainty
 
 Each entity and relation declares one basis:

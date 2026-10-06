@@ -12,3 +12,4 @@ serde.workspace = true
 serde_json.workspace = true
 visualyze-model = { path = "../../public/types/rust" }
 visualyze-layout = { path = "../layout" }
+visualyze-mcp = { path = "../../public/mcp-server" }
