@@ -1226,16 +1226,41 @@ pub(crate) fn rank_pipeline(nodes: &mut BTreeMap<String, Node>, edges: &[Edge]) 
 /// itself when it is not solid. This is the router's `enclosure_chain`: solid
 /// boxes (including interface owners) are never enclosures, because their
 /// exposed pads already carry the attachment.
-fn display_enclosures<'a>(nodes: &'a BTreeMap<String, Node>, id: &str) -> Vec<&'a str> {
+fn display_enclosures<'a>(node_of: &impl Fn(&str) -> Option<&'a Node>, id: &str) -> Vec<&'a str> {
     let mut chain = Vec::new();
-    let mut next = nodes.get(id);
+    let mut next = node_of(id);
     while let Some(node) = next {
         if !node.solid {
             chain.push(node.id.as_str());
         }
-        next = node.parent.as_deref().and_then(|parent| nodes.get(parent));
+        next = node.parent.as_deref().and_then(node_of);
     }
     chain
+}
+
+/// The outer boxes `(S', T')` of an edge between `source` and `target`, or
+/// `None` when it crosses no expanded box boundary (see `bundle_key`).
+/// `node_of` looks a displayed node up by id.
+pub(crate) fn bundle_ends<'a>(
+    node_of: &impl Fn(&str) -> Option<&'a Node>,
+    source: &str,
+    target: &str,
+) -> Option<(String, String)> {
+    let sources = display_enclosures(node_of, source);
+    let targets = display_enclosures(node_of, target);
+    let common_id = sources.iter().copied().find(|id| targets.contains(id));
+    let below = |chain: &[&str], end: &str| -> String {
+        let above = common_id
+            .and_then(|id| chain.iter().position(|item| *item == id))
+            .unwrap_or(chain.len());
+        above
+            .checked_sub(1)
+            .map_or(end, |index| chain[index])
+            .to_owned()
+    };
+    let outer_source = below(&sources, source);
+    let outer_target = below(&targets, target);
+    (outer_source != source || outer_target != target).then_some((outer_source, outer_target))
 }
 
 /// The bundle key of a projected edge (see `Edge::bundle`), or `None` when it
@@ -1253,23 +1278,7 @@ pub(crate) fn bundle_key(
     kind: &str,
     aspect: Option<&str>,
 ) -> Option<String> {
-    let sources = display_enclosures(nodes, source);
-    let targets = display_enclosures(nodes, target);
-    let common_id = sources.iter().copied().find(|id| targets.contains(id));
-    let below = |chain: &[&str], end: &str| -> String {
-        let above = common_id
-            .and_then(|id| chain.iter().position(|item| *item == id))
-            .unwrap_or(chain.len());
-        above
-            .checked_sub(1)
-            .map_or(end, |index| chain[index])
-            .to_owned()
-    };
-    let outer_source = below(&sources, source);
-    let outer_target = below(&targets, target);
-    if outer_source == source && outer_target == target {
-        return None;
-    }
+    let (outer_source, outer_target) = bundle_ends(&|id| nodes.get(id), source, target)?;
     Some(encode_bundle_key(
         &outer_source,
         &outer_target,

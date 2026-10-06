@@ -4,6 +4,7 @@
 //! knee and then grows quadratically; no view is ever refused on this score.
 //!
 //! The knees are private tuning constants, not public contract.
+use crate::projection::bundle_ends;
 use crate::{Node, NodeKind, Projection};
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
@@ -221,8 +222,8 @@ struct RegionCounts {
 /// itself, and interface pads attached to a solid owner, which belong to the
 /// owner. With `include_references` false, references are neither boxes nor
 /// ends of a counted connector.
-fn region_counts(
-    projection: &Projection,
+fn region_counts<'p>(
+    projection: &'p Projection,
     include_references: bool,
 ) -> BTreeMap<String, RegionCounts> {
     let by_id: BTreeMap<&str, &Node> = projection
@@ -299,19 +300,55 @@ fn region_counts(
         }
         chain
     };
+    // The lowest region holding both ends.
+    let lowest_common = |source: &str, target: &str| -> &str {
+        let target = chain(target);
+        chain(source)
+            .into_iter()
+            .find(|region| target.contains(region))
+            .unwrap_or(root)
+    };
+    // Bundled connectors are counted as they are drawn (see `region_noise`):
+    // one trunk per bundle key, one branch per distinct (side, outer box,
+    // inner endpoint, bundle key).
+    let mut trunks: BTreeSet<&str> = BTreeSet::new();
+    let mut branches: BTreeSet<(bool, String, &str, &str)> = BTreeSet::new();
+    let node_of = |id: &str| by_id.get(id).copied();
+    let owner = |id: &'p str| -> &'p str { pad_of.get(id).copied().unwrap_or(id) };
     for edge in &projection.edges {
         if !include_references && (is_reference(&edge.source) || is_reference(&edge.target)) {
             continue;
         }
-        let target = chain(&edge.target);
-        let region = chain(&edge.source)
-            .into_iter()
-            .find(|region| target.contains(region))
-            .unwrap_or(projection.root.as_str());
-        counts
-            .get_mut(region)
-            .expect("every chain holds regions")
-            .connectors += 1;
+        let ends = edge
+            .bundle
+            .as_deref()
+            .and_then(|key| bundle_ends(&node_of, &edge.source, &edge.target).zip(Some(key)));
+        let Some(((outer_source, outer_target), key)) = ends else {
+            counts
+                .get_mut(lowest_common(&edge.source, &edge.target))
+                .expect("every chain holds regions")
+                .connectors += 1;
+            continue;
+        };
+        if trunks.insert(key) {
+            counts
+                .get_mut(lowest_common(&outer_source, &outer_target))
+                .expect("every chain holds regions")
+                .connectors += 1;
+        }
+        for (source_side, outer, inner) in [
+            (true, &outer_source, owner(&edge.source)),
+            (false, &outer_target, owner(&edge.target)),
+        ] {
+            if inner != outer.as_str() && branches.insert((source_side, outer.clone(), inner, key))
+            {
+                let region = chain(outer)[0];
+                counts
+                    .get_mut(region)
+                    .expect("every chain holds regions")
+                    .connectors += 1;
+            }
+        }
     }
     counts
 }
@@ -336,6 +373,15 @@ fn score(counts: &RegionCounts) -> VisualNoise {
 ///   so a connector from a frame to one of its own children counts in that
 ///   frame, and one from a child to a neighbour of the frame counts in the
 ///   region around the frame.
+/// * Edges that cross expanded boxes carry a bundle key (`Edge::bundle`) and are
+///   drawn as one trunk between the outer boxes `S'` and `T'` plus a branch
+///   inside each expanded outer box to every distinct inner end. The trunk
+///   counts once per bundle key, in the lowest region holding `S'` and `T'`
+///   (where the collapsed line would count). Each branch counts once per
+///   distinct (side, outer box, inner end, bundle key), in the region of its
+///   outer box, because it ends on that box's boundary however deep the inner
+///   end sits. Opening a box therefore never changes its parent region's
+///   connector count; the branches appear in the box's own region.
 /// * External references are boxes in whichever region they are parented to.
 ///   Interface pads on solid owners belong to the owner and are not counted.
 pub fn region_noise(projection: &Projection) -> BTreeMap<String, VisualNoise> {
@@ -765,6 +811,168 @@ mod tests {
             (regions["a"].connectors, regions["root"].connectors),
             (0, 1)
         );
+    }
+
+    fn bundle_edge(id: &str, source: &str, target: &str, key: Option<&str>) -> Edge {
+        Edge {
+            bundle: key.map(Into::into),
+            id: id.into(),
+            source: source.into(),
+            target: target.into(),
+            semantic_ids: vec![id.into()],
+        }
+    }
+
+    /// root > (frame `a` > a1..a3, frame `c` > c1, c2, solid `b`), edges bundled
+    /// as the projection would key them.
+    fn bundled() -> Projection {
+        let mut p = nested(3);
+        p.nodes
+            .push(node("c", NodeKind::Scope, Some("root"), 1, false));
+        p.nodes
+            .push(node("c1", NodeKind::Service, Some("c"), 1, true));
+        p.nodes
+            .push(node("c2", NodeKind::Service, Some("c"), 1, true));
+        p.edges = vec![
+            bundle_edge("b1", "a0", "b", Some("a>b req")),
+            bundle_edge("b2", "a1", "b", Some("a>b req")),
+            bundle_edge("b3", "a2", "b", Some("a>b dep")),
+            bundle_edge("x1", "a0", "c1", Some("a>c req")),
+            bundle_edge("x2", "a1", "c2", Some("a>c req")),
+            bundle_edge("x3", "a2", "c1", Some("a>c dep")),
+        ];
+        p
+    }
+
+    #[test]
+    fn a_bundle_counts_one_trunk_and_one_branch_per_inner_end() {
+        let regions = region_noise(&bundled());
+        // Trunks, one per key, in the root: a>b req, a>b dep, a>c req, a>c dep.
+        assert_eq!(regions["root"].connectors, 4);
+        // Source-side branches in a: a0 and a1 for each request bundle, a2 for
+        // each dependency bundle.
+        assert_eq!(regions["a"].connectors, 2 + 1 + 2 + 1);
+        // Target-side branches in c: c1 and c2 for the request bundle, c1 for
+        // the dependency bundle. The edge to solid `b` has none.
+        assert_eq!(regions["c"].connectors, 2 + 1);
+    }
+
+    #[test]
+    fn a_branch_from_deeper_inside_the_outer_box_still_counts_in_it() {
+        // a > (inner > i0), and i0 leaves a through the bundle.
+        let mut p = nested(1);
+        p.nodes
+            .push(node("inner", NodeKind::Scope, Some("a"), 1, false));
+        p.nodes
+            .push(node("i0", NodeKind::Service, Some("inner"), 1, true));
+        p.edges = vec![bundle_edge("e", "i0", "b", Some("a>b"))];
+        let regions = region_noise(&p);
+        assert_eq!(regions["root"].connectors, 1, "the trunk");
+        assert_eq!(
+            regions["a"].connectors, 1,
+            "the branch ends on a's boundary"
+        );
+        assert_eq!(regions["inner"].connectors, 0);
+    }
+
+    #[test]
+    fn a_pad_counts_as_its_owner_when_deduplicating_branches() {
+        // a > a0 (solid, owns pad `p0`); both leave through the same bundle.
+        let mut p = nested(1);
+        p.nodes
+            .push(node("p0", NodeKind::Interface, Some("a0"), 1, true));
+        p.edges = vec![
+            bundle_edge("e1", "a0", "b", Some("a>b")),
+            bundle_edge("e2", "p0", "b", Some("a>b")),
+        ];
+        let regions = region_noise(&p);
+        assert_eq!(regions["root"].connectors, 1);
+        assert_eq!(regions["a"].connectors, 1, "a0 and its pad are one branch");
+    }
+
+    #[test]
+    fn a_bundled_edge_from_the_outer_box_itself_has_no_branch_on_that_side() {
+        // `a` is open; `b` reaches into it, `a` is the outer target.
+        let mut p = nested(2);
+        p.edges = vec![bundle_edge("e", "b", "a0", Some("b>a"))];
+        let regions = region_noise(&p);
+        assert_eq!(regions["root"].connectors, 1, "the trunk");
+        assert_eq!(regions["a"].connectors, 1, "the target-side branch only");
+    }
+
+    #[test]
+    fn opening_a_box_never_changes_its_parent_regions_connector_count() {
+        use crate::projection::{ViewState, project};
+        use visualyze_model::architecture::Architecture;
+        let entity = |id: &str, kind: &str, extra: &str| {
+            format!(
+                r#"{{"id":"{id}","kind":"{kind}","label":"{id}","boundary":"internal","basis":"declared"{extra}}}"#
+            )
+        };
+        let relation = |id: &str, kind: &str, source: &str, target: &str| {
+            format!(
+                r#"{{"id":"{id}","kind":"{kind}","source":"{source}","target":"{target}","basis":"declared"}}"#
+            )
+        };
+        let entities = [
+            entity("system", "scope", r#","subtype":"system""#),
+            entity("sa", "scope", ""),
+            entity("sc", "scope", ""),
+            entity("a1", "service", ""),
+            entity("a2", "service", ""),
+            entity("a3", "service", ""),
+            entity("c1", "service", ""),
+            entity("c2", "service", ""),
+            entity("sb", "service", ""),
+        ];
+        let relations = [
+            relation("own-sa", "contains", "system", "sa"),
+            relation("own-sc", "contains", "system", "sc"),
+            relation("own-sb", "contains", "system", "sb"),
+            relation("own-a1", "contains", "sa", "a1"),
+            relation("own-a2", "contains", "sa", "a2"),
+            relation("own-a3", "contains", "sa", "a3"),
+            relation("own-c1", "contains", "sc", "c1"),
+            relation("own-c2", "contains", "sc", "c2"),
+            relation("b1", "requests", "a1", "sb"),
+            relation("b2", "requests", "a2", "sb"),
+            relation("b3", "depends_on", "a3", "sb"),
+            relation("x1", "requests", "a1", "c1"),
+            relation("x2", "requests", "a2", "c2"),
+            relation("x3", "depends_on", "a3", "c1"),
+        ];
+        let json = format!(
+            r#"{{"schema_version":"0.1.0-draft.1","model_id":"bundles","revision":1,"system_id":"system","snapshot":{{"id":"bundle-001","source_revision":null,"coverage":"partial","scope_description":"test","omissions":[]}},"entities":[{}],"relations":[{}],"evidence":[]}}"#,
+            entities.join(","),
+            relations.join(",")
+        );
+        let model = Architecture::from_json(json.as_bytes()).unwrap_or_else(|e| panic!("{e}"));
+        let view = |ids: &[&str]| {
+            let mut view = ViewState::default();
+            for id in ids {
+                view.set_expanded(*id, true);
+            }
+            project(&model, &view).unwrap()
+        };
+
+        let collapsed = region_noise(&view(&[]));
+        let opened = region_noise(&view(&["sa"]));
+        let both = region_noise(&view(&["sa", "sc"]));
+        let system = |regions: &BTreeMap<String, VisualNoise>| regions["system"].connectors;
+        // Four lines: sa>sb and sa>sc, each as requests and depends_on.
+        assert_eq!(system(&collapsed), 4);
+        assert_eq!(system(&opened), 4, "opening sa leaves the parent unchanged");
+        assert_eq!(system(&both), 4, "so does opening sc too");
+        // Opening adds the branches to the box's own region: sa fans out to a1
+        // and a2 (requests) and a3 (depends_on) toward sb, and again toward sc.
+        assert_eq!(opened["sa"].connectors, 6);
+        assert_eq!(both["sa"].connectors, 6);
+        // sc fans in to c1 and c2 (requests) and c1 (depends_on).
+        assert_eq!(both["sc"].connectors, 3);
+        // Interior advice is the root region without references.
+        let p = view(&["sa", "sc"]);
+        assert_eq!(interior_noise(&p).connectors, 4);
+        assert_eq!(interior_noise(&p), visual_noise(&p));
     }
 
     #[test]
