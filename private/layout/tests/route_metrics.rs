@@ -1,7 +1,9 @@
 use std::collections::BTreeMap;
 use visualyze_layout::{
     Bounds, Edge, LAYOUT_VERSION, LayoutBox, LayoutSolution, Metrics, Node, NodeKind, Point,
-    Projection, Route, measure, metrics::route_congestion, validate,
+    Projection, Route, measure,
+    metrics::{route_congestion, route_congestion_grouped},
+    validate,
 };
 
 fn p(x: i64, y: i64, z: i64) -> Point {
@@ -301,4 +303,18 @@ fn indexed_sweeps_match_an_independent_small_integer_lattice_oracle() {
         assert_eq!(metric.shared_lane_length, shared);
         assert_eq!(metric.crossing_points, crosses);
     }
+}
+
+#[test]
+fn members_of_one_bundle_are_one_connector() {
+    // Two members fan out from (0,0,0) and share the trunk to (10,0,0).
+    let routes = [
+        route("e1", vec![p(0, 5, 0), p(0, 0, 0), p(10, 0, 0)]),
+        route("e2", vec![p(0, -5, 0), p(0, 0, 0), p(10, 0, 0)]),
+    ];
+    let apart = route_congestion(&routes);
+    assert_eq!(apart.shared_lane_length, 10);
+    let bundled = route_congestion_grouped(&routes, &[7, 7]);
+    assert_eq!(bundled.shared_lane_length, 0);
+    assert_eq!(bundled.crossing_points, 0);
 }

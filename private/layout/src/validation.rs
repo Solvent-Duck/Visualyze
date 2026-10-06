@@ -181,16 +181,44 @@ fn ancestor(a: &str, b: &str, boxes: &BTreeMap<String, LayoutBox>) -> bool {
 /// Measure a validated visible solution. A predecessor must belong to the same
 /// logical coordinate frame; continuity additionally checks represented roots,
 /// containment, and semantic membership. It never interprets opaque view keys.
+/// One group per drawn connector: routes of the same boundary bundle share a
+/// group, every other route has its own.
+fn connector_groups(projection: &Projection, routes: &[crate::Route]) -> Vec<usize> {
+    let bundles: BTreeMap<&str, &str> = projection
+        .edges
+        .iter()
+        .filter_map(|edge| edge.bundle.as_deref().map(|key| (edge.id.as_str(), key)))
+        .collect();
+    let mut ids: BTreeMap<&str, usize> = BTreeMap::new();
+    routes
+        .iter()
+        .enumerate()
+        .map(|(index, route)| match bundles.get(route.edge_id.as_str()) {
+            Some(key) => {
+                let next = routes.len() + ids.len();
+                *ids.entry(key).or_insert(next)
+            }
+            None => index,
+        })
+        .collect()
+}
+
 pub fn measure(
     projection: &Projection,
     s: &LayoutSolution,
     previous: Option<&LayoutSolution>,
 ) -> Metrics {
+    // A boundary bundle's members share their trunk (ADR 0007): it is drawn,
+    // and so measured, once per bundle.
+    let groups = connector_groups(projection, &s.routes);
+    let mut drawn = BTreeSet::new();
     let route_length = s
         .routes
         .iter()
-        .flat_map(|r| r.points.windows(2))
-        .map(|p| p[0].manhattan(p[1]))
+        .zip(&groups)
+        .flat_map(|(r, group)| r.points.windows(2).map(move |p| (*group, p)))
+        .filter(|(group, p)| drawn.insert((*group, p[0].min(p[1]), p[0].max(p[1]))))
+        .map(|(_, p)| p[0].manhattan(p[1]))
         .sum();
     let bends = s
         .routes
@@ -263,7 +291,7 @@ pub fn measure(
         + (aspect_ratio - 1.0) * weights.aspect_ratio
         + occlusion * weights.occlusion
         + distortion * weights.distortion;
-    let routing = crate::metrics::route_congestion(&s.routes);
+    let routing = crate::metrics::route_congestion_grouped(&s.routes, &groups);
     // Both denominators come from the fixed input projection, not candidate
     // geometry or semantic membership in explicitly aggregated display routes.
     let congestion = routing.shared_lane_length as f64 / reference_length

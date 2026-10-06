@@ -906,50 +906,99 @@ fn route_all_impl(
     validate_input(boxes, edges, clearance)?;
     let mut ordered: Vec<_> = edges.iter().collect();
     ordered.sort_by(|a, b| a.id.cmp(&b.id));
+    // A bundle is one routing unit: its trunk takes one lane between the outer
+    // boxes, exactly as the collapsed line would. Without bundles every unit is
+    // a single edge and routing is unchanged.
+    let units = routing_units(boxes, &ordered);
     let mut totals = BTreeMap::new();
-    for edge in &ordered {
-        *totals.entry(pair_key(edge)).or_insert(0_usize) += 1;
+    for unit in &units {
+        *totals.entry(unit.pair_key()).or_insert(0_usize) += 1;
     }
     let mut next_lane = BTreeMap::new();
     let mut routes = Vec::with_capacity(edges.len());
     let mut history = RoutingHistory::default();
-    for edge in ordered {
+    for unit in &units {
         check_cancelled(cancelled)?;
-        let key = pair_key(edge);
-        let lane = next_lane.entry(key.clone()).or_insert(0_usize);
-        let result = route_edge(
-            boxes,
-            edge,
-            clearance,
-            *lane,
-            totals[&key],
-            &history,
-            cancelled,
-        );
-        let points = match result {
-            Ok(points) => points,
-            Err(error) => {
-                if error != LayoutError::Cancelled
-                    && let Some(feedback) = feedback.as_mut()
-                    && let Some(evidence) =
-                        corridor_feedback(boxes, edge, clearance, None, cancelled)?
-                {
-                    feedback.push(evidence);
+        let key = unit.pair_key();
+        let lane = *next_lane.entry(key.clone()).or_insert(0_usize);
+        *next_lane.get_mut(&key).expect("lane entry") += 1;
+        let singles: Vec<&Edge> = match unit {
+            RoutingUnit::Single(edge) => vec![*edge],
+            RoutingUnit::Bundle(bundle) => {
+                match route_bundle(
+                    boxes,
+                    bundle,
+                    clearance,
+                    lane,
+                    totals[&key],
+                    &history,
+                    cancelled,
+                ) {
+                    Ok(routed) => {
+                        history.insert(&routed.trunk);
+                        for branch in &routed.branches {
+                            history.insert(branch);
+                        }
+                        for (edge, points) in bundle.members.iter().zip(routed.members) {
+                            let scope_ports = scope_ports(boxes, edge, &points)?;
+                            let points = split_at_scope_ports(&points, &scope_ports);
+                            routes.push(Route {
+                                edge_id: edge.id.clone(),
+                                semantic_ids: edge.semantic_ids.clone(),
+                                points,
+                                scope_ports,
+                            });
+                        }
+                        continue;
+                    }
+                    Err(LayoutError::Cancelled) => return Err(LayoutError::Cancelled),
+                    // Any shared-trunk failure keeps the previous per-edge routes.
+                    Err(_) => bundle.members.clone(),
                 }
-                return Err(error);
             }
         };
-        *lane += 1;
-        let scope_ports = scope_ports(boxes, edge, &points)?;
-        let points = split_at_scope_ports(&points, &scope_ports);
-        history.insert(&points);
-        routes.push(Route {
-            edge_id: edge.id.clone(),
-            semantic_ids: edge.semantic_ids.clone(),
-            points,
-            scope_ports,
-        });
+        let fallback = matches!(unit, RoutingUnit::Bundle(_));
+        for edge in singles {
+            let (lane, lane_count) = if fallback {
+                let key = pair_key(edge);
+                let lane = next_lane.entry(key.clone()).or_insert(0_usize);
+                let assigned = *lane;
+                *lane += 1;
+                (
+                    assigned,
+                    totals.get(&key).copied().unwrap_or(0).max(assigned + 1),
+                )
+            } else {
+                (lane, totals[&key])
+            };
+            let result = route_edge(
+                boxes, edge, clearance, lane, lane_count, &history, cancelled,
+            );
+            let points = match result {
+                Ok(points) => points,
+                Err(error) => {
+                    if error != LayoutError::Cancelled
+                        && let Some(feedback) = feedback.as_mut()
+                        && let Some(evidence) =
+                            corridor_feedback(boxes, edge, clearance, None, cancelled)?
+                    {
+                        feedback.push(evidence);
+                    }
+                    return Err(error);
+                }
+            };
+            let scope_ports = scope_ports(boxes, edge, &points)?;
+            let points = split_at_scope_ports(&points, &scope_ports);
+            history.insert(&points);
+            routes.push(Route {
+                edge_id: edge.id.clone(),
+                semantic_ids: edge.semantic_ids.clone(),
+                points,
+                scope_ports,
+            });
+        }
     }
+    routes.sort_by(|a, b| a.edge_id.cmp(&b.edge_id));
     check_cancelled(cancelled)?;
     validate_routes(boxes, edges, &routes, clearance)?;
     if let Some(feedback) = feedback {
@@ -977,6 +1026,319 @@ fn route_all_impl(
         }
     }
     Ok(routes)
+}
+
+/// One routing step: a lone edge, or a bundle of edges that cross expanded
+/// boxes and share one trunk between those boxes (ADR 0007).
+enum RoutingUnit<'a> {
+    Single(&'a Edge),
+    Bundle(BundlePlan<'a>),
+}
+
+struct BundlePlan<'a> {
+    key: &'a str,
+    /// The outermost boxes below the common enclosure, as if collapsed.
+    source: String,
+    target: String,
+    members: Vec<&'a Edge>,
+}
+
+impl RoutingUnit<'_> {
+    fn id(&self) -> &str {
+        match self {
+            Self::Single(edge) => &edge.id,
+            Self::Bundle(bundle) => bundle.key,
+        }
+    }
+
+    fn pair_key(&self) -> (String, String) {
+        match self {
+            Self::Single(edge) => pair_key(edge),
+            Self::Bundle(bundle) if bundle.source < bundle.target => {
+                (bundle.source.clone(), bundle.target.clone())
+            }
+            Self::Bundle(bundle) => (bundle.target.clone(), bundle.source.clone()),
+        }
+    }
+}
+
+/// Group edges by their projected bundle key. A key is honoured only when the
+/// router's own enclosure chains agree on the outer boxes for every member;
+/// otherwise its members route individually, as before bundling existed.
+fn routing_units<'a>(
+    boxes: &BTreeMap<String, LayoutBox>,
+    ordered: &[&'a Edge],
+) -> Vec<RoutingUnit<'a>> {
+    let mut units = Vec::new();
+    let mut groups: BTreeMap<&'a str, Vec<&'a Edge>> = BTreeMap::new();
+    for edge in ordered {
+        match edge.bundle.as_deref() {
+            Some(key) => groups.entry(key).or_default().push(edge),
+            None => units.push(RoutingUnit::Single(edge)),
+        }
+    }
+    for (key, members) in groups {
+        let outer: Vec<_> = members
+            .iter()
+            .map(|edge| bundle_outer(boxes, edge))
+            .collect();
+        let consistent = outer
+            .first()
+            .and_then(|first| first.clone())
+            .filter(|first| outer.iter().all(|other| other.as_ref() == Some(first)))
+            .filter(|(source, target)| {
+                members
+                    .iter()
+                    .all(|edge| &edge.source != source || &edge.target != target)
+            });
+        match consistent {
+            Some((source, target)) => units.push(RoutingUnit::Bundle(BundlePlan {
+                key,
+                source,
+                target,
+                members,
+            })),
+            None => units.extend(members.into_iter().map(RoutingUnit::Single)),
+        }
+    }
+    units.sort_by(|a, b| a.id().cmp(b.id()));
+    units
+}
+
+/// The outermost source-side and target-side boxes below the edge's common
+/// enclosure, or the endpoints themselves when they sit directly in it.
+fn bundle_outer(boxes: &BTreeMap<String, LayoutBox>, edge: &Edge) -> Option<(String, String)> {
+    let sources = enclosure_chain(boxes, &edge.source);
+    let targets = enclosure_chain(boxes, &edge.target);
+    let common = sources.iter().find(|id| targets.contains(id))?;
+    let outer = |chain: &[String], endpoint: &str| {
+        chain
+            .iter()
+            .take_while(|id| *id != common)
+            .filter(|id| *id != endpoint)
+            .last()
+            .cloned()
+            .unwrap_or_else(|| endpoint.to_owned())
+    };
+    Some((outer(&sources, &edge.source), outer(&targets, &edge.target)))
+}
+
+struct BundleRoutes {
+    trunk: Vec<Point>,
+    branches: Vec<Vec<Point>>,
+    /// Complete member paths, in `BundlePlan::members` order.
+    members: Vec<Vec<Point>>,
+}
+
+/// Route one trunk between the bundle's outer boxes, treated as collapsed, then
+/// one branch inside each expanded outer box from the trunk's boundary point to
+/// each distinct inner endpoint. Every member path is trunk plus its branches
+/// and must pass the ordinary path validator.
+fn route_bundle(
+    boxes: &BTreeMap<String, LayoutBox>,
+    bundle: &BundlePlan<'_>,
+    clearance: i64,
+    lane: usize,
+    lane_count: usize,
+    history: &RoutingHistory,
+    cancelled: &AtomicBool,
+) -> Result<BundleRoutes, LayoutError> {
+    let collapsed = collapse_boxes(boxes, &[&bundle.source, &bundle.target]);
+    let trunk_edge = Edge {
+        id: bundle.key.to_owned(),
+        source: bundle.source.clone(),
+        target: bundle.target.clone(),
+        semantic_ids: vec![],
+        bundle: None,
+    };
+    let trunk = route_edge(
+        &collapsed,
+        &trunk_edge,
+        clearance,
+        lane,
+        lane_count,
+        history,
+        cancelled,
+    )?;
+    let last = trunk.len() - 1;
+    let source_terminal = FragmentTerminal::Boundary {
+        point: trunk[0],
+        inward: unit_vector(trunk[1], trunk[0]),
+    };
+    let target_terminal = FragmentTerminal::Boundary {
+        point: trunk[last],
+        inward: unit_vector(trunk[last - 1], trunk[last]),
+    };
+    let mut source_branches: BTreeMap<&str, Vec<Point>> = BTreeMap::new();
+    let mut target_branches: BTreeMap<&str, Vec<Point>> = BTreeMap::new();
+    let mut branches = Vec::new();
+    for edge in &bundle.members {
+        if edge.source != bundle.source && !source_branches.contains_key(edge.source.as_str()) {
+            let points = route_branch(
+                boxes,
+                &bundle.source,
+                FragmentTerminal::Box(edge.source.clone()),
+                source_terminal.clone(),
+                clearance,
+                history,
+                cancelled,
+            )?;
+            branches.push(points.clone());
+            source_branches.insert(&edge.source, points);
+        }
+        if edge.target != bundle.target && !target_branches.contains_key(edge.target.as_str()) {
+            let points = route_branch(
+                boxes,
+                &bundle.target,
+                target_terminal.clone(),
+                FragmentTerminal::Box(edge.target.clone()),
+                clearance,
+                history,
+                cancelled,
+            )?;
+            branches.push(points.clone());
+            target_branches.insert(&edge.target, points);
+        }
+    }
+    let mut members = Vec::with_capacity(bundle.members.len());
+    let mut distinct = BTreeSet::new();
+    for edge in &bundle.members {
+        check_cancelled(cancelled)?;
+        let mut points = source_branches
+            .get(edge.source.as_str())
+            .cloned()
+            .unwrap_or_default();
+        if points.is_empty() {
+            points.extend_from_slice(&trunk);
+        } else {
+            points.extend_from_slice(&trunk[1..]);
+        }
+        if let Some(branch) = target_branches.get(edge.target.as_str()) {
+            points.extend_from_slice(&branch[1..]);
+        }
+        validate_path(boxes, edge, &points, clearance)?;
+        if !distinct.insert(canonical_path(&points)) {
+            return Err(LayoutError::Unroutable(format!(
+                "bundle {} would hide a member on an identical path",
+                bundle.key
+            )));
+        }
+        members.push(points);
+    }
+    Ok(BundleRoutes {
+        trunk,
+        branches,
+        members,
+    })
+}
+
+/// Route one branch wholly inside `frame`. The endpoint's own solid ancestors
+/// (an interface pad's owner) are enclosures, not obstacles, as for any route.
+fn route_branch(
+    boxes: &BTreeMap<String, LayoutBox>,
+    frame: &str,
+    source: FragmentTerminal,
+    target: FragmentTerminal,
+    clearance: i64,
+    history: &RoutingHistory,
+    cancelled: &AtomicBool,
+) -> Result<Vec<Point>, LayoutError> {
+    let endpoint = [&source, &target]
+        .into_iter()
+        .find_map(|terminal| match terminal {
+            FragmentTerminal::Box(id) => Some(id.as_str()),
+            FragmentTerminal::Boundary { .. } => None,
+        })
+        .ok_or_else(|| LayoutError::Invalid("branch has no real endpoint".into()))?;
+    let enclosures: BTreeSet<&str> = ancestor_ids(boxes, endpoint, endpoint)?;
+    let local: BTreeMap<String, LayoutBox> = boxes
+        .iter()
+        .filter(|(id, object)| {
+            id.as_str() == frame
+                || (is_descendant(boxes, id, frame)
+                    && !(object.solid && enclosures.contains(id.as_str())))
+        })
+        .map(|(id, object)| (id.clone(), object.clone()))
+        .collect();
+    for terminal in [&source, &target] {
+        if let FragmentTerminal::Boundary { point, inward } = terminal {
+            boundary_port(boxes[frame].bounds, *point, *inward, clearance)?;
+        }
+    }
+    let request = FragmentRequest {
+        id: format!("{frame}|{endpoint}"),
+        semantic_ids: vec![],
+        source,
+        target,
+    };
+    let validator = FragmentValidator {
+        boxes: &local,
+        frame: boxes[frame].bounds,
+        request: &request,
+        clearance,
+    };
+    let obstacles: Vec<_> = local
+        .values()
+        .filter(|object| object.solid)
+        .map(|object| Obstacle {
+            id: &object.id,
+            bounds: inflate(object.bounds, clearance),
+        })
+        .collect();
+    let points = route_fragment(&validator, &obstacles, 0, 1, history, cancelled)?;
+    validator.validate(&points, cancelled)?;
+    Ok(points)
+}
+
+/// A copy of `boxes` in which each named box is solid and its interior removed,
+/// so a trunk routes exactly as the collapsed line would.
+fn collapse_boxes(
+    boxes: &BTreeMap<String, LayoutBox>,
+    collapsed: &[&str],
+) -> BTreeMap<String, LayoutBox> {
+    boxes
+        .iter()
+        .filter(|(id, _)| {
+            !collapsed
+                .iter()
+                .any(|outer| is_descendant(boxes, id, outer))
+        })
+        .map(|(id, object)| {
+            let mut object = object.clone();
+            if collapsed.contains(&id.as_str()) {
+                object.solid = true;
+            }
+            (id.clone(), object)
+        })
+        .collect()
+}
+
+/// Strict descendant through the routing parent chain. Chains are validated as
+/// acyclic before routing, and a cycle here simply ends the walk.
+fn is_descendant(boxes: &BTreeMap<String, LayoutBox>, id: &str, ancestor: &str) -> bool {
+    let mut seen = BTreeSet::new();
+    let mut next = boxes.get(id).and_then(|object| object.parent.as_deref());
+    while let Some(current) = next {
+        if current == ancestor {
+            return true;
+        }
+        if !seen.insert(current) {
+            return false;
+        }
+        next = boxes
+            .get(current)
+            .and_then(|object| object.parent.as_deref());
+    }
+    false
+}
+
+/// Signed unit axis from `from` toward `to` on an orthogonal segment.
+fn unit_vector(from: Point, to: Point) -> Point {
+    Point::new(
+        (to.x - from.x).signum(),
+        (to.y - from.y).signum(),
+        (to.z - from.z).signum(),
+    )
 }
 
 fn surface_distance(a: Bounds, b: Bounds) -> i64 {
@@ -3507,5 +3869,113 @@ mod tests {
                 );
             }
         }
+    }
+
+    /// Frame `a` (a1, a2, a3 stacked) left of solid `b`, all in frame `root`.
+    fn bundle_scene() -> BTreeMap<String, LayoutBox> {
+        let mut objects = vec![
+            object("root", point(-10, -10, -10), point(120, 70, 30)),
+            object("a", point(0, 0, 0), point(40, 60, 20)),
+            object("a1", point(10, 5, 5), point(30, 15, 15)),
+            object("a2", point(10, 25, 5), point(30, 35, 15)),
+            object("a3", point(10, 45, 5), point(30, 55, 15)),
+            object("b", point(80, 25, 5), point(100, 35, 15)),
+        ];
+        for object in &mut objects {
+            match object.id.as_str() {
+                "root" => object.solid = false,
+                "a" => {
+                    object.solid = false;
+                    object.parent = Some("root".into());
+                }
+                "b" => object.parent = Some("root".into()),
+                _ => object.parent = Some("a".into()),
+            }
+        }
+        boxes(objects)
+    }
+
+    fn bundled(id: &str, source: &str, target: &str) -> Edge {
+        Edge {
+            bundle: Some("bundle:a->b".into()),
+            ..edge(id, source, target)
+        }
+    }
+
+    #[test]
+    fn a_bundle_routes_the_collapsed_line_as_its_trunk_and_fans_out_inside() {
+        let cancel = AtomicBool::new(false);
+        let scene = bundle_scene();
+        let edges = [
+            bundled("e1", "a1", "b"),
+            bundled("e2", "a2", "b"),
+            bundled("e3", "a3", "b"),
+        ];
+        let routes = route_all(&scene, &edges, 2, &cancel).unwrap();
+        validate_routes(&scene, &edges, &routes, 2).unwrap();
+        // The line `a` would draw if it were collapsed.
+        let collapsed = collapse_boxes(&scene, &["a"]);
+        let line = route_all(&collapsed, &[edge("line", "a", "b")], 2, &cancel)
+            .unwrap()
+            .remove(0);
+        for route in &routes {
+            assert!(
+                route.points.ends_with(&line.points),
+                "{} ends with the collapsed line {:?}: {:?}",
+                route.edge_id,
+                line.points,
+                route.points
+            );
+            let branch = &route.points[..route.points.len() - line.points.len()];
+            assert!(
+                branch.iter().all(|p| scene["a"].bounds.contains_point(*p)),
+                "{} fans out only inside a",
+                route.edge_id
+            );
+            assert_eq!(route.scope_ports.len(), 1);
+            assert_eq!(route.scope_ports[0].point, line.points[0]);
+        }
+    }
+
+    #[test]
+    fn a_bundle_without_a_legal_branch_keeps_independent_routes() {
+        let cancel = AtomicBool::new(false);
+        let mut scene = bundle_scene();
+        // `a` is too thin for any branch to escape inward from its boundary.
+        scene.get_mut("a").unwrap().bounds = Bounds {
+            min: point(9, 0, 4),
+            max: point(31, 60, 16),
+        };
+        let edges = [bundled("e1", "a1", "b"), bundled("e2", "a2", "b")];
+        let ordered: Vec<_> = edges.iter().collect();
+        let units = routing_units(&scene, &ordered);
+        let [RoutingUnit::Bundle(plan)] = units.as_slice() else {
+            panic!("one bundle");
+        };
+        let history = RoutingHistory::default();
+        assert!(route_bundle(&scene, plan, 2, 0, 1, &history, &cancel).is_err());
+        let routes = route_all(&scene, &edges, 2, &cancel).unwrap();
+        validate_routes(&scene, &edges, &routes, 2).unwrap();
+        assert_eq!(routes.len(), 2);
+    }
+
+    #[test]
+    fn bundles_need_agreeing_outer_boxes() {
+        let scene = bundle_scene();
+        let edges = [bundled("e1", "a1", "b"), bundled("e2", "a2", "b")];
+        let ordered: Vec<_> = edges.iter().collect();
+        let units = routing_units(&scene, &ordered);
+        assert!(matches!(units.as_slice(), [RoutingUnit::Bundle(plan)]
+            if plan.source == "a" && plan.target == "b" && plan.members.len() == 2));
+        // A key that claims a crossing the boxes do not have is ignored.
+        let wrong = [Edge {
+            bundle: Some("bundle:none".into()),
+            ..edge("e3", "a", "b")
+        }];
+        let ordered: Vec<_> = wrong.iter().collect();
+        assert!(matches!(
+            routing_units(&scene, &ordered).as_slice(),
+            [RoutingUnit::Single(_)]
+        ));
     }
 }

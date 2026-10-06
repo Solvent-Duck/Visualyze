@@ -36,8 +36,19 @@ struct Segment {
 /// repeated collinear segments do not increase occupancy by the same route.
 /// Sweeps are indexed by exact axis/line/plane; disjoint planes never compare.
 pub fn route_congestion(routes: &[Route]) -> RouteCongestion {
+    let groups: Vec<usize> = (0..routes.len()).collect();
+    route_congestion_grouped(routes, &groups)
+}
+
+/// As `route_congestion`, with `groups[i]` naming the drawn connector route `i`
+/// belongs to. The members of one boundary bundle (ADR 0007) overlap on purpose
+/// along their shared trunk and fan out from it, so they count as one
+/// connector: their shared track and their junctions are not congestion.
+pub fn route_congestion_grouped(routes: &[Route], groups: &[usize]) -> RouteCongestion {
+    assert_eq!(routes.len(), groups.len(), "one group per route");
     let mut axes: [Vec<Segment>; 3] = std::array::from_fn(|_| Vec::new());
-    for (route, geometry) in routes.iter().enumerate() {
+    for (index, geometry) in routes.iter().enumerate() {
+        let route = groups[index];
         for pair in geometry.points.windows(2) {
             let first = coordinates(pair[0]);
             let second = coordinates(pair[1]);
@@ -57,18 +68,22 @@ pub fn route_congestion(routes: &[Route]) -> RouteCongestion {
         }
     }
     let shared_lane_length = shared_length(&axes);
-    let endpoints: Vec<_> = routes
-        .iter()
-        .map(|route| {
-            route
-                .points
-                .first()
-                .copied()
-                .zip(route.points.last().copied())
-        })
-        .collect();
+    let mut endpoints: BTreeMap<usize, Vec<(Point, Point)>> = BTreeMap::new();
+    for (index, route) in routes.iter().enumerate() {
+        if let Some(ends) = route
+            .points
+            .first()
+            .copied()
+            .zip(route.points.last().copied())
+        {
+            endpoints.entry(groups[index]).or_default().push(ends);
+        }
+    }
     let is_endpoint = |route: usize, point: Point| {
-        endpoints[route].is_some_and(|(first, last)| point == first || point == last)
+        endpoints.get(&route).is_some_and(|ends| {
+            ends.iter()
+                .any(|(first, last)| point == *first || point == *last)
+        })
     };
     let mut crossings = BTreeSet::new();
     for horizontal_axis in 0..3 {
