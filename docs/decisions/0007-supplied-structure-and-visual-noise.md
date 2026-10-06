@@ -1,6 +1,7 @@
 # ADR 0007: Supplied structure and a visual noise budget
 
-Status: **Proposed** (2026-10-05). No code has changed for this decision.
+Status: **Accepted** (2026-10-06). Implementation steps 1–4 are done; step 5
+(corpus rebuild and level-of-detail rating study) is open.
 
 ## Context
 
@@ -191,13 +192,30 @@ connector weight.
 5. **Evaluation.** Rebuild the corpus within the budget and run the
    level-of-detail rating study.
 
-## Open questions
+## Resolved questions
 
-1. Should frames (expanded groups drawn as outlines) count as a full box, or
-   less than one?
-2. Should very large aggregated lines (for example, more than 50 relations)
-   count slightly more than one connector?
-3. Should the advisory knees be exposed to producers as numbers, or only as
-   prose guidance?
-4. Where views exceed the threshold with no truthful grouping, is paging or a
-   wide single view preferred?
+Initial answers, all held as private constants so the rating study can revise
+them:
+
+1. Frames count as one full box (`FRAME_WEIGHT` = 1).
+2. Every drawn line counts as one connector, however many relations it carries.
+3. Producers get prose guidance only ("roughly a dozen boxes per layer and a few
+   dozen per view"). The knees, threshold and formula stay private.
+4. A wide truthful level is shown whole while its estimated noise is at or under
+   100 (`FALLBACK_NOISE`), then paged with a noise-derived page size. Suggested
+   groups run only where paging cannot help, which in practice means snapshot
+   levels far over budget, since snapshots have no child paging.
+
+## Implementation notes
+
+- Snapshot projections now aggregate connectors by endpoints, kind and aspect,
+  as bundles already did.
+- Producer advice is computed by `visualyze_layout::advice`, the single entry
+  point for the CLI validator and the future MCP bridge. The CLI prints the 25
+  noisiest scopes.
+- `peer_ceiling` and `group_target` remain on saved views as ignored legacy
+  fields so older files still load.
+- The page-size estimate ignores connectors, which are unknown before routing,
+  so a few connector-heavy pages still score above 100.
+- The evaluation profile changed, so the frozen development and holdout
+  manifests no longer run. Step 5 rebuilds them.
