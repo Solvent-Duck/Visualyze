@@ -3,6 +3,7 @@
 
 pub mod architecture;
 pub mod provider;
+pub mod walkthrough;
 
 use serde::Deserialize;
 

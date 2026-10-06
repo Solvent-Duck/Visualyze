@@ -1,6 +1,6 @@
 //! Validated draft architecture snapshots, independent of rendering and file paths.
 mod graph;
-mod input;
+pub(crate) mod input;
 mod types;
 
 pub use types::*;
@@ -26,7 +26,11 @@ pub struct Diagnostic {
 }
 
 impl Diagnostic {
-    fn new(code: &'static str, path: impl Into<String>, message: impl Into<String>) -> Self {
+    pub(crate) fn new(
+        code: &'static str,
+        path: impl Into<String>,
+        message: impl Into<String>,
+    ) -> Self {
         Self {
             code,
             path: path.into(),
@@ -57,7 +61,11 @@ pub struct ValidationError {
 }
 
 impl ValidationError {
-    fn one(code: &'static str, path: impl Into<String>, message: impl Into<String>) -> Self {
+    pub(crate) fn one(
+        code: &'static str,
+        path: impl Into<String>,
+        message: impl Into<String>,
+    ) -> Self {
         Self {
             diagnostics: vec![Diagnostic::new(code, path, message)],
         }

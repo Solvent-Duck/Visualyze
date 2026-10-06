@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:visualyze:walkthrough:0.1.0-draft.1",
+  "title": "Visualyze walkthrough — draft 0.1",
+  "description": "An explanatory sequence of scenes over an existing architecture model. It references model IDs at one revision and supplies short scene labels; the narration itself belongs to the user's agent. Reference, trace, and revision rules additionally require walkthrough-format.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "model_id", "expected_revision", "title", "steps"],
+  "properties": {
+    "schema_version": {
+      "const": "walkthrough.0.1.0-draft.1"
+    },
+    "id": {
+      "$ref": "#/$defs/id"
+    },
+    "model_id": {
+      "$ref": "#/$defs/id"
+    },
+    "expected_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "title": {
+      "$ref": "#/$defs/title"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/step"
+      },
+      "minItems": 1,
+      "maxItems": 24
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9._:-]*$",
+      "not": {
+        "pattern": "[^a-z0-9._:-]"
+      }
+    },
+    "title": {
+      "description": "A short scene label shown on screen. Plain text, one line.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60,
+      "not": {
+        "pattern": "[\\u0000-\\u001f\\u007f]"
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "focus"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "$ref": "#/$defs/title"
+        },
+        "root": {
+          "description": "The entity whose interior the scene shows. Defaults to the closest common owner of the focus.",
+          "$ref": "#/$defs/id"
+        },
+        "focus": {
+          "description": "The entities this scene is about.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true
+        },
+        "context": {
+          "description": "How everything outside the focus and trace is shown.",
+          "enum": ["dim", "hide", "show"],
+          "default": "dim"
+        },
+        "reveal": {
+          "description": "step: light only this step's focus and trace. cumulative: also keep the focus of earlier steps lit, building the picture up.",
+          "enum": ["step", "cumulative"],
+          "default": "step"
+        },
+        "trace": {
+          "description": "An ordered, contiguous path over existing interaction relations, animated in explanatory order.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hop"
+          },
+          "minItems": 0,
+          "maxItems": 16
+        },
+        "repeat_trace": {
+          "description": "Loop the trace. Only allowed when the trace returns to where it started.",
+          "type": "boolean",
+          "default": false
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/label"
+          },
+          "minItems": 0,
+          "maxItems": 6
+        },
+        "camera": {
+          "enum": ["overview", "frame_focus", "follow_trace", "close_up", "hold"],
+          "default": "frame_focus"
+        },
+        "presentation": {
+          "enum": ["assembled", "exploded"],
+          "default": "assembled"
+        }
+      }
+    },
+    "hop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relation"],
+      "properties": {
+        "relation": {
+          "$ref": "#/$defs/id"
+        },
+        "return": {
+          "description": "Animate the response leg of a requests or reads relation, travelling target to source.",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "text"],
+      "properties": {
+        "target": {
+          "description": "An entity or relation ID.",
+          "$ref": "#/$defs/id"
+        },
+        "text": {
+          "description": "A short callout. Plain text, one line.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "not": {
+            "pattern": "[\\u0000-\\u001f\\u007f]"
+          }
+        }
+      }
+    }
+  }
+}

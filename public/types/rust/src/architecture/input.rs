@@ -5,7 +5,7 @@ use std::fmt;
 
 use super::{MAX_DEPTH, ValidationError};
 
-pub(super) fn parse(bytes: &[u8]) -> Result<Value, ValidationError> {
+pub(crate) fn parse(bytes: &[u8]) -> Result<Value, ValidationError> {
     let mut deserializer = serde_json::Deserializer::from_slice(bytes);
     let value = Seed { depth: 0 }
         .deserialize(&mut deserializer)
