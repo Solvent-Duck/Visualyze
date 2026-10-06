@@ -222,8 +222,8 @@ struct RegionCounts {
 /// itself, and interface pads attached to a solid owner, which belong to the
 /// owner. With `include_references` false, references are neither boxes nor
 /// ends of a counted connector.
-fn region_counts<'p>(
-    projection: &'p Projection,
+fn region_counts(
+    projection: &Projection,
     include_references: bool,
 ) -> BTreeMap<String, RegionCounts> {
     let by_id: BTreeMap<&str, &Node> = projection
@@ -310,11 +310,11 @@ fn region_counts<'p>(
     };
     // Bundled connectors are counted as they are drawn (see `region_noise`):
     // one trunk per bundle key, one branch per distinct (side, outer box,
-    // inner endpoint, bundle key).
+    // inner endpoint, bundle key). The router draws a branch from each display
+    // endpoint, so a pad and its owner are separate branches.
     let mut trunks: BTreeSet<&str> = BTreeSet::new();
     let mut branches: BTreeSet<(bool, String, &str, &str)> = BTreeSet::new();
     let node_of = |id: &str| by_id.get(id).copied();
-    let owner = |id: &'p str| -> &'p str { pad_of.get(id).copied().unwrap_or(id) };
     for edge in &projection.edges {
         if !include_references && (is_reference(&edge.source) || is_reference(&edge.target)) {
             continue;
@@ -337,8 +337,8 @@ fn region_counts<'p>(
                 .connectors += 1;
         }
         for (source_side, outer, inner) in [
-            (true, &outer_source, owner(&edge.source)),
-            (false, &outer_target, owner(&edge.target)),
+            (true, &outer_source, edge.source.as_str()),
+            (false, &outer_target, edge.target.as_str()),
         ] {
             if inner != outer.as_str() && branches.insert((source_side, outer.clone(), inner, key))
             {
@@ -876,7 +876,7 @@ mod tests {
     }
 
     #[test]
-    fn a_pad_counts_as_its_owner_when_deduplicating_branches() {
+    fn a_pad_and_its_owner_are_separate_branches_as_drawn() {
         // a > a0 (solid, owns pad `p0`); both leave through the same bundle.
         let mut p = nested(1);
         p.nodes
@@ -887,7 +887,10 @@ mod tests {
         ];
         let regions = region_noise(&p);
         assert_eq!(regions["root"].connectors, 1);
-        assert_eq!(regions["a"].connectors, 1, "a0 and its pad are one branch");
+        assert_eq!(
+            regions["a"].connectors, 2,
+            "the router draws a branch from each"
+        );
     }
 
     #[test]
