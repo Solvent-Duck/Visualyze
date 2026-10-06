@@ -6,10 +6,10 @@ use crate::{
     layout_input::{DesktopProjection, LayoutInput, SourceTimings},
     native_layout::{ComposedConstraints, LayoutData, NativeLayout},
     primitives,
+    style::{self, GlassMaterial},
 };
 use bevy::{
     camera::CameraUpdateSystems,
-    core_pipeline::tonemapping::Tonemapping,
     input::{
         ButtonState,
         keyboard::KeyboardInput,
@@ -516,7 +516,11 @@ struct Label {
     point: Vec3,
     id: String,
 }
-const LABEL_SIZE: Vec2 = Vec2::new(208.0, 38.0);
+/// A caption pill plus the stem that points down at its object.
+const LABEL_SIZE: Vec2 = Vec2::new(208.0, 44.0);
+const LABEL_STEM: f32 = 8.0;
+/// Group marks tint objects amber, in both solid and glass form.
+const MARK_COLOR: Color = Color::srgb(0.95, 0.74, 0.3);
 #[derive(Component)]
 struct Inspector;
 #[derive(Component)]
@@ -661,22 +665,12 @@ fn setup(
             fov: FIELD_OF_VIEW,
             ..default()
         }),
-        Tonemapping::None,
+        style::camera_finish(),
         orbit.transform(),
         orbit,
     ));
-    commands.insert_resource(GlobalAmbientLight {
-        color: Color::srgb(0.75, 0.85, 1.0),
-        brightness: 200.0,
-        ..default()
-    });
-    commands.spawn((
-        DirectionalLight {
-            illuminance: 4000.0,
-            ..default()
-        },
-        Transform::from_xyz(-3.0, 7.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
+    style::spawn_lights(&mut commands);
+    style::spawn_backdrop(&mut commands);
     commands.spawn((
         Text::new("Visualyze / Refining assembly..."),
         TextFont {
@@ -2889,7 +2883,7 @@ fn highlight_path(commands: &mut Commands, root: Entity) {
         let mut materials = world.resource_mut::<Assets<StandardMaterial>>();
         for handle in handles {
             if let Some(material) = materials.get_mut(&handle) {
-                material.base_color = Color::srgb_u8(255, 222, 125);
+                material.base_color = style::PATH_HIGHLIGHT;
                 material.emissive = LinearRgba::rgb(0.15, 0.09, 0.02);
             }
         }
@@ -3472,6 +3466,7 @@ fn poll(
     mut status: ResMut<LayoutStatus>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut glasses: ResMut<Assets<GlassMaterial>>,
     owned: Query<Entity, With<LayoutOwned>>,
     mut camera: Query<(&mut OrbitCamera, &mut Transform), With<Camera3d>>,
     mut text: Query<&mut Text, With<LayoutText>>,
@@ -3722,6 +3717,11 @@ fn poll(
             let center = viewer.origin;
             let mut scene_bounds = Vec3::ONE;
             let focus = viewer.selected.as_ref();
+            let parents: BTreeMap<&str, &str> = p
+                .nodes
+                .iter()
+                .filter_map(|n| Some((n.id.as_str(), n.parent.as_deref()?)))
+                .collect();
             for n in &p.nodes {
                 let b = &s.geometry.boxes[&n.id];
                 let lo = s.geometry.display(b.min, viewer.explode, center);
@@ -3760,63 +3760,72 @@ fn poll(
                         Visibility::default(),
                     ))
                     .id();
-                let material = materials.add(StandardMaterial {
-                    base_color: object_color(display.map(|label| label.original_kind.as_str()), k),
-                    perceptual_roughness: 0.6,
-                    emissive: if viewer.group_marks.contains_key(&n.id) {
-                        LinearRgba::rgb(0.25, 0.2, 0.05)
+                let color = object_color(display.map(|label| label.original_kind.as_str()), k);
+                let marked = viewer.group_marks.contains_key(&n.id);
+                if b.solid {
+                    let material = materials.add(StandardMaterial {
+                        base_color: color,
+                        perceptual_roughness: 0.6,
+                        // Curved corners must not flash to white under the key light.
+                        reflectance: 0.25,
+                        emissive: if marked {
+                            LinearRgba::rgb(0.25, 0.2, 0.05)
+                        } else if focus == Some(&n.id) {
+                            // Glow in the object's own hue so selection never washes it grey.
+                            color.to_linear() * 0.3
+                        } else {
+                            LinearRgba::BLACK
+                        },
+                        ..default()
+                    });
+                    for part in primitives::solid(k, half) {
+                        commands.spawn((
+                            Mesh3d(meshes.add(part.mesh())),
+                            MeshMaterial3d(material.clone()),
+                            Transform::from_translation(part.position),
+                            ChildOf(root),
+                        ));
+                    }
+                } else if n.id != p.root {
+                    // The focused root encloses the whole view and is named by
+                    // the navigation trail; drawing its walls adds nothing.
+                    let depth = nesting_depth(&parents, &p.root, &n.id);
+                    let (tint, emphasis) = if marked {
+                        (MARK_COLOR, 1.6)
                     } else if focus == Some(&n.id) {
-                        LinearRgba::rgb(0.1, 0.1, 0.1)
+                        (color, 1.7)
                     } else {
-                        LinearRgba::BLACK
-                    },
-                    ..default()
-                });
-                // The focused root encloses the whole view and is named by the
-                // navigation trail; drawing its outline adds nothing.
-                let parts = if b.solid {
-                    vec![primitives::block(half)]
-                } else if n.id == p.root {
-                    vec![]
-                } else {
-                    primitives::frame(half)
-                };
-                for part in parts {
-                    commands.spawn((
-                        Mesh3d(meshes.add(Cuboid::from_size(part.size))),
-                        MeshMaterial3d(material.clone()),
-                        Transform::from_translation(part.position),
-                        ChildOf(root),
-                    ));
+                        (color, 1.0)
+                    };
+                    let (shell, tray) = primitives::container(half);
+                    for (part, glass) in [
+                        (shell, GlassMaterial::shell(tint, depth, emphasis)),
+                        (tray, GlassMaterial::tray(tint, depth, emphasis)),
+                    ] {
+                        commands.spawn((
+                            Mesh3d(meshes.add(part.mesh())),
+                            MeshMaterial3d(glasses.add(glass)),
+                            Transform::from_translation(part.position),
+                            ChildOf(root),
+                        ));
+                    }
                 }
                 if b.solid || focus == Some(&n.id) {
-                    commands.spawn((
-                        LayoutOwned,
+                    let caption = label_caption(&if marked {
+                        format!("[marked] {title}")
+                    } else {
+                        title
+                    });
+                    spawn_label(
+                        &mut commands,
                         Label {
-                            point: position + Vec3::Y * (half.y + 0.12),
+                            point: position + Vec3::Y * half.y,
                             id: n.id.clone(),
                         },
-                        Text::new(label_caption(&if viewer.group_marks.contains_key(&n.id) {
-                            format!("[marked] {title}")
-                        } else {
-                            title
-                        })),
-                        TextFont {
-                            font_size: 12.0,
-                            ..default()
-                        },
-                        TextColor(Color::srgb_u8(213, 224, 235)),
-                        TextLayout::new_with_justify(Justify::Center).with_no_wrap(),
-                        BackgroundColor(Color::srgba(0.055, 0.07, 0.09, 0.9)),
-                        Node {
-                            position_type: PositionType::Absolute,
-                            width: px(LABEL_SIZE.x),
-                            height: px(LABEL_SIZE.y),
-                            padding: UiRect::all(px(3)),
-                            overflow: Overflow::clip(),
-                            ..default()
-                        },
-                    ));
+                        &caption,
+                        display.is_some(),
+                        if marked { MARK_COLOR } else { color },
+                    );
                 }
             }
             // Filter by isolation first, then merge coincident segments, so an
@@ -3915,6 +3924,18 @@ fn poll(
                         },
                     ));
             }
+            // A faint ground grid just below the lowest content seats the view.
+            let reach = scene_bounds.x.max(scene_bounds.z) * 1.6;
+            commands.spawn((
+                LayoutOwned,
+                Mesh3d(meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(reach)))),
+                MeshMaterial3d(glasses.add(GlassMaterial::grid(
+                    style::grid_spacing(scene_bounds.x.max(scene_bounds.z) * 2.0),
+                    reach,
+                    Vec2::ZERO,
+                ))),
+                Transform::from_xyz(0.0, 0.5 - scene_bounds.y, 0.0),
+            ));
             for (mut orbit, mut transform) in &mut camera {
                 if viewer.fit_requested {
                     *orbit = OrbitCamera::for_scene(scene_bounds, 1280.0 / 900.0);
@@ -4752,8 +4773,9 @@ fn label_caption(title: &str) -> String {
     format!("{first}\n{second}")
 }
 
+/// The caption sits above its anchor; the stem's foot is the anchor itself.
 fn label_rect(point: Vec2, viewport: Vec2, occupied: &[Rect]) -> Option<Rect> {
-    let min = point - Vec2::new(LABEL_SIZE.x * 0.5, 0.0);
+    let min = point - Vec2::new(LABEL_SIZE.x * 0.5, LABEL_SIZE.y);
     let rect = Rect::from_corners(min, min + LABEL_SIZE);
     let padded = Rect::from_corners(rect.min - Vec2::splat(4.0), rect.max + Vec2::splat(4.0));
     (rect.min.x >= 12.0
@@ -4767,6 +4789,92 @@ fn label_rect(point: Vec2, viewport: Vec2, occupied: &[Rect]) -> Option<Rect> {
                 || padded.min.y >= other.max.y
         }))
     .then_some(rect)
+}
+
+/// A rounded caption pill edged in the object's colour: kind above, name
+/// below. The fixed outer box is what `labels` packs; the pill shrinks to fit.
+fn spawn_label(commands: &mut Commands, label: Label, caption: &str, kinded: bool, accent: Color) {
+    let (header, name) = match caption.split_once('\n') {
+        Some((kind, name)) if kinded => (kind, Some(name)),
+        _ => (caption, None),
+    };
+    commands
+        .spawn((
+            LayoutOwned,
+            label,
+            Node {
+                position_type: PositionType::Absolute,
+                width: px(LABEL_SIZE.x),
+                height: px(LABEL_SIZE.y),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::FlexEnd,
+                ..default()
+            },
+        ))
+        .with_children(|label| {
+            label
+                .spawn((
+                    BackgroundColor(Color::srgba(0.055, 0.07, 0.095, 0.86)),
+                    BorderColor::all(accent.with_alpha(0.6)),
+                    Node {
+                        max_width: px(LABEL_SIZE.x),
+                        max_height: px(LABEL_SIZE.y - LABEL_STEM),
+                        padding: UiRect::axes(px(9), px(3)),
+                        border: UiRect::all(px(1)),
+                        border_radius: BorderRadius::all(px(7)),
+                        overflow: Overflow::clip(),
+                        ..default()
+                    },
+                ))
+                .with_children(|pill| {
+                    let mut text = pill.spawn((
+                        Text::new(header),
+                        TextFont {
+                            font_size: if name.is_some() { 10.0 } else { 12.0 },
+                            ..default()
+                        },
+                        TextColor(if name.is_some() {
+                            accent.mix(&Color::WHITE, 0.35)
+                        } else {
+                            Color::srgb_u8(222, 231, 241)
+                        }),
+                        TextLayout::new_with_justify(Justify::Center).with_no_wrap(),
+                    ));
+                    if let Some(name) = name {
+                        text.with_child((
+                            TextSpan::new(format!("\n{name}")),
+                            TextFont {
+                                font_size: 12.0,
+                                ..default()
+                            },
+                            TextColor(Color::srgb_u8(222, 231, 241)),
+                        ));
+                    }
+                });
+            label.spawn((
+                Node {
+                    width: px(1.5),
+                    height: px(LABEL_STEM),
+                    ..default()
+                },
+                BackgroundColor(accent.with_alpha(0.75)),
+            ));
+        });
+}
+
+/// Containers below the focused root: 0 for its direct children.
+fn nesting_depth(parents: &BTreeMap<&str, &str>, root: &str, id: &str) -> usize {
+    let mut depth = 0;
+    let mut current = parents.get(id);
+    while let Some(&id) = current {
+        if id == root || depth > parents.len() {
+            break;
+        }
+        depth += 1;
+        current = parents.get(id);
+    }
+    depth
 }
 
 #[allow(clippy::type_complexity)]
@@ -5265,7 +5373,12 @@ mod tests {
         assert!(label_rect(Vec2::new(350.0, 223.0), viewport, &[first]).is_none());
         assert!(label_rect(Vec2::new(350.0, 250.0), viewport, &[first]).is_some());
         let inspector = Rect::from_corners(Vec2::new(24.0, 600.0), Vec2::new(976.0, 704.0));
-        assert!(label_rect(Vec2::new(350.0, 580.0), viewport, &[inspector]).is_none());
+        // Captions sit above their anchor, so one anchored just below the
+        // inspector's top edge would overlap it.
+        assert!(label_rect(Vec2::new(350.0, 610.0), viewport, &[inspector]).is_none());
+        assert!(label_rect(Vec2::new(350.0, 590.0), viewport, &[inspector]).is_some());
+        // A caption never leaves the top of the viewport.
+        assert!(label_rect(Vec2::new(350.0, 40.0), viewport, &[]).is_none());
         assert!(label_rect(Vec2::new(30.0, 300.0), viewport, &[]).is_none());
         assert!(label_rect(Vec2::new(950.0, 300.0), viewport, &[]).is_none());
     }
@@ -5581,6 +5694,7 @@ mod tests {
             .init_resource::<ViewerActions>()
             .init_resource::<Assets<Mesh>>()
             .init_resource::<Assets<StandardMaterial>>()
+            .init_resource::<Assets<crate::style::GlassMaterial>>()
             .add_systems(Update, (process_actions, poll, navigation_status).chain());
         {
             let mut viewer = app.world_mut().resource_mut::<Viewer>();
@@ -5638,6 +5752,7 @@ mod tests {
             .init_resource::<ViewerActions>()
             .init_resource::<Assets<Mesh>>()
             .init_resource::<Assets<StandardMaterial>>()
+            .init_resource::<Assets<crate::style::GlassMaterial>>()
             .add_systems(Update, (process_actions, poll, navigation_status).chain());
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
         loop {
@@ -6646,7 +6761,7 @@ mod tests {
                 .get(&material.0)
                 .unwrap()
                 .base_color,
-            Color::srgb_u8(255, 222, 125)
+            style::PATH_HIGHLIGHT
         );
         let mut objects = world.query::<&PlacedObject>();
         let ids: std::collections::BTreeSet<_> = objects

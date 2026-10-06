@@ -1,21 +1,19 @@
 use std::collections::BTreeMap;
 
-use bevy::{
-    camera::CameraUpdateSystems, core_pipeline::tonemapping::Tonemapping, prelude::*,
-    transform::TransformSystems,
-};
+use bevy::{camera::CameraUpdateSystems, prelude::*, transform::TransformSystems};
 use visualyze_model::architecture::{Architecture, Basis, EntityKind};
 
 use crate::{
     camera::{FIELD_OF_VIEW, OrbitCamera},
     composition::{ViewMode, compose},
     connections, primitives,
+    style::{self, GlassMaterial},
 };
 
 #[derive(Resource)]
 pub(crate) struct ArchitectureModel(pub Architecture);
 
-/// One semantic root per input object. All its cuboid fragments are children.
+/// One semantic root per input object. All its mesh fragments are children.
 #[derive(Component, Debug)]
 pub struct RenderedObject {
     pub id: String,
@@ -48,6 +46,7 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut glasses: ResMut<Assets<GlassMaterial>>,
     model: Res<ArchitectureModel>,
     view: Res<ViewMode>,
 ) {
@@ -98,20 +97,38 @@ fn setup(
         let material = materials.add(StandardMaterial {
             base_color: primitives::color(entity.kind),
             perceptual_roughness: 0.6,
+            reflectance: 0.25,
             ..default()
         });
-        let parts = if scene.connected && entity.kind == EntityKind::Scope {
-            primitives::frame(p.half_size)
+        if scene.connected && entity.kind == EntityKind::Scope {
+            let mut depth = 0;
+            let mut parent = p.parent.as_ref();
+            while let Some(id) = parent {
+                depth += 1;
+                parent = scene.objects[id].parent.as_ref();
+            }
+            let color = primitives::color(entity.kind);
+            let (shell, tray) = primitives::container(p.half_size);
+            for (part, glass) in [
+                (shell, GlassMaterial::shell(color, depth, 1.0)),
+                (tray, GlassMaterial::tray(color, depth, 1.0)),
+            ] {
+                commands.spawn((
+                    Mesh3d(meshes.add(part.mesh())),
+                    MeshMaterial3d(glasses.add(glass)),
+                    Transform::from_translation(part.position),
+                    ChildOf(root),
+                ));
+            }
         } else {
-            vec![primitives::block(p.half_size)]
-        };
-        for part in parts {
-            commands.spawn((
-                Mesh3d(meshes.add(Cuboid::from_size(part.size))),
-                MeshMaterial3d(material.clone()),
-                Transform::from_translation(part.position),
-                ChildOf(root),
-            ));
+            for part in primitives::solid(entity.kind, p.half_size) {
+                commands.spawn((
+                    Mesh3d(meshes.add(part.mesh())),
+                    MeshMaterial3d(material.clone()),
+                    Transform::from_translation(part.position),
+                    ChildOf(root),
+                ));
+            }
         }
         let port = scene.connected && entity.kind == EntityKind::Interface;
         let title = if port {
@@ -178,18 +195,8 @@ fn setup(
             ));
         }
     }
-    commands.insert_resource(GlobalAmbientLight {
-        color: Color::srgb(0.75, 0.85, 1.0),
-        brightness: 200.0,
-        ..default()
-    });
-    commands.spawn((
-        DirectionalLight {
-            illuminance: 4_000.0,
-            ..default()
-        },
-        Transform::from_xyz(-3.0, 7.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
+    style::spawn_lights(&mut commands);
+    style::spawn_backdrop(&mut commands);
     let orbit = OrbitCamera::for_scene(bounds, 1280.0 / 900.0);
     commands.spawn((
         Camera3d::default(),
@@ -197,7 +204,7 @@ fn setup(
             fov: FIELD_OF_VIEW,
             ..default()
         }),
-        Tonemapping::None,
+        style::camera_finish(),
         orbit.transform(),
         orbit,
     ));
@@ -303,15 +310,17 @@ mod tests {
         let parts: Vec<_> = world
             .query::<(
                 &Mesh3d,
-                &MeshMaterial3d<StandardMaterial>,
+                Option<&MeshMaterial3d<StandardMaterial>>,
+                Has<MeshMaterial3d<GlassMaterial>>,
                 &ChildOf,
                 &GlobalTransform,
             )>()
             .iter(world)
-            .map(|(mesh, material, parent, transform)| {
+            .map(|(mesh, material, glass, parent, transform)| {
                 (
                     mesh.0.clone(),
-                    material.0.clone(),
+                    material.map(|m| m.0.clone()),
+                    glass,
                     parent.parent(),
                     *transform,
                 )
@@ -322,24 +331,38 @@ mod tests {
         for (root, id, kind) in objects {
             let geometry: Vec<_> = parts
                 .iter()
-                .filter(|(_, _, parent, _)| *parent == root)
+                .filter(|(_, _, _, parent, _)| *parent == root)
                 .collect();
+            // Containers are a glass shell and tray; solids are their kind's slabs.
             let outlined = scene.connected && kind == EntityKind::Scope;
-            assert_eq!(geometry.len(), if outlined { 12 } else { 1 }, "{id}");
+            let placement = &scene.objects[&id];
+            let expected = if outlined {
+                2
+            } else {
+                primitives::solid(kind, placement.half_size).len()
+            };
+            assert_eq!(geometry.len(), expected, "{id}");
             let mut min = Vec3::splat(f32::INFINITY);
             let mut max = Vec3::splat(f32::NEG_INFINITY);
-            for (mesh, material, _, transform) in geometry {
-                assert_eq!(
-                    materials.get(material).unwrap().base_color,
-                    primitives::color(kind)
-                );
+            for (mesh, material, glass, _, transform) in geometry {
+                if outlined {
+                    assert!(*glass && material.is_none(), "{id}");
+                } else {
+                    assert_eq!(
+                        materials
+                            .get(material.as_ref().unwrap())
+                            .unwrap()
+                            .base_color,
+                        primitives::color(kind)
+                    );
+                }
                 let VertexAttributeValues::Float32x3(vertices) = meshes
                     .get(mesh)
                     .unwrap()
                     .attribute(Mesh::ATTRIBUTE_POSITION)
                     .unwrap()
                 else {
-                    panic!("expected cuboid positions for {id}")
+                    panic!("expected mesh positions for {id}")
                 };
                 for vertex in vertices {
                     let point = transform.transform_point(Vec3::from_array(*vertex));
@@ -347,7 +370,6 @@ mod tests {
                     max = max.max(point);
                 }
             }
-            let placement = &scene.objects[&id];
             assert!(
                 min.abs_diff_eq(placement.position - placement.half_size, 0.00001),
                 "{id}"
@@ -373,6 +395,7 @@ mod tests {
         app.add_plugins((TransformPlugin, bevy::camera::visibility::VisibilityPlugin))
             .init_resource::<Assets<Mesh>>()
             .init_resource::<Assets<StandardMaterial>>()
+            .init_resource::<Assets<crate::style::GlassMaterial>>()
             .insert_resource(ArchitectureModel(model))
             .add_plugins(ObjectScenePlugin);
         app.update();
@@ -404,7 +427,12 @@ mod tests {
             .iter(world)
             .map(|(_, parent, visibility)| (parent.parent(), *visibility))
             .collect();
-        assert_eq!(parts.len(), 7);
+        // Some kinds are built from several slabs (e.g. a datastore's platters).
+        let expected: usize = objects
+            .iter()
+            .map(|(_, id, kind)| primitives::solid(*kind, scene.objects[id].half_size).len())
+            .sum();
+        assert_eq!(parts.len(), expected);
         assert!(parts.iter().all(
             |(parent, visibility)| roots.contains(parent) && *visibility != Visibility::Hidden
         ));
@@ -438,6 +466,7 @@ mod tests {
         app.add_plugins((TransformPlugin, bevy::camera::visibility::VisibilityPlugin))
             .init_resource::<Assets<Mesh>>()
             .init_resource::<Assets<StandardMaterial>>()
+            .init_resource::<Assets<crate::style::GlassMaterial>>()
             .insert_resource(ArchitectureModel(model))
             .add_plugins(ObjectScenePlugin);
         app.update();
