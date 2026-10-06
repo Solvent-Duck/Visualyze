@@ -179,6 +179,7 @@ fn relation_only_changes_do_not_change_neighborhoods_or_add_a_score_weight() {
     });
     let mut p = projection(&current);
     p.edges.push(Edge {
+        bundle: None,
         id: "request".into(),
         semantic_ids: vec!["request".into()],
         source: "a".into(),

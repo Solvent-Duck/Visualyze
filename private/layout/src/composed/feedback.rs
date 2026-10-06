@@ -588,6 +588,7 @@ mod tests {
                 "boundary-path".into(),
                 ComposedRoute {
                     edge: Edge {
+                        bundle: None,
                         id: "boundary-path".into(),
                         source: "interface".into(),
                         target: "outside".into(),

@@ -34,6 +34,7 @@ fn fixture() -> Projection {
             node("b", Some("root"), Point::new(40, 40, 40)),
         ],
         edges: vec![Edge {
+            bundle: None,
             id: "call".into(),
             source: "a".into(),
             target: "b".into(),

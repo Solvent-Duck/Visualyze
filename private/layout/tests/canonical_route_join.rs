@@ -268,6 +268,7 @@ fn corner_parent_attachment_joins_the_selected_child_face_without_moving_or_bend
     let ordinary = route_all(
         &parent_boxes,
         &[Edge {
+            bundle: None,
             id: request.id,
             semantic_ids: membership.clone(),
             source: "auth".into(),

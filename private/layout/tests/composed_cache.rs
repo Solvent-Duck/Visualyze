@@ -42,6 +42,7 @@ fn fixture() -> Projection {
             node("row", Some("table"), true, 0),
         ],
         edges: vec![Edge {
+            bundle: None,
             id: "auth-row".into(),
             source: "auth".into(),
             target: "row".into(),
@@ -116,6 +117,7 @@ fn changed_relationships_reroute_accepted_positions_and_revision_rebases_without
     p.revision += 1;
     p.key.push_str("-revision-2");
     p.edges.push(Edge {
+        bundle: None,
         id: "reverse".into(),
         source: "row".into(),
         target: "auth".into(),
@@ -226,6 +228,7 @@ fn changed_parent_lanes_recompute_boundary_routes_and_match_uncached_routing() {
         .bounds
         .center();
     p.edges.push(Edge {
+        bundle: None,
         id: "second-coverage".into(),
         source: "auth".into(),
         target: "row".into(),

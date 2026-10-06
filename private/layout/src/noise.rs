@@ -438,6 +438,7 @@ mod tests {
             nodes,
             edges: (0..edges)
                 .map(|i| Edge {
+                    bundle: None,
                     id: format!("e{i}"),
                     source: "a".into(),
                     target: "b".into(),
@@ -613,6 +614,7 @@ mod tests {
         let mut p = projection(nodes, 0);
         p.references = BTreeMap::from([("view:reference:x".into(), "x".into())]);
         let edge = |id: &str, source: &str, target: &str| Edge {
+            bundle: None,
             id: id.into(),
             source: source.into(),
             target: target.into(),
@@ -639,6 +641,7 @@ mod tests {
             .iter()
             .enumerate()
             .map(|(i, (source, target))| Edge {
+                bundle: None,
                 id: format!("e{i}"),
                 source: (*source).into(),
                 target: (*target).into(),

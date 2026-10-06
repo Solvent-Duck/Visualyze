@@ -2356,6 +2356,7 @@ mod layered_tests {
 
     fn edge(p: &mut Projection, id: &str, source: &str, target: &str) {
         p.edges.push(Edge {
+            bundle: None,
             id: id.into(),
             source: source.into(),
             target: target.into(),
@@ -2586,6 +2587,7 @@ mod size_tests {
                 node("b", Some("root"), true),
             ],
             edges: vec![Edge {
+                bundle: None,
                 id: "call".into(),
                 source: "a".into(),
                 target: "b".into(),
@@ -2910,6 +2912,7 @@ mod feedback_tests {
             root: "root".into(),
             nodes,
             edges: vec![Edge {
+                bundle: None,
                 id: "dependency".into(),
                 source: "source".into(),
                 target: "target".into(),
@@ -3309,6 +3312,7 @@ mod repair_tests {
         projection.key = "added-local-service".into();
         projection.nodes.push(node("a2", Some("a"), true));
         projection.edges.push(Edge {
+            bundle: None,
             id: "local-call".into(),
             source: "a1".into(),
             target: "a2".into(),
@@ -3350,6 +3354,7 @@ mod repair_tests {
         projection.revision += 1;
         projection.key = "added-cross-scope-edge".into();
         projection.edges.push(Edge {
+            bundle: None,
             id: "dependency".into(),
             source: "a1".into(),
             target: "b1".into(),
@@ -3469,6 +3474,7 @@ mod repair_tests {
         middleware.band = 1;
         projection.nodes.extend([auth, middleware]);
         projection.edges.push(Edge {
+            bundle: None,
             id: "coverage".into(),
             source: "auth".into(),
             target: "middleware".into(),

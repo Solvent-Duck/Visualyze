@@ -118,6 +118,7 @@ fn crossing_fixture() -> (Projection, LayoutSolution) {
         .collect();
     let edges = [("x", "a", "b"), ("y", "c", "d")]
         .map(|(id, source, target)| Edge {
+            bundle: None,
             id: id.into(),
             semantic_ids: vec![id.into()],
             source: source.into(),

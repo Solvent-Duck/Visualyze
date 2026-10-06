@@ -452,6 +452,8 @@ struct WireEdge {
     source: String,
     target: String,
     semantic_ids: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    bundle: Option<String>,
 }
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -538,6 +540,7 @@ impl WireState {
                         source: route.edge.source.clone(),
                         target: route.edge.target.clone(),
                         semantic_ids: route.edge.semantic_ids.clone(),
+                        bundle: route.edge.bundle.clone(),
                     },
                     fragments: route
                         .fragments
@@ -712,6 +715,7 @@ impl WireState {
                 id,
                 ComposedRoute {
                     edge: Edge {
+                        bundle: route.edge.bundle,
                         id: route.edge.id,
                         source: route.edge.source,
                         target: route.edge.target,

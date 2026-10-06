@@ -108,6 +108,7 @@ fn volumetric_routes_preserve_upper_bands_pins_and_input_order_independence() {
     let mut projection = peers(true);
     projection.edges = (0..6)
         .map(|i| Edge {
+            bundle: None,
             id: format!("edge:{i}"),
             semantic_ids: vec![format!("edge:{i}")],
             source: format!("peer:{:02}", i * 4),

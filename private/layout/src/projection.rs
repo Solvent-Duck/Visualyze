@@ -759,10 +759,11 @@ fn project_with(
     }
     let mut edges: Vec<Edge> = edge_groups
         .into_iter()
-        .map(|((source, target, _, _), mut semantic_ids)| {
+        .map(|((source, target, kind, aspect), mut semantic_ids)| {
             semantic_ids.sort();
             Edge {
                 id: semantic_ids[0].clone(),
+                bundle: bundle_key(&nodes, &source, &target, &kind, aspect.as_deref()),
                 source,
                 target,
                 semantic_ids,
@@ -1221,6 +1222,81 @@ pub(crate) fn rank_pipeline(nodes: &mut BTreeMap<String, Node>, edges: &[Edge]) 
     }
 }
 
+/// Non-solid display ancestors of `id`, innermost first, starting with `id`
+/// itself when it is not solid. This is the router's `enclosure_chain`: solid
+/// boxes (including interface owners) are never enclosures, because their
+/// exposed pads already carry the attachment.
+fn display_enclosures<'a>(nodes: &'a BTreeMap<String, Node>, id: &str) -> Vec<&'a str> {
+    let mut chain = Vec::new();
+    let mut next = nodes.get(id);
+    while let Some(node) = next {
+        if !node.solid {
+            chain.push(node.id.as_str());
+        }
+        next = node.parent.as_deref().and_then(|parent| nodes.get(parent));
+    }
+    chain
+}
+
+/// The bundle key of a projected edge (see `Edge::bundle`), or `None` when it
+/// crosses no expanded box boundary below the lowest common enclosure.
+///
+/// `S'` is the enclosure directly below the common one on the source side (or
+/// the source itself when it already sits there); `T'` likewise. When the ends
+/// share no enclosure, the outermost enclosure on each side is used. The key is
+/// the projection's aggregation key with the endpoints replaced by `S'`/`T'`
+/// (see `encode_bundle_key` for the exact encoding).
+pub(crate) fn bundle_key(
+    nodes: &BTreeMap<String, Node>,
+    source: &str,
+    target: &str,
+    kind: &str,
+    aspect: Option<&str>,
+) -> Option<String> {
+    let sources = display_enclosures(nodes, source);
+    let targets = display_enclosures(nodes, target);
+    let common_id = sources.iter().copied().find(|id| targets.contains(id));
+    let below = |chain: &[&str], end: &str| -> String {
+        let above = common_id
+            .and_then(|id| chain.iter().position(|item| *item == id))
+            .unwrap_or(chain.len());
+        above
+            .checked_sub(1)
+            .map_or(end, |index| chain[index])
+            .to_owned()
+    };
+    let outer_source = below(&sources, source);
+    let outer_target = below(&targets, target);
+    if outer_source == source && outer_target == target {
+        return None;
+    }
+    Some(encode_bundle_key(
+        &outer_source,
+        &outer_target,
+        kind,
+        aspect,
+    ))
+}
+
+/// Encodes `(S', T', kind, aspect)` as `bundle|<len>:<S'>|<len>:<T'>|<len>:<kind>|-`
+/// (no aspect) or `...|+<len>:<aspect>`. Every field is length-prefixed, so
+/// distinct tuples never collide.
+pub(crate) fn encode_bundle_key(
+    source: &str,
+    target: &str,
+    kind: &str,
+    aspect: Option<&str>,
+) -> String {
+    let field = |value: &str| format!("{}:{value}", value.len());
+    format!(
+        "bundle|{}|{}|{}|{}",
+        field(source),
+        field(target),
+        field(kind),
+        aspect.map_or_else(|| "-".to_owned(), |aspect| format!("+{}", field(aspect)))
+    )
+}
+
 fn projection_key(root: &str, nodes: &[Node], edges: &[Edge], view: &ViewState) -> String {
     // Length-delimited data avoids ambiguous concatenation. FNV is stable across processes.
     let mut hash = 0xcbf29ce484222325_u64;
@@ -1248,6 +1324,7 @@ fn projection_key(root: &str, nodes: &[Node], edges: &[Edge], view: &ViewState) 
         write(&edge.id);
         write(&edge.source);
         write(&edge.target);
+        write(edge.bundle.as_deref().unwrap_or(""));
     }
     for (id, pin) in &view.pins {
         write(id);
@@ -1959,5 +2036,211 @@ mod tests {
         assert_ne!(original, project(&notes(), &view).unwrap().key);
         view.layer_preferences.insert("client:web".into(), i32::MIN);
         assert!(project(&notes(), &view).is_err());
+    }
+    /// System with scope `sa` (a1..a3, a1 exposing interface `ia`), scope `sc`
+    /// (c1, c2), outside service `sb` and outside client `sk`.
+    fn bundle_model() -> Architecture {
+        let entity = |id: &str, kind: &str, extra: &str| {
+            format!(
+                r#"{{"id":"{id}","kind":"{kind}","label":"{id}","boundary":"internal","basis":"declared"{extra}}}"#
+            )
+        };
+        let relation = |id: &str, kind: &str, source: &str, target: &str| {
+            format!(
+                r#"{{"id":"{id}","kind":"{kind}","source":"{source}","target":"{target}","basis":"declared"}}"#
+            )
+        };
+        let entities = [
+            entity("system", "scope", r#","subtype":"system""#),
+            entity("sa", "scope", ""),
+            entity("sc", "scope", ""),
+            entity("a1", "service", ""),
+            entity("a2", "service", ""),
+            entity("a3", "service", ""),
+            entity("c1", "service", ""),
+            entity("c2", "service", ""),
+            entity("sb", "service", ""),
+            entity("sk", "client", ""),
+            entity("ia", "interface", r#","subtype":"api""#),
+        ];
+        let relations = [
+            relation("own-sa", "contains", "system", "sa"),
+            relation("own-sc", "contains", "system", "sc"),
+            relation("own-sb", "contains", "system", "sb"),
+            relation("own-sk", "contains", "system", "sk"),
+            relation("own-a1", "contains", "sa", "a1"),
+            relation("own-a2", "contains", "sa", "a2"),
+            relation("own-a3", "contains", "sa", "a3"),
+            relation("own-c1", "contains", "sc", "c1"),
+            relation("own-c2", "contains", "sc", "c2"),
+            relation("expose", "exposes", "a1", "ia"),
+            relation("b1", "requests", "a1", "sb"),
+            relation("b2", "requests", "a2", "sb"),
+            relation("b3", "depends_on", "a3", "sb"),
+            relation("x1", "requests", "a1", "c1"),
+            relation("x2", "requests", "a2", "c2"),
+            relation("x3", "depends_on", "a3", "c1"),
+            relation("pad", "requests", "sk", "ia"),
+        ];
+        let json = format!(
+            r#"{{"schema_version":"0.1.0-draft.1","model_id":"bundles","revision":1,"system_id":"system","snapshot":{{"id":"bundle-001","source_revision":null,"coverage":"partial","scope_description":"test","omissions":[]}},"entities":[{}],"relations":[{}],"evidence":[]}}"#,
+            entities.join(","),
+            relations.join(",")
+        );
+        Architecture::from_json(json.as_bytes()).unwrap_or_else(|e| panic!("{e}"))
+    }
+
+    fn expanded_view(ids: &[&str]) -> ViewState {
+        let mut view = ViewState::default();
+        for id in ids {
+            view.set_expanded(*id, true);
+        }
+        view
+    }
+
+    /// The `(S', T', kind, aspect)` line each collapsed edge draws, encoded as
+    /// a bundle key.
+    fn line_keys(p: &Projection) -> BTreeSet<String> {
+        p.edges
+            .iter()
+            .map(|edge| {
+                let relation = &p.relation_metadata[&edge.semantic_ids[0]];
+                encode_bundle_key(
+                    &edge.source,
+                    &edge.target,
+                    &format!("{:?}", relation.kind),
+                    relation.aspect.as_deref(),
+                )
+            })
+            .collect()
+    }
+
+    fn bundle_of<'a>(p: &'a Projection, id: &str) -> &'a Option<String> {
+        &p.edges
+            .iter()
+            .find(|edge| edge.semantic_ids.iter().any(|member| member == id))
+            .unwrap_or_else(|| panic!("no edge for {id}: {:#?}", p.edges))
+            .bundle
+    }
+
+    #[test]
+    fn expanded_boundary_crossings_bundle_onto_the_collapsed_lines() {
+        let model = bundle_model();
+        let collapsed = project(&model, &ViewState::default()).unwrap();
+        assert!(collapsed.edges.iter().all(|edge| edge.bundle.is_none()));
+        let to_b: Vec<_> = collapsed
+            .edges
+            .iter()
+            .filter(|edge| edge.target == "sb")
+            .map(|edge| (edge.source.as_str(), edge.semantic_ids.clone()))
+            .collect();
+        assert_eq!(
+            to_b,
+            [
+                ("sa", vec!["b1".to_owned(), "b2".to_owned()]),
+                ("sa", vec!["b3".to_owned()])
+            ]
+        );
+
+        let expanded = project(&model, &expanded_view(&["sa"])).unwrap();
+        assert!(
+            expanded.edges.iter().all(|edge| edge.bundle.is_some()),
+            "{:#?}",
+            expanded.edges
+        );
+        // Same endpoints and kind share one key; a different kind does not.
+        assert_eq!(bundle_of(&expanded, "b1"), bundle_of(&expanded, "b2"));
+        assert_ne!(bundle_of(&expanded, "b1"), bundle_of(&expanded, "b3"));
+        assert_eq!(
+            bundle_of(&expanded, "b1").as_deref(),
+            Some("bundle|2:sa|2:sb|8:Requests|-")
+        );
+        // One distinct key per line the collapsed view draws.
+        let keys: BTreeSet<_> = expanded
+            .edges
+            .iter()
+            .map(|edge| edge.bundle.clone().unwrap())
+            .collect();
+        assert_eq!(keys, line_keys(&collapsed));
+        assert_eq!(keys.len(), 5);
+    }
+
+    #[test]
+    fn bundle_keys_are_part_of_the_projection_identity_and_deterministic() {
+        let model = bundle_model();
+        let view = expanded_view(&["sa"]);
+        let first = project(&model, &view).unwrap();
+        assert_eq!(first.key, project(&model, &view).unwrap().key);
+        let mut changed = first.edges.clone();
+        changed[0].bundle = None;
+        let nodes = first.nodes.clone();
+        assert_ne!(
+            projection_key(&first.root, &nodes, &first.edges, &view),
+            projection_key(&first.root, &nodes, &changed, &view)
+        );
+    }
+
+    #[test]
+    fn expanding_both_ends_shares_one_trunk_per_kind() {
+        let model = bundle_model();
+        let collapsed = project(&model, &ViewState::default()).unwrap();
+        let both = project(&model, &expanded_view(&["sa", "sc"])).unwrap();
+        assert!(both.edges.iter().all(|edge| edge.bundle.is_some()));
+        assert_eq!(bundle_of(&both, "x1"), bundle_of(&both, "x2"));
+        assert_ne!(bundle_of(&both, "x1"), bundle_of(&both, "x3"));
+        assert_eq!(
+            bundle_of(&both, "x1").as_deref(),
+            Some("bundle|2:sa|2:sc|8:Requests|-")
+        );
+        assert_eq!(
+            bundle_of(&both, "x3").as_deref(),
+            Some("bundle|2:sa|2:sc|9:DependsOn|-")
+        );
+        let keys: BTreeSet<_> = both
+            .edges
+            .iter()
+            .map(|edge| edge.bundle.clone().unwrap())
+            .collect();
+        assert_eq!(keys, line_keys(&collapsed));
+        // Only C expanded: the trunk ends at C's boundary on the target side.
+        let one_side = project(&model, &expanded_view(&["sc"])).unwrap();
+        assert_eq!(
+            bundle_of(&one_side, "x1").as_deref(),
+            Some("bundle|2:sa|2:sc|8:Requests|-")
+        );
+        assert_eq!(bundle_of(&one_side, "b1"), &None);
+    }
+
+    #[test]
+    fn interface_pads_bundle_through_expanded_scopes_but_not_through_solid_owners() {
+        let model = bundle_model();
+        // The pad's solid owner a1 is no enclosure; the pad leaves A.
+        let view = expanded_view(&["sa", "a1"]);
+        let nested = project(&model, &view).unwrap();
+        assert_eq!(nested.semantic_to_display["ia"], "ia");
+        assert_eq!(
+            nested
+                .nodes
+                .iter()
+                .find(|n| n.id == "ia")
+                .unwrap()
+                .parent
+                .as_deref(),
+            Some("a1")
+        );
+        assert_eq!(
+            bundle_of(&nested, "pad").as_deref(),
+            Some("bundle|2:sk|2:sa|8:Requests|-")
+        );
+        // The same pad on a solid owner directly in the root is a plain edge.
+        let notes = project(&notes(), &expanded_view(&["service:notes"])).unwrap();
+        assert!(notes.nodes.iter().any(|n| n.id == "interface:notes"));
+        assert!(
+            notes
+                .edges
+                .iter()
+                .any(|edge| edge.target == "interface:notes")
+        );
+        assert!(notes.edges.iter().all(|edge| edge.bundle.is_none()));
     }
 }

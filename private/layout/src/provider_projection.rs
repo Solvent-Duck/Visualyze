@@ -871,10 +871,17 @@ fn project_provider_once(
     }
     let mut edges: Vec<Edge> = edge_groups
         .into_iter()
-        .map(|((source, target, _, _), mut semantic_ids)| {
+        .map(|((source, target, kind, aspect), mut semantic_ids)| {
             semantic_ids.sort();
             Edge {
                 id: semantic_ids[0].clone(),
+                bundle: crate::projection::bundle_key(
+                    &nodes,
+                    &source,
+                    &target,
+                    &kind,
+                    aspect.as_deref(),
+                ),
                 source,
                 target,
                 semantic_ids,
@@ -1388,6 +1395,7 @@ fn key(root: &str, nodes: &[Node], edges: &[Edge], policy: LayoutPolicy) -> Stri
         write(edge.id.as_bytes());
         write(edge.source.as_bytes());
         write(edge.target.as_bytes());
+        write(edge.bundle.as_deref().unwrap_or("").as_bytes());
         for id in &edge.semantic_ids {
             write(id.as_bytes());
         }
@@ -1398,6 +1406,7 @@ fn key(root: &str, nodes: &[Node], edges: &[Edge], policy: LayoutPolicy) -> Stri
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::projection::encode_bundle_key;
     use crate::{Algorithm, LayoutRequest, QualityProfile, solve, validate};
     use std::{
         path::PathBuf,
@@ -1717,6 +1726,64 @@ mod tests {
                 .iter()
                 .all(|edge| edge.semantic_ids == [edge.id.clone()])
         );
+    }
+
+    #[test]
+    fn expanded_datastore_bundles_its_crossings_onto_the_collapsed_lines() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../public/examples/data-messaging.bundle.jsonl");
+        let mut provider = LocalBundle::open(path, Limits::default()).unwrap();
+        let overview = project_provider(
+            &mut provider,
+            &ProviderViewRequest::default(),
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert!(
+            overview
+                .graph
+                .edges
+                .iter()
+                .all(|edge| edge.bundle.is_none())
+        );
+        let request = ProviderViewRequest {
+            expanded: BTreeSet::from(["datastore:orders".into(), "table:orders".into()]),
+            ..ProviderViewRequest::default()
+        };
+        let mixed = project_provider(&mut provider, &request, &AtomicBool::new(false)).unwrap();
+        // The collapsed view's lines that touch the datastore, as bundle keys.
+        let lines: BTreeSet<String> = overview
+            .graph
+            .edges
+            .iter()
+            .filter(|edge| edge.source == "datastore:orders" || edge.target == "datastore:orders")
+            .map(|edge| {
+                let relation = &overview.relations[&edge.semantic_ids[0]];
+                encode_bundle_key(
+                    &edge.source,
+                    &edge.target,
+                    &format!("{:?}", relation.kind),
+                    relation.aspect.as_deref(),
+                )
+            })
+            .collect();
+        assert_eq!(lines.len(), 2, "{lines:?}");
+        let bundles: BTreeSet<String> = mixed
+            .graph
+            .edges
+            .iter()
+            .filter_map(|edge| edge.bundle.clone())
+            .collect();
+        assert_eq!(bundles, lines);
+        // Exactly the edges that cross the datastore boundary carry a bundle.
+        let inside = |id: &str| ["table:orders", "table:customers"].contains(&id);
+        for edge in &mixed.graph.edges {
+            assert_eq!(
+                edge.bundle.is_some(),
+                inside(&edge.source) != inside(&edge.target),
+                "{edge:?}"
+            );
+        }
     }
 
     #[test]

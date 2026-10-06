@@ -2721,6 +2721,7 @@ mod tests {
 
     fn edge(id: &str, source: &str, target: &str) -> Edge {
         Edge {
+            bundle: None,
             id: id.into(),
             source: source.into(),
             target: target.into(),

@@ -42,6 +42,7 @@ fn fixture() -> (Projection, CanonicalPins, CompositionContext) {
             node("far", Some("db"), true, 0),
         ],
         edges: vec![Edge {
+            bundle: None,
             id: "auth-inside".into(),
             source: "auth".into(),
             target: "inside".into(),
