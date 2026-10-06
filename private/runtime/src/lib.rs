@@ -10,6 +10,7 @@ mod pin_provenance;
 mod primitives;
 mod scene;
 mod shutdown;
+mod style;
 
 use bevy::{prelude::*, window::WindowResolution};
 use visualyze_model::architecture::{Architecture, OBJECTS_FIXTURE};
@@ -92,7 +93,7 @@ pub fn app_with_bundle(path: std::path::PathBuf, engine: LayoutEngine) -> App {
 
 fn base_app() -> App {
     let mut app = App::new();
-    app.insert_resource(ClearColor(Color::srgb_u8(18, 22, 29)))
+    app.insert_resource(ClearColor(style::CLEAR))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "Visualyze — Architecture simulator".into(),
@@ -106,6 +107,10 @@ fn base_app() -> App {
             }),
             ..default()
         }))
-        .add_plugins((camera::OrbitCameraPlugin, shutdown::RenderShutdownPlugin));
+        .add_plugins((
+            camera::OrbitCameraPlugin,
+            shutdown::RenderShutdownPlugin,
+            style::StylePlugin,
+        ));
     app
 }

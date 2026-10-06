@@ -50,6 +50,7 @@ mod presentation_pin_tests {
             .init_resource::<ViewerActions>()
             .init_resource::<Assets<Mesh>>()
             .init_resource::<Assets<StandardMaterial>>()
+            .init_resource::<Assets<crate::style::GlassMaterial>>()
             .add_systems(Update, (process_actions, poll, navigation_status).chain());
         wait_until(&mut app, |app| {
             app.world().resource::<Viewer>().job.is_none()

@@ -20,6 +20,7 @@ mod composed_state_tests {
             .init_resource::<ViewerActions>()
             .init_resource::<Assets<Mesh>>()
             .init_resource::<Assets<StandardMaterial>>()
+            .init_resource::<Assets<crate::style::GlassMaterial>>()
             .add_systems(Update, (process_actions, poll, navigation_status).chain());
         let deadline = Instant::now() + std::time::Duration::from_secs(10);
         loop {
@@ -1535,6 +1536,7 @@ mod composed_state_tests {
             .init_resource::<ViewerActions>()
             .init_resource::<Assets<Mesh>>()
             .init_resource::<Assets<StandardMaterial>>()
+            .init_resource::<Assets<crate::style::GlassMaterial>>()
             .add_systems(Update, (process_actions, poll, navigation_status).chain());
         complete(&mut app, ViewerAction::Cancel);
         assert!(signal.load(Ordering::Relaxed));

@@ -1,4 +1,4 @@
-//! Typed, orthogonal relationship routes and cuboid connection geometry.
+//! Typed, orthogonal relationship routes and round tube connection geometry.
 use crate::composition::Composition;
 use bevy::prelude::*;
 use std::collections::BTreeMap;
@@ -306,11 +306,34 @@ fn base_thickness(logical: bool) -> f32 {
     if logical { 0.035 } else { 0.065 }
 }
 
-/// The shared mesh and private material of one drawn connector.
+/// The shared meshes and private material of one drawn connector. Bend
+/// joints exist only for solid lines and heads only for runtime arrows.
 struct Brush {
     mesh: Handle<Mesh>,
+    joint: Option<Handle<Mesh>>,
+    head: Option<Handle<Mesh>>,
     material: Handle<StandardMaterial>,
     root: Entity,
+}
+
+/// Unit-sized meshes whose long axis is +Z, matching `Brush` transforms.
+fn unit_tube() -> Mesh {
+    Cylinder::new(0.5, 1.0)
+        .mesh()
+        .resolution(12)
+        .build()
+        .rotated_by(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2))
+}
+
+fn unit_head() -> Mesh {
+    Cone {
+        radius: 0.5,
+        height: 1.0,
+    }
+    .mesh()
+    .resolution(16)
+    .build()
+    .rotated_by(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2))
 }
 
 impl Brush {
@@ -319,6 +342,7 @@ impl Brush {
         materials: &mut Assets<StandardMaterial>,
         kind: RelationKind,
         root: Entity,
+        (joints, heads): (bool, bool),
     ) -> Self {
         Self {
             material: materials.add(StandardMaterial {
@@ -329,9 +353,57 @@ impl Brush {
             // Segment dimensions live in the transform so a long dashed
             // relationship needs one mesh asset. The material stays local for
             // path highlighting.
-            mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+            mesh: meshes.add(unit_tube()),
+            joint: joints.then(|| meshes.add(Sphere::new(0.5).mesh().uv(12, 8))),
+            head: heads.then(|| meshes.add(unit_head())),
             root,
         }
+    }
+
+    /// A ball at a bend, so consecutive round tubes meet without a notch.
+    fn joint(&self, commands: &mut Commands, at: Vec3, width: f32) {
+        let Some(joint) = &self.joint else {
+            return;
+        };
+        if !at.is_finite() || !width.is_finite() || width <= 0.0 {
+            return;
+        }
+        commands.spawn((
+            Mesh3d(joint.clone()),
+            MeshMaterial3d(self.material.clone()),
+            Transform::from_translation(at).with_scale(Vec3::splat(width)),
+            ChildOf(self.root),
+        ));
+    }
+
+    /// A cone whose apex is `tip`, pointing along `direction`.
+    fn arrowhead(
+        &self,
+        commands: &mut Commands,
+        tip: Vec3,
+        direction: Vec3,
+        length: f32,
+        width: f32,
+    ) {
+        let Some(head) = &self.head else {
+            return;
+        };
+        if !(tip.is_finite()
+            && length.is_finite()
+            && width.is_finite()
+            && length > 0.0
+            && width > 0.0)
+        {
+            return;
+        }
+        commands.spawn((
+            Mesh3d(head.clone()),
+            MeshMaterial3d(self.material.clone()),
+            Transform::from_translation(tip - direction * (length * 0.5))
+                .with_rotation(Quat::from_rotation_arc(Vec3::Z, direction))
+                .with_scale(Vec3::new(width, width, length)),
+            ChildOf(self.root),
+        ));
     }
 
     fn tube(&self, commands: &mut Commands, start: Vec3, end: Vec3, width: f32) {
@@ -410,10 +482,16 @@ pub(crate) fn draw_skipping(
     if route.relation.points.is_empty() {
         return root;
     }
-    let brush = Brush::new(meshes, materials, route.relation.kind, root);
     let Style {
         dashed, logical, ..
     } = style(route.relation.kind, route.relation.basis);
+    let brush = Brush::new(
+        meshes,
+        materials,
+        route.relation.kind,
+        root,
+        (!dashed, !logical),
+    );
     let thickness = base_thickness(logical) * weight;
     let skipped = |index: usize| skip.get(index).copied().unwrap_or(false);
     for (index, pair) in route.relation.points.windows(2).enumerate() {
@@ -422,6 +500,26 @@ pub(crate) fn draw_skipping(
         }
         let scale = scales.get(index).copied().unwrap_or(1.0);
         brush.stroke(commands, (pair[0], pair[1]), scale, thickness, dashed);
+    }
+    // Round the bends of solid lines; dashes already restart at each vertex.
+    // A bend touching a shared trunk is left to the trunk, so two routes never
+    // stack identical balls where they fork.
+    if !dashed {
+        let points = &route.relation.points;
+        for index in 1..points.len().saturating_sub(1) {
+            let (before, after) = (index - 1, index);
+            if skipped(before) || skipped(after) {
+                continue;
+            }
+            if points[before] == points[index] || points[index] == points[index + 1] {
+                continue;
+            }
+            let scale = |i: usize| scales.get(i).copied().unwrap_or(1.0);
+            let scale = scale(before).min(scale(after));
+            if scale.is_finite() && scale > 0.0 {
+                brush.joint(commands, points[index], thickness * scale);
+            }
+        }
     }
     // Runtime arrows express the predicate direction, including reader -> store.
     if !logical {
@@ -460,23 +558,15 @@ pub(crate) fn draw_skipping(
         if !scale.is_finite() || scale <= 0.0 {
             return root;
         }
-        let side = direction
-            .cross(if direction.z.abs() < 0.9 {
-                Vec3::Z
-            } else {
-                Vec3::Y
-            })
-            .normalize();
         let tip = pair[0].lerp(pair[1], 0.78);
         let arrow_scale = scale.min(pair[0].distance(pair[1]) / 0.4);
-        for sign in [-1.0, 1.0] {
-            brush.tube(
-                commands,
-                tip - direction * (0.2 * arrow_scale) + side * (0.12 * arrow_scale * sign),
-                tip,
-                0.055 * arrow_scale * weight,
-            );
-        }
+        brush.arrowhead(
+            commands,
+            tip,
+            direction,
+            0.24 * arrow_scale,
+            0.2 * arrow_scale * weight.max(1.0).sqrt(),
+        );
     }
     root
 }
@@ -598,7 +688,7 @@ pub(crate) fn draw_shared_segment(
     let root = commands
         .spawn((Transform::default(), Visibility::default()))
         .id();
-    let brush = Brush::new(meshes, materials, segment.kind, root);
+    let brush = Brush::new(meshes, materials, segment.kind, root, (false, false));
     let Style {
         dashed, logical, ..
     } = style(segment.kind, segment.basis);
@@ -824,9 +914,10 @@ mod tests {
                     .collect()
             })
         };
-        // Each route keeps its diverging tube plus its own two-stroke arrowhead.
+        // Each route keeps its diverging tube plus its own arrowhead. The
+        // fork itself belongs to the trunk, so no route adds a joint there.
         for root in &roots {
-            assert_eq!(transforms(*root).len(), 3);
+            assert_eq!(transforms(*root).len(), 2);
         }
         // Heads sit on the diverging segment, never on the trunk.
         for (root, side) in roots.iter().zip([1.0, -1.0]) {
@@ -847,7 +938,7 @@ mod tests {
         for root in &roots {
             all.extend(transforms(*root));
         }
-        assert_eq!(all.len(), 8);
+        assert_eq!(all.len(), 6);
         // No two tubes occupy the same place (nothing to z-fight).
         for (i, x) in all.iter().enumerate() {
             for y in &all[i + 1..] {
@@ -873,7 +964,8 @@ mod tests {
                 world.get::<Children>(root).unwrap().len()
             })
             .sum();
-        assert_eq!(unmerged, 10);
+        // Three tubes, two bend joints and a head per route.
+        assert_eq!(unmerged, 12);
     }
 
     #[test]
@@ -892,7 +984,7 @@ mod tests {
             &[true],
         );
         queue.apply(&mut world);
-        assert_eq!(world.get::<Children>(root).unwrap().len(), 2);
+        assert_eq!(world.get::<Children>(root).unwrap().len(), 1);
     }
 
     #[test]
@@ -935,13 +1027,16 @@ mod tests {
         };
         let base = draw_with(1.0);
         let heavy = draw_with(2.0);
+        assert_eq!(base.len(), 2);
         assert_eq!(base.len(), heavy.len());
         for (a, b) in base.iter().zip(&heavy) {
             assert_eq!(a.translation, b.translation);
             assert_eq!(a.rotation, b.rotation);
             assert_eq!(a.scale.z, b.scale.z);
-            assert!((b.scale.x - 2.0 * a.scale.x).abs() < 1e-6);
         }
+        // The tube doubles; the head grows more gently so it stays in its corridor.
+        assert!((heavy[0].scale.x - 2.0 * base[0].scale.x).abs() < 1e-6);
+        assert!((heavy[1].scale.x - 2.0_f32.sqrt() * base[1].scale.x).abs() < 1e-6);
     }
 
     #[test]
@@ -954,13 +1049,13 @@ mod tests {
             RelationKind::Requests,
             &[scale],
         );
-        assert_eq!(depth.len(), 3);
+        assert_eq!(depth.len(), 2);
         let horizontal = scaled_transforms(
             vec![Vec3::ZERO, Vec3::X * length],
             RelationKind::Requests,
             &[scale],
         );
-        assert_eq!(horizontal.len(), 3);
+        assert_eq!(horizontal.len(), 2);
         for transform in depth.iter().chain(&horizontal) {
             assert!(
                 transform.translation.is_finite()
@@ -1060,6 +1155,47 @@ mod tests {
         );
     }
 
+    /// World-space vertices of one drawn child.
+    fn world_vertices(world: &World, meshes: &Assets<Mesh>, child: Entity) -> Vec<Vec3> {
+        let mesh = world.get::<Mesh3d>(child).unwrap();
+        let transform = world.get::<Transform>(child).unwrap();
+        let VertexAttributeValues::Float32x3(local) = meshes
+            .get(&mesh.0)
+            .unwrap()
+            .attribute(Mesh::ATTRIBUTE_POSITION)
+            .unwrap()
+        else {
+            panic!("expected mesh positions")
+        };
+        local
+            .iter()
+            .map(|v| transform.transform_point(Vec3::from_array(*v)))
+            .collect()
+    }
+
+    /// Asserts `vertices` fill the round solid from `start` to `end` whose
+    /// widest cross-section is `width` across.
+    fn assert_spans(vertices: &[Vec3], (start, end, width): (Vec3, Vec3, f32), what: &str) {
+        let axis = (end - start).normalize();
+        let along: Vec<_> = vertices.iter().map(|v| (*v - start).dot(axis)).collect();
+        let radial = vertices
+            .iter()
+            .zip(&along)
+            .map(|(v, t)| (*v - start - axis * *t).length())
+            .fold(0.0_f32, f32::max);
+        let low = along.iter().copied().fold(f32::INFINITY, f32::min);
+        let high = along.iter().copied().fold(f32::NEG_INFINITY, f32::max);
+        let length = start.distance(end);
+        assert!(
+            low.abs() < 1e-5 && (high - length).abs() < 1e-5,
+            "{what}: {low}..{high}"
+        );
+        assert!(
+            (radial - width * 0.5).abs() < 1e-5,
+            "{what}: radius {radial}"
+        );
+    }
+
     #[test]
     fn unit_mesh_scaling_preserves_solid_dashed_and_arrow_world_geometry() {
         let points = vec![
@@ -1080,10 +1216,8 @@ mod tests {
             (Vec3::new(1.0, 0.24, 0.0), points[2]),
             (points[2], points[3]),
         ];
-        let arrows = [
-            (Vec3::new(0.58, 0.12, 0.0), Vec3::new(0.78, 0.0, 0.0)),
-            (Vec3::new(0.58, -0.12, 0.0), Vec3::new(0.78, 0.0, 0.0)),
-        ];
+        // The cone's base sits 0.24 behind its tip.
+        let arrow = (Vec3::new(0.54, 0.0, 0.0), Vec3::new(0.78, 0.0, 0.0), 0.2);
         for (kind, basis, dashed, logical) in [
             (RelationKind::Requests, Basis::Declared, false, false),
             (RelationKind::Requests, Basis::Inferred, true, false),
@@ -1107,38 +1241,47 @@ mod tests {
             } else {
                 points.windows(2).map(|p| (p[0], p[1], width)).collect()
             };
+            let mut joints = Vec::new();
+            if !dashed {
+                joints.extend([points[1], points[2]]);
+            }
+            let tubes = expected.len();
             if !logical {
-                expected.extend(arrows.iter().map(|&(a, b)| (a, b, 0.055)));
+                expected.push(arrow);
             }
             let children = world.get::<Children>(root).unwrap();
-            assert_eq!(children.len(), expected.len());
-            assert_eq!(meshes.len(), 1);
+            assert_eq!(children.len(), expected.len() + joints.len());
+            // One tube mesh, plus joint and head meshes only where drawn.
+            assert_eq!(
+                meshes.len(),
+                1 + usize::from(!dashed) + usize::from(!logical)
+            );
             assert_eq!(materials.len(), 1);
-            for (child, (start, end, width)) in children.iter().zip(expected) {
-                let mesh = world.get::<Mesh3d>(child).unwrap();
-                let transform = world.get::<Transform>(child).unwrap();
-                let VertexAttributeValues::Float32x3(actual) = meshes
-                    .get(&mesh.0)
-                    .unwrap()
-                    .attribute(Mesh::ATTRIBUTE_POSITION)
-                    .unwrap()
-                else {
-                    panic!("expected cuboid vertices")
-                };
-                // Compare against the old dimensioned-mesh representation,
-                // independently of the new transform's scale and rotation.
-                let legacy = Mesh::from(Cuboid::new(width, width, start.distance(end)));
-                let VertexAttributeValues::Float32x3(expected) =
-                    legacy.attribute(Mesh::ATTRIBUTE_POSITION).unwrap()
-                else {
-                    panic!("expected legacy cuboid vertices")
-                };
-                let rotation = Quat::from_rotation_arc(Vec3::Z, (end - start).normalize());
-                for (actual, expected) in actual.iter().zip(expected) {
-                    let actual = transform.transform_point(Vec3::from_array(*actual));
-                    let expected = rotation * Vec3::from_array(*expected) + (start + end) * 0.5;
-                    assert!(actual.abs_diff_eq(expected, 0.000001), "{kind:?}/{basis:?}");
-                }
+            let (lines, rest) = children.split_at(tubes);
+            let (balls, heads) = rest.split_at(joints.len());
+            for (child, span) in lines.iter().chain(heads).zip(expected) {
+                assert_spans(
+                    &world_vertices(&world, &meshes, *child),
+                    span,
+                    &format!("{kind:?}/{basis:?}"),
+                );
+            }
+            for (child, at) in balls.iter().zip(&joints) {
+                let reach = world_vertices(&world, &meshes, *child)
+                    .iter()
+                    .map(|v| v.distance(*at))
+                    .fold(0.0_f32, f32::max);
+                assert!((reach - width * 0.5).abs() < 1e-5, "joint at {at}");
+            }
+            // The cone's apex is the arrow tip.
+            for child in heads {
+                let tip = world_vertices(&world, &meshes, *child)
+                    .into_iter()
+                    .max_by(|a, b| a.x.total_cmp(&b.x))
+                    .unwrap();
+                assert!(tip.abs_diff_eq(arrow.1, 1e-5), "{tip}");
+            }
+            for child in children.iter() {
                 let material = world
                     .get::<MeshMaterial3d<StandardMaterial>>(child)
                     .unwrap();
