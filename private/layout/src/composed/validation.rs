@@ -245,6 +245,8 @@ pub fn validate_composed(
         .keys()
         .map(|id| (id.as_str(), Vec::new()))
         .collect();
+    let shared = crate::assembly_plan::lca_bundles(&plan);
+    let mut shared_batched = BTreeSet::new();
     for (id, edge_plan) in &plan.edges {
         check_cancel(cancelled)?;
         let stored = &solution.routes[id];
@@ -283,9 +285,16 @@ pub fn validate_composed(
                     inward_box(&edge_plan.target, step),
                 ),
             };
+            let lca = match expected.position {
+                Position::Lca => shared.get(id),
+                _ => None,
+            };
             let request = FragmentRequest {
-                id: id.clone(),
-                semantic_ids: edge_plan.original.semantic_ids.clone(),
+                id: lca.map_or_else(|| id.clone(), |lca| lca.id.clone()),
+                semantic_ids: lca.map_or_else(
+                    || edge_plan.original.semantic_ids.clone(),
+                    |lca| lca.semantic_ids.clone(),
+                ),
                 source,
                 target,
             };
@@ -294,10 +303,18 @@ pub fn validate_composed(
                     "fragment terminals, direction, identity or membership changed",
                 ));
             }
-            batches
-                .get_mut(expected.frame)
-                .ok_or_else(|| invalid("unknown fragment frame"))?
-                .push((request, &fragment.route));
+            // A shared trunk is one connector: validate it once in its frame.
+            if lca.is_none() || shared_batched.insert(request.id.clone()) {
+                batches
+                    .get_mut(expected.frame)
+                    .ok_or_else(|| invalid("unknown fragment frame"))?
+                    .push((request, &fragment.route));
+            } else if batches[expected.frame]
+                .iter()
+                .any(|(other, route)| other.id == request.id && **route != fragment.route)
+            {
+                return Err(invalid("bundle members disagree on their shared trunk"));
+            }
         }
         for pair in stored.fragments.windows(2) {
             check_cancel(cancelled)?;

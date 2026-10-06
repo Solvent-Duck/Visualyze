@@ -7,6 +7,7 @@ use std::{
 
 use visualyze_layout::{
     Algorithm, LayoutRequest, LayoutSolution, Point, Projection, QualityProfile, Route,
+    composed::{CanonicalPins, ComposedRequest, solve_composed, validate_composed},
     projection::{ViewState, project},
     solve, validate,
 };
@@ -187,4 +188,55 @@ fn bundling_never_changes_semantic_membership() {
         .collect();
     assert_eq!(routed, projected);
     assert_eq!(solution.routes.len(), projection.edges.len());
+}
+
+#[test]
+fn the_composed_engine_shares_one_trunk_fragment_per_bundle() {
+    let model = model();
+    let projection = project(&model, &expanded(&["sa", "sc"])).unwrap();
+    let pins = CanonicalPins::new();
+    let cancelled = AtomicBool::new(false);
+    let solution = solve_composed(ComposedRequest {
+        projection: &projection,
+        algorithm: Algorithm::Floorplan,
+        quality: QualityProfile::default(),
+        pins: &pins,
+        work_budget: 192,
+        cancelled: &cancelled,
+    })
+    .unwrap();
+    validate_composed(&projection, &solution, &pins, &cancelled).unwrap();
+    for members in [["b1", "b2", "b3"], ["x1", "x2", "x3"]] {
+        let edges: Vec<_> = members
+            .iter()
+            .map(|id| {
+                projection
+                    .edges
+                    .iter()
+                    .find(|edge| edge.semantic_ids.iter().any(|member| member == id))
+                    .unwrap()
+            })
+            .collect();
+        let key = edges[0].bundle.clone().expect("bundled");
+        let trunks: Vec<_> = edges
+            .iter()
+            .map(|edge| {
+                solution.routes[&edge.id]
+                    .fragments
+                    .iter()
+                    .find(|fragment| fragment.request.id == key)
+                    .expect("each member carries the shared trunk")
+                    .route
+                    .points
+                    .clone()
+            })
+            .collect();
+        assert!(
+            trunks.windows(2).all(|pair| pair[0] == pair[1]),
+            "{members:?}"
+        );
+    }
+    // Presented members overlap exactly along the trunk.
+    let presented = solution.present(&cancelled).unwrap();
+    assert_eq!(presented.routes.len(), projection.edges.len());
 }

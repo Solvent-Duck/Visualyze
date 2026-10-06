@@ -1048,12 +1048,21 @@ fn check_shape(
         for f in &route.fragments {
             check_cancel(cancelled)?;
             budget.text(&f.frame_id, 4096)?;
+            // A fragment is the route's own, or its bundle's shared trunk
+            // (ADR 0007), which carries every member's relationships. The
+            // composition validator later rebuilds the exact expectation.
+            let own = f.request.id == *id && f.request.semantic_ids == route.edge.semantic_ids;
+            let trunk = route.edge.bundle.as_ref() == Some(&f.request.id)
+                && route
+                    .edge
+                    .semantic_ids
+                    .iter()
+                    .all(|member| f.request.semantic_ids.contains(member));
             if !frames.contains(f.frame_id.as_str())
                 || !distinct.insert(&f.frame_id)
-                || f.request.id != *id
-                || f.route.id != *id
-                || f.request.semantic_ids != route.edge.semantic_ids
-                || f.route.semantic_ids != route.edge.semantic_ids
+                || !(own || trunk)
+                || f.route.id != f.request.id
+                || f.route.semantic_ids != f.request.semantic_ids
                 || f.route.points.len() < 2
             {
                 return Err(invalid(

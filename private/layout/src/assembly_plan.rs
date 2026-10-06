@@ -49,6 +49,51 @@ pub struct PlannedEdge {
     pub target: EndpointPlan,
 }
 
+/// The LCA fragment a boundary bundle's members share (ADR 0007): one trunk
+/// between the outer boxes' proxies, carrying every member's relationships.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct SharedLca {
+    pub id: String,
+    pub semantic_ids: Vec<String>,
+}
+
+/// Map each bundled edge to the LCA fragment it shares. A bundle is honoured
+/// only when every member meets in the same LCA frame between the same two
+/// proxies, and its key cannot be mistaken for a relationship identity.
+/// Solver and validator both derive sharing from this one function.
+pub(crate) fn lca_bundles(plan: &FramePlan) -> BTreeMap<String, SharedLca> {
+    let mut groups: BTreeMap<&str, Vec<&PlannedEdge>> = BTreeMap::new();
+    for edge in plan.edges.values() {
+        if let Some(key) = edge.original.bundle.as_deref() {
+            groups.entry(key).or_default().push(edge);
+        }
+    }
+    let mut shared = BTreeMap::new();
+    for (key, members) in groups {
+        let first = members[0];
+        let agree = members.iter().all(|edge| {
+            edge.lca_frame == first.lca_frame
+                && edge.source.representative == first.source.representative
+                && edge.target.representative == first.target.representative
+        });
+        if !agree || plan.edges.contains_key(key) {
+            continue;
+        }
+        let semantic_ids: BTreeSet<_> = members
+            .iter()
+            .flat_map(|edge| edge.original.semantic_ids.iter().cloned())
+            .collect();
+        let lca = SharedLca {
+            id: key.to_owned(),
+            semantic_ids: semantic_ids.into_iter().collect(),
+        };
+        for edge in members {
+            shared.insert(edge.original.id.clone(), lca.clone());
+        }
+    }
+    shared
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EndpointPlan {
     pub node_id: String,

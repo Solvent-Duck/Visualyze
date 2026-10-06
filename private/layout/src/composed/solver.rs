@@ -551,9 +551,11 @@ fn route_assembly(
     *failure = None;
     let mut routed: BTreeMap<String, BTreeMap<String, FrameFragment>> = BTreeMap::new();
     let mut point_count = 0usize;
+    let shared = crate::assembly_plan::lca_bundles(plan);
     for id in order {
         check_cancel(req.cancelled)?;
         let mut requests = Vec::new();
+        let mut shared_requests = BTreeSet::new();
         for edge in plan.edges.values() {
             check_cancel(req.cancelled)?;
             let terminals = if edge.lca_frame == *id {
@@ -591,12 +593,25 @@ fn route_assembly(
                 None
             };
             if let Some((source, target)) = terminals {
-                requests.push(FragmentRequest {
-                    id: edge.original.id.clone(),
-                    semantic_ids: edge.original.semantic_ids.clone(),
-                    source,
-                    target,
-                });
+                match shared.get(&edge.original.id) {
+                    // A bundle's trunk is one request in its LCA frame.
+                    Some(lca) if edge.lca_frame == *id => {
+                        if shared_requests.insert(lca.id.clone()) {
+                            requests.push(FragmentRequest {
+                                id: lca.id.clone(),
+                                semantic_ids: lca.semantic_ids.clone(),
+                                source,
+                                target,
+                            });
+                        }
+                    }
+                    _ => requests.push(FragmentRequest {
+                        id: edge.original.id.clone(),
+                        semantic_ids: edge.original.semantic_ids.clone(),
+                        source,
+                        target,
+                    }),
+                }
             }
         }
         let frame = assembly.frame(id).map_err(assembly_error)?;
@@ -641,25 +656,31 @@ fn route_assembly(
             return Err(invalid("composed route vertices exceed budget"));
         }
         let mut by_id: BTreeMap<_, _> = requests.into_iter().map(|r| (r.id.clone(), r)).collect();
-        routed.insert(
-            id.clone(),
-            fragments
-                .into_iter()
-                .map(|route| {
-                    let request = by_id
-                        .remove(&route.id)
-                        .expect("validated fragment identity");
-                    (
-                        route.id.clone(),
-                        FrameFragment {
-                            frame_id: id.clone(),
-                            request,
-                            route,
-                        },
-                    )
-                })
-                .collect(),
-        );
+        let mut batch: BTreeMap<String, FrameFragment> = fragments
+            .into_iter()
+            .map(|route| {
+                let request = by_id
+                    .remove(&route.id)
+                    .expect("validated fragment identity");
+                (
+                    route.id.clone(),
+                    FrameFragment {
+                        frame_id: id.clone(),
+                        request,
+                        route,
+                    },
+                )
+            })
+            .collect();
+        // Each member reaches its bundle's shared trunk under its own identity.
+        for (edge_id, lca) in &shared {
+            if plan.edges[edge_id].lca_frame == *id
+                && let Some(trunk) = batch.get(&lca.id).cloned()
+            {
+                batch.insert(edge_id.clone(), trunk);
+            }
+        }
+        routed.insert(id.clone(), batch);
     }
     let mut routes = BTreeMap::new();
     for edge in plan.edges.values() {
