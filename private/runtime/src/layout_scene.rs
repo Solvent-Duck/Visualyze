@@ -351,6 +351,9 @@ pub struct LayoutStatus {
     pub error: Option<String>,
     pub object_count: usize,
     pub relation_count: usize,
+    /// Visual noise of the accepted projection (ADR 0007). Above
+    /// `layout::noise::NOISE_THRESHOLD` the view is dense but still allowed.
+    pub noise: f64,
     pub composition_frames: usize,
     pub maximum_scale_shift: u8,
     pub model_id: Option<String>,
@@ -910,6 +913,15 @@ fn full_navigation(viewer: &Viewer, p: &DesktopProjection) -> String {
     }
     trail
 }
+/// The status-line noise level. A view over the threshold is shown, never
+/// refused, and is marked so it is visible: explicit expansion can cause it.
+fn noise_label(noise: f64) -> String {
+    if noise > layout::noise::NOISE_THRESHOLD {
+        format!("noise {noise:.0} (dense)")
+    } else {
+        format!("noise {noise:.1}")
+    }
+}
 fn brief_status(viewer: &Viewer, status: &LayoutStatus) -> String {
     if status.error.is_some() {
         return "Update unavailable - F1 opens full details".into();
@@ -927,10 +939,11 @@ fn brief_status(viewer: &Viewer, status: &LayoutStatus) -> String {
     }
     if let Some((p, s)) = &viewer.accepted {
         return format!(
-            "{} objects | {} paths | revision {}",
+            "{} objects | {} paths | revision {} | {}",
             s.geometry.boxes.len(),
             s.geometry.routes.len(),
-            p.revision
+            p.revision,
+            noise_label(status.noise)
         );
     }
     "Preparing the first view".into()
@@ -1698,7 +1711,14 @@ fn expansion_toggle(viewer: &Viewer, id: &str) -> ViewerAction {
         p.suggested_groups.iter().any(|group| group.id == id)
             && p.nodes.iter().any(|node| node.id == id && !node.solid)
     });
-    if displayed_open_group || viewer.view.is_expanded(id) {
+    // A box the projector opened on its own is open as far as the user can
+    // tell: E collapses it, and the explicit collapse keeps it closed. Expand
+    // on one makes the opening explicit.
+    let opened_automatically = viewer
+        .accepted
+        .as_ref()
+        .is_some_and(|(p, _)| p.auto_opened.contains(id));
+    if displayed_open_group || opened_automatically || viewer.view.is_expanded(id) {
         ViewerAction::Collapse(id.to_owned())
     } else {
         ViewerAction::Expand(id.to_owned())
@@ -3663,6 +3683,7 @@ fn poll(
             status.ready = true;
             status.object_count = s.geometry.boxes.len();
             status.relation_count = s.geometry.routes.len();
+            status.noise = layout::noise::visual_noise(&p.graph).total;
             status.composition_frames = s
                 .composed_solution()
                 .map_or(0, |solution| solution.assembly.frame_ids().count());
@@ -3799,8 +3820,13 @@ fn poll(
                     )
                 };
                 let selected = path.unwrap_or_default();
+                let automatic = if p.auto_opened.contains(id) {
+                    "Opened automatically to show supplied structure within the readability budget; E collapses it.\n"
+                } else {
+                    ""
+                };
                 format!(
-                    "{} / {}\nSelected component: {}\n{}{} | {} linked claims ({}) | {}\n{}{}\n{}",
+                    "{} / {}\nSelected component: {}\n{}{} | {} linked claims ({}) | {}\n{}{}{}\n{}",
                     p.model_id,
                     viewer.view.focus.as_deref().unwrap_or("Overview"),
                     label.map_or("unknown", |label| label.label.as_str()),
@@ -3818,6 +3844,7 @@ fn poll(
                     claims.len(),
                     browse,
                     label.map_or("unknown", |l| l.original_kind.as_str()),
+                    automatic,
                     selected,
                     linked,
                     p.detail_note
@@ -4565,6 +4592,7 @@ mod tests {
     include!("presentation_pin_tests.rs");
     include!("pin_provenance_tests.rs");
     include!("aggregated_path_tests.rs");
+    include!("planned_detail_tests.rs");
 
     // These regressions exercise the flat engine. Mutations must rebuild both
     // authoritative solver data and the renderer geometry, just as acceptance does.

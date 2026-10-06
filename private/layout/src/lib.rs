@@ -4,6 +4,7 @@ pub mod advice;
 pub mod assembly;
 pub mod assembly_plan;
 pub mod composed;
+pub mod detail;
 pub mod metrics;
 pub mod noise;
 pub mod oracle;

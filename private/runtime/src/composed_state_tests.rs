@@ -475,6 +475,10 @@ mod composed_state_tests {
         let input = LayoutInput::bundle(file.0.clone());
         let directory = LocalTestDirectory::new();
         let mut app = cold(input.clone(), &directory.0);
+        // The pin's story starts with the datastore closed; the projector would
+        // otherwise open it by itself, so close it as the user would.
+        complete(&mut app, ViewerAction::Collapse("datastore:orders".into()));
+        assert_ready(&app);
         let root_before = canonical(&app)
             .assembly
             .frame("scope:orders")
@@ -594,6 +598,9 @@ mod composed_state_tests {
         ));
         let directory = LocalTestDirectory::new();
         let mut app = cold(LayoutInput::bundle(file.0.clone()), &directory.0);
+        // Closed explicitly: the projector would otherwise open the datastore.
+        complete(&mut app, ViewerAction::Collapse("datastore:orders".into()));
+        assert_ready(&app);
         complete(&mut app, ViewerAction::Enter("datastore:orders".into()));
         complete(&mut app, ViewerAction::Pin("datastore:orders".into()));
         assert_ready(&app);

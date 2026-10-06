@@ -1009,7 +1009,7 @@ fn level_page_size(
     Ok(page_size_in_order(&bands, FALLBACK_NOISE).clamp(1, cap))
 }
 
-fn child_count(
+pub(crate) fn child_count(
     provider: &impl ModelProvider,
     revision: u64,
     lens: Option<SemanticLens>,
@@ -1046,7 +1046,7 @@ fn child_page(
     }
 }
 
-fn children_at(
+pub(crate) fn children_at(
     provider: &mut impl ModelProvider,
     revision: u64,
     lens: Option<SemanticLens>,
@@ -1320,7 +1320,7 @@ fn apply_groups(
     Ok((aliases, applied))
 }
 
-fn provider_error(error: BundleError) -> LayoutError {
+pub(crate) fn provider_error(error: BundleError) -> LayoutError {
     match error {
         BundleError::Cancelled => LayoutError::Cancelled,
         _ => LayoutError::Invalid(error.to_string()),

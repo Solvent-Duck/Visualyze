@@ -131,6 +131,12 @@ pub struct ViewState {
     breadcrumbs: Vec<Option<String>>,
     auto_expanded: BTreeSet<String>,
     retained_groups: Vec<DisplayGroup>,
+    /// Boxes the detail planner (`crate::detail`) opened on its own working
+    /// copy of a view. It is never serialized and a user's view never holds it:
+    /// the user's explicit and zoom choices stay exactly as made, and
+    /// `collapsed` always takes precedence over it.
+    #[serde(skip)]
+    planned: BTreeSet<String>,
 }
 
 impl Default for ViewState {
@@ -157,6 +163,7 @@ impl Default for ViewState {
             breadcrumbs: Vec::new(),
             auto_expanded: BTreeSet::new(),
             retained_groups: Vec::new(),
+            planned: BTreeSet::new(),
         }
     }
 }
@@ -439,6 +446,7 @@ impl ViewState {
         self.reset_relation_pages();
         let id = id.into();
         self.auto_expanded.remove(&id);
+        self.planned.remove(&id);
         if expanded {
             self.collapsed.remove(&id);
             self.expanded.insert(id);
@@ -467,15 +475,33 @@ impl ViewState {
 
     pub fn is_expanded(&self, id: &str) -> bool {
         !self.collapsed.contains(id)
-            && (self.expanded.contains(id) || self.auto_expanded.contains(id))
+            && (self.expanded.contains(id)
+                || self.auto_expanded.contains(id)
+                || self.planned.contains(id))
     }
 
     pub fn expanded_ids(&self) -> BTreeSet<String> {
         self.expanded
             .union(&self.auto_expanded)
+            .chain(&self.planned)
             .filter(|id| !self.collapsed.contains(*id))
             .cloned()
             .collect()
+    }
+
+    /// Open `id` for the detail planner's working copy only. An explicit
+    /// collapse still wins, and the choice is not persisted.
+    pub(crate) fn plan_open(&mut self, id: impl Into<String>) {
+        self.planned.insert(id.into());
+    }
+
+    pub(crate) fn plan_close(&mut self, id: &str) {
+        self.planned.remove(id);
+    }
+
+    /// Boxes opened by the planner on this working copy.
+    pub fn planned_ids(&self) -> &BTreeSet<String> {
+        &self.planned
     }
 
     pub fn reset_relation_pages(&mut self) {
@@ -525,6 +551,7 @@ impl ViewState {
         self.expanded.remove(id);
         self.collapsed.remove(id);
         self.auto_expanded.remove(id);
+        self.planned.remove(id);
         self.child_page = 0;
         self.reset_relation_pages();
     }
@@ -577,59 +604,11 @@ fn project_with(
             "This snapshot has no code profile; choose Logical or load a code bundle.".into(),
         ));
     }
-    let deployment = view.lens == Some(SemanticLens::Deployment);
-    let mut items: BTreeMap<String, Item> = snapshot
-        .entities
-        .iter()
-        .map(|e| {
-            (
-                e.id.clone(),
-                Item {
-                    kind: e.kind.into(),
-                    parent: None,
-                    semantic_ids: vec![e.id.clone()],
-                },
-            )
-        })
-        .collect();
-    let supplied_items = items.clone();
-    items.retain(|id, item| match view.lens {
-        Some(SemanticLens::Logical) => item.kind != NodeKind::Deployment,
-        Some(SemanticLens::Deployment) => {
-            item.kind == NodeKind::Deployment || id == &snapshot.system_id
-        }
-        _ => true,
-    });
-    let mut structural_ids = BTreeSet::new();
-    let mut ordered_relations: Vec<_> = snapshot.relations.iter().collect();
-    ordered_relations.sort_by(|a, b| a.id.cmp(&b.id));
-    for relation in ordered_relations {
-        if deployment {
-            if relation.kind == RelationKind::DeployedIn
-                && items
-                    .get(&relation.source)
-                    .is_some_and(|item| item.kind == NodeKind::Deployment && item.parent.is_none())
-            {
-                items.get_mut(&relation.source).unwrap().parent = Some(relation.target.clone());
-                structural_ids.insert(relation.id.clone());
-            }
-        } else if items.contains_key(&relation.source)
-            && items.contains_key(&relation.target)
-            && matches!(
-                relation.kind,
-                RelationKind::Contains | RelationKind::Exposes
-            )
-        {
-            items.get_mut(&relation.target).unwrap().parent = Some(relation.source.clone());
-            structural_ids.insert(relation.id.clone());
-        }
-    }
-    // Uncontained external objects and deployments share only a display envelope.
-    for (id, item) in &mut items {
-        if item.parent.is_none() && id != &snapshot.system_id {
-            item.parent = Some(snapshot.system_id.clone());
-        }
-    }
+    let Hierarchy {
+        mut items,
+        supplied_items,
+        structural_ids,
+    } = supplied_hierarchy(snapshot, view.lens);
     let mut groups = Vec::new();
     let mut overrides = view.group_overrides.clone();
     overrides.sort_by(|a, b| a.id.cmp(&b.id));
@@ -843,6 +822,104 @@ fn project_with(
         .diagnostics
         .extend(crate::noise::visual_noise(&projection).advisory());
     Ok(projection)
+}
+
+/// The supplied ownership tree of one semantic view: every entity that belongs
+/// to the lens with its supplied parent, before any display grouping.
+struct Hierarchy {
+    items: BTreeMap<String, Item>,
+    /// Every supplied entity, whether or not the lens shows it.
+    supplied_items: BTreeMap<String, Item>,
+    structural_ids: BTreeSet<String>,
+}
+
+fn supplied_hierarchy(
+    snapshot: &visualyze_model::architecture::Snapshot,
+    lens: Option<visualyze_model::provider::SemanticLens>,
+) -> Hierarchy {
+    use visualyze_model::provider::SemanticLens;
+    let deployment = lens == Some(SemanticLens::Deployment);
+    let mut items: BTreeMap<String, Item> = snapshot
+        .entities
+        .iter()
+        .map(|e| {
+            (
+                e.id.clone(),
+                Item {
+                    kind: e.kind.into(),
+                    parent: None,
+                    semantic_ids: vec![e.id.clone()],
+                },
+            )
+        })
+        .collect();
+    let supplied_items = items.clone();
+    items.retain(|id, item| match lens {
+        Some(SemanticLens::Logical) => item.kind != NodeKind::Deployment,
+        Some(SemanticLens::Deployment) => {
+            item.kind == NodeKind::Deployment || id == &snapshot.system_id
+        }
+        _ => true,
+    });
+    let mut structural_ids = BTreeSet::new();
+    let mut ordered_relations: Vec<_> = snapshot.relations.iter().collect();
+    ordered_relations.sort_by(|a, b| a.id.cmp(&b.id));
+    for relation in ordered_relations {
+        if deployment {
+            if relation.kind == RelationKind::DeployedIn
+                && items
+                    .get(&relation.source)
+                    .is_some_and(|item| item.kind == NodeKind::Deployment && item.parent.is_none())
+            {
+                items.get_mut(&relation.source).unwrap().parent = Some(relation.target.clone());
+                structural_ids.insert(relation.id.clone());
+            }
+        } else if items.contains_key(&relation.source)
+            && items.contains_key(&relation.target)
+            && matches!(
+                relation.kind,
+                RelationKind::Contains | RelationKind::Exposes
+            )
+        {
+            items.get_mut(&relation.target).unwrap().parent = Some(relation.source.clone());
+            structural_ids.insert(relation.id.clone());
+        }
+    }
+    // Uncontained external objects and deployments share only a display envelope.
+    for (id, item) in &mut items {
+        if item.parent.is_none() && id != &snapshot.system_id {
+            item.parent = Some(snapshot.system_id.clone());
+        }
+    }
+    Hierarchy {
+        items,
+        supplied_items,
+        structural_ids,
+    }
+}
+
+/// For each supplied box of a semantic view, how many supplied children opening
+/// it would reveal as structure. Interfaces on a component are pads on its own
+/// face, so a client, service or datastore with only interfaces counts none.
+pub(crate) fn hidden_structure_counts(
+    model: &Architecture,
+    lens: Option<visualyze_model::provider::SemanticLens>,
+) -> BTreeMap<String, usize> {
+    let hierarchy = supplied_hierarchy(model.snapshot(), lens);
+    child_index(&hierarchy.items)
+        .into_iter()
+        .map(|(parent, children)| {
+            let pads_only = matches!(
+                hierarchy.items[&parent].kind,
+                NodeKind::Client | NodeKind::Service | NodeKind::Datastore
+            );
+            let count = children
+                .iter()
+                .filter(|id| !pads_only || hierarchy.items[*id].kind != NodeKind::Interface)
+                .count();
+            (parent, count)
+        })
+        .collect()
 }
 
 /// Boxes per layer for the peers of one level, before nodes exist. This is an
@@ -1401,6 +1478,31 @@ mod tests {
             };
             assert_protection_conflict(view.clone(), &[invalid], "group");
         }
+    }
+
+    #[test]
+    fn planned_openings_yield_to_explicit_choices_and_are_never_saved() {
+        let mut view = ViewState::default();
+        view.plan_open("scope:a");
+        view.plan_open("scope:b");
+        assert!(view.is_expanded("scope:a"));
+        assert!(view.expanded_ids().contains("scope:b"));
+        // An explicit collapse wins over a planned opening.
+        view.set_expanded("scope:a", false);
+        assert!(!view.is_expanded("scope:a"));
+        assert!(!view.expanded_ids().contains("scope:a"));
+        assert!(!view.planned_ids().contains("scope:a"));
+        // An explicit expansion takes it over, so the planner no longer owns it.
+        view.set_expanded("scope:b", true);
+        assert!(view.expanded.contains("scope:b") && view.planned_ids().is_empty());
+        view.plan_open("scope:c");
+        let json = serde_json::to_string(&view).unwrap();
+        assert!(!json.contains("planned") && !json.contains("scope:c"));
+        let loaded: ViewState = serde_json::from_str(&json).unwrap();
+        assert!(loaded.planned_ids().is_empty() && !loaded.is_expanded("scope:c"));
+        let mut raw: serde_json::Value = serde_json::from_str(&json).unwrap();
+        raw["planned"] = serde_json::json!(["scope:c"]);
+        assert!(serde_json::from_value::<ViewState>(raw).is_err());
     }
 
     #[test]

@@ -615,6 +615,48 @@ mod tests {
         assert!(load(&path.0).unwrap().dismissed_proposals.is_empty());
     }
     #[test]
+    fn pre_adr_0007_view_fields_load_and_the_planner_state_is_never_written() {
+        // Files written before ADR 0007 carry a peer ceiling and group target
+        // that nothing reads any more, and may lack them entirely.
+        let path = Temp::new();
+        let mut legacy = serde_json::to_value(state()).unwrap();
+        let view = legacy["view"].as_object_mut().unwrap();
+        view.insert("peer_ceiling".into(), 64.into());
+        view.insert("group_target".into(), 32.into());
+        view.insert("auto_expanded".into(), serde_json::json!(["component:a"]));
+        std::fs::write(&path.0, serde_json::to_vec(&legacy).unwrap()).unwrap();
+        let loaded = load(&path.0).unwrap();
+        assert_eq!(
+            (loaded.view.peer_ceiling, loaded.view.group_target),
+            (64, 32)
+        );
+        assert!(loaded.view.is_expanded("component:a"));
+        assert_eq!(loaded.view.pins["component:a"], Point::new(5, 5, 5));
+        // Odd legacy values are accepted too: they are ignored.
+        let view = legacy["view"].as_object_mut().unwrap();
+        view.insert("peer_ceiling".into(), 3.into());
+        view.insert("group_target".into(), 9.into());
+        std::fs::write(&path.0, serde_json::to_vec(&legacy).unwrap()).unwrap();
+        assert!(load(&path.0).is_ok());
+        let view = legacy["view"].as_object_mut().unwrap();
+        view.remove("peer_ceiling");
+        view.remove("group_target");
+        std::fs::write(&path.0, serde_json::to_vec(&legacy).unwrap()).unwrap();
+        assert_eq!(load(&path.0).unwrap().view.peer_ceiling, 64);
+        // Whatever the planner opened lives only on a working copy: a saved view
+        // never names it, and a file that does is not a view this build wrote.
+        let mut planned = loaded.clone();
+        planned.view.plan_open("component:b");
+        save(&path.0, &planned).unwrap();
+        let text = std::fs::read_to_string(&path.0).unwrap();
+        assert!(!text.contains("planned") && !text.contains("component:b"));
+        assert!(!load(&path.0).unwrap().view.is_expanded("component:b"));
+        let mut forged: serde_json::Value = serde_json::from_str(&text).unwrap();
+        forged["view"]["planned"] = serde_json::json!(["component:b"]);
+        std::fs::write(&path.0, serde_json::to_vec(&forged).unwrap()).unwrap();
+        assert!(load(&path.0).is_err());
+    }
+    #[test]
     fn malformed_or_excessive_dismissals_preserve_the_existing_file() {
         let path = Temp::new();
         let original = state();

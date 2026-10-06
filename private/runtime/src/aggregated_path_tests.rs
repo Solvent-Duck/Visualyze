@@ -4,7 +4,7 @@ mod aggregated_path_tests {
     /// `sub` (collapsed by default) holds two services; `api` is a collapsed
     /// service exposing two interfaces. Three requests cross from `sub` to
     /// `api`, so the default view draws them as one aggregated line.
-    fn model() -> visualyze_model::architecture::Architecture {
+    pub(super) fn model() -> visualyze_model::architecture::Architecture {
         let entity = |id: &str, kind: &str, extra: &str| {
             format!(
                 r#"{{"id":"{id}","kind":"{kind}","label":"Label {id}","boundary":"internal","basis":"declared"{extra}}}"#
@@ -87,13 +87,22 @@ mod aggregated_path_tests {
         &viewer(app).message
     }
 
+    /// These tests are about aggregated lines, which need `sub` closed, so the
+    /// view collapses it explicitly; the projector would otherwise open it
+    /// (see `planned_detail_tests`).
+    pub(super) fn collapsed_sub() -> ViewState {
+        let mut view = ViewState::default();
+        view.set_expanded("sub", false);
+        view
+    }
+
     fn flat_app() -> App {
-        action_app(LayoutInput::snapshot(model()), ViewState::default())
+        action_app(LayoutInput::snapshot(model()), collapsed_sub())
     }
 
     fn composed_app(directory: &std::path::Path) -> App {
         let input = LayoutInput::snapshot(model());
-        let mut view = ViewState::default();
+        let mut view = collapsed_sub();
         view.semantic_zoom = false;
         let mut viewer = Viewer {
             view,
