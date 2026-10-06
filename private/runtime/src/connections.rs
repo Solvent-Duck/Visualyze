@@ -270,6 +270,136 @@ pub(crate) fn draw_weighted(
     scales: &[f32],
     weight: f32,
 ) -> Entity {
+    draw_skipping(commands, meshes, materials, route, scales, weight, &[])
+}
+
+/// Visual style that decides whether two coincident segments may be merged:
+/// the rendered colour plus the solid/dashed and thin/thick treatment.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+struct Style {
+    color: [u8; 4],
+    dashed: bool,
+    logical: bool,
+}
+
+fn style(kind: RelationKind, basis: Basis) -> Style {
+    let logical = is_logical(kind);
+    Style {
+        color: color(kind).to_srgba().to_u8_array(),
+        dashed: logical || matches!(basis, Basis::Inferred | Basis::Unknown),
+        logical,
+    }
+}
+
+/// Logical (non-runtime) relationships: thin, dashed and without arrowheads.
+fn is_logical(kind: RelationKind) -> bool {
+    matches!(
+        kind,
+        RelationKind::AppliesTo
+            | RelationKind::ImplementedBy
+            | RelationKind::DeployedIn
+            | RelationKind::DependsOn
+    )
+}
+
+fn base_thickness(logical: bool) -> f32 {
+    if logical { 0.035 } else { 0.065 }
+}
+
+/// The shared mesh and private material of one drawn connector.
+struct Brush {
+    mesh: Handle<Mesh>,
+    material: Handle<StandardMaterial>,
+    root: Entity,
+}
+
+impl Brush {
+    fn new(
+        meshes: &mut Assets<Mesh>,
+        materials: &mut Assets<StandardMaterial>,
+        kind: RelationKind,
+        root: Entity,
+    ) -> Self {
+        Self {
+            material: materials.add(StandardMaterial {
+                base_color: color(kind),
+                unlit: true,
+                ..default()
+            }),
+            // Segment dimensions live in the transform so a long dashed
+            // relationship needs one mesh asset. The material stays local for
+            // path highlighting.
+            mesh: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+            root,
+        }
+    }
+
+    fn tube(&self, commands: &mut Commands, start: Vec3, end: Vec3, width: f32) {
+        let delta = end - start;
+        if !delta.is_finite() || delta.length() <= 0.0 || !width.is_finite() || width <= 0.0 {
+            return;
+        }
+        commands.spawn((
+            Mesh3d(self.mesh.clone()),
+            MeshMaterial3d(self.material.clone()),
+            Transform::from_translation((start + end) * 0.5)
+                .with_rotation(Quat::from_rotation_arc(Vec3::Z, delta.normalize()))
+                .with_scale(Vec3::new(width, width, delta.length())),
+            ChildOf(self.root),
+        ));
+    }
+
+    /// One solid tube, or a bounded run of dashes, from `start` to `end`.
+    /// Dashes start at `start`, so the phase restarts at every vertex.
+    fn stroke(
+        &self,
+        commands: &mut Commands,
+        (start, end): (Vec3, Vec3),
+        scale: f32,
+        thickness: f32,
+        dashed: bool,
+    ) {
+        let length = start.distance(end);
+        if !scale.is_finite() || scale <= 0.0 || !length.is_finite() || length <= 0.0 {
+            return;
+        }
+        if dashed {
+            let direction = (end - start).normalize();
+            // A long inspection stretch must not create unbounded scene
+            // entities or rely on floating additions eventually making progress.
+            let spacing = (0.24 * scale).max(length / 1024.0);
+            let dash_length = spacing * (0.13 / 0.24);
+            let count = ((length / spacing).ceil() as usize).min(1024);
+            for dash in 0..count {
+                let offset = dash as f32 * spacing;
+                self.tube(
+                    commands,
+                    start + direction * offset,
+                    start + direction * (offset + dash_length).min(length),
+                    thickness * scale,
+                );
+            }
+        } else {
+            self.tube(commands, start, end, thickness * scale);
+        }
+    }
+}
+
+/// `draw_weighted` that leaves out the line segments flagged in `skip`
+/// (indexed like `points.windows(2)`; missing entries mean "draw"). The caller
+/// draws those segments once elsewhere (see `shared_segments`). The arrowhead
+/// is still drawn for this route: on one of its own segments when it has any
+/// left, so members of a bundle keep distinct heads beyond the common trunk.
+/// If every segment is skipped the head falls back to the usual placement.
+pub(crate) fn draw_skipping(
+    commands: &mut Commands,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    route: &Route,
+    scales: &[f32],
+    weight: f32,
+    skip: &[bool],
+) -> Entity {
     let root = commands
         .spawn((
             route.relation.clone(),
@@ -280,73 +410,37 @@ pub(crate) fn draw_weighted(
     if route.relation.points.is_empty() {
         return root;
     }
-    let material = materials.add(StandardMaterial {
-        base_color: color(route.relation.kind),
-        unlit: true,
-        ..default()
-    });
-    // Segment dimensions live in the transform so a long dashed relationship
-    // needs one mesh asset. Keep its material local for path highlighting.
-    let mesh = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    let logical = matches!(
-        route.relation.kind,
-        RelationKind::AppliesTo
-            | RelationKind::ImplementedBy
-            | RelationKind::DeployedIn
-            | RelationKind::DependsOn
-    );
-    let dashed = logical || matches!(route.relation.basis, Basis::Inferred | Basis::Unknown);
-    let thickness = if logical { 0.035 } else { 0.065 } * weight;
-    let mut segment = |start: Vec3, end: Vec3, width: f32| {
-        let delta = end - start;
-        if !delta.is_finite() || delta.length() <= 0.0 || !width.is_finite() || width <= 0.0 {
-            return;
-        }
-        commands.spawn((
-            Mesh3d(mesh.clone()),
-            MeshMaterial3d(material.clone()),
-            Transform::from_translation((start + end) * 0.5)
-                .with_rotation(Quat::from_rotation_arc(Vec3::Z, delta.normalize()))
-                .with_scale(Vec3::new(width, width, delta.length())),
-            ChildOf(root),
-        ));
-    };
+    let brush = Brush::new(meshes, materials, route.relation.kind, root);
+    let Style {
+        dashed, logical, ..
+    } = style(route.relation.kind, route.relation.basis);
+    let thickness = base_thickness(logical) * weight;
+    let skipped = |index: usize| skip.get(index).copied().unwrap_or(false);
     for (index, pair) in route.relation.points.windows(2).enumerate() {
-        let scale = scales.get(index).copied().unwrap_or(1.0);
-        let length = pair[0].distance(pair[1]);
-        if !scale.is_finite() || scale <= 0.0 || !length.is_finite() || length <= 0.0 {
+        if skipped(index) {
             continue;
         }
-        if dashed {
-            let direction = (pair[1] - pair[0]).normalize();
-            // A long inspection stretch must not create unbounded scene
-            // entities or rely on floating additions eventually making progress.
-            let spacing = (0.24 * scale).max(length / 1024.0);
-            let dash_length = spacing * (0.13 / 0.24);
-            let count = ((length / spacing).ceil() as usize).min(1024);
-            for dash in 0..count {
-                let offset = dash as f32 * spacing;
-                segment(
-                    pair[0] + direction * offset,
-                    pair[0] + direction * (offset + dash_length).min(length),
-                    thickness * scale,
-                );
-            }
-        } else {
-            segment(pair[0], pair[1], thickness * scale);
-        }
+        let scale = scales.get(index).copied().unwrap_or(1.0);
+        brush.stroke(commands, (pair[0], pair[1]), scale, thickness, dashed);
     }
     // Runtime arrows express the predicate direction, including reader -> store.
     if !logical {
+        let drawable = |p: &[Vec3]| {
+            let delta = p[1] - p[0];
+            delta.is_finite() && delta.length_squared() > 0.0
+        };
+        let has_own = route
+            .relation
+            .points
+            .windows(2)
+            .enumerate()
+            .any(|(i, p)| !skipped(i) && drawable(p));
         let Some((index, pair)) = route
             .relation
             .points
             .windows(2)
             .enumerate()
-            .filter(|(_, p)| {
-                let delta = p[1] - p[0];
-                delta.is_finite() && delta.length_squared() > 0.0
-            })
+            .filter(|(i, p)| drawable(p) && (!has_own || !skipped(*i)))
             .max_by(|a, b| {
                 // Prefer the existing front-readable plane when available,
                 // but a depth-only route must still show predicate direction.
@@ -376,13 +470,145 @@ pub(crate) fn draw_weighted(
         let tip = pair[0].lerp(pair[1], 0.78);
         let arrow_scale = scale.min(pair[0].distance(pair[1]) / 0.4);
         for sign in [-1.0, 1.0] {
-            segment(
+            brush.tube(
+                commands,
                 tip - direction * (0.2 * arrow_scale) + side * (0.12 * arrow_scale * sign),
                 tip,
                 0.055 * arrow_scale * weight,
             );
         }
     }
+    root
+}
+
+/// A bundled trunk: one point-pair segment used identically by several visible
+/// routes. It is drawn once, carrying every member's relations.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct SharedSegment {
+    /// Endpoints in the direction of the first member (lowest route index).
+    pub start: Vec3,
+    pub end: Vec3,
+    /// Style source, taken from the first member. Every member renders the
+    /// same colour and solid/dashed treatment, otherwise it would not merge.
+    pub kind: RelationKind,
+    pub basis: Basis,
+    /// Smallest member scale. Identical geometry gives identical scales in
+    /// practice; the minimum keeps the tube within clearance regardless.
+    pub scale: f32,
+    /// Sum of the relations carried by the member routes.
+    pub relations: usize,
+    /// Distinct `(route index, segment index)` pairs, ascending, one per route.
+    pub members: Vec<(usize, usize)>,
+}
+
+/// What `shared_segments` needs to know about one visible route.
+pub(crate) struct SegmentSource<'a> {
+    pub kind: RelationKind,
+    pub basis: Basis,
+    /// Route points in the space the tubes are drawn in, before scaling, so
+    /// equal segments compare exactly.
+    pub points: &'a [Vec3],
+    /// Per-segment scales as in `SceneRoute::segment_scales`; missing = 1.
+    pub scales: &'a [f32],
+    /// Relations this route carries (`semantic_ids.len()`).
+    pub relations: usize,
+}
+
+type SegmentKey = ([u32; 3], [u32; 3], Style);
+
+fn bits(p: Vec3) -> [u32; 3] {
+    // `+ 0.0` folds -0.0 into 0.0 so equal coordinates share one key.
+    [
+        (p.x + 0.0).to_bits(),
+        (p.y + 0.0).to_bits(),
+        (p.z + 0.0).to_bits(),
+    ]
+}
+
+/// Finds consecutive point-pair segments used by more than one route. Two
+/// segments match when their unordered endpoints are bit-identical and their
+/// colour and solid/dashed style agree; direction is irrelevant. Segments of a
+/// single route (including a route that repeats its own segment) are not
+/// returned. Overlap that is only collinear (different breakpoints) is not
+/// detected: the router must emit identical consecutive points for a trunk.
+/// Results are ordered by first member.
+pub(crate) fn shared_segments(routes: &[SegmentSource]) -> Vec<SharedSegment> {
+    let mut groups: BTreeMap<SegmentKey, Vec<(usize, usize)>> = BTreeMap::new();
+    for (route, source) in routes.iter().enumerate() {
+        let style = style(source.kind, source.basis);
+        for (segment, pair) in source.points.windows(2).enumerate() {
+            if !pair[0].is_finite() || !pair[1].is_finite() || pair[0] == pair[1] {
+                continue;
+            }
+            let (a, b) = (bits(pair[0]), bits(pair[1]));
+            let members = groups.entry((a.min(b), a.max(b), style)).or_default();
+            if members.last().is_none_or(|(r, _)| *r != route) {
+                members.push((route, segment));
+            }
+        }
+    }
+    let mut shared: Vec<_> = groups
+        .into_values()
+        .filter(|members| members.len() > 1)
+        .map(|members| {
+            let (first, segment) = members[0];
+            let source = &routes[first];
+            SharedSegment {
+                start: source.points[segment],
+                end: source.points[segment + 1],
+                kind: source.kind,
+                basis: source.basis,
+                scale: members
+                    .iter()
+                    .map(|&(r, s)| routes[r].scales.get(s).copied().unwrap_or(1.0))
+                    .fold(f32::INFINITY, f32::min),
+                relations: members.iter().map(|&(r, _)| routes[r].relations).sum(),
+                members,
+            }
+        })
+        .collect();
+    shared.sort_by(|a, b| a.members.cmp(&b.members));
+    shared
+}
+
+/// Marks, per route, the segments that `shared` draws instead (input to
+/// `draw_skipping`).
+pub(crate) fn skip_masks(routes: &[SegmentSource], shared: &[SharedSegment]) -> Vec<Vec<bool>> {
+    let mut masks: Vec<_> = routes
+        .iter()
+        .map(|r| vec![false; r.points.len().saturating_sub(1)])
+        .collect();
+    for &(route, segment) in shared.iter().flat_map(|s| &s.members) {
+        masks[route][segment] = true;
+    }
+    masks
+}
+
+/// Draws one shared trunk segment once, weighted by every relation it carries.
+/// The root has no `RenderedRelation`: selection identity stays on the routes.
+/// Dashes run from `start` (the first member's direction), so a member that
+/// traverses the trunk the other way sees its phase mirrored; dash phase
+/// already restarts at every vertex, so this is not a new discontinuity.
+pub(crate) fn draw_shared_segment(
+    commands: &mut Commands,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    segment: &SharedSegment,
+) -> Entity {
+    let root = commands
+        .spawn((Transform::default(), Visibility::default()))
+        .id();
+    let brush = Brush::new(meshes, materials, segment.kind, root);
+    let Style {
+        dashed, logical, ..
+    } = style(segment.kind, segment.basis);
+    brush.stroke(
+        commands,
+        (segment.start, segment.end),
+        segment.scale,
+        base_thickness(logical) * aggregate_thickness(segment.relations),
+        dashed,
+    );
     root
 }
 
@@ -427,6 +653,246 @@ mod tests {
                     .map(|child| *world.get::<Transform>(child).unwrap())
                     .collect()
             })
+    }
+
+    fn source<'a>(
+        kind: RelationKind,
+        basis: Basis,
+        points: &'a [Vec3],
+        relations: usize,
+    ) -> SegmentSource<'a> {
+        SegmentSource {
+            kind,
+            basis,
+            points,
+            scales: &[],
+            relations,
+        }
+    }
+
+    fn trunk_routes() -> (Vec<Vec3>, Vec<Vec3>) {
+        let trunk = [Vec3::ZERO, Vec3::X * 2.0, Vec3::X * 4.0];
+        let a = [trunk.as_slice(), &[Vec3::new(4.0, 1.0, 0.0)]].concat();
+        let b = [trunk.as_slice(), &[Vec3::new(4.0, -1.0, 0.0)]].concat();
+        (a, b)
+    }
+
+    #[test]
+    fn two_routes_sharing_a_trunk_merge_it_with_combined_weight() {
+        let (a, b) = trunk_routes();
+        let routes = [
+            source(RelationKind::Requests, Basis::Declared, &a, 3),
+            source(RelationKind::Requests, Basis::Declared, &b, 2),
+        ];
+        let shared = shared_segments(&routes);
+        assert_eq!(shared.len(), 2);
+        assert_eq!(
+            (shared[0].start, shared[0].end),
+            (Vec3::ZERO, Vec3::X * 2.0)
+        );
+        assert_eq!(
+            (shared[1].start, shared[1].end),
+            (Vec3::X * 2.0, Vec3::X * 4.0)
+        );
+        for (segment, index) in shared.iter().zip(0..) {
+            assert_eq!(segment.relations, 5);
+            assert_eq!(segment.members, vec![(0, index), (1, index)]);
+            assert_eq!(segment.scale, 1.0);
+        }
+        // The diverging last segments stay with their own route.
+        assert_eq!(
+            skip_masks(&routes, &shared),
+            vec![vec![true, true, false], vec![true, true, false]]
+        );
+        assert!(aggregate_thickness(5) > aggregate_thickness(3));
+    }
+
+    #[test]
+    fn different_kinds_and_styles_never_merge() {
+        let points = [Vec3::ZERO, Vec3::X];
+        // Different colour, solid vs dashed (basis), and thin logical vs runtime.
+        for (a, b) in [
+            (
+                (RelationKind::Requests, Basis::Declared),
+                (RelationKind::Reads, Basis::Declared),
+            ),
+            (
+                (RelationKind::Requests, Basis::Declared),
+                (RelationKind::Requests, Basis::Inferred),
+            ),
+            (
+                (RelationKind::Requests, Basis::Declared),
+                (RelationKind::DependsOn, Basis::Declared),
+            ),
+        ] {
+            let routes = [source(a.0, a.1, &points, 1), source(b.0, b.1, &points, 1)];
+            assert!(shared_segments(&routes).is_empty(), "{a:?} vs {b:?}");
+        }
+        // Same rendered style from different kinds does merge (both grey/dashed/thin).
+        let routes = [
+            source(RelationKind::DependsOn, Basis::Declared, &points, 1),
+            source(RelationKind::DeployedIn, Basis::Declared, &points, 1),
+        ];
+        assert_eq!(shared_segments(&routes).len(), 1);
+    }
+
+    #[test]
+    fn single_routes_and_self_overlap_are_left_alone() {
+        let a = [Vec3::ZERO, Vec3::X, Vec3::X * 2.0];
+        let routes = [source(RelationKind::Requests, Basis::Declared, &a, 4)];
+        assert!(shared_segments(&routes).is_empty());
+        assert_eq!(skip_masks(&routes, &[]), vec![vec![false, false]]);
+        // A route that doubles back over its own segment is still one route.
+        let doubled = [Vec3::ZERO, Vec3::X, Vec3::ZERO];
+        let routes = [source(RelationKind::Requests, Basis::Declared, &doubled, 1)];
+        assert!(shared_segments(&routes).is_empty());
+        assert!(shared_segments(&[]).is_empty());
+    }
+
+    #[test]
+    fn reversed_direction_and_negative_zero_still_merge() {
+        let forward = [Vec3::new(0.0, 1.0, 0.0), Vec3::new(3.0, 1.0, 0.0)];
+        let backward = [Vec3::new(3.0, 1.0, -0.0), Vec3::new(-0.0, 1.0, 0.0)];
+        let routes = [
+            source(RelationKind::Writes, Basis::Declared, &forward, 1),
+            source(RelationKind::Writes, Basis::Declared, &backward, 2),
+        ];
+        let shared = shared_segments(&routes);
+        assert_eq!(shared.len(), 1);
+        assert_eq!(shared[0].relations, 3);
+        // Direction follows the first member.
+        assert_eq!((shared[0].start, shared[0].end), (forward[0], forward[1]));
+    }
+
+    #[test]
+    fn shared_segment_uses_the_smallest_member_scale() {
+        let points = [Vec3::ZERO, Vec3::X];
+        let routes = [
+            SegmentSource {
+                scales: &[0.5],
+                ..source(RelationKind::Requests, Basis::Declared, &points, 1)
+            },
+            SegmentSource {
+                scales: &[0.25],
+                ..source(RelationKind::Requests, Basis::Declared, &points, 1)
+            },
+        ];
+        assert_eq!(shared_segments(&routes)[0].scale, 0.25);
+    }
+
+    #[test]
+    fn overlapping_routes_draw_the_trunk_once_with_distinct_arrows() {
+        let (a, b) = trunk_routes();
+        let sources = [
+            source(RelationKind::Requests, Basis::Declared, &a, 3),
+            source(RelationKind::Requests, Basis::Declared, &b, 2),
+        ];
+        let shared = shared_segments(&sources);
+        let skips = skip_masks(&sources, &shared);
+        let mut world = World::new();
+        let mut queue = CommandQueue::default();
+        let mut meshes = Assets::<Mesh>::default();
+        let mut materials = Assets::<StandardMaterial>::default();
+        let mut roots = Vec::new();
+        for (points, skip) in [&a, &b].into_iter().zip(&skips) {
+            roots.push(draw_skipping(
+                &mut Commands::new(&mut queue, &world),
+                &mut meshes,
+                &mut materials,
+                &draw_fixture(RelationKind::Requests, Basis::Declared, points.clone()),
+                &[],
+                1.0,
+                skip,
+            ));
+        }
+        let trunk: Vec<_> = shared
+            .iter()
+            .map(|segment| {
+                draw_shared_segment(
+                    &mut Commands::new(&mut queue, &world),
+                    &mut meshes,
+                    &mut materials,
+                    segment,
+                )
+            })
+            .collect();
+        queue.apply(&mut world);
+        let transforms = |root: Entity| -> Vec<Transform> {
+            world.get::<Children>(root).map_or_else(Vec::new, |c| {
+                c.iter()
+                    .map(|e| *world.get::<Transform>(e).unwrap())
+                    .collect()
+            })
+        };
+        // Each route keeps its diverging tube plus its own two-stroke arrowhead.
+        for root in &roots {
+            assert_eq!(transforms(*root).len(), 3);
+        }
+        // Heads sit on the diverging segment, never on the trunk.
+        for (root, side) in roots.iter().zip([1.0, -1.0]) {
+            for arrow in &transforms(*root)[1..] {
+                assert!((arrow.translation.x - 4.0).abs() < 0.3, "{arrow:?}");
+                assert!(arrow.translation.y * side > 0.0);
+            }
+        }
+        // One tube per trunk segment, as wide as the combined relations need.
+        let mut all = Vec::new();
+        for root in &trunk {
+            let t = transforms(*root);
+            assert_eq!(t.len(), 1);
+            let width = 0.065 * aggregate_thickness(5);
+            assert!((t[0].scale.x - width).abs() < 1e-6);
+            all.extend(t);
+        }
+        for root in &roots {
+            all.extend(transforms(*root));
+        }
+        assert_eq!(all.len(), 8);
+        // No two tubes occupy the same place (nothing to z-fight).
+        for (i, x) in all.iter().enumerate() {
+            for y in &all[i + 1..] {
+                assert!(
+                    x.translation != y.translation || x.scale.z != y.scale.z,
+                    "{x:?} duplicates {y:?}"
+                );
+            }
+        }
+        // Without merging the same trunk is drawn twice.
+        let unmerged: usize = [&a, &b]
+            .into_iter()
+            .map(|points| {
+                let mut world = World::new();
+                let mut queue = CommandQueue::default();
+                let root = draw(
+                    &mut Commands::new(&mut queue, &world),
+                    &mut Assets::<Mesh>::default(),
+                    &mut Assets::<StandardMaterial>::default(),
+                    &draw_fixture(RelationKind::Requests, Basis::Declared, points.clone()),
+                );
+                queue.apply(&mut world);
+                world.get::<Children>(root).unwrap().len()
+            })
+            .sum();
+        assert_eq!(unmerged, 10);
+    }
+
+    #[test]
+    fn a_fully_shared_route_still_gets_its_arrowhead() {
+        let points = vec![Vec3::ZERO, Vec3::X * 2.0];
+        let route = draw_fixture(RelationKind::Requests, Basis::Declared, points);
+        let mut world = World::new();
+        let mut queue = CommandQueue::default();
+        let root = draw_skipping(
+            &mut Commands::new(&mut queue, &world),
+            &mut Assets::<Mesh>::default(),
+            &mut Assets::<StandardMaterial>::default(),
+            &route,
+            &[],
+            1.0,
+            &[true],
+        );
+        queue.apply(&mut world);
+        assert_eq!(world.get::<Children>(root).unwrap().len(), 2);
     }
 
     #[test]

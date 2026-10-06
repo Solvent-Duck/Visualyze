@@ -2831,6 +2831,29 @@ fn visible_edge(v: &Viewer, edge: &layout::Edge) -> bool {
                 .is_none_or(|id| edge.source == *id || edge.target == *id)
         }
 }
+/// Makes a drawn connector read as the selected path: its private materials
+/// become the selection colour. Arrow/dash geometry is unchanged.
+fn highlight_path(commands: &mut Commands, root: Entity) {
+    commands.queue(move |world: &mut World| {
+        let handles: Vec<_> = world
+            .get::<Children>(root)
+            .into_iter()
+            .flat_map(|children| children.iter())
+            .filter_map(|child| {
+                world
+                    .get::<MeshMaterial3d<StandardMaterial>>(child)
+                    .map(|material| material.0.clone())
+            })
+            .collect();
+        let mut materials = world.resource_mut::<Assets<StandardMaterial>>();
+        for handle in handles {
+            if let Some(material) = materials.get_mut(&handle) {
+                material.base_color = Color::srgb_u8(255, 222, 125);
+                material.emissive = LinearRgba::rgb(0.15, 0.09, 0.02);
+            }
+        }
+    });
+}
 fn select_relation(viewer: &mut Viewer, id: &str) -> Result<(), String> {
     let (p, _) = viewer.accepted.as_ref().ok_or("No accepted assembly yet")?;
     let edge = p.edges.iter().find(|edge| edge.semantic_ids.iter().any(|member| member == id))
@@ -3612,6 +3635,9 @@ fn poll(
                     ));
                 }
             }
+            // Filter by isolation first, then merge coincident segments, so an
+            // isolated path always draws as a normal single route.
+            let mut visible = Vec::new();
             for r in &s.geometry.routes {
                 let edge = p.edges.iter().find(|e| e.id == r.edge_id).unwrap();
                 if !visible_edge(&viewer, edge) {
@@ -3630,6 +3656,39 @@ fn poll(
                 for point in &points {
                     scene_bounds = scene_bounds.max(point.abs() + Vec3::splat(0.5));
                 }
+                visible.push((r, relation, selected.is_some(), points));
+            }
+            let sources: Vec<_> = visible
+                .iter()
+                .map(|(r, relation, _, points)| connections::SegmentSource {
+                    kind: relation.visual_kind,
+                    basis: relation.basis,
+                    points,
+                    scales: &r.segment_scales,
+                    relations: r.semantic_ids.len(),
+                })
+                .collect();
+            let shared = connections::shared_segments(&sources);
+            let skips = connections::skip_masks(&sources, &shared);
+            // A shared trunk is drawn once; it is highlighted when any route
+            // through it is the selected path.
+            let shared_selected: Vec<bool> = shared
+                .iter()
+                .map(|segment| segment.members.iter().any(|&(route, _)| visible[route].2))
+                .collect();
+            for (segment, selected) in shared.iter().zip(shared_selected) {
+                let root = connections::draw_shared_segment(
+                    &mut commands,
+                    &mut meshes,
+                    &mut materials,
+                    segment,
+                );
+                if selected {
+                    highlight_path(&mut commands, root);
+                }
+                commands.entity(root).insert(LayoutOwned);
+            }
+            for ((r, relation, selected, points), skip) in visible.into_iter().zip(&skips) {
                 let route = connections::Route {
                     relation: connections::RenderedRelation {
                         id: relation.id.clone(),
@@ -3642,36 +3701,19 @@ fn poll(
                     label: None,
                     label_position: Vec3::ZERO,
                 };
-                let root = connections::draw_weighted(
+                let root = connections::draw_skipping(
                     &mut commands,
                     &mut meshes,
                     &mut materials,
                     &route,
                     &r.segment_scales,
                     connections::aggregate_thickness(r.semantic_ids.len()),
+                    skip,
                 );
-                if selected.is_some() {
+                if selected {
                     // Keep existing arrow/dash geometry and its semantic basis.
                     // Only the private route material becomes more prominent.
-                    commands.queue(move |world: &mut World| {
-                        let handles: Vec<_> = world
-                            .get::<Children>(root)
-                            .into_iter()
-                            .flat_map(|children| children.iter())
-                            .filter_map(|child| {
-                                world
-                                    .get::<MeshMaterial3d<StandardMaterial>>(child)
-                                    .map(|material| material.0.clone())
-                            })
-                            .collect();
-                        let mut materials = world.resource_mut::<Assets<StandardMaterial>>();
-                        for handle in handles {
-                            if let Some(material) = materials.get_mut(&handle) {
-                                material.base_color = Color::srgb_u8(255, 222, 125);
-                                material.emissive = LinearRgba::rgb(0.15, 0.09, 0.02);
-                            }
-                        }
-                    });
+                    highlight_path(&mut commands, root);
                 }
                 commands
                     .entity(root)
