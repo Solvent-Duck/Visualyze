@@ -25,7 +25,7 @@ use std::{
         atomic::{AtomicBool, Ordering},
         mpsc,
     },
-    time::Instant,
+    time::{Duration, Instant},
 };
 use visualyze_layout::{
     self as layout, Algorithm, LayoutRequest, LayoutSolution, Point, QUALITY_VERSION,
@@ -529,7 +529,7 @@ struct InspectorViewport {
 }
 const DETAILS_BOTTOM: f32 = 60.0;
 const DETAILS_COLLAPSED_HEIGHT: f32 = 36.0;
-const ALL_CONTROLS: &str = "Controls\nClick / Tab: select | Enter: enter | Backspace: return | /: search\nPageUp / PageDown: children | Shift+PageUp / PageDown: relationship pages\nE: expand / collapse | M: mark | G: group | Shift+G: ungroup | Shift+M: clear marks | Z: semantic zoom\nSpace: separate layers | I: isolate | J / K: select path | X: expand both ends of path | Shift+I: clear path | B / N: browse claims\nP: pin | Shift+P: open pin origin | [ / ]: layer | L: policy | C: semantic view | O: reorganize | V: preview | A: apply | D: dismiss | U: undo\nDrag: orbit | Wheel: zoom | T: top | F: side | R: home | F1: Details | F5: reload | Esc: cancel\nOver open Details: wheel or PageUp / PageDown scrolls; Home / End reaches the beginning / end.";
+const ALL_CONTROLS: &str = "Controls\nClick: select and isolate | click empty space: clear | double-click: enter | Tab: select | Enter: enter | Backspace: return | /: search\nPageUp / PageDown: children | Shift+PageUp / PageDown: relationship pages\nE: expand / collapse | M: mark | G: group | Shift+G: ungroup | Shift+M: clear marks | Z: semantic zoom\nSpace: separate layers | I: isolate | J / K: select path | X: expand both ends of path | Shift+I: clear path | B / N: browse claims\nP: pin | Shift+P: open pin origin | [ / ]: layer | L: policy | C: semantic view | O: reorganize | V: preview | A: apply | D: dismiss | U: undo\nDrag: orbit | Wheel: zoom | T: top | F: side | R: home | F1: Details | F5: reload | Esc: cancel\nOver open Details: wheel or PageUp / PageDown scrolls; Home / End reaches the beginning / end.";
 #[derive(Component)]
 struct NavigationText;
 #[derive(Component)]
@@ -599,6 +599,7 @@ struct Viewer {
     cache_order: VecDeque<String>,
     explode: bool,
     isolate: bool,
+    click: ClickState,
     dirty: bool,
     fit_requested: bool,
     origin: Vec3,
@@ -696,7 +697,7 @@ fn setup(
         LayoutText,
     ));
     spawn_inspector(&mut commands);
-    commands.spawn((Text::new("Click: select | Enter: enter | Backspace: back | /: find | E: expand | I: isolate\nDrag: orbit | Wheel: zoom | J/K: path | P: pin | F5: reload | F1: Details and controls"),TextFont{font_size:11.0,..default()},TextLayout::default().with_no_wrap(),TextColor(Color::srgb_u8(145,165,181)),Node{position_type:PositionType::Absolute,left:px(24),bottom:px(16),right:px(24),height:px(32),overflow:Overflow::clip(),..default()}));
+    commands.spawn((Text::new("Click: select and isolate | click empty space: clear | double-click: enter | Enter: enter | Backspace: back\n/: find | E: expand | I: isolate | Drag: orbit | Wheel: zoom | J/K: path | P: pin | F5: reload | F1: Details and controls"),TextFont{font_size:11.0,..default()},TextLayout::default().with_no_wrap(),TextColor(Color::srgb_u8(145,165,181)),Node{position_type:PositionType::Absolute,left:px(24),bottom:px(16),right:px(24),height:px(32),overflow:Overflow::clip(),..default()}));
     commands.spawn((
         NavigationText,
         Text::new("/ Find component | PageUp / PageDown: browse children"),
@@ -1144,6 +1145,9 @@ fn apply_action(
             v.view.enter(id);
             v.view.restore_frame_pins();
             v.selected = None;
+            // Isolation belongs to the box it was set on; it does not follow
+            // the user into a different view.
+            v.isolate = false;
             v.search_open = false;
             v.group_marks.clear();
             start(model, engine, v, false);
@@ -2796,11 +2800,40 @@ fn visible_id(v: &Viewer, p: &DesktopProjection, id: &str) -> bool {
                     || display_ancestor(p, id, &edge.target)
             });
     }
-    v.selected.as_ref().is_none_or(|f| {
-        id == f
-            || p.edges
-                .iter()
-                .any(|e| (e.source == *f && e.target == id) || (e.target == *f && e.source == id))
+    v.selected
+        .as_ref()
+        .is_none_or(|f| isolation_shows(p, f, id))
+}
+/// `id` is the selected box or one of its displayed descendants.
+fn within_selection(p: &DesktopProjection, selected: &str, id: &str) -> bool {
+    id == selected || display_ancestor(p, selected, id)
+}
+/// Isolating a box shows it, everything displayed inside it, and the boxes its
+/// connectors reach. For an opened box those connectors include its
+/// descendants', and the far end's ancestors stay so no line ends in a hidden
+/// container (not the focused root, nor one that also holds the selection).
+/// A box with nothing displayed inside it isolates as a plain box.
+fn isolation_shows(p: &DesktopProjection, selected: &str, id: &str) -> bool {
+    if within_selection(p, selected, id) {
+        return true;
+    }
+    let opened = p
+        .nodes
+        .iter()
+        .any(|node| node.parent.as_deref() == Some(selected));
+    p.edges.iter().any(|e| {
+        let other = if within_selection(p, selected, &e.source) {
+            &e.target
+        } else if within_selection(p, selected, &e.target) {
+            &e.source
+        } else {
+            return false;
+        };
+        other == id
+            || (opened
+                && id != p.root
+                && !display_ancestor(p, id, selected)
+                && display_ancestor(p, id, other))
     })
 }
 fn display_ancestor(p: &DesktopProjection, ancestor: &str, id: &str) -> bool {
@@ -2821,14 +2854,14 @@ fn display_ancestor(p: &DesktopProjection, ancestor: &str, id: &str) -> bool {
     }
     false
 }
-fn visible_edge(v: &Viewer, edge: &layout::Edge) -> bool {
+fn visible_edge(v: &Viewer, p: &DesktopProjection, edge: &layout::Edge) -> bool {
     !v.isolate
         || if let Some(id) = &v.selected_relation {
             edge.semantic_ids.contains(id)
         } else {
-            v.selected
-                .as_ref()
-                .is_none_or(|id| edge.source == *id || edge.target == *id)
+            v.selected.as_ref().is_none_or(|id| {
+                within_selection(p, id, &edge.source) || within_selection(p, id, &edge.target)
+            })
         }
 }
 /// Makes a drawn connector read as the selected path: its private materials
@@ -2893,6 +2926,145 @@ fn retain_valid_relation_selection(viewer: &mut Viewer) {
         viewer.selected_relation = None;
         viewer.dirty = true;
     }
+}
+/// Largest cursor travel between press and release that still counts as a
+/// click (logical pixels); anything further is a drag and only orbits.
+const CLICK_DRAG_THRESHOLD: f32 = 5.0;
+/// Longest gap between two clicks on one box that makes them a double click.
+const DOUBLE_CLICK_WINDOW: Duration = Duration::from_millis(400);
+
+/// What a completed left-button press and release means for the scene.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Click {
+    /// A drag, or a press that began outside the scene: no selection change.
+    None,
+    /// A click on empty space.
+    Clear,
+    Single(String),
+    Double(String),
+}
+#[derive(Debug, Clone, PartialEq)]
+struct LastClick {
+    id: String,
+    at: Duration,
+}
+#[derive(Debug, Clone, Default)]
+struct ClickState {
+    /// Cursor position when the left button went down, unless that was over
+    /// Details.
+    press: Option<Vec2>,
+    last: Option<LastClick>,
+}
+/// Decides what a left press/release pair means. `hit` is the box under the
+/// release position, `last` the previous click that could pair into a double
+/// click, and `now` the time of this release.
+fn classify_click(
+    press: Option<Vec2>,
+    release: Vec2,
+    hit: Option<&str>,
+    last: &mut Option<LastClick>,
+    now: Duration,
+) -> Click {
+    let Some(press) = press else {
+        return Click::None;
+    };
+    if press.distance(release) >= CLICK_DRAG_THRESHOLD {
+        *last = None;
+        return Click::None;
+    }
+    let Some(id) = hit else {
+        *last = None;
+        return Click::Clear;
+    };
+    let double = last
+        .as_ref()
+        .is_some_and(|l| l.id == id && now.saturating_sub(l.at) <= DOUBLE_CLICK_WINDOW);
+    if double {
+        *last = None;
+        Click::Double(id.to_owned())
+    } else {
+        *last = Some(LastClick {
+            id: id.to_owned(),
+            at: now,
+        });
+        Click::Single(id.to_owned())
+    }
+}
+/// Applies a click to the viewer. A double click returns the Enter action the
+/// Enter key would submit; its first click already isolated the box.
+fn apply_click(v: &mut Viewer, click: Click) -> Option<ViewerAction> {
+    let double = matches!(click, Click::Double(_));
+    match click {
+        Click::None => None,
+        Click::Clear => {
+            let changed = v.isolate || v.selected.is_some() || v.selected_relation.is_some();
+            v.isolate = false;
+            v.selected = None;
+            v.selected_relation = None;
+            v.relation_page = 0;
+            v.dirty |= changed;
+            None
+        }
+        Click::Single(id) | Click::Double(id) => {
+            let changed =
+                !v.isolate || v.selected.as_ref() != Some(&id) || v.selected_relation.is_some();
+            v.isolate = true;
+            v.selected = Some(id.clone());
+            v.selected_relation = None;
+            v.relation_page = 0;
+            v.dirty |= changed;
+            double.then_some(ViewerAction::Enter(id))
+        }
+    }
+}
+/// The box under the cursor, if any.
+fn pick_at(
+    v: &Viewer,
+    camera: &Camera,
+    transform: &GlobalTransform,
+    cursor: Vec2,
+) -> Option<String> {
+    let (p, _) = v.accepted.as_ref()?;
+    let s = displayed_solution(v)?;
+    let ray = camera.viewport_to_world(transform, cursor).ok()?;
+    pick_box(v, p, s, ray.origin, *ray.direction)
+}
+/// Solid boxes win, nearest first. When the ray hits none, the innermost
+/// (smallest) visible frame it passes through is picked, so boxes opened
+/// automatically or with E can be selected and entered too. The focused root
+/// is never picked.
+fn pick_box(
+    v: &Viewer,
+    p: &DesktopProjection,
+    s: &NativeLayout,
+    origin: Vec3,
+    direction: Vec3,
+) -> Option<String> {
+    let hits = |solid: bool| {
+        s.geometry
+            .boxes
+            .iter()
+            .filter(move |(id, b)| {
+                b.solid == solid && (solid || **id != p.root) && visible_id(v, p, id)
+            })
+            .filter_map(|(id, b)| {
+                let lo = s.geometry.display(b.min, v.explode, v.origin);
+                let hi = s.geometry.display(b.max, v.explode, v.origin);
+                let size = hi - lo;
+                ray_box(origin, direction, lo, hi)
+                    .map(|d| (d, size.x * size.y * size.z, id.clone()))
+            })
+    };
+    hits(true)
+        .min_by(|a, b| a.0.total_cmp(&b.0).then(a.2.cmp(&b.2)))
+        .or_else(|| {
+            hits(false).min_by(|a, b| {
+                a.1.total_cmp(&b.1)
+                    .then(a.0.total_cmp(&b.0))
+                    .then(a.2.cmp(&b.2))
+            })
+        })
+        .map(|(_, _, id)| id)
 }
 fn ray_box(origin: Vec3, direction: Vec3, min: Vec3, max: Vec3) -> Option<f32> {
     let mut near = 0.0_f32;
@@ -3640,7 +3812,7 @@ fn poll(
             let mut visible = Vec::new();
             for r in &s.geometry.routes {
                 let edge = p.edges.iter().find(|e| e.id == r.edge_id).unwrap();
-                if !visible_edge(&viewer, edge) {
+                if !visible_edge(&viewer, p, edge) {
                     continue;
                 }
                 let selected = viewer
@@ -3966,6 +4138,7 @@ fn append_search_text(query: &mut String, text: &str) {
 fn controls(
     keys: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
+    time: Res<Time<Real>>,
     window: Single<&Window, With<PrimaryWindow>>,
     camera: Single<(&Camera, &GlobalTransform), With<Camera3d>>,
     mut keyboard: MessageReader<KeyboardInput>,
@@ -4148,29 +4321,23 @@ fn controls(
             viewer.dirty = true;
         }
     }
-    if mouse.just_pressed(MouseButton::Left)
-        && !over_details
-        && let Some(cursor) = window.cursor_position()
-        && let Some((p, _)) = &viewer.accepted
-        && let Some(s) = displayed_solution(&viewer)
-        && let Ok(ray) = camera.0.viewport_to_world(camera.1, cursor)
-    {
-        let picked = s
-            .geometry
-            .boxes
-            .iter()
-            .filter(|(id, b)| b.solid && visible_id(&viewer, p, id))
-            .filter_map(|(id, b)| {
-                let lo = s.geometry.display(b.min, viewer.explode, viewer.origin);
-                let hi = s.geometry.display(b.max, viewer.explode, viewer.origin);
-                ray_box(ray.origin, *ray.direction, lo, hi).map(|d| (d, id.clone()))
-            })
-            .min_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
-        if let Some((_, id)) = picked {
-            viewer.selected = Some(id);
-            viewer.selected_relation = None;
-            viewer.relation_page = 0;
-            viewer.dirty = true;
+    // A click is decided on release, so a drag that starts on a box only
+    // orbits. A press over Details is never a click on the scene.
+    if mouse.just_pressed(MouseButton::Left) {
+        viewer.click.press = window.cursor_position().filter(|_| !over_details);
+    }
+    if mouse.just_released(MouseButton::Left) {
+        let press = viewer.click.press.take();
+        if let (Some(_), Some(cursor)) = (press, window.cursor_position()) {
+            let hit = pick_at(&viewer, camera.0, camera.1, cursor);
+            let mut last = viewer.click.last.take();
+            let click = classify_click(press, cursor, hit.as_deref(), &mut last, time.elapsed());
+            viewer.click.last = last;
+            if let Some(action) = apply_click(&mut viewer, click) {
+                let _ = actions.submit(action);
+            }
+        } else {
+            viewer.click.last = None;
         }
     }
     let shift = keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight);
@@ -4670,6 +4837,7 @@ mod tests {
     include!("pin_provenance_tests.rs");
     include!("aggregated_path_tests.rs");
     include!("planned_detail_tests.rs");
+    include!("click_isolation_tests.rs");
 
     // These regressions exercise the flat engine. Mutations must rebuild both
     // authoritative solver data and the renderer geometry, just as acceptance does.
@@ -4687,6 +4855,7 @@ mod tests {
             pipeline_file(&file.0, 1, false);
             let mut app = action_app(LayoutInput::bundle(file.0.clone()), ViewState::default());
             app.add_plugins(InputPlugin)
+                .init_resource::<Time<Real>>()
                 .init_resource::<crate::camera::CameraInputLock>()
                 .add_systems(Update, controls.before(process_actions));
             if isolated {
@@ -4847,6 +5016,7 @@ mod tests {
         .init_resource::<ButtonInput<KeyCode>>()
         .init_resource::<ButtonInput<MouseButton>>()
         .init_resource::<Time>()
+        .init_resource::<Time<Real>>()
         .init_resource::<AccumulatedMouseMotion>()
         .add_message::<MouseWheel>()
         .add_message::<KeyboardInput>()
