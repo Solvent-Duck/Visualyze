@@ -45,6 +45,8 @@ Its eight objects and sixteen relationships use the existing contract unchanged.
 
 The renderer computes all placement and orthogonal cuboid routes. Objects use the same plain boxes as the gallery; containment uses rectangular outlines to keep children visible, and interfaces attach to their owner's box face. Runtime arrows follow the predicate direction: `service reads datastore` points from the reader to the store. Dashed policy and implementation links are distinct from requests. There is no live traffic animation. Layout is an initial deterministic composition for small models, without general obstacle avoidance or label collision resolution.
 
+A supplied `--model` uses the nested `composed` placement engine by default; pass `--layout legacy` for the original composition. The embedded specimen and `--view gallery` keep the legacy engine.
+
 Use `--view gallery` to inspect disconnected specimens from any model, or `--view architecture` to force assembly even when a model only contains structural relationships. View preferences are CLI options, never payload coordinates.
 
 ## Try the experimental placement engine

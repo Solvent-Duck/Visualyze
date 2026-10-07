@@ -112,11 +112,20 @@ pub fn parse(args: impl IntoIterator<Item = OsString>) -> Result<Option<Options>
     if serve && (validate_only || bundle.is_some()) {
         return Err("--serve cannot be combined with --validate or --bundle".into());
     }
+    let view = view.unwrap_or_default();
+    // A supplied model gets the nested engine unless the specimen gallery was asked for;
+    // the embedded specimen and bundles keep their own defaults.
+    let default_layout = match (&source, view) {
+        (Source::File(_) | Source::Stdin, view) if view != ViewMode::Gallery => {
+            LayoutEngine::Composed
+        }
+        _ => LayoutEngine::default(),
+    };
     Ok(Some(Options {
         source,
         validate_only,
-        view: view.unwrap_or_default(),
-        layout: layout.unwrap_or_default(),
+        view,
+        layout: layout.unwrap_or(default_layout),
         bundle,
         json,
         walkthrough,
@@ -198,6 +207,29 @@ mod tests {
                 .bundle
                 .is_some()
         );
+        assert_eq!(
+            options(&["--model", "m.json"]).unwrap().unwrap().layout,
+            LayoutEngine::Composed
+        );
+        assert_eq!(
+            options(&["--model", "-"]).unwrap().unwrap().layout,
+            LayoutEngine::Composed
+        );
+        assert_eq!(
+            options(&["--model", "m.json", "--layout", "legacy"])
+                .unwrap()
+                .unwrap()
+                .layout,
+            LayoutEngine::Legacy
+        );
+        assert_eq!(
+            options(&["--model", "m.json", "--view", "gallery"])
+                .unwrap()
+                .unwrap()
+                .layout,
+            LayoutEngine::Legacy
+        );
+        assert_eq!(options(&[]).unwrap().unwrap().layout, LayoutEngine::Legacy);
         for args in [
             vec!["--bundle"],
             vec!["--bundle", "-"],
