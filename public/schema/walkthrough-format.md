@@ -55,7 +55,9 @@ A trace animates travel along relations the model already states (spec §4.5):
   `implemented_by`, `deployed_in`) are not travel (`invalid_trace_relation`).
 - A hop travels from source to target. `"return": true` travels the response leg
   back from target to source. It is allowed only on `requests` and `reads`,
-  which imply a response (`invalid_return`).
+  which imply a response (`invalid_return`), and only after the same trace has
+  travelled that relation forward (`unpaired_return`). A response answers a
+  request the viewer has shown; it is never a way to draw a relation backwards.
 - Hops must be contiguous. Each hop leaves from where the previous one arrived.
   An interface and the component that exposes it count as the same place. If no
   stated relation connects two hops, the walkthrough is rejected (`trace_gap`).
@@ -70,8 +72,15 @@ A trace animates travel along relations the model already states (spec §4.5):
 ## 5. Diagnostics
 
 Diagnostics use the architecture format's `{code, path, message}` shape, where
-`path` is a JSON Pointer into the walkthrough. Readability problems
-(`busy_step`, `long_walkthrough`) are warnings and never reject a walkthrough.
+`path` is a JSON Pointer into the walkthrough. Readability problems are warnings
+and never reject a walkthrough:
+
+| Warning | When |
+| --- | --- |
+| `busy_step` | A step has more than 12 focus objects |
+| `long_walkthrough` | More than 12 steps |
+| `numbered_title` | A step title starts with its own number ("1. ", "Step 2:"); the viewer shows progress |
+| `never_opens` | 5 or more steps, and every step's root is the whole system while a scope has at least 2 objects inside it |
 
 ## 6. Publication and revisions
 

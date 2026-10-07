@@ -23,6 +23,9 @@ existed before this decision.
    sends the complete walkthrough in one call, so pacing never waits on tool
    round trips. The person advances with `.` and `,`, or autoplays with `?`. The
    agent can also drive playback with `control_playback`.
+   Agent-driven lockstep narration (a section per step, advancing the viewer
+   between them) was tried on 2026-10-07 and dropped: agents skipped the
+   sections and raced the viewer, and turn pacing differs across harnesses.
 3. **The bridge is Rust, as `visualyze mcp`.** It departs from the TypeScript
    choice in spec §7. The bridge (`public/mcp-server`, crate `visualyze-mcp`, on
    `rmcp` 3.5.1) calls the public `visualyze-model` validator directly, so
@@ -32,6 +35,9 @@ existed before this decision.
    `.visualyze/model.json` with its own tools, and the team shares it through
    git. The bridge only reads files, and only under the directory it was
    started in. Neither the bridge nor the viewer writes to the repository.
+   *Amended 2026-10-06:* sharing is opt-in. Unless `.visualyze/` is already
+   tracked, the agent adds it to the local `.git/info/exclude`, which is never
+   committed, and tells the person how to share it.
 5. **Local IPC uses a per-user Unix socket.**
    - Location: `~/Library/Application Support/Visualyze/run/viewer.sock`
      (directory 0700, socket 0600), or `VISUALYZE_RUN_DIR`.
@@ -46,7 +52,8 @@ existed before this decision.
 6. **Honest traces.** The walkthrough validator (`visualyze_model::walkthrough`)
    rejects the following:
    - containment or coverage relations used as travel
-   - response legs on relations that imply no response
+   - response legs on relations that imply no response, or before the trace
+     has travelled that relation's request (`unpaired_return`)
    - gaps between hops
    - loops that do not close
 

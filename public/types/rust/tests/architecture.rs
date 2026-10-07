@@ -166,7 +166,14 @@ fn retains_claims_and_warns_for_generic_forms_and_duplicate_claims() {
         value["relations"].as_array_mut().unwrap().push(json!({"id":id,"kind":"reads","source":"service:api","target":"store:users","basis":"declared"}));
     }
     let model = Architecture::from_json(value.to_string().as_bytes()).unwrap();
-    let codes: Vec<_> = model.warnings().iter().map(|d| d.code).collect();
+    // Adding flows makes the gallery's other objects unconnected; that advice is
+    // tested on its own.
+    let codes: Vec<_> = model
+        .warnings()
+        .iter()
+        .map(|d| d.code)
+        .filter(|c| *c != "unconnected_entity")
+        .collect();
     assert_eq!(
         codes,
         ["generic_subtype", "descriptive_role", "duplicate_claim"]
@@ -264,4 +271,41 @@ fn supported_claims_without_a_line_range_are_flagged() {
         .map(|w| w.path.as_str())
         .collect();
     assert_eq!(flagged, ["/evidence/0", "/evidence/1"]);
+}
+
+#[test]
+fn warns_about_objects_that_take_part_in_no_flow() {
+    // The gallery draws no flows at all, so it is exempt.
+    let gallery = Architecture::from_json(OBJECTS_FIXTURE.as_bytes()).unwrap();
+    assert!(
+        gallery
+            .warnings()
+            .iter()
+            .all(|d| d.code != "unconnected_entity")
+    );
+
+    let mut value: Value =
+        serde_json::from_str(include_str!("../../../examples/notes-crud.json")).unwrap();
+    let model = Architecture::from_json(value.to_string().as_bytes()).unwrap();
+    assert!(model.warnings().is_empty());
+    value["entities"].as_array_mut().unwrap().push(json!({
+        "id": "store:audit", "kind": "datastore", "label": "Audit log",
+        "boundary": "internal", "basis": "declared"}));
+    value["relations"].as_array_mut().unwrap().push(json!({
+        "id": "rel:contains-audit", "kind": "contains", "source": "scope:notes",
+        "target": "store:audit", "basis": "declared"}));
+    let model = Architecture::from_json(value.to_string().as_bytes()).unwrap();
+    let flagged: Vec<_> = model
+        .warnings()
+        .iter()
+        .filter(|d| d.code == "unconnected_entity")
+        .map(|d| d.path.as_str())
+        .collect();
+    let index = model
+        .snapshot()
+        .entities
+        .iter()
+        .position(|e| e.id == "store:audit")
+        .unwrap();
+    assert_eq!(flagged, [format!("/entities/{index}")]);
 }

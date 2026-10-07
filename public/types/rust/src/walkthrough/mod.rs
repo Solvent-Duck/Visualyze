@@ -20,6 +20,8 @@ pub const SCHEMA: &str = include_str!("../../../../schema/walkthrough.schema.jso
 pub const ADVISED_FOCUS: usize = 12;
 /// Walkthroughs longer than this are advised against, never rejected.
 pub const ADVISED_STEPS: usize = 12;
+/// Walkthroughs at least this long are advised to open a subsystem at least once.
+pub const OPENING_STEPS: usize = 5;
 
 static VALIDATOR: LazyLock<jsonschema::Validator> = LazyLock::new(|| {
     let schema = serde_json::from_str(SCHEMA).expect("embedded schema is JSON");
@@ -246,6 +248,14 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
                 "title is blank".into(),
             );
         }
+        if is_numbered(&step.title) {
+            push(
+                &mut warnings,
+                "numbered_title",
+                at("/title"),
+                "the viewer shows step progress and your chat headings number the steps; drop the number from the caption".into(),
+            );
+        }
 
         let mut focus = Vec::new();
         for (i, id) in step.focus.iter().enumerate() {
@@ -299,6 +309,7 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
 
         let mut hops = Vec::new();
         let mut previous: Option<&str> = None;
+        let mut requested = HashSet::new();
         for (i, hop) in step.trace.iter().enumerate() {
             let path = at(&format!("/trace/{i}"));
             let Some((kind, source, target)) = own.relation(&hop.relation) else {
@@ -336,6 +347,21 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
                         kind_name(kind)
                     ),
                 );
+            } else if hop.returning && !requested.contains(hop.relation.as_str()) {
+                // A response answers a request this trace already showed. Without one, a
+                // return leg would only be a way to draw the relation backwards.
+                push(
+                    &mut errors,
+                    "unpaired_return",
+                    format!("{path}/return"),
+                    format!(
+                        "{} returns a response, but the trace has not travelled its request; trace the relation forward first, or model the direction the data actually moves",
+                        hop.relation
+                    ),
+                );
+            }
+            if !hop.returning {
+                requested.insert(hop.relation.as_str());
             }
             // A subscription points from subscriber to channel, but its payload travels the
             // other way, so the forward leg of a trace leaves from the channel.
@@ -411,6 +437,33 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
             hops,
         });
     }
+    // A tour that never leaves the whole-system view shows every scene with the rest of the
+    // system dimmed around it. Advise opening the busiest real subsystem.
+    if script.steps.len() >= OPENING_STEPS && resolved.iter().all(|r| r.root == own.system) {
+        let mut children: HashMap<&str, usize> = HashMap::new();
+        for entity in &model.entities {
+            if let Some(parent) = own.parent(&entity.id)
+                && parent != own.system
+                && own.entity(parent) == Some(EntityKind::Scope)
+            {
+                *children.entry(parent).or_default() += 1;
+            }
+        }
+        if let Some((scope, count)) = children
+            .into_iter()
+            .filter(|(_, n)| *n >= 2)
+            .max_by(|a, b| a.1.cmp(&b.1).then(b.0.cmp(a.0)))
+        {
+            push(
+                &mut warnings,
+                "never_opens",
+                "/steps".into(),
+                format!(
+                    "every step shows the whole system; open a subsystem such as {scope} ({count} objects) by focusing only on objects inside it, or by setting root"
+                ),
+            );
+        }
+    }
     if script.steps.len() > ADVISED_STEPS {
         push(
             &mut warnings,
@@ -430,6 +483,23 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
             diagnostics: errors,
         })
     }
+}
+
+/// "1. Capture", "2) Ingest", "Step 3: Query", "4 · Recap": a caption that numbers itself.
+fn is_numbered(title: &str) -> bool {
+    let mut rest = title.trim_start();
+    if rest
+        .get(..5)
+        .is_some_and(|w| w.eq_ignore_ascii_case("step "))
+    {
+        rest = rest[5..].trim_start();
+    }
+    let digits = rest.bytes().take_while(u8::is_ascii_digit).count();
+    if digits == 0 {
+        return false;
+    }
+    let after = rest[digits..].trim_start();
+    after.starts_with(['.', ')', ':', '·', '-', '/'])
 }
 
 fn kind_name(kind: RelationKind) -> &'static str {

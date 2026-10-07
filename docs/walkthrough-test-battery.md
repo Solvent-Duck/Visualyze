@@ -5,7 +5,7 @@ How to show that the walkthrough path works: the agent writes a model and a scri
 | Tier | Link under test | Needs | Status |
 | --- | --- | --- | --- |
 | 0 | The model matches the repository | repo checkouts | specified |
-| 1 | The validator, on real models | nothing | **implemented**, 15 tests |
+| 1 | The validator, on real models | nothing | **implemented**, 18 tests |
 | 2 | The MCP bridge over real stdio | the `visualyze` binary | **implemented**, 5 tests |
 | 3 | The viewer's IPC and revision rules | a display, isolated run dir | specified |
 | 4 | An agent, end to end, on each repo | repos, a headless agent, MCP wired in | specified |
@@ -41,6 +41,9 @@ Walkthroughs are generated from each model's own relations and compared with an 
 | a trace may have sixteen hops… | A real 16-hop chain validates; 17 is a `schema_violation` at `/steps/0/trace` |
 | structure and coverage… | `contains/exposes/applies_to/implemented_by/deployed_in` → `invalid_trace_relation` |
 | only requests and reads… | A response leg on anything else → `invalid_return` |
+| a response needs its request… | A lone response leg, or one that follows a different relation (the PostHog Django → Redis → "Celery reads Redis" reversed case), → `unpaired_return` |
+| captions that number themselves… | `numbered_title` on "1. ", "2) ", "Step 3:", "10 · "; not on "3D scene graph" or "401 means re-login"; no panic on multi-byte titles |
+| a tour that never opens… | 5 whole-system steps warn `never_opens`; 4 do not; one step focused inside a scope resolves its root there and clears it |
 | references are checked by kind | Unknown ID → `missing_reference`; relation used as entity or the reverse → `invalid_reference_kind` |
 | focus must sit inside… | With an explicit root, accepted exactly when the oracle says the focus is inside it |
 | the default root… | The default root strictly owns every focus object and no child of it does |

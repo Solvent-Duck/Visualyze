@@ -227,15 +227,18 @@ fn the_real_models_are_big_enough_to_mean_something() {
 fn every_stated_flow_relation_can_be_traced_in_every_legal_direction() {
     each_system(|name, model, oracle| {
         for leg in &oracle.legs {
+            // A response leg is shown after the request it answers.
+            let trace = if leg.returning {
+                vec![self::leg(oracle, &leg.relation, false), leg.clone()]
+            } else {
+                vec![leg.clone()]
+            };
             let result = validate(
                 model,
-                &script(
-                    model,
-                    vec![step("s", &[&leg.from, &leg.to], std::slice::from_ref(leg))],
-                ),
+                &script(model, vec![step("s", &[&leg.from, &leg.to], &trace)]),
             );
             let walkthrough = result.unwrap_or_else(|e| panic!("{name} {}: {e:?}", leg.relation));
-            let h = &walkthrough.resolved()[0].hops[0];
+            let h = walkthrough.resolved()[0].hops.last().unwrap();
             assert_eq!(
                 (h.from.as_str(), h.to.as_str(), h.returning),
                 (leg.from.as_str(), leg.to.as_str(), leg.returning),
@@ -281,11 +284,56 @@ fn a_request_and_its_response_form_a_closed_loop_and_nothing_else_does() {
 }
 
 #[test]
+fn a_response_needs_its_request_earlier_in_the_trace() {
+    each_system(|name, model, oracle| {
+        let mut bent = 0;
+        for back in oracle.legs.iter().filter(|l| l.returning) {
+            let alone = step("s", &[&back.from, &back.to], std::slice::from_ref(back));
+            let e = validate(model, &script(model, vec![alone])).unwrap_err();
+            assert_eq!(codes(&e), ["unpaired_return"], "{name} {}", back.relation);
+            assert_eq!(e[0].1, "/steps/0/trace/0/return", "{name}");
+
+            // Arriving where a response would leave from does not license drawing that
+            // relation backwards (Django writes Redis, then "Celery reads Redis" reversed).
+            let Some(arrive) = oracle
+                .legs
+                .iter()
+                .find(|a| !a.returning && a.relation != back.relation && !oracle.is_gap(a, back))
+            else {
+                continue;
+            };
+            let swapped = step(
+                "s",
+                &[&arrive.from, &back.to],
+                &[arrive.clone(), back.clone()],
+            );
+            let e = validate(model, &script(model, vec![swapped])).unwrap_err();
+            assert_eq!(
+                codes(&e),
+                ["unpaired_return"],
+                "{name}: {} then {}",
+                arrive.relation,
+                back.relation
+            );
+            assert_eq!(e[0].1, "/steps/0/trace/1/return", "{name}");
+            bent += 1;
+        }
+        assert!(bent > 0, "{name}: no contiguous unpaired response to test");
+    });
+}
+
+#[test]
 fn consecutive_hops_are_accepted_exactly_when_the_travel_is_contiguous() {
     each_system(|name, model, oracle| {
         let (mut joined, mut broken) = (Vec::new(), Vec::new());
-        for a in &oracle.legs {
-            for b in &oracle.legs {
+        // Responses are covered above; here a pair is two requests, or a request and its
+        // own response.
+        for a in oracle.legs.iter().filter(|l| !l.returning) {
+            for b in oracle
+                .legs
+                .iter()
+                .filter(|l| !l.returning || l.relation == a.relation)
+            {
                 if oracle.is_gap(a, b) {
                     broken.push((a, b));
                 } else {
@@ -320,7 +368,7 @@ fn consecutive_hops_are_accepted_exactly_when_the_travel_is_contiguous() {
     });
 }
 
-/// Depth-first search for a trace of `want` distinct, contiguous legs.
+/// Depth-first search for a trace of `want` distinct, contiguous forward legs.
 fn chain(oracle: &Oracle, want: usize) -> Option<Vec<Leg>> {
     fn grow(oracle: &Oracle, path: &mut Vec<usize>, want: usize, budget: &mut u32) -> bool {
         if path.len() == want {
@@ -332,7 +380,8 @@ fn chain(oracle: &Oracle, want: usize) -> Option<Vec<Leg>> {
                 return false;
             }
             *budget -= 1;
-            if oracle.is_gap(last, next)
+            if next.returning
+                || oracle.is_gap(last, next)
                 || path
                     .iter()
                     .any(|&p| oracle.legs[p].relation == next.relation)
@@ -347,7 +396,7 @@ fn chain(oracle: &Oracle, want: usize) -> Option<Vec<Leg>> {
         }
         false
     }
-    for start in 0..oracle.legs.len() {
+    for start in (0..oracle.legs.len()).filter(|&i| !oracle.legs[i].returning) {
         let mut path = vec![start];
         let mut budget = 200_000;
         if grow(oracle, &mut path, want, &mut budget) {
@@ -807,5 +856,81 @@ fn hostile_input_is_rejected_without_a_panic() {
                 assert!(result.is_err(), "{name}: {label} was accepted");
             }
         }
+    });
+}
+
+#[test]
+fn captions_that_number_themselves_are_advised_against() {
+    each_system(|name, model, oracle| {
+        for (title, numbered) in [
+            ("1. Capture the event", true),
+            ("2) Ingest", true),
+            ("Step 3: Query", true),
+            ("step 4 - recap", true),
+            ("10 · Recap", true),
+            ("3D scene graph", false),
+            ("401 means re-login", false),
+            ("Two queues, one worker", false),
+            ("Café für Kafka Ünïcode", false),
+        ] {
+            let mut s = step("s", &[&oracle.system], &[]);
+            s["title"] = title.into();
+            let w = validate(model, &script(model, vec![s]))
+                .unwrap_or_else(|e| panic!("{name} {title}: {e:?}"));
+            let warned = w.warnings().iter().any(|d| d.code == "numbered_title");
+            assert_eq!(warned, numbered, "{name}: {title:?}");
+        }
+    });
+}
+
+#[test]
+fn a_tour_that_never_opens_a_subsystem_is_advised_to() {
+    each_system(|name, model, oracle| {
+        let codes = |steps: Vec<Value>| -> Vec<String> {
+            validate(model, &script(model, steps))
+                .unwrap_or_else(|e| panic!("{name}: {e:?}"))
+                .warnings()
+                .iter()
+                .map(|d| d.code.to_string())
+                .collect()
+        };
+        let whole = |n: usize| -> Vec<Value> {
+            (0..n)
+                .map(|i| step(&format!("s{i}"), &[&oracle.system], &[]))
+                .collect()
+        };
+        assert!(
+            codes(whole(4)).is_empty(),
+            "{name}: short tours are left alone"
+        );
+        assert_eq!(codes(whole(5)), ["never_opens"], "{name}");
+
+        // One step inside a scope with real internals is enough.
+        let scope = oracle
+            .scopes
+            .iter()
+            .find(|s| {
+                oracle
+                    .entities
+                    .iter()
+                    .filter(|e| oracle.owners(e).first() == Some(*s))
+                    .count()
+                    >= 2
+            })
+            .unwrap_or_else(|| panic!("{name}: no scope with internals"));
+        let inside: Vec<&str> = oracle
+            .entities
+            .iter()
+            .filter(|e| oracle.owners(e).first() == Some(scope))
+            .map(String::as_str)
+            .collect();
+        let mut steps = whole(4);
+        steps.push(step("inside", &inside, &[]));
+        let w = validate(model, &script(model, steps)).unwrap();
+        assert_eq!(w.resolved()[4].root, *scope, "{name}");
+        assert!(
+            w.warnings().iter().all(|d| d.code != "never_opens"),
+            "{name}"
+        );
     });
 }

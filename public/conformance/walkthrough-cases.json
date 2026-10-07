@@ -431,5 +431,42 @@
         "value": "  "
       }
     ]
+  },
+  {
+    "name": "reject a response without its request",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "unpaired_return",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/2/trace",
+        "value": [
+          {
+            "relation": "rel:read-database",
+            "return": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject a response before its request",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "unpaired_return",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/2/trace",
+        "value": [
+          {
+            "relation": "rel:read-database",
+            "return": true
+          },
+          {
+            "relation": "rel:read-database"
+          }
+        ]
+      }
+    ]
   }
 ]

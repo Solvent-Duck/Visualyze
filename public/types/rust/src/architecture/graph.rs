@@ -305,6 +305,41 @@ pub(super) fn validate(model: &Snapshot) -> Result<Vec<Diagnostic>, ValidationEr
             }
         }
     }
+    // In a model that draws flows, a box that takes part in none is usually a modelling
+    // slip: a path that was never connected. Structure and coverage do not count. A
+    // structure-only model (the object gallery) is a deliberate choice and is exempt.
+    let mut connected = HashSet::new();
+    for relation in &model.relations {
+        if matches!(
+            relation.kind,
+            RelationKind::Requests
+                | RelationKind::Reads
+                | RelationKind::Writes
+                | RelationKind::DependsOn
+                | RelationKind::Publishes
+                | RelationKind::Subscribes
+        ) {
+            connected.insert(relation.source.as_str());
+            connected.insert(relation.target.as_str());
+        }
+    }
+    for (i, entity) in model.entities.iter().enumerate() {
+        if matches!(
+            entity.kind,
+            EntityKind::Client
+                | EntityKind::Service
+                | EntityKind::Datastore
+                | EntityKind::Interface
+        ) && !connected.is_empty()
+            && !connected.contains(entity.id.as_str())
+        {
+            warnings.push(
+                "unconnected_entity",
+                format!("/entities/{i}"),
+                "nothing requests, reads, writes, depends on, publishes to, or subscribes to this object; connect it with evidence, or leave it out and list it in omissions",
+            );
+        }
+    }
     for (i, record) in model.evidence.iter().enumerate() {
         if let Some(Locator::Source {
             path,

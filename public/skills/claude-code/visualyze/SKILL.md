@@ -13,6 +13,8 @@ Claude Code specifics:
 
 - Read and write `.visualyze/model.json` with your normal file tools. The
   Visualyze server only reads files under the project directory.
+- Unless the team already commits `.visualyze/`, add `/.visualyze/` to the file
+  `git rev-parse --git-path info/exclude` prints, so the model stays out of git.
 - Run `git rev-parse HEAD` to compare against `snapshot.source_revision`.
 - The tools are `get_capabilities`, `validate_model`, `publish_model`,
   `present_walkthrough`, `set_view`, `get_scene_state`, and `control_playback`.
