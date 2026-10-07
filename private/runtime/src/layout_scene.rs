@@ -715,6 +715,7 @@ pub(crate) struct LayoutScenePlugin;
 impl Plugin for LayoutScenePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Viewer>()
+            .init_resource::<crate::icons::IconAtlas>()
             .init_resource::<LayoutStorage>()
             .init_resource::<LayoutStatus>()
             .init_resource::<ViewerActions>()
@@ -3670,6 +3671,9 @@ fn poll(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut glasses: ResMut<Assets<GlassMaterial>>,
+    // Absent in headless scenes, which draw no icons.
+    mut images: Option<ResMut<Assets<Image>>>,
+    mut icons: Option<ResMut<crate::icons::IconAtlas>>,
     owned: Query<Entity, With<LayoutOwned>>,
     mut camera: Query<(&mut OrbitCamera, &mut Transform), With<Camera3d>>,
     mut text: Query<&mut Text, With<LayoutText>>,
@@ -4017,6 +4021,32 @@ fn poll(
                             Mesh3d(meshes.add(part.mesh())),
                             MeshMaterial3d(material.clone()),
                             Transform::from_translation(part.position),
+                            ChildOf(root),
+                        ));
+                    }
+                    if let (Some(images), Some(icons), Some(display)) =
+                        (images.as_deref_mut(), icons.as_deref_mut(), display)
+                        && let Some(icon) =
+                            crate::icons::icon_for(&display.technology, display.subtype.as_deref())
+                    {
+                        let side = crate::icons::decal_half(half) * 2.0;
+                        let inlay = crate::icons::tint(color);
+                        commands.spawn((
+                            Mesh3d(meshes.add(Plane3d::default().mesh().size(side, side))),
+                            MeshMaterial3d(materials.add(StandardMaterial {
+                                base_color: if dimmed {
+                                    inlay.with_alpha(DIMMED_ALPHA)
+                                } else {
+                                    inlay
+                                },
+                                base_color_texture: Some(icons.handle(icon, images)),
+                                unlit: true,
+                                alpha_mode: AlphaMode::Blend,
+                                depth_bias: 4.0,
+                                ..default()
+                            })),
+                            // Just proud of the top face, so it never fights the box.
+                            Transform::from_translation(Vec3::Y * (half.y + 0.004)),
                             ChildOf(root),
                         ));
                     }

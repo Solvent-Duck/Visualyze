@@ -1,6 +1,7 @@
 mod camera;
 mod composition;
 mod connections;
+mod icons;
 pub mod input;
 mod ipc;
 mod layout_geometry;
