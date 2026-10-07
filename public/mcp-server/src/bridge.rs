@@ -344,8 +344,8 @@ fn capabilities(running: bool) -> Value {
         "walkthrough_schema": visualyze_model::walkthrough::SCHEMA_VERSION,
         "model_file": ".visualyze/model.json",
         "entity_kinds": ["scope", "client", "service", "datastore", "interface", "concern", "deployment"],
-        "relation_kinds": ["contains", "exposes", "requests", "reads", "writes", "depends_on", "applies_to", "implemented_by", "deployed_in"],
-        "trace_relation_kinds": ["requests", "reads", "writes", "depends_on"],
+        "relation_kinds": ["contains", "exposes", "requests", "reads", "writes", "depends_on", "applies_to", "implemented_by", "deployed_in", "publishes", "subscribes"],
+        "trace_relation_kinds": ["requests", "reads", "writes", "depends_on", "publishes", "subscribes"],
         "camera_intents": ["overview", "frame_focus", "follow_trace", "close_up", "hold"],
         "limits": {
             "steps": 24,

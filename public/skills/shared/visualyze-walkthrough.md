@@ -28,6 +28,8 @@ The model states facts. Mark anything you deduced as `"basis": "inferred"` with 
 groupings to make a view smaller; readability advice tells you where a real
 subsystem might be missing.
 
+Model a message broker (Kafka, RabbitMQ, SQS) as a `service` with `subtype: "broker"`, never as a datastore. Each topic or queue you can name is an `interface` it exposes (`subtype: "topic"`), and producers and consumers use `publishes` and `subscribes`. Relate to the broker itself when you have not verified the topic.
+
 ## 2. Make sure the model can answer the question
 
 A walkthrough can only show what the model contains. Before explaining "our auth",

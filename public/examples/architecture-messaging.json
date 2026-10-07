@@ -1,0 +1,191 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "example-messaging",
+  "revision": 1,
+  "system_id": "scope:orders",
+  "snapshot": {
+    "id": "messaging-001",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Synthetic declaration of an order flow through a message broker: one publisher, three kinds of subscriber, and a topic interface.",
+    "omissions": [
+      "This is a synthetic example, not an inspected repository.",
+      "Message schemas, partitions and delivery guarantees are outside this draft."
+    ]
+  },
+  "entities": [
+    {
+      "id": "scope:orders",
+      "kind": "scope",
+      "label": "Order processing",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "system",
+      "description": "The logical application boundary."
+    },
+    {
+      "id": "service:checkout",
+      "kind": "service",
+      "label": "Checkout service",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "application",
+      "description": "Places orders and announces them."
+    },
+    {
+      "id": "service:broker",
+      "kind": "service",
+      "label": "Message broker",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "broker",
+      "description": "Carries order events between services.",
+      "technology": [
+        "Apache Kafka"
+      ]
+    },
+    {
+      "id": "interface:orders-topic",
+      "kind": "interface",
+      "label": "Orders topic",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "topic",
+      "description": "Order-placed events.",
+      "protocol": "kafka"
+    },
+    {
+      "id": "service:accounting",
+      "kind": "service",
+      "label": "Accounting worker",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "worker",
+      "description": "Records each order."
+    },
+    {
+      "id": "store:ledger",
+      "kind": "datastore",
+      "label": "Ledger",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "relational",
+      "description": "Accounting records.",
+      "technology": [
+        "PostgreSQL"
+      ]
+    },
+    {
+      "id": "store:analytics",
+      "kind": "datastore",
+      "label": "Analytics store",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "columnar",
+      "description": "Pulls order events for reporting.",
+      "technology": [
+        "ClickHouse"
+      ]
+    },
+    {
+      "id": "service:notifier",
+      "kind": "service",
+      "label": "Notifier",
+      "boundary": "internal",
+      "basis": "declared",
+      "subtype": "worker",
+      "description": "Reacts to anything the broker carries."
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:contains-checkout",
+      "kind": "contains",
+      "source": "scope:orders",
+      "target": "service:checkout",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:contains-broker",
+      "kind": "contains",
+      "source": "scope:orders",
+      "target": "service:broker",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:contains-accounting",
+      "kind": "contains",
+      "source": "scope:orders",
+      "target": "service:accounting",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:contains-ledger",
+      "kind": "contains",
+      "source": "scope:orders",
+      "target": "store:ledger",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:contains-analytics",
+      "kind": "contains",
+      "source": "scope:orders",
+      "target": "store:analytics",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:contains-notifier",
+      "kind": "contains",
+      "source": "scope:orders",
+      "target": "service:notifier",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:broker-exposes-orders",
+      "kind": "exposes",
+      "source": "service:broker",
+      "target": "interface:orders-topic",
+      "basis": "declared"
+    },
+    {
+      "id": "rel:checkout-publishes-orders",
+      "kind": "publishes",
+      "source": "service:checkout",
+      "target": "interface:orders-topic",
+      "basis": "declared",
+      "label": "order placed"
+    },
+    {
+      "id": "rel:accounting-subscribes-orders",
+      "kind": "subscribes",
+      "source": "service:accounting",
+      "target": "interface:orders-topic",
+      "basis": "declared",
+      "label": "order placed"
+    },
+    {
+      "id": "rel:analytics-subscribes-orders",
+      "kind": "subscribes",
+      "source": "store:analytics",
+      "target": "interface:orders-topic",
+      "basis": "declared",
+      "label": "Kafka engine table"
+    },
+    {
+      "id": "rel:notifier-subscribes-broker",
+      "kind": "subscribes",
+      "source": "service:notifier",
+      "target": "service:broker",
+      "basis": "declared",
+      "condition": "When any topic carries a customer-facing event."
+    },
+    {
+      "id": "rel:accounting-writes-ledger",
+      "kind": "writes",
+      "source": "service:accounting",
+      "target": "store:ledger",
+      "basis": "declared"
+    }
+  ],
+  "evidence": []
+}

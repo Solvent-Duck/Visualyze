@@ -1239,6 +1239,8 @@ fn architecture_relation_name(kind: RelationKind) -> &'static str {
         RelationKind::AppliesTo => "applies to",
         RelationKind::ImplementedBy => "implemented by",
         RelationKind::DeployedIn => "deployed in",
+        RelationKind::Publishes => "publishes",
+        RelationKind::Subscribes => "subscribes",
     }
 }
 

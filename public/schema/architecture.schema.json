@@ -326,7 +326,9 @@
             "depends_on",
             "applies_to",
             "implemented_by",
-            "deployed_in"
+            "deployed_in",
+            "publishes",
+            "subscribes"
           ]
         },
         "source": {
@@ -433,7 +435,9 @@
                   "writes",
                   "depends_on",
                   "implemented_by",
-                  "deployed_in"
+                  "deployed_in",
+                  "publishes",
+                  "subscribes"
                 ]
               }
             },
@@ -459,7 +463,9 @@
                   "writes",
                   "applies_to",
                   "implemented_by",
-                  "deployed_in"
+                  "deployed_in",
+                  "publishes",
+                  "subscribes"
                 ]
               }
             },

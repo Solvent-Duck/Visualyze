@@ -26,9 +26,9 @@ These are the seven contract kinds. The native simulator implements a standalone
 | --- | --- | --- | --- |
 | `scope` | A system, subsystem, or logical grouping | `system`, `subsystem`, `domain` | A grouping frame; no process or deployment claim |
 | `client` | A user-facing application | `web`, `mobile`, `desktop`, `cli` | An outer-facing component |
-| `service` | A meaningful compute responsibility | `application`, `gateway`, `worker`, `scheduler` | A compute block; subtype alone does not prove independent deployment |
-| `datastore` | A logical data storage resource | `relational`, `graph`, `document`, `key_value`, `object` | A storage assembly; relational and graph are the first specialized forms |
-| `interface` | An addressable boundary exposed by a component | `api`, `storage`, `user_interface` | An attachment or port on its owner, not a standalone service |
+| `service` | A meaningful compute responsibility | `application`, `gateway`, `worker`, `scheduler`, `broker` | A compute block; subtype alone does not prove independent deployment |
+| `datastore` | A logical data storage resource | `relational`, `graph`, `document`, `key_value`, `object`, `columnar`, `time_series`, `search`, `log` | A storage assembly; relational and graph are the first specialized forms |
+| `interface` | An addressable boundary exposed by a component | `api`, `storage`, `user_interface`, `topic`, `queue` | An attachment or port on its owner, not a standalone service |
 | `concern` | A responsibility that can span components | `authentication`, `authorization`, `service_identity`, `data_access_control`, `billing_entitlement`, `observability` | A pane or spine touching only explicitly covered objects |
 | `deployment` | An execution or hosting context | `environment`, `host`, `container`, `process`, `browser` | An optional deployment boundary, separate from logical grouping |
 
@@ -40,7 +40,7 @@ An external payment provider is a `service` with `boundary: "external"`. An exte
 
 `technology` is an optional array of display labels, such as `PostgreSQL`. It creates neither objects nor dependencies. Optional `protocol` is permitted only on interfaces; examples include `https`, `grpc`, `sql`, and `in_process`. It is a label, not a connection string or an executable endpoint.
 
-Queues and event buses need a later profile with `publishes` and `subscribes` semantics. Do not disguise asynchronous exchange as `requests`. People, packages, files, classes, functions, database tables, runtime instances, and payload transformations are also outside this architecture draft. Future versions can add them without asking the renderer to infer their meaning from arbitrary labels.
+Message brokers are services with subtype `broker`, and each topic or queue is an `interface` the broker exposes (subtype `topic` or `queue`, protocol such as `kafka`). Asynchronous exchange uses `publishes` and `subscribes`; do not disguise it as `requests`, and do not model a broker as a datastore. Message types, partitions, delivery guarantees and ordering stay outside this draft. People, packages, files, classes, functions, database tables, runtime instances, and payload transformations are also outside this architecture draft. Future versions can add them without asking the renderer to infer their meaning from arbitrary labels.
 
 ## 3. How links are created
 
@@ -75,6 +75,10 @@ Here, **component** means `client`, `service`, or `datastore`; **caller** means 
 | `applies_to` | `concern` → component or interface | The concern covers the target in the required `aspect` |
 | `implemented_by` | `concern` → component or interface | Target implements some or all of this concern |
 | `deployed_in` | component or `deployment` → `deployment` | Source executes or is hosted within the named context |
+| `publishes` | caller → service (a broker), or interface exposed by one | Source sends messages to the channel; no consumer, timing or delivery is implied |
+| `subscribes` | component → service (a broker), or interface exposed by one | Source receives messages from the channel, by polling or by delivery; the predicate points at the channel, not along the payload |
+
+`publishes` and `subscribes` follow the same convention: both point from the acting component to the channel. A subscriber's payload travels the other way, from channel to subscriber, and a walkthrough trace follows that travel. Any component may subscribe, so a datastore that pulls from a topic (for example a ClickHouse table fed by Kafka) is `subscribes`, not `depends_on`; only a client or service publishes. The target must resolve to a service; give it subtype `broker` so readers and tools can tell it carries messages. Targeting the broker directly states no topic; use the topic interface when the topic is known. `condition` is allowed on both.
 
 `reads` points **reader → store**, even though data returns in the opposite direction. Relationship direction expresses the predicate, not the travel direction of every byte. A future teaching animation must respect that difference.
 
@@ -144,6 +148,8 @@ Each entity and relation declares one basis:
 Entity evidence supports the entity record, not its relationships. A supported service can still have an inferred outgoing call. Uncertainty belongs to individual claims rather than being hidden in a model-wide confidence score.
 
 Evidence records contain `id`, `description`, and an optional `locator`. A locator is either a `source` location with a repository-relative `path` and optional positive `start_line`/`end_line`, or an opaque `reference` with a `value`. When both lines are present, end must be at least start; end requires start. Source locators refer to this snapshot's source revision. Cross-repository or differently versioned sources use opaque references for now.
+
+A `supported` claim should cite a `source` locator with `start_line` and `end_line`. Evidence that backs a supported claim but names only a file or an opaque reference is accepted with a `coarse_evidence` warning, so a reader can tell a located fact from a general pointer.
 
 References are display data. Validation resolves evidence IDs but does not open files, verify claims against source, fetch URLs, or execute anything. Reject absolute source paths, backslashes, empty path segments, `.`/`..` segments, and NULs. Labels, descriptions, technology, protocols, and opaque references are never instructions or automatically fetched resources. Source bodies, credentials, connection strings, and arbitrary assets are not fields in this contract.
 

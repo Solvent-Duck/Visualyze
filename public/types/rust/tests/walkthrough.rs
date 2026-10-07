@@ -129,3 +129,71 @@ fn rejects_oversized_and_duplicate_key_input() {
     let error = Walkthrough::from_json(duplicate.as_bytes(), &model).unwrap_err();
     assert_eq!(error.diagnostics[0].code, "invalid_json");
 }
+
+const MESSAGING_MODEL: &str = include_str!("../../../examples/architecture-messaging.json");
+const MESSAGING_WALKTHROUGH: &str =
+    include_str!("../../../examples/architecture-messaging.walkthrough.json");
+
+fn messaging_model(extra_topic: bool) -> Architecture {
+    let mut value: Value = serde_json::from_str(MESSAGING_MODEL).unwrap();
+    if extra_topic {
+        value["entities"]
+            .as_array_mut()
+            .unwrap()
+            .push(serde_json::json!({
+                "id": "interface:refunds-topic", "kind": "interface", "label": "Refunds topic",
+                "boundary": "internal", "subtype": "topic", "basis": "declared"
+            }));
+        value["relations"].as_array_mut().unwrap().extend([
+            serde_json::json!({"id": "rel:broker-exposes-refunds", "kind": "exposes",
+                "source": "service:broker", "target": "interface:refunds-topic", "basis": "declared"}),
+            serde_json::json!({"id": "rel:accounting-subscribes-refunds", "kind": "subscribes",
+                "source": "service:accounting", "target": "interface:refunds-topic", "basis": "declared"}),
+        ]);
+    }
+    Architecture::from_json(value.to_string().as_bytes()).unwrap()
+}
+
+#[test]
+fn a_subscription_travels_from_the_channel_to_the_subscriber() {
+    let walkthrough =
+        Walkthrough::from_json(MESSAGING_WALKTHROUGH.as_bytes(), &messaging_model(false)).unwrap();
+    let travel: Vec<_> = walkthrough.resolved()[1]
+        .hops
+        .iter()
+        .map(|h| (h.from.as_str(), h.to.as_str()))
+        .collect();
+    assert_eq!(
+        travel,
+        [
+            ("service:checkout", "interface:orders-topic"),
+            ("interface:orders-topic", "service:accounting"),
+            ("service:accounting", "store:ledger"),
+        ]
+    );
+    assert!(walkthrough.warnings().is_empty());
+}
+
+#[test]
+fn messaging_traces_reject_response_legs_and_topic_swaps() {
+    let model = messaging_model(true);
+    let mut value: Value = serde_json::from_str(MESSAGING_WALKTHROUGH).unwrap();
+    value["steps"][1]["trace"][0]["return"] = Value::from(true);
+    let error = Walkthrough::from_json(value.to_string().as_bytes(), &model).unwrap_err();
+    assert!(error.diagnostics.iter().any(|d| d.code == "invalid_return"));
+
+    // Publishing to one topic and being delivered from another is not a path.
+    let mut value: Value = serde_json::from_str(MESSAGING_WALKTHROUGH).unwrap();
+    value["steps"][1]["trace"][1]["relation"] = Value::from("rel:accounting-subscribes-refunds");
+    let error = Walkthrough::from_json(value.to_string().as_bytes(), &model).unwrap_err();
+    assert!(error.diagnostics.iter().any(|d| d.code == "trace_gap"));
+
+    // The same swap through the broker as a whole is not a distinct-channel claim.
+    let mut value: Value = serde_json::from_str(MESSAGING_WALKTHROUGH).unwrap();
+    value["steps"][1]["trace"][1]["relation"] = Value::from("rel:notifier-subscribes-broker");
+    value["steps"][1]["trace"]
+        .as_array_mut()
+        .unwrap()
+        .truncate(2);
+    assert!(Walkthrough::from_json(value.to_string().as_bytes(), &model).is_ok());
+}

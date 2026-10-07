@@ -89,6 +89,8 @@ pub fn is_flow(kind: RelationKind) -> bool {
             | RelationKind::Reads
             | RelationKind::Writes
             | RelationKind::DependsOn
+            | RelationKind::Publishes
+            | RelationKind::Subscribes
     )
 }
 
@@ -315,7 +317,7 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
                     "invalid_trace_relation",
                     path,
                     format!(
-                        "{} is {}; a trace only travels requests, reads, writes, and depends_on",
+                        "{} is {}; a trace only travels requests, reads, writes, depends_on, publishes, and subscribes",
                         hop.relation,
                         kind_name(kind)
                     ),
@@ -335,13 +337,18 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
                     ),
                 );
             }
-            let (from, to) = if hop.returning {
+            // A subscription points from subscriber to channel, but its payload travels the
+            // other way, so the forward leg of a trace leaves from the channel.
+            let (from, to) = if hop.returning != (kind == RelationKind::Subscribes) {
                 (target, source)
             } else {
                 (source, target)
             };
             if let Some(arrived) = previous
-                && own.place(arrived) != own.place(from)
+                && (own.place(arrived) != own.place(from)
+                    || (arrived != from
+                        && own.entity(arrived) == Some(EntityKind::Interface)
+                        && own.entity(from) == Some(EntityKind::Interface)))
             {
                 push(
                     &mut errors,
@@ -436,6 +443,8 @@ fn kind_name(kind: RelationKind) -> &'static str {
         RelationKind::AppliesTo => "applies_to",
         RelationKind::ImplementedBy => "implemented_by",
         RelationKind::DeployedIn => "deployed_in",
+        RelationKind::Publishes => "publishes",
+        RelationKind::Subscribes => "subscribes",
     }
 }
 

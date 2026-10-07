@@ -18,7 +18,7 @@ These are experimental Phase 0 fixture types and remain separate from the propos
 
 ## Draft architecture contract
 
-The proposed `0.1.0-draft.1` format is a typed graph with seven entity kinds and nine relation kinds. The agent supplies semantics; the renderer owns construction and positioning.
+The proposed `0.1.0-draft.1` format is a typed graph with seven entity kinds and eleven relation kinds. The agent supplies semantics; the renderer owns construction and positioning.
 
 - [Format and graph rules](schema/architecture-format.md)
 - [JSON Schema](schema/architecture.schema.json)

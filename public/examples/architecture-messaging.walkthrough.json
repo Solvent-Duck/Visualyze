@@ -1,0 +1,28 @@
+{
+  "schema_version": "walkthrough.0.1.0-draft.1",
+  "id": "walk:order-event",
+  "model_id": "example-messaging",
+  "expected_revision": 1,
+  "title": "How an order becomes an event",
+  "steps": [
+    {
+      "id": "overview",
+      "title": "Order processing",
+      "focus": ["scope:orders"],
+      "context": "show",
+      "camera": "overview"
+    },
+    {
+      "id": "event",
+      "title": "Checkout announces the order",
+      "focus": ["service:checkout", "service:broker", "service:accounting", "store:ledger"],
+      "trace": [
+        { "relation": "rel:checkout-publishes-orders" },
+        { "relation": "rel:accounting-subscribes-orders" },
+        { "relation": "rel:accounting-writes-ledger" }
+      ],
+      "labels": [{ "target": "interface:orders-topic", "text": "Order placed" }],
+      "camera": "follow_trace"
+    }
+  ]
+}

@@ -133,6 +133,8 @@ pub enum RelationKind {
     AppliesTo,
     ImplementedBy,
     DeployedIn,
+    Publishes,
+    Subscribes,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
