@@ -208,6 +208,8 @@ fn name(kind: RelationKind) -> &'static str {
         RelationKind::DeployedIn => "deployed in",
         RelationKind::Contains => "contains",
         RelationKind::Exposes => "exposes",
+        RelationKind::Publishes => "publishes",
+        RelationKind::Subscribes => "subscribes",
     }
 }
 
@@ -217,6 +219,7 @@ pub(crate) fn color(kind: RelationKind) -> Color {
         RelationKind::Reads => [66, 180, 172],
         RelationKind::Writes => [209, 162, 97],
         RelationKind::AppliesTo => [183, 139, 212],
+        RelationKind::Publishes | RelationKind::Subscribes => [214, 121, 152],
         _ => [125, 144, 164],
     };
     Color::srgb_u8(r, g, b)
@@ -1152,6 +1155,31 @@ mod tests {
         assert_eq!(
             materials.get(&handles[1].1).unwrap().base_color,
             color(RelationKind::DependsOn)
+        );
+    }
+
+    #[test]
+    fn messaging_relations_are_runtime_arrows_with_their_own_colour() {
+        for kind in [RelationKind::Publishes, RelationKind::Subscribes] {
+            assert!(!is_logical(kind), "{} must draw as an arrow", name(kind));
+            for other in [
+                RelationKind::Requests,
+                RelationKind::Reads,
+                RelationKind::Writes,
+                RelationKind::AppliesTo,
+                RelationKind::DependsOn,
+            ] {
+                assert_ne!(
+                    color(kind),
+                    color(other),
+                    "{} shares a legend colour",
+                    name(kind)
+                );
+            }
+        }
+        assert_eq!(
+            color(RelationKind::Publishes),
+            color(RelationKind::Subscribes)
         );
     }
 

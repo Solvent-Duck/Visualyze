@@ -26,9 +26,9 @@ These are the seven contract kinds. The native simulator implements a standalone
 | --- | --- | --- | --- |
 | `scope` | A system, subsystem, or logical grouping | `system`, `subsystem`, `domain` | A grouping frame; no process or deployment claim |
 | `client` | A user-facing application | `web`, `mobile`, `desktop`, `cli` | An outer-facing component |
-| `service` | A meaningful compute responsibility | `application`, `gateway`, `worker`, `scheduler` | A compute block; subtype alone does not prove independent deployment |
-| `datastore` | A logical data storage resource | `relational`, `graph`, `document`, `key_value`, `object` | A storage assembly; relational and graph are the first specialized forms |
-| `interface` | An addressable boundary exposed by a component | `api`, `storage`, `user_interface` | An attachment or port on its owner, not a standalone service |
+| `service` | A meaningful compute responsibility | `application`, `gateway`, `worker`, `scheduler`, `broker` | A compute block; subtype alone does not prove independent deployment |
+| `datastore` | A logical data storage resource | `relational`, `graph`, `document`, `key_value`, `object`, `columnar`, `time_series`, `search`, `log` | A storage assembly; relational and graph are the first specialized forms |
+| `interface` | An addressable boundary exposed by a component | `api`, `storage`, `user_interface`, `topic`, `queue` | An attachment or port on its owner, not a standalone service |
 | `concern` | A responsibility that can span components | `authentication`, `authorization`, `service_identity`, `data_access_control`, `billing_entitlement`, `observability` | A pane or spine touching only explicitly covered objects |
 | `deployment` | An execution or hosting context | `environment`, `host`, `container`, `process`, `browser` | An optional deployment boundary, separate from logical grouping |
 
@@ -40,7 +40,7 @@ An external payment provider is a `service` with `boundary: "external"`. An exte
 
 `technology` is an optional array of display labels, such as `PostgreSQL`. It creates neither objects nor dependencies. Optional `protocol` is permitted only on interfaces; examples include `https`, `grpc`, `sql`, and `in_process`. It is a label, not a connection string or an executable endpoint.
 
-Queues and event buses need a later profile with `publishes` and `subscribes` semantics. Do not disguise asynchronous exchange as `requests`. People, packages, files, classes, functions, database tables, runtime instances, and payload transformations are also outside this architecture draft. Future versions can add them without asking the renderer to infer their meaning from arbitrary labels.
+Message brokers are services with subtype `broker`, and each topic or queue is an `interface` the broker exposes (subtype `topic` or `queue`, protocol such as `kafka`). Asynchronous exchange uses `publishes` and `subscribes`; do not disguise it as `requests`, and do not model a broker as a datastore. Message types, partitions, delivery guarantees and ordering stay outside this draft. People, packages, files, classes, functions, database tables, runtime instances, and payload transformations are also outside this architecture draft. Future versions can add them without asking the renderer to infer their meaning from arbitrary labels.
 
 ## 3. How links are created
 
@@ -75,6 +75,10 @@ Here, **component** means `client`, `service`, or `datastore`; **caller** means 
 | `applies_to` | `concern` → component or interface | The concern covers the target in the required `aspect` |
 | `implemented_by` | `concern` → component or interface | Target implements some or all of this concern |
 | `deployed_in` | component or `deployment` → `deployment` | Source executes or is hosted within the named context |
+| `publishes` | caller → service (a broker), or interface exposed by one | Source sends messages to the channel; no consumer, timing or delivery is implied |
+| `subscribes` | component → service (a broker), or interface exposed by one | Source receives messages from the channel, by polling or by delivery; the predicate points at the channel, not along the payload |
+
+`publishes` and `subscribes` follow the same convention: both point from the acting component to the channel. A subscriber's payload travels the other way, from channel to subscriber, and a walkthrough trace follows that travel. Any component may subscribe, so a datastore that pulls from a topic (for example a ClickHouse table fed by Kafka) is `subscribes`, not `depends_on`; only a client or service publishes. The target must resolve to a service; give it subtype `broker` so readers and tools can tell it carries messages. Targeting the broker directly states no topic; use the topic interface when the topic is known. `condition` is allowed on both.
 
 `reads` points **reader → store**, even though data returns in the opposite direction. Relationship direction expresses the predicate, not the travel direction of every byte. A future teaching animation must respect that difference.
 
@@ -128,6 +132,8 @@ Publication is atomic replacement of a full snapshot, including when its extract
 
 The later publication command should carry `expected_revision` outside the model: `null` for creation, otherwise the revision being replaced. The receiver atomically rejects stale replacements and requires the new revision to be the prior revision plus one. An exact retry of the same snapshot and request is idempotent; reusing a snapshot ID with different contents is an error. Loading a saved historical snapshot is a separate read operation, not a new publication. These are command requirements, not implemented APIs.
 
+**Amended by [ADR 0008](../../docs/decisions/0008-agent-walkthroughs.md).** `publish_model` implements this command with one change. Models are shared through git, where a pull can skip revisions, so the new revision must be strictly greater than the accepted one rather than exactly one more. A supplied `expected_revision` must still equal the accepted revision. Republishing the same revision with different content is rejected as `revision_reused`.
+
 ## 6. Evidence and uncertainty
 
 Each entity and relation declares one basis:
@@ -142,6 +148,8 @@ Each entity and relation declares one basis:
 Entity evidence supports the entity record, not its relationships. A supported service can still have an inferred outgoing call. Uncertainty belongs to individual claims rather than being hidden in a model-wide confidence score.
 
 Evidence records contain `id`, `description`, and an optional `locator`. A locator is either a `source` location with a repository-relative `path` and optional positive `start_line`/`end_line`, or an opaque `reference` with a `value`. When both lines are present, end must be at least start; end requires start. Source locators refer to this snapshot's source revision. Cross-repository or differently versioned sources use opaque references for now.
+
+A `supported` claim should cite a `source` locator with `start_line` and `end_line`. Evidence that backs a supported claim but names only a file or an opaque reference is accepted with a `coarse_evidence` warning, so a reader can tell a located fact from a general pointer.
 
 References are display data. Validation resolves evidence IDs but does not open files, verify claims against source, fetch URLs, or execute anything. Reject absolute source paths, backslashes, empty path segments, `.`/`..` segments, and NULs. Labels, descriptions, technology, protocols, and opaque references are never instructions or automatically fetched resources. Source bodies, credentials, connection strings, and arbitrary assets are not fields in this contract.
 
@@ -178,7 +186,7 @@ Validation runs before replacing any current model:
 4. Check negotiated runtime capabilities. Unsupported required entity/relation kinds reject the snapshot; an unrecognized descriptive subtype or role can use a generic form with a warning. Never silently drop a relationship whose meaning is unsupported.
 5. Apply the whole validated snapshot atomically; retain the last valid scene on failure.
 
-Two distinct relations with the same predicate, endpoints, aspect, condition, and dependency qualifiers should produce a duplicate-claim warning. Multiple predicates between the same endpoints are valid. Empty logical scopes, unplaced deployments, generic subtype fallbacks, or absent runtime links are not evidence that the extraction failed.
+Two distinct relations with the same predicate, endpoints, aspect, condition, and dependency qualifiers should produce a duplicate-claim warning. Multiple predicates between the same endpoints are valid. Empty logical scopes, unplaced deployments, generic subtype fallbacks, or absent runtime links are not evidence that the extraction failed. Still, in a model that draws flows, a client, service, datastore, or interface that takes part in none (no `requests`, `reads`, `writes`, `depends_on`, `publishes`, or `subscribes`) produces an `unconnected_entity` warning, because it usually marks a path that was never connected. Models with no flow relations at all, such as the object gallery, are exempt.
 
 Initial limits: 2 MiB UTF-8 payload, JSON nesting depth 16 (root object is depth 1), 512 entities, 4,096 relations, 4,096 evidence records, 32 evidence IDs per claim, 120-character labels, and 2,000-character descriptions/rationales/conditions. All other field limits are in the schema. These are defensive draft budgets, not a claim that 512 objects are readable simultaneously. Capability discovery may advertise stricter limits.
 

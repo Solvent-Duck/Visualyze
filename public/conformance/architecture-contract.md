@@ -1,6 +1,6 @@
 # Draft architecture contract conformance
 
-Target: `0.1.0-draft.1`. Single-snapshot Rust validation is implemented. [architecture-cases.json](architecture-cases.json) contains 76 shared mutation cases executed by `cargo test -p visualyze-model --locked`. Each case starts with a named synthetic fixture and applies JSON Patch `add`/`remove` operations; `expected_error: null` means acceptance. Other values identify an expected diagnostic code. Additional Rust tests cover resource limits and raw JSON parsing. TypeScript parity and the interpretation/publication cases below remain future work.
+Target: `0.1.0-draft.1`. Single-snapshot Rust validation is implemented. [architecture-cases.json](architecture-cases.json) contains 86 shared mutation cases executed by `cargo test -p visualyze-model --locked`. Each case starts with a named synthetic fixture and applies JSON Patch `add`/`remove` operations; `expected_error: null` means acceptance. Other values identify an expected diagnostic code. Additional Rust tests cover resource limits and raw JSON parsing. TypeScript parity and the interpretation/publication cases below remain future work.
 
 The [JSON Schema](../schema/architecture.schema.json) enforces record shape. The [format document](../schema/architecture-format.md) defines graph and publication rules. Both layers are required before accepting a model.
 
@@ -9,9 +9,11 @@ The [JSON Schema](../schema/architecture.schema.json) enforces record shape. The
 - [objects.json](../examples/objects.json): exactly seven entities, one per kind, with only required logical containment and interface ownership. Default simulator input.
 
 - [architecture-minimal.json](../examples/architecture-minimal.json): root system, one declared datastore, one containment link.
-- [architecture.json](../examples/architecture.json): all seven entity kinds and all nine relation kinds, interface ownership, independent storage read/write claims, explicit concern coverage, an external service, and deployment nesting.
+- [architecture.json](../examples/architecture.json): all seven entity kinds and the nine original relation kinds, interface ownership, independent storage read/write claims, explicit concern coverage, an external service, and deployment nesting.
 
-Both are synthetic declarations. Neither asserts that a real repository was inspected. The older `database.json` remains the separate Phase 0 renderer fixture and is intentionally not valid under this draft envelope.
+- [architecture-messaging.json](../examples/architecture-messaging.json): a broker service with a topic interface, a publisher, subscribers including a datastore, and a direct broker subscription. Its [walkthrough](../examples/architecture-messaging.walkthrough.json) traces publish, subscribe and a follow-on write.
+
+All are synthetic declarations. None asserts that a real repository was inspected. The older `database.json` remains the separate Phase 0 renderer fixture and is intentionally not valid under this draft envelope.
 
 ## Schema cases
 
@@ -58,6 +60,10 @@ Both are synthetic declarations. Neither asserts that a real repository was insp
 | Service has placements in staging and production | Accept; no replica or cross-environment traffic inference |
 | Two distinct services request/depend on each other | Accept; dependency cycles are legal |
 | Direct self-relation | Reject in this draft |
+| Client or service publishes to a topic interface or broker; any component subscribes | Accept |
+| Datastore publishes; publish or subscribe targets a datastore, a scope, or an interface owned by a datastore | Reject endpoint kinds |
+| `aspect` or dependency qualifiers on publishes/subscribes | Reject |
+| Supported claim cited by evidence with no line range | Accept; warn `coarse_evidence` |
 | Read and write between the same endpoints | Accept as separate claims |
 | Repeated identical predicate/endpoints/qualifiers | Warn about duplicate claim |
 | Source path is absolute, traverses `..`, or has forbidden segments | Reject |

@@ -1,0 +1,2128 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "example-otel-demo",
+  "revision": 1,
+  "system_id": "scope:otel-demo",
+  "snapshot": {
+    "id": "otel-demo-001",
+    "source_revision": "7ea09b865a9b9d411b59459b15133d84f8c2784a",
+    "coverage": "partial",
+    "scope_description": "Default deployment of the OpenTelemetry Astronomy Shop: core, full (Kafka), observability and agent compose layers.",
+    "omissions": [
+      "Android/React Native app, profiling and extras compose layers, and test containers are not modeled.",
+      "Per-service interfaces and the observability concern are omitted to keep the view readable.",
+      "Only the orders topic is modeled; the collector's Kafka metrics scrape is a plain request to the broker."
+    ]
+  },
+  "entities": [
+    {
+      "id": "client:browser",
+      "kind": "client",
+      "label": "Shopper's browser",
+      "boundary": "external",
+      "basis": "supported",
+      "subtype": "web",
+      "description": "Real or simulated user of the storefront.",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "interface:orders-topic",
+      "kind": "interface",
+      "label": "orders topic",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Order events from checkout.",
+      "evidence_ids": [
+        "evidence:compose-full",
+        "evidence:checkout-topic"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "scope:ai-assistant",
+      "kind": "scope",
+      "label": "AI assistant",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "subsystem",
+      "description": "LLM-powered shopping assistant; the compose.agent.yaml layer.",
+      "evidence_ids": [
+        "evidence:compose-agent"
+      ]
+    },
+    {
+      "id": "scope:edge",
+      "kind": "scope",
+      "label": "Storefront edge",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Public entry: Envoy proxy, the web frontend, static images and the synthetic load generator.",
+      "rationale": "The repository does not name this group; these four components are what a browser or the load generator touches first."
+    },
+    {
+      "id": "scope:feature-flags",
+      "kind": "scope",
+      "label": "Feature flags",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "flagd and its editor; services read flags to inject failures.",
+      "rationale": "Grouping of flagd and flagd-ui."
+    },
+    {
+      "id": "scope:order-events",
+      "kind": "scope",
+      "label": "Order events",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "subsystem",
+      "description": "Kafka-backed post-order processing; the compose.full.yaml layer.",
+      "evidence_ids": [
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "scope:otel-demo",
+      "kind": "scope",
+      "label": "OpenTelemetry Astronomy Shop",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "system",
+      "description": "Polyglot microservice e-commerce demo that exists to produce realistic OpenTelemetry traces, metrics and logs.",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "scope:shop",
+      "kind": "scope",
+      "label": "Shop services",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Domain microservices behind the frontend, called over gRPC or HTTP.",
+      "rationale": "Grouped by role: the domain services in compose.yaml that implement shop behaviour. The repository does not name the group."
+    },
+    {
+      "id": "scope:shop-data",
+      "kind": "scope",
+      "label": "Shop data",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Stores for the catalog and for carts.",
+      "rationale": "Grouping of the two data stores in compose.yaml."
+    },
+    {
+      "id": "scope:telemetry",
+      "kind": "scope",
+      "label": "Telemetry pipeline",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Collector, trace/metric/log backends, dashboards and telemetry docs.",
+      "rationale": "Collector is in compose.yaml and the backends in compose.observability.yaml; combined here because they form one pipeline."
+    },
+    {
+      "id": "service:accounting",
+      "kind": "service",
+      "label": "Accounting service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes order events and records them.",
+      "technology": [
+        ".NET"
+      ],
+      "evidence_ids": [
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "service:ad",
+      "kind": "service",
+      "label": "Ad service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Returns contextual ads.",
+      "technology": [
+        "Java"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:agent",
+      "kind": "service",
+      "label": "Agent service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "LangGraph ReAct agent that answers prompts with shop tools.",
+      "technology": [
+        "Python",
+        "FastAPI"
+      ],
+      "evidence_ids": [
+        "evidence:compose-agent",
+        "evidence:agent-readme"
+      ]
+    },
+    {
+      "id": "service:cart",
+      "kind": "service",
+      "label": "Cart service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Stores shopping carts.",
+      "technology": [
+        ".NET"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:chatbot",
+      "kind": "service",
+      "label": "Chatbot UI",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Browser chat interface.",
+      "technology": [
+        "Python",
+        "Gradio"
+      ],
+      "evidence_ids": [
+        "evidence:compose-agent"
+      ]
+    },
+    {
+      "id": "service:checkout",
+      "kind": "service",
+      "label": "Checkout service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Orchestrates placing an order.",
+      "technology": [
+        "Go"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:currency",
+      "kind": "service",
+      "label": "Currency service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Converts prices between currencies.",
+      "technology": [
+        "C++"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:email",
+      "kind": "service",
+      "label": "Email service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Sends order confirmation emails.",
+      "technology": [
+        "Ruby"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:flagd",
+      "kind": "service",
+      "label": "flagd",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Serves feature flags over OpenFeature.",
+      "technology": [
+        "flagd"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:flagd-ui",
+      "kind": "service",
+      "label": "Flag editor",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Web UI that edits the flag file flagd serves.",
+      "technology": [
+        "Elixir",
+        "Phoenix"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:fraud-detection",
+      "kind": "service",
+      "label": "Fraud detection",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes order events and flags fraud.",
+      "technology": [
+        "Kotlin"
+      ],
+      "evidence_ids": [
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "service:frontend",
+      "kind": "service",
+      "label": "Frontend",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Renders the storefront and calls every backend service over gRPC.",
+      "technology": [
+        "Next.js"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:frontend-proxy",
+      "kind": "service",
+      "label": "Frontend proxy",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "gateway",
+      "description": "Single public entry point; routes paths to the frontend, tools UIs and the collector.",
+      "technology": [
+        "Envoy"
+      ],
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "service:grafana",
+      "kind": "service",
+      "label": "Grafana",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Dashboards over metrics, traces and logs.",
+      "technology": [
+        "Grafana"
+      ],
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "service:image-provider",
+      "kind": "service",
+      "label": "Image provider",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Serves product images.",
+      "technology": [
+        "nginx"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:jaeger",
+      "kind": "service",
+      "label": "Jaeger",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Trace storage and UI.",
+      "technology": [
+        "Jaeger"
+      ],
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "service:kafka",
+      "kind": "service",
+      "label": "Kafka",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "broker",
+      "description": "Message broker carrying order events.",
+      "technology": [
+        "Apache Kafka"
+      ],
+      "evidence_ids": [
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "service:llm",
+      "kind": "service",
+      "label": "LLM provider",
+      "boundary": "external",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "OpenAI-compatible model endpoint configured through LLM_BASE_URL.",
+      "technology": [
+        "OpenAI"
+      ],
+      "evidence_ids": [
+        "evidence:compose-agent"
+      ]
+    },
+    {
+      "id": "service:load-generator",
+      "kind": "service",
+      "label": "Load generator",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Simulates shoppers against the frontend proxy.",
+      "technology": [
+        "Python",
+        "Locust"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:mcp",
+      "kind": "service",
+      "label": "MCP server",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Exposes shop operations as MCP tools.",
+      "technology": [
+        "Python",
+        "MCP"
+      ],
+      "evidence_ids": [
+        "evidence:compose-agent",
+        "evidence:mcp-readme"
+      ]
+    },
+    {
+      "id": "service:opamp-server",
+      "kind": "service",
+      "label": "OpAMP server",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Remote management endpoint for the collector.",
+      "technology": [
+        "Go"
+      ],
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "service:otel-collector",
+      "kind": "service",
+      "label": "OpenTelemetry Collector",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "gateway",
+      "description": "Receives OTLP from every service, scrapes infrastructure, and exports to backends.",
+      "technology": [
+        "OpenTelemetry"
+      ],
+      "evidence_ids": [
+        "evidence:collector-config"
+      ]
+    },
+    {
+      "id": "service:payment",
+      "kind": "service",
+      "label": "Payment service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Charges a credit card.",
+      "technology": [
+        "Node.js"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:product-catalog",
+      "kind": "service",
+      "label": "Product catalog",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Lists and looks up products.",
+      "technology": [
+        "Go"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:quote",
+      "kind": "service",
+      "label": "Quote service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Computes shipping cost.",
+      "technology": [
+        "PHP"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:recommendation",
+      "kind": "service",
+      "label": "Recommendation service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Recommends products.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:shipping",
+      "kind": "service",
+      "label": "Shipping service",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Quotes and tracks shipments.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:telemetry-docs",
+      "kind": "service",
+      "label": "Telemetry docs",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Generated reference for the demo's custom telemetry.",
+      "technology": [
+        "Weaver"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "store:astronomy-db",
+      "kind": "datastore",
+      "label": "Product database",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "relational",
+      "description": "Products and accounting data.",
+      "technology": [
+        "PostgreSQL"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "store:opensearch",
+      "kind": "datastore",
+      "label": "OpenSearch",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "search",
+      "description": "Log store.",
+      "technology": [
+        "OpenSearch"
+      ],
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "store:prometheus",
+      "kind": "datastore",
+      "label": "Prometheus",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "time_series",
+      "description": "Metrics store.",
+      "technology": [
+        "Prometheus"
+      ],
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "store:valkey-cart",
+      "kind": "datastore",
+      "label": "Cart cache",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "key_value",
+      "description": "Per-user carts.",
+      "roles": [
+        "cache"
+      ],
+      "technology": [
+        "Valkey"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:contains-ai-assistant--agent",
+      "kind": "contains",
+      "source": "scope:ai-assistant",
+      "target": "service:agent",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-agent",
+        "evidence:agent-readme"
+      ]
+    },
+    {
+      "id": "rel:contains-ai-assistant--chatbot",
+      "kind": "contains",
+      "source": "scope:ai-assistant",
+      "target": "service:chatbot",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-agent"
+      ]
+    },
+    {
+      "id": "rel:contains-ai-assistant--mcp",
+      "kind": "contains",
+      "source": "scope:ai-assistant",
+      "target": "service:mcp",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-agent",
+        "evidence:mcp-readme"
+      ]
+    },
+    {
+      "id": "rel:contains-edge--frontend",
+      "kind": "contains",
+      "source": "scope:edge",
+      "target": "service:frontend",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-edge--frontend-proxy",
+      "kind": "contains",
+      "source": "scope:edge",
+      "target": "service:frontend-proxy",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:contains-edge--image-provider",
+      "kind": "contains",
+      "source": "scope:edge",
+      "target": "service:image-provider",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-edge--load-generator",
+      "kind": "contains",
+      "source": "scope:edge",
+      "target": "service:load-generator",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-feature-flags--flagd",
+      "kind": "contains",
+      "source": "scope:feature-flags",
+      "target": "service:flagd",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-feature-flags--flagd-ui",
+      "kind": "contains",
+      "source": "scope:feature-flags",
+      "target": "service:flagd-ui",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-order-events--accounting",
+      "kind": "contains",
+      "source": "scope:order-events",
+      "target": "service:accounting",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "rel:contains-order-events--fraud-detection",
+      "kind": "contains",
+      "source": "scope:order-events",
+      "target": "service:fraud-detection",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "rel:contains-order-events--kafka",
+      "kind": "contains",
+      "source": "scope:order-events",
+      "target": "service:kafka",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "rel:contains-otel-demo--ai-assistant",
+      "kind": "contains",
+      "source": "scope:otel-demo",
+      "target": "scope:ai-assistant",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-agent"
+      ]
+    },
+    {
+      "id": "rel:contains-otel-demo--edge",
+      "kind": "contains",
+      "source": "scope:otel-demo",
+      "target": "scope:edge",
+      "basis": "inferred",
+      "rationale": "The repository does not name this group; these four components are what a browser or the load generator touches first."
+    },
+    {
+      "id": "rel:contains-otel-demo--feature-flags",
+      "kind": "contains",
+      "source": "scope:otel-demo",
+      "target": "scope:feature-flags",
+      "basis": "inferred",
+      "rationale": "Grouping of flagd and flagd-ui."
+    },
+    {
+      "id": "rel:contains-otel-demo--order-events",
+      "kind": "contains",
+      "source": "scope:otel-demo",
+      "target": "scope:order-events",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "rel:contains-otel-demo--shop",
+      "kind": "contains",
+      "source": "scope:otel-demo",
+      "target": "scope:shop",
+      "basis": "inferred",
+      "rationale": "Grouped by role: the domain services in compose.yaml that implement shop behaviour. The repository does not name the group."
+    },
+    {
+      "id": "rel:contains-otel-demo--shop-data",
+      "kind": "contains",
+      "source": "scope:otel-demo",
+      "target": "scope:shop-data",
+      "basis": "inferred",
+      "rationale": "Grouping of the two data stores in compose.yaml."
+    },
+    {
+      "id": "rel:contains-otel-demo--telemetry",
+      "kind": "contains",
+      "source": "scope:otel-demo",
+      "target": "scope:telemetry",
+      "basis": "inferred",
+      "rationale": "Collector is in compose.yaml and the backends in compose.observability.yaml; combined here because they form one pipeline."
+    },
+    {
+      "id": "rel:contains-shop--ad",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:ad",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop--cart",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:cart",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop--checkout",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:checkout",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop--currency",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:currency",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop--email",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:email",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop--payment",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:payment",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop--product-catalog",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:product-catalog",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop--quote",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:quote",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop--recommendation",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:recommendation",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop--shipping",
+      "kind": "contains",
+      "source": "scope:shop",
+      "target": "service:shipping",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop-data--astronomy-db",
+      "kind": "contains",
+      "source": "scope:shop-data",
+      "target": "store:astronomy-db",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-shop-data--valkey-cart",
+      "kind": "contains",
+      "source": "scope:shop-data",
+      "target": "store:valkey-cart",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-telemetry--grafana",
+      "kind": "contains",
+      "source": "scope:telemetry",
+      "target": "service:grafana",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "rel:contains-telemetry--jaeger",
+      "kind": "contains",
+      "source": "scope:telemetry",
+      "target": "service:jaeger",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "rel:contains-telemetry--opamp-server",
+      "kind": "contains",
+      "source": "scope:telemetry",
+      "target": "service:opamp-server",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "rel:contains-telemetry--opensearch",
+      "kind": "contains",
+      "source": "scope:telemetry",
+      "target": "store:opensearch",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "rel:contains-telemetry--otel-collector",
+      "kind": "contains",
+      "source": "scope:telemetry",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:collector-config"
+      ]
+    },
+    {
+      "id": "rel:contains-telemetry--prometheus",
+      "kind": "contains",
+      "source": "scope:telemetry",
+      "target": "store:prometheus",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-obs"
+      ]
+    },
+    {
+      "id": "rel:contains-telemetry--telemetry-docs",
+      "kind": "contains",
+      "source": "scope:telemetry",
+      "target": "service:telemetry-docs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:depends-on-flagd-ui--flagd",
+      "kind": "depends_on",
+      "source": "service:flagd-ui",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "shared flag file",
+      "dependency_phase": "startup",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--orders-topic",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:orders-topic",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose-full",
+        "evidence:checkout-topic"
+      ]
+    },
+    {
+      "id": "rel:publishes-checkout--orders-topic",
+      "kind": "publishes",
+      "source": "service:checkout",
+      "target": "interface:orders-topic",
+      "basis": "supported",
+      "label": "order placed",
+      "condition": "When KAFKA_ADDR is set.",
+      "evidence_ids": [
+        "evidence:checkout",
+        "evidence:checkout-topic"
+      ]
+    },
+    {
+      "id": "rel:reads-cart--valkey-cart",
+      "kind": "reads",
+      "source": "service:cart",
+      "target": "store:valkey-cart",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:cart"
+      ]
+    },
+    {
+      "id": "rel:reads-grafana--opensearch",
+      "kind": "reads",
+      "source": "service:grafana",
+      "target": "store:opensearch",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:grafana-ds"
+      ]
+    },
+    {
+      "id": "rel:reads-grafana--prometheus",
+      "kind": "reads",
+      "source": "service:grafana",
+      "target": "store:prometheus",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:grafana-ds"
+      ]
+    },
+    {
+      "id": "rel:reads-otel-collector--astronomy-db",
+      "kind": "reads",
+      "source": "service:otel-collector",
+      "target": "store:astronomy-db",
+      "basis": "supported",
+      "label": "postgres metrics",
+      "evidence_ids": [
+        "evidence:collector-config"
+      ]
+    },
+    {
+      "id": "rel:reads-otel-collector--valkey-cart",
+      "kind": "reads",
+      "source": "service:otel-collector",
+      "target": "store:valkey-cart",
+      "basis": "supported",
+      "label": "redis metrics",
+      "evidence_ids": [
+        "evidence:collector-config"
+      ]
+    },
+    {
+      "id": "rel:reads-product-catalog--astronomy-db",
+      "kind": "reads",
+      "source": "service:product-catalog",
+      "target": "store:astronomy-db",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-accounting--otel-collector",
+      "kind": "requests",
+      "source": "service:accounting",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose",
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "rel:requests-ad--flagd",
+      "kind": "requests",
+      "source": "service:ad",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-ad--otel-collector",
+      "kind": "requests",
+      "source": "service:ad",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-agent--flagd",
+      "kind": "requests",
+      "source": "service:agent",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose-agent"
+      ]
+    },
+    {
+      "id": "rel:requests-agent--frontend",
+      "kind": "requests",
+      "source": "service:agent",
+      "target": "service:frontend",
+      "basis": "inferred",
+      "label": "HTTP API",
+      "condition": "When the built-in shop tools are used instead of MCP.",
+      "rationale": "compose.agent.yaml gives the agent APPLICATION_ENDPOINT; the agent README says it has built-in shop tools."
+    },
+    {
+      "id": "rel:requests-agent--llm",
+      "kind": "requests",
+      "source": "service:agent",
+      "target": "service:llm",
+      "basis": "supported",
+      "label": "LLM calls",
+      "evidence_ids": [
+        "evidence:compose-agent"
+      ]
+    },
+    {
+      "id": "rel:requests-agent--mcp",
+      "kind": "requests",
+      "source": "service:agent",
+      "target": "service:mcp",
+      "basis": "supported",
+      "label": "MCP tools",
+      "condition": "When MCP_ENABLED is set.",
+      "evidence_ids": [
+        "evidence:agent-readme"
+      ]
+    },
+    {
+      "id": "rel:requests-agent--otel-collector",
+      "kind": "requests",
+      "source": "service:agent",
+      "target": "service:otel-collector",
+      "basis": "inferred",
+      "label": "OTLP",
+      "rationale": "Both use the Traceloop SDK with OTLP export, but the compose file does not set the collector endpoint explicitly."
+    },
+    {
+      "id": "rel:requests-browser--frontend-proxy",
+      "kind": "requests",
+      "source": "client:browser",
+      "target": "service:frontend-proxy",
+      "basis": "supported",
+      "label": "HTTP",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-cart--flagd",
+      "kind": "requests",
+      "source": "service:cart",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-cart--otel-collector",
+      "kind": "requests",
+      "source": "service:cart",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-chatbot--agent",
+      "kind": "requests",
+      "source": "service:chatbot",
+      "target": "service:agent",
+      "basis": "supported",
+      "label": "POST /prompt",
+      "evidence_ids": [
+        "evidence:chatbot-readme"
+      ]
+    },
+    {
+      "id": "rel:requests-chatbot--otel-collector",
+      "kind": "requests",
+      "source": "service:chatbot",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-checkout--cart",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:cart",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:checkout"
+      ]
+    },
+    {
+      "id": "rel:requests-checkout--currency",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:currency",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:checkout"
+      ]
+    },
+    {
+      "id": "rel:requests-checkout--email",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:email",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:checkout"
+      ]
+    },
+    {
+      "id": "rel:requests-checkout--flagd",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-checkout--otel-collector",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-checkout--payment",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:payment",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:checkout"
+      ]
+    },
+    {
+      "id": "rel:requests-checkout--product-catalog",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:product-catalog",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:checkout"
+      ]
+    },
+    {
+      "id": "rel:requests-checkout--shipping",
+      "kind": "requests",
+      "source": "service:checkout",
+      "target": "service:shipping",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:checkout"
+      ]
+    },
+    {
+      "id": "rel:requests-currency--otel-collector",
+      "kind": "requests",
+      "source": "service:currency",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-email--flagd",
+      "kind": "requests",
+      "source": "service:email",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-email--otel-collector",
+      "kind": "requests",
+      "source": "service:email",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-flagd--otel-collector",
+      "kind": "requests",
+      "source": "service:flagd",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-flagd-ui--otel-collector",
+      "kind": "requests",
+      "source": "service:flagd-ui",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-fraud-detection--otel-collector",
+      "kind": "requests",
+      "source": "service:fraud-detection",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose",
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend--ad",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:ad",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:frontend-rpc"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend--cart",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:cart",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:frontend-rpc"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend--checkout",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:checkout",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:frontend-rpc"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend--currency",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:currency",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:frontend-rpc"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend--flagd",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend--otel-collector",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend--product-catalog",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:product-catalog",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:frontend-rpc"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend--recommendation",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:recommendation",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:frontend-rpc"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend--shipping",
+      "kind": "requests",
+      "source": "service:frontend",
+      "target": "service:shipping",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:frontend-rpc"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--chatbot",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:chatbot",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--flagd",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--flagd-ui",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:flagd-ui",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--frontend",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:frontend",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--grafana",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:grafana",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--image-provider",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:image-provider",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--jaeger",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:jaeger",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--load-generator",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:load-generator",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--opamp-server",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:opamp-server",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--otel-collector",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "browser OTLP",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-frontend-proxy--telemetry-docs",
+      "kind": "requests",
+      "source": "service:frontend-proxy",
+      "target": "service:telemetry-docs",
+      "basis": "supported",
+      "label": "route",
+      "evidence_ids": [
+        "evidence:envoy"
+      ]
+    },
+    {
+      "id": "rel:requests-grafana--jaeger",
+      "kind": "requests",
+      "source": "service:grafana",
+      "target": "service:jaeger",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:grafana-ds"
+      ]
+    },
+    {
+      "id": "rel:requests-image-provider--otel-collector",
+      "kind": "requests",
+      "source": "service:image-provider",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-kafka--otel-collector",
+      "kind": "requests",
+      "source": "service:kafka",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose-full"
+      ]
+    },
+    {
+      "id": "rel:requests-load-generator--flagd",
+      "kind": "requests",
+      "source": "service:load-generator",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-load-generator--frontend-proxy",
+      "kind": "requests",
+      "source": "service:load-generator",
+      "target": "service:frontend-proxy",
+      "basis": "supported",
+      "label": "HTTP load",
+      "evidence_ids": [
+        "evidence:env"
+      ]
+    },
+    {
+      "id": "rel:requests-load-generator--otel-collector",
+      "kind": "requests",
+      "source": "service:load-generator",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-mcp--frontend",
+      "kind": "requests",
+      "source": "service:mcp",
+      "target": "service:frontend",
+      "basis": "supported",
+      "label": "HTTP API",
+      "evidence_ids": [
+        "evidence:mcp-readme",
+        "evidence:env"
+      ]
+    },
+    {
+      "id": "rel:requests-mcp--otel-collector",
+      "kind": "requests",
+      "source": "service:mcp",
+      "target": "service:otel-collector",
+      "basis": "inferred",
+      "label": "OTLP",
+      "rationale": "Both use the Traceloop SDK with OTLP export, but the compose file does not set the collector endpoint explicitly."
+    },
+    {
+      "id": "rel:requests-otel-collector--ad",
+      "kind": "requests",
+      "source": "service:otel-collector",
+      "target": "service:ad",
+      "basis": "supported",
+      "label": "scrape",
+      "evidence_ids": [
+        "evidence:collector-config"
+      ]
+    },
+    {
+      "id": "rel:requests-otel-collector--frontend-proxy",
+      "kind": "requests",
+      "source": "service:otel-collector",
+      "target": "service:frontend-proxy",
+      "basis": "supported",
+      "label": "scrape",
+      "evidence_ids": [
+        "evidence:collector-config"
+      ]
+    },
+    {
+      "id": "rel:requests-otel-collector--image-provider",
+      "kind": "requests",
+      "source": "service:otel-collector",
+      "target": "service:image-provider",
+      "basis": "supported",
+      "label": "scrape",
+      "evidence_ids": [
+        "evidence:collector-config"
+      ]
+    },
+    {
+      "id": "rel:requests-otel-collector--jaeger",
+      "kind": "requests",
+      "source": "service:otel-collector",
+      "target": "service:jaeger",
+      "basis": "supported",
+      "label": "traces",
+      "evidence_ids": [
+        "evidence:collector-obs"
+      ]
+    },
+    {
+      "id": "rel:requests-otel-collector--kafka",
+      "kind": "requests",
+      "source": "service:otel-collector",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "broker metrics",
+      "evidence_ids": [
+        "evidence:kafkametrics"
+      ]
+    },
+    {
+      "id": "rel:requests-otel-collector--opamp-server",
+      "kind": "requests",
+      "source": "service:otel-collector",
+      "target": "service:opamp-server",
+      "basis": "supported",
+      "label": "OpAMP",
+      "evidence_ids": [
+        "evidence:collector-obs"
+      ]
+    },
+    {
+      "id": "rel:requests-payment--flagd",
+      "kind": "requests",
+      "source": "service:payment",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-payment--otel-collector",
+      "kind": "requests",
+      "source": "service:payment",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-product-catalog--flagd",
+      "kind": "requests",
+      "source": "service:product-catalog",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-product-catalog--otel-collector",
+      "kind": "requests",
+      "source": "service:product-catalog",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-quote--otel-collector",
+      "kind": "requests",
+      "source": "service:quote",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-recommendation--flagd",
+      "kind": "requests",
+      "source": "service:recommendation",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-recommendation--otel-collector",
+      "kind": "requests",
+      "source": "service:recommendation",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-recommendation--product-catalog",
+      "kind": "requests",
+      "source": "service:recommendation",
+      "target": "service:product-catalog",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-shipping--flagd",
+      "kind": "requests",
+      "source": "service:shipping",
+      "target": "service:flagd",
+      "basis": "supported",
+      "label": "flags",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-shipping--otel-collector",
+      "kind": "requests",
+      "source": "service:shipping",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-shipping--quote",
+      "kind": "requests",
+      "source": "service:shipping",
+      "target": "service:quote",
+      "basis": "supported",
+      "label": "HTTP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-telemetry-docs--otel-collector",
+      "kind": "requests",
+      "source": "service:telemetry-docs",
+      "target": "service:otel-collector",
+      "basis": "supported",
+      "label": "OTLP",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:subscribes-accounting--orders-topic",
+      "kind": "subscribes",
+      "source": "service:accounting",
+      "target": "interface:orders-topic",
+      "basis": "supported",
+      "label": "orders",
+      "evidence_ids": [
+        "evidence:accounting-topic"
+      ]
+    },
+    {
+      "id": "rel:subscribes-fraud-detection--orders-topic",
+      "kind": "subscribes",
+      "source": "service:fraud-detection",
+      "target": "interface:orders-topic",
+      "basis": "supported",
+      "label": "orders",
+      "evidence_ids": [
+        "evidence:fraud-topic"
+      ]
+    },
+    {
+      "id": "rel:writes-accounting--astronomy-db",
+      "kind": "writes",
+      "source": "service:accounting",
+      "target": "store:astronomy-db",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:accounting"
+      ]
+    },
+    {
+      "id": "rel:writes-cart--valkey-cart",
+      "kind": "writes",
+      "source": "service:cart",
+      "target": "store:valkey-cart",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:cart"
+      ]
+    },
+    {
+      "id": "rel:writes-otel-collector--opensearch",
+      "kind": "writes",
+      "source": "service:otel-collector",
+      "target": "store:opensearch",
+      "basis": "supported",
+      "label": "logs",
+      "evidence_ids": [
+        "evidence:collector-obs"
+      ]
+    },
+    {
+      "id": "rel:writes-otel-collector--prometheus",
+      "kind": "writes",
+      "source": "service:otel-collector",
+      "target": "store:prometheus",
+      "basis": "supported",
+      "label": "metrics",
+      "evidence_ids": [
+        "evidence:collector-obs"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence:accounting",
+      "description": "src/accounting/Consumer.cs kafka consumer and Npgsql connection",
+      "locator": {
+        "kind": "source",
+        "path": "src/accounting/Consumer.cs"
+      }
+    },
+    {
+      "id": "evidence:accounting-topic",
+      "description": "src/accounting/Consumer.cs consumes the orders topic",
+      "locator": {
+        "kind": "source",
+        "path": "src/accounting/Consumer.cs",
+        "start_line": 31,
+        "end_line": 46
+      }
+    },
+    {
+      "id": "evidence:agent-readme",
+      "description": "src/agent/README.md agent routes prompts through MCP tools",
+      "locator": {
+        "kind": "source",
+        "path": "src/agent/README.md"
+      }
+    },
+    {
+      "id": "evidence:cart",
+      "description": "src/cart/src/cartstore/ValkeyCartStore.cs",
+      "locator": {
+        "kind": "source",
+        "path": "src/cart/src/cartstore/ValkeyCartStore.cs"
+      }
+    },
+    {
+      "id": "evidence:chatbot-readme",
+      "description": "src/chatbot/README.md chatbot forwards messages to the agent",
+      "locator": {
+        "kind": "source",
+        "path": "src/chatbot/README.md"
+      }
+    },
+    {
+      "id": "evidence:checkout",
+      "description": "src/checkout/main.go grpc clients and kafka producer",
+      "locator": {
+        "kind": "source",
+        "path": "src/checkout/main.go"
+      }
+    },
+    {
+      "id": "evidence:checkout-topic",
+      "description": "src/checkout/kafka/producer.go topic comes from KAFKA_TOPIC, default orders",
+      "locator": {
+        "kind": "source",
+        "path": "src/checkout/kafka/producer.go",
+        "start_line": 14,
+        "end_line": 23
+      }
+    },
+    {
+      "id": "evidence:collector-config",
+      "description": "src/otel-collector/otelcol-config.yml receivers and pipelines",
+      "locator": {
+        "kind": "source",
+        "path": "src/otel-collector/otelcol-config.yml"
+      }
+    },
+    {
+      "id": "evidence:collector-obs",
+      "description": "src/otel-collector/otelcol-config-observability.yml exporters to jaeger, prometheus, opensearch, opamp",
+      "locator": {
+        "kind": "source",
+        "path": "src/otel-collector/otelcol-config-observability.yml"
+      }
+    },
+    {
+      "id": "evidence:compose",
+      "description": "compose.yaml core services, env addresses and depends_on",
+      "locator": {
+        "kind": "source",
+        "path": "compose.yaml"
+      }
+    },
+    {
+      "id": "evidence:compose-agent",
+      "description": "compose.agent.yaml adds agent, mcp, chatbot",
+      "locator": {
+        "kind": "source",
+        "path": "compose.agent.yaml"
+      }
+    },
+    {
+      "id": "evidence:compose-full",
+      "description": "compose.full.yaml adds kafka, accounting, fraud-detection",
+      "locator": {
+        "kind": "source",
+        "path": "compose.full.yaml"
+      }
+    },
+    {
+      "id": "evidence:compose-obs",
+      "description": "compose.observability.yaml adds jaeger, grafana, prometheus, opensearch, opamp-server",
+      "locator": {
+        "kind": "source",
+        "path": "compose.observability.yaml"
+      }
+    },
+    {
+      "id": "evidence:env",
+      "description": ".env service addresses and ports",
+      "locator": {
+        "kind": "source",
+        "path": ".env"
+      }
+    },
+    {
+      "id": "evidence:envoy",
+      "description": "src/frontend-proxy/envoy.tmpl.yaml routes and clusters",
+      "locator": {
+        "kind": "source",
+        "path": "src/frontend-proxy/envoy.tmpl.yaml"
+      }
+    },
+    {
+      "id": "evidence:fraud-topic",
+      "description": "src/fraud-detection/src/main/kotlin/frauddetection/main.kt subscribes to the orders topic",
+      "locator": {
+        "kind": "source",
+        "path": "src/fraud-detection/src/main/kotlin/frauddetection/main.kt",
+        "start_line": 26,
+        "end_line": 55
+      }
+    },
+    {
+      "id": "evidence:frontend-rpc",
+      "description": "src/frontend/gateways/rpc gRPC gateways",
+      "locator": {
+        "kind": "source",
+        "path": "src/frontend/gateways/rpc"
+      }
+    },
+    {
+      "id": "evidence:grafana-ds",
+      "description": "src/grafana/provisioning/datasources datasource urls",
+      "locator": {
+        "kind": "source",
+        "path": "src/grafana/provisioning/datasources"
+      }
+    },
+    {
+      "id": "evidence:kafkametrics",
+      "description": "src/otel-collector/otelcol-config-full.yml kafkametrics receiver scrapes the broker",
+      "locator": {
+        "kind": "source",
+        "path": "src/otel-collector/otelcol-config-full.yml",
+        "start_line": 10,
+        "end_line": 18
+      }
+    },
+    {
+      "id": "evidence:mcp-readme",
+      "description": "src/mcp/README.md tools call the frontend HTTP API",
+      "locator": {
+        "kind": "source",
+        "path": "src/mcp/README.md"
+      }
+    }
+  ]
+}

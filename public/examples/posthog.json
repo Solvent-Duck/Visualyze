@@ -1,0 +1,2702 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "example-posthog",
+  "revision": 1,
+  "system_id": "scope:posthog",
+  "snapshot": {
+    "id": "posthog-001",
+    "source_revision": "87633d96638e27b7ed6ecd75f655cbb91c627586",
+    "coverage": "partial",
+    "scope_description": "PostHog's docker-compose hobby deployment: capture, ingestion, replay, error tracking, logs, app tier, low-latency services and data platform.",
+    "omissions": [
+      "Cloud-only components (personhog leader/writer/identity, usage-ingestion, property-defs-ai, kafka-init) and dev-only tools are not modeled.",
+      "Per-product Django apps, ClickHouse tables and individual Kafka topics are not modeled.",
+      "Only topics whose producer or consumer was read in compose, config or code are modeled as topic interfaces; other Kafka use goes to the broker."
+    ]
+  },
+  "entities": [
+    {
+      "id": "client:analyst",
+      "kind": "client",
+      "label": "PostHog user's browser",
+      "boundary": "external",
+      "basis": "supported",
+      "subtype": "web",
+      "description": "Analysts using the PostHog UI.",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "client:sdk",
+      "kind": "client",
+      "label": "Customer apps (SDKs)",
+      "boundary": "external",
+      "basis": "supported",
+      "subtype": "web",
+      "description": "Browser, mobile and server SDKs that send events and fetch flags.",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "interface:topic-errortracking-main",
+      "kind": "interface",
+      "label": "ingestion-errortracking-main",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic ingestion-errortracking-main.",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-events"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-events-ai",
+      "kind": "interface",
+      "label": "events_plugin_ingestion_ai",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic events_plugin_ingestion_ai.",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-ai"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-events-json",
+      "kind": "interface",
+      "label": "clickhouse_events_json",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic clickhouse_events_json.",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:ingestion-output"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-events-plugin-ingestion",
+      "kind": "interface",
+      "label": "events_plugin_ingestion",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic events_plugin_ingestion.",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-events"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-logs-ingestion",
+      "kind": "interface",
+      "label": "logs_ingestion",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic logs_ingestion.",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-logs"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-replay-snapshots",
+      "kind": "interface",
+      "label": "session_recording_snapshot_item_events",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic session_recording_snapshot_item_events.",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-replay"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "scope:app",
+      "kind": "scope",
+      "label": "Web app and jobs",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Django web tier, Celery worker and Temporal workflows.",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "scope:data-platform",
+      "kind": "scope",
+      "label": "Data platform",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Shared stores and the Kafka backbone.",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "scope:error-tracking",
+      "kind": "scope",
+      "label": "Error tracking",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Exception ingestion and symbolication.",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "scope:event-pipeline",
+      "kind": "scope",
+      "label": "Event pipeline",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Capture, enrich and fan out analytics events; also CDP destinations and webhooks.",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "scope:logs-traces",
+      "kind": "scope",
+      "label": "Logs and traces",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "OTLP-style logs, metrics and traces ingestion.",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "scope:low-latency",
+      "kind": "scope",
+      "label": "Low-latency APIs",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Services that answer SDK and app requests directly: flags, cached config, person lookup, live stream.",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "scope:posthog",
+      "kind": "scope",
+      "label": "PostHog (self-hosted)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "system",
+      "description": "Open-source product analytics platform in its docker-compose hobby deployment.",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "scope:session-replay",
+      "kind": "scope",
+      "label": "Session replay",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Recording capture, blob storage and playback API.",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "service:browserless",
+      "kind": "service",
+      "label": "Browserless",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Headless Chromium for screenshots and heatmaps.",
+      "technology": [
+        "Chromium"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:capture",
+      "kind": "service",
+      "label": "Capture",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "gateway",
+      "description": "HTTP intake for analytics events (/e, /batch, /i/v0).",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:capture-ai",
+      "kind": "service",
+      "label": "Capture (AI events)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "gateway",
+      "description": "Intake for LLM analytics events.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:capture-logs",
+      "kind": "service",
+      "label": "Capture (logs)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "gateway",
+      "description": "OTLP intake for logs, traces and metrics.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:cymbal",
+      "kind": "service",
+      "label": "Cymbal",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Symbolicates and fingerprints exceptions into issues.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:cymbal-resolution",
+      "kind": "service",
+      "label": "Cymbal resolution",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Resolves source maps and symbols over gRPC.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:feature-flags",
+      "kind": "service",
+      "label": "Feature flags",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Evaluates flags for SDK requests.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:hypercache",
+      "kind": "service",
+      "label": "Hypercache server",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Serves cached remote config and surveys.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:ingestion-error-tracking",
+      "kind": "service",
+      "label": "Error tracking ingestion",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes exception events and sends them to Cymbal.",
+      "technology": [
+        "Node.js"
+      ],
+      "evidence_ids": [
+        "evidence:hobby",
+        "evidence:errortracking"
+      ]
+    },
+    {
+      "id": "service:ingestion-general",
+      "kind": "service",
+      "label": "Ingestion worker",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes raw events, resolves persons, enriches and emits processed events.",
+      "technology": [
+        "Node.js"
+      ],
+      "evidence_ids": [
+        "evidence:hobby",
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:ingestion-logs",
+      "kind": "service",
+      "label": "Logs ingestion",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Processes logs for ClickHouse.",
+      "technology": [
+        "Node.js"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:ingestion-sessionreplay",
+      "kind": "service",
+      "label": "Replay ingestion",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Batches recordings into blob storage and emits replay events.",
+      "technology": [
+        "Node.js"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:ingestion-traces",
+      "kind": "service",
+      "label": "Traces ingestion",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Processes traces for ClickHouse.",
+      "technology": [
+        "Node.js"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:kafka",
+      "kind": "service",
+      "label": "Kafka",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "broker",
+      "description": "Backbone between capture, ingestion, ClickHouse and consumers.",
+      "technology": [
+        "Apache Kafka"
+      ],
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:topics"
+      ]
+    },
+    {
+      "id": "service:livestream",
+      "kind": "service",
+      "label": "Livestream",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Streams live events to the UI.",
+      "technology": [
+        "Go"
+      ],
+      "evidence_ids": [
+        "evidence:livestream"
+      ]
+    },
+    {
+      "id": "service:llm",
+      "kind": "service",
+      "label": "LLM providers",
+      "boundary": "external",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Anthropic and OpenAI, called by the app tier when API keys are set.",
+      "technology": [
+        "OpenAI"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:personhog-replica",
+      "kind": "service",
+      "label": "Personhog replica",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Reads persons from Postgres.",
+      "technology": [
+        "Rust",
+        "gRPC"
+      ],
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:personhog-router",
+      "kind": "service",
+      "label": "Personhog router",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Routes person lookups to a backend.",
+      "technology": [
+        "Rust",
+        "gRPC"
+      ],
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:plugins",
+      "kind": "service",
+      "label": "CDP and plugins",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Runs destinations and Hog functions; serves webhooks.",
+      "technology": [
+        "Node.js"
+      ],
+      "evidence_ids": [
+        "evidence:hobby",
+        "evidence:cdp"
+      ]
+    },
+    {
+      "id": "service:property-defs",
+      "kind": "service",
+      "label": "Property definitions",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Derives event and property definitions from processed events.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:property-defs",
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:proxy",
+      "kind": "service",
+      "label": "Proxy",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "gateway",
+      "description": "Routes public paths to capture, flags, livestream and the web app.",
+      "technology": [
+        "Caddy"
+      ],
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:recording-api",
+      "kind": "service",
+      "label": "Recording API",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Serves recordings from blob storage for playback.",
+      "technology": [
+        "Node.js"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:replay-capture",
+      "kind": "service",
+      "label": "Replay capture",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "gateway",
+      "description": "Intake for session recording snapshots (/s).",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "service:temporal",
+      "kind": "service",
+      "label": "Temporal",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Durable workflow engine.",
+      "technology": [
+        "Temporal"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:temporal-django-worker",
+      "kind": "service",
+      "label": "Temporal worker",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Runs Django-side Temporal activities.",
+      "technology": [
+        "Temporal",
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:temporal-ui",
+      "kind": "service",
+      "label": "Temporal UI",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Workflow inspection UI.",
+      "technology": [
+        "Temporal"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:web",
+      "kind": "service",
+      "label": "Web app",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Django API and React frontend.",
+      "technology": [
+        "Django",
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "service:worker",
+      "kind": "service",
+      "label": "Celery worker",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Background jobs for the web app.",
+      "technology": [
+        "Celery",
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "store:clickhouse",
+      "kind": "datastore",
+      "label": "ClickHouse",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "columnar",
+      "description": "Analytical store for events, persons, replay metadata and logs.",
+      "technology": [
+        "ClickHouse"
+      ],
+      "evidence_ids": [
+        "evidence:hobby",
+        "evidence:clickhouse-kafka"
+      ]
+    },
+    {
+      "id": "store:elasticsearch",
+      "kind": "datastore",
+      "label": "Temporal visibility store",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "search",
+      "description": "Visibility index for Temporal.",
+      "technology": [
+        "Elasticsearch"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "store:objectstorage",
+      "kind": "datastore",
+      "label": "Object storage",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "object",
+      "description": "Uploads, exports and AI blobs.",
+      "technology": [
+        "SeaweedFS",
+        "S3"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "store:postgres",
+      "kind": "datastore",
+      "label": "Postgres",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "relational",
+      "description": "Application and person metadata.",
+      "technology": [
+        "PostgreSQL"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "store:redis",
+      "kind": "datastore",
+      "label": "Redis",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "key_value",
+      "description": "Caches, rate limits and queues.",
+      "roles": [
+        "cache"
+      ],
+      "technology": [
+        "Redis"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "store:seaweedfs",
+      "kind": "datastore",
+      "label": "Replay blob storage",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "object",
+      "description": "Session recording blobs.",
+      "technology": [
+        "SeaweedFS",
+        "S3"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "store:valkey",
+      "kind": "datastore",
+      "label": "Valkey",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "key_value",
+      "description": "CDP state.",
+      "roles": [
+        "cache"
+      ],
+      "technology": [
+        "Valkey"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "store:zookeeper",
+      "kind": "datastore",
+      "label": "ZooKeeper",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "key_value",
+      "description": "Coordination for Kafka and ClickHouse.",
+      "technology": [
+        "ZooKeeper"
+      ],
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:contains-app--browserless",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:browserless",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-app--elasticsearch",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "store:elasticsearch",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-app--temporal",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:temporal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-app--temporal-django-worker",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:temporal-django-worker",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-app--temporal-ui",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:temporal-ui",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-app--web",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:web",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-app--worker",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:worker",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-data-platform--clickhouse",
+      "kind": "contains",
+      "source": "scope:data-platform",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby",
+        "evidence:clickhouse-kafka"
+      ]
+    },
+    {
+      "id": "rel:contains-data-platform--kafka",
+      "kind": "contains",
+      "source": "scope:data-platform",
+      "target": "service:kafka",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:topics"
+      ]
+    },
+    {
+      "id": "rel:contains-data-platform--objectstorage",
+      "kind": "contains",
+      "source": "scope:data-platform",
+      "target": "store:objectstorage",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-data-platform--postgres",
+      "kind": "contains",
+      "source": "scope:data-platform",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-data-platform--redis",
+      "kind": "contains",
+      "source": "scope:data-platform",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-data-platform--seaweedfs",
+      "kind": "contains",
+      "source": "scope:data-platform",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-data-platform--valkey",
+      "kind": "contains",
+      "source": "scope:data-platform",
+      "target": "store:valkey",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-data-platform--zookeeper",
+      "kind": "contains",
+      "source": "scope:data-platform",
+      "target": "store:zookeeper",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-error-tracking--cymbal",
+      "kind": "contains",
+      "source": "scope:error-tracking",
+      "target": "service:cymbal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-error-tracking--cymbal-resolution",
+      "kind": "contains",
+      "source": "scope:error-tracking",
+      "target": "service:cymbal-resolution",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-error-tracking--ingestion-error-tracking",
+      "kind": "contains",
+      "source": "scope:error-tracking",
+      "target": "service:ingestion-error-tracking",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby",
+        "evidence:errortracking"
+      ]
+    },
+    {
+      "id": "rel:contains-event-pipeline--capture",
+      "kind": "contains",
+      "source": "scope:event-pipeline",
+      "target": "service:capture",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-event-pipeline--capture-ai",
+      "kind": "contains",
+      "source": "scope:event-pipeline",
+      "target": "service:capture-ai",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-event-pipeline--ingestion-general",
+      "kind": "contains",
+      "source": "scope:event-pipeline",
+      "target": "service:ingestion-general",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby",
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-event-pipeline--plugins",
+      "kind": "contains",
+      "source": "scope:event-pipeline",
+      "target": "service:plugins",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby",
+        "evidence:cdp"
+      ]
+    },
+    {
+      "id": "rel:contains-event-pipeline--property-defs",
+      "kind": "contains",
+      "source": "scope:event-pipeline",
+      "target": "service:property-defs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:property-defs",
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-logs-traces--capture-logs",
+      "kind": "contains",
+      "source": "scope:logs-traces",
+      "target": "service:capture-logs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-logs-traces--ingestion-logs",
+      "kind": "contains",
+      "source": "scope:logs-traces",
+      "target": "service:ingestion-logs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-logs-traces--ingestion-traces",
+      "kind": "contains",
+      "source": "scope:logs-traces",
+      "target": "service:ingestion-traces",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-low-latency--feature-flags",
+      "kind": "contains",
+      "source": "scope:low-latency",
+      "target": "service:feature-flags",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-low-latency--hypercache",
+      "kind": "contains",
+      "source": "scope:low-latency",
+      "target": "service:hypercache",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-low-latency--livestream",
+      "kind": "contains",
+      "source": "scope:low-latency",
+      "target": "service:livestream",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:livestream"
+      ]
+    },
+    {
+      "id": "rel:contains-low-latency--personhog-replica",
+      "kind": "contains",
+      "source": "scope:low-latency",
+      "target": "service:personhog-replica",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-low-latency--personhog-router",
+      "kind": "contains",
+      "source": "scope:low-latency",
+      "target": "service:personhog-router",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-posthog--app",
+      "kind": "contains",
+      "source": "scope:posthog",
+      "target": "scope:app",
+      "basis": "inferred",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "rel:contains-posthog--data-platform",
+      "kind": "contains",
+      "source": "scope:posthog",
+      "target": "scope:data-platform",
+      "basis": "inferred",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "rel:contains-posthog--error-tracking",
+      "kind": "contains",
+      "source": "scope:posthog",
+      "target": "scope:error-tracking",
+      "basis": "inferred",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "rel:contains-posthog--event-pipeline",
+      "kind": "contains",
+      "source": "scope:posthog",
+      "target": "scope:event-pipeline",
+      "basis": "inferred",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "rel:contains-posthog--logs-traces",
+      "kind": "contains",
+      "source": "scope:posthog",
+      "target": "scope:logs-traces",
+      "basis": "inferred",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "rel:contains-posthog--low-latency",
+      "kind": "contains",
+      "source": "scope:posthog",
+      "target": "scope:low-latency",
+      "basis": "inferred",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "rel:contains-posthog--proxy",
+      "kind": "contains",
+      "source": "scope:posthog",
+      "target": "service:proxy",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:contains-posthog--session-replay",
+      "kind": "contains",
+      "source": "scope:posthog",
+      "target": "scope:session-replay",
+      "basis": "inferred",
+      "rationale": "Grouped by product area; the repository does not name this group, but its members share one pipeline."
+    },
+    {
+      "id": "rel:contains-session-replay--ingestion-sessionreplay",
+      "kind": "contains",
+      "source": "scope:session-replay",
+      "target": "service:ingestion-sessionreplay",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-session-replay--recording-api",
+      "kind": "contains",
+      "source": "scope:session-replay",
+      "target": "service:recording-api",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:contains-session-replay--replay-capture",
+      "kind": "contains",
+      "source": "scope:session-replay",
+      "target": "service:replay-capture",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:depends-on-clickhouse--zookeeper",
+      "kind": "depends_on",
+      "source": "store:clickhouse",
+      "target": "store:zookeeper",
+      "basis": "supported",
+      "dependency_phase": "runtime",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:depends-on-kafka--zookeeper",
+      "kind": "depends_on",
+      "source": "service:kafka",
+      "target": "store:zookeeper",
+      "basis": "supported",
+      "dependency_phase": "startup",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-errortracking-main",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-errortracking-main",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-events"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-events-ai",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-events-ai",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-ai"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-events-json",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-events-json",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:ingestion-output"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-events-plugin-ingestion",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-events-plugin-ingestion",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-events"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-logs-ingestion",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-logs-ingestion",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-logs"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-replay-snapshots",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-replay-snapshots",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base",
+        "evidence:capture-replay"
+      ]
+    },
+    {
+      "id": "rel:publishes-capture--topic-errortracking-main",
+      "kind": "publishes",
+      "source": "service:capture",
+      "target": "interface:topic-errortracking-main",
+      "basis": "supported",
+      "label": "exceptions",
+      "evidence_ids": [
+        "evidence:capture-events"
+      ]
+    },
+    {
+      "id": "rel:publishes-capture--topic-events-plugin-ingestion",
+      "kind": "publishes",
+      "source": "service:capture",
+      "target": "interface:topic-events-plugin-ingestion",
+      "basis": "supported",
+      "label": "events",
+      "evidence_ids": [
+        "evidence:capture-events"
+      ]
+    },
+    {
+      "id": "rel:publishes-capture-ai--topic-events-ai",
+      "kind": "publishes",
+      "source": "service:capture-ai",
+      "target": "interface:topic-events-ai",
+      "basis": "supported",
+      "label": "AI events",
+      "evidence_ids": [
+        "evidence:capture-ai"
+      ]
+    },
+    {
+      "id": "rel:publishes-capture-logs--topic-logs-ingestion",
+      "kind": "publishes",
+      "source": "service:capture-logs",
+      "target": "interface:topic-logs-ingestion",
+      "basis": "supported",
+      "label": "logs",
+      "evidence_ids": [
+        "evidence:capture-logs"
+      ]
+    },
+    {
+      "id": "rel:publishes-cymbal--kafka",
+      "kind": "publishes",
+      "source": "service:cymbal",
+      "target": "service:kafka",
+      "basis": "inferred",
+      "label": "produce",
+      "rationale": "KAFKA_HOSTS is set for Cymbal; the topics it produces to were not read."
+    },
+    {
+      "id": "rel:publishes-ingestion-general--topic-events-json",
+      "kind": "publishes",
+      "source": "service:ingestion-general",
+      "target": "interface:topic-events-json",
+      "basis": "supported",
+      "label": "processed events",
+      "evidence_ids": [
+        "evidence:ingestion-output"
+      ]
+    },
+    {
+      "id": "rel:publishes-replay-capture--topic-replay-snapshots",
+      "kind": "publishes",
+      "source": "service:replay-capture",
+      "target": "interface:topic-replay-snapshots",
+      "basis": "supported",
+      "label": "snapshots",
+      "evidence_ids": [
+        "evidence:capture-replay"
+      ]
+    },
+    {
+      "id": "rel:publishes-temporal-django-worker--kafka",
+      "kind": "publishes",
+      "source": "service:temporal-django-worker",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "produce",
+      "evidence_ids": [
+        "evidence:django-kafka"
+      ]
+    },
+    {
+      "id": "rel:publishes-web--kafka",
+      "kind": "publishes",
+      "source": "service:web",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "produce",
+      "evidence_ids": [
+        "evidence:django-kafka"
+      ]
+    },
+    {
+      "id": "rel:publishes-worker--kafka",
+      "kind": "publishes",
+      "source": "service:worker",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "produce",
+      "evidence_ids": [
+        "evidence:django-kafka"
+      ]
+    },
+    {
+      "id": "rel:reads-capture--redis",
+      "kind": "reads",
+      "source": "service:capture",
+      "target": "store:redis",
+      "basis": "inferred",
+      "label": "limits",
+      "rationale": "REDIS_URL is set; its use for rate limiting and overflow is inferred."
+    },
+    {
+      "id": "rel:reads-capture-ai--redis",
+      "kind": "reads",
+      "source": "service:capture-ai",
+      "target": "store:redis",
+      "basis": "inferred",
+      "label": "limits",
+      "rationale": "REDIS_URL is set; its use for rate limiting and overflow is inferred."
+    },
+    {
+      "id": "rel:reads-cymbal--postgres",
+      "kind": "reads",
+      "source": "service:cymbal",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-cymbal--redis",
+      "kind": "reads",
+      "source": "service:cymbal",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-cymbal--seaweedfs",
+      "kind": "reads",
+      "source": "service:cymbal",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-cymbal-resolution--postgres",
+      "kind": "reads",
+      "source": "service:cymbal-resolution",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-cymbal-resolution--seaweedfs",
+      "kind": "reads",
+      "source": "service:cymbal-resolution",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-feature-flags--postgres",
+      "kind": "reads",
+      "source": "service:feature-flags",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:reads-feature-flags--redis",
+      "kind": "reads",
+      "source": "service:feature-flags",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:reads-hypercache--redis",
+      "kind": "reads",
+      "source": "service:hypercache",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:reads-ingestion-error-tracking--postgres",
+      "kind": "reads",
+      "source": "service:ingestion-error-tracking",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-ingestion-error-tracking--redis",
+      "kind": "reads",
+      "source": "service:ingestion-error-tracking",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-ingestion-general--postgres",
+      "kind": "reads",
+      "source": "service:ingestion-general",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-ingestion-general--redis",
+      "kind": "reads",
+      "source": "service:ingestion-general",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-ingestion-logs--postgres",
+      "kind": "reads",
+      "source": "service:ingestion-logs",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-ingestion-sessionreplay--postgres",
+      "kind": "reads",
+      "source": "service:ingestion-sessionreplay",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-ingestion-sessionreplay--redis",
+      "kind": "reads",
+      "source": "service:ingestion-sessionreplay",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-ingestion-traces--postgres",
+      "kind": "reads",
+      "source": "service:ingestion-traces",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-personhog-replica--postgres",
+      "kind": "reads",
+      "source": "service:personhog-replica",
+      "target": "store:postgres",
+      "basis": "supported",
+      "label": "persons db",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:reads-plugins--clickhouse",
+      "kind": "reads",
+      "source": "service:plugins",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-plugins--postgres",
+      "kind": "reads",
+      "source": "service:plugins",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-plugins--redis",
+      "kind": "reads",
+      "source": "service:plugins",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-plugins--valkey",
+      "kind": "reads",
+      "source": "service:plugins",
+      "target": "store:valkey",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-proxy--objectstorage",
+      "kind": "reads",
+      "source": "service:proxy",
+      "target": "store:objectstorage",
+      "basis": "supported",
+      "label": "/posthog uploads",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:reads-recording-api--clickhouse",
+      "kind": "reads",
+      "source": "service:recording-api",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-recording-api--postgres",
+      "kind": "reads",
+      "source": "service:recording-api",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-recording-api--redis",
+      "kind": "reads",
+      "source": "service:recording-api",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-recording-api--seaweedfs",
+      "kind": "reads",
+      "source": "service:recording-api",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-replay-capture--redis",
+      "kind": "reads",
+      "source": "service:replay-capture",
+      "target": "store:redis",
+      "basis": "inferred",
+      "label": "limits",
+      "rationale": "REDIS_URL is set; its use for rate limiting and overflow is inferred."
+    },
+    {
+      "id": "rel:reads-temporal--postgres",
+      "kind": "reads",
+      "source": "service:temporal",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-temporal-django-worker--clickhouse",
+      "kind": "reads",
+      "source": "service:temporal-django-worker",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-temporal-django-worker--objectstorage",
+      "kind": "reads",
+      "source": "service:temporal-django-worker",
+      "target": "store:objectstorage",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-temporal-django-worker--postgres",
+      "kind": "reads",
+      "source": "service:temporal-django-worker",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-temporal-django-worker--redis",
+      "kind": "reads",
+      "source": "service:temporal-django-worker",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-temporal-django-worker--seaweedfs",
+      "kind": "reads",
+      "source": "service:temporal-django-worker",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-web--clickhouse",
+      "kind": "reads",
+      "source": "service:web",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "queries",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-web--objectstorage",
+      "kind": "reads",
+      "source": "service:web",
+      "target": "store:objectstorage",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-web--postgres",
+      "kind": "reads",
+      "source": "service:web",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-web--redis",
+      "kind": "reads",
+      "source": "service:web",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-web--seaweedfs",
+      "kind": "reads",
+      "source": "service:web",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-worker--clickhouse",
+      "kind": "reads",
+      "source": "service:worker",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "queries",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-worker--objectstorage",
+      "kind": "reads",
+      "source": "service:worker",
+      "target": "store:objectstorage",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-worker--postgres",
+      "kind": "reads",
+      "source": "service:worker",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-worker--redis",
+      "kind": "reads",
+      "source": "service:worker",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:reads-worker--seaweedfs",
+      "kind": "reads",
+      "source": "service:worker",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-analyst--proxy",
+      "kind": "requests",
+      "source": "client:analyst",
+      "target": "service:proxy",
+      "basis": "supported",
+      "label": "HTTPS",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-cymbal--cymbal-resolution",
+      "kind": "requests",
+      "source": "service:cymbal",
+      "target": "service:cymbal-resolution",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-ingestion-error-tracking--cymbal",
+      "kind": "requests",
+      "source": "service:ingestion-error-tracking",
+      "target": "service:cymbal",
+      "basis": "supported",
+      "label": "HTTP",
+      "evidence_ids": [
+        "evidence:errortracking",
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-ingestion-general--personhog-router",
+      "kind": "requests",
+      "source": "service:ingestion-general",
+      "target": "service:personhog-router",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-personhog-router--personhog-replica",
+      "kind": "requests",
+      "source": "service:personhog-router",
+      "target": "service:personhog-replica",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-proxy--capture",
+      "kind": "requests",
+      "source": "service:proxy",
+      "target": "service:capture",
+      "basis": "supported",
+      "label": "/e /batch",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-proxy--capture-ai",
+      "kind": "requests",
+      "source": "service:proxy",
+      "target": "service:capture-ai",
+      "basis": "supported",
+      "label": "/i/v0/ai",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-proxy--capture-logs",
+      "kind": "requests",
+      "source": "service:proxy",
+      "target": "service:capture-logs",
+      "basis": "supported",
+      "label": "/i/v1/logs",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-proxy--feature-flags",
+      "kind": "requests",
+      "source": "service:proxy",
+      "target": "service:feature-flags",
+      "basis": "supported",
+      "label": "/flags",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-proxy--hypercache",
+      "kind": "requests",
+      "source": "service:proxy",
+      "target": "service:hypercache",
+      "basis": "supported",
+      "label": "/array",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-proxy--livestream",
+      "kind": "requests",
+      "source": "service:proxy",
+      "target": "service:livestream",
+      "basis": "supported",
+      "label": "/livestream",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-proxy--plugins",
+      "kind": "requests",
+      "source": "service:proxy",
+      "target": "service:plugins",
+      "basis": "supported",
+      "label": "webhooks",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-proxy--replay-capture",
+      "kind": "requests",
+      "source": "service:proxy",
+      "target": "service:replay-capture",
+      "basis": "supported",
+      "label": "/s",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-proxy--web",
+      "kind": "requests",
+      "source": "service:proxy",
+      "target": "service:web",
+      "basis": "supported",
+      "label": "default",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-sdk--proxy",
+      "kind": "requests",
+      "source": "client:sdk",
+      "target": "service:proxy",
+      "basis": "supported",
+      "label": "events, flags, replay",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:requests-temporal-django-worker--browserless",
+      "kind": "requests",
+      "source": "service:temporal-django-worker",
+      "target": "service:browserless",
+      "basis": "supported",
+      "label": "CDP",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-temporal-django-worker--feature-flags",
+      "kind": "requests",
+      "source": "service:temporal-django-worker",
+      "target": "service:feature-flags",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-temporal-django-worker--llm",
+      "kind": "requests",
+      "source": "service:temporal-django-worker",
+      "target": "service:llm",
+      "basis": "supported",
+      "label": "LLM calls",
+      "condition": "When API keys are set.",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-temporal-django-worker--recording-api",
+      "kind": "requests",
+      "source": "service:temporal-django-worker",
+      "target": "service:recording-api",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-temporal-django-worker--temporal",
+      "kind": "requests",
+      "source": "service:temporal-django-worker",
+      "target": "service:temporal",
+      "basis": "supported",
+      "label": "workflows",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-temporal-ui--temporal",
+      "kind": "requests",
+      "source": "service:temporal-ui",
+      "target": "service:temporal",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-web--feature-flags",
+      "kind": "requests",
+      "source": "service:web",
+      "target": "service:feature-flags",
+      "basis": "supported",
+      "label": "HTTP",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-web--llm",
+      "kind": "requests",
+      "source": "service:web",
+      "target": "service:llm",
+      "basis": "supported",
+      "label": "LLM calls",
+      "condition": "When ANTHROPIC_API_KEY or OPENAI_API_KEY is set.",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-web--personhog-router",
+      "kind": "requests",
+      "source": "service:web",
+      "target": "service:personhog-router",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-web--recording-api",
+      "kind": "requests",
+      "source": "service:web",
+      "target": "service:recording-api",
+      "basis": "supported",
+      "label": "HTTP",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-worker--browserless",
+      "kind": "requests",
+      "source": "service:worker",
+      "target": "service:browserless",
+      "basis": "supported",
+      "label": "CDP",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-worker--feature-flags",
+      "kind": "requests",
+      "source": "service:worker",
+      "target": "service:feature-flags",
+      "basis": "supported",
+      "label": "HTTP",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-worker--llm",
+      "kind": "requests",
+      "source": "service:worker",
+      "target": "service:llm",
+      "basis": "supported",
+      "label": "LLM calls",
+      "condition": "When ANTHROPIC_API_KEY or OPENAI_API_KEY is set.",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-worker--personhog-router",
+      "kind": "requests",
+      "source": "service:worker",
+      "target": "service:personhog-router",
+      "basis": "supported",
+      "label": "gRPC",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:requests-worker--recording-api",
+      "kind": "requests",
+      "source": "service:worker",
+      "target": "service:recording-api",
+      "basis": "supported",
+      "label": "HTTP",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:subscribes-clickhouse--kafka",
+      "kind": "subscribes",
+      "source": "store:clickhouse",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "other Kafka-engine tables",
+      "evidence_ids": [
+        "evidence:topics"
+      ]
+    },
+    {
+      "id": "rel:subscribes-clickhouse--topic-events-json",
+      "kind": "subscribes",
+      "source": "store:clickhouse",
+      "target": "interface:topic-events-json",
+      "basis": "supported",
+      "label": "Kafka-engine table",
+      "evidence_ids": [
+        "evidence:clickhouse-kafka"
+      ]
+    },
+    {
+      "id": "rel:subscribes-ingestion-error-tracking--topic-errortracking-main",
+      "kind": "subscribes",
+      "source": "service:ingestion-error-tracking",
+      "target": "interface:topic-errortracking-main",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:errortracking-topic"
+      ]
+    },
+    {
+      "id": "rel:subscribes-ingestion-general--topic-events-plugin-ingestion",
+      "kind": "subscribes",
+      "source": "service:ingestion-general",
+      "target": "interface:topic-events-plugin-ingestion",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingestion-topics"
+      ]
+    },
+    {
+      "id": "rel:subscribes-ingestion-logs--topic-logs-ingestion",
+      "kind": "subscribes",
+      "source": "service:ingestion-logs",
+      "target": "interface:topic-logs-ingestion",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:logs-topic"
+      ]
+    },
+    {
+      "id": "rel:subscribes-ingestion-sessionreplay--topic-replay-snapshots",
+      "kind": "subscribes",
+      "source": "service:ingestion-sessionreplay",
+      "target": "interface:topic-replay-snapshots",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:replay-topic"
+      ]
+    },
+    {
+      "id": "rel:subscribes-ingestion-traces--kafka",
+      "kind": "subscribes",
+      "source": "service:ingestion-traces",
+      "target": "service:kafka",
+      "basis": "inferred",
+      "label": "consume",
+      "rationale": "The traces server exists and KAFKA_HOSTS is set; its consume topic was not read."
+    },
+    {
+      "id": "rel:subscribes-livestream--topic-events-plugin-ingestion",
+      "kind": "subscribes",
+      "source": "service:livestream",
+      "target": "interface:topic-events-plugin-ingestion",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:livestream-topics"
+      ]
+    },
+    {
+      "id": "rel:subscribes-livestream--topic-replay-snapshots",
+      "kind": "subscribes",
+      "source": "service:livestream",
+      "target": "interface:topic-replay-snapshots",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:livestream-topics"
+      ]
+    },
+    {
+      "id": "rel:subscribes-plugins--topic-events-json",
+      "kind": "subscribes",
+      "source": "service:plugins",
+      "target": "interface:topic-events-json",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:cdp"
+      ]
+    },
+    {
+      "id": "rel:subscribes-property-defs--topic-events-json",
+      "kind": "subscribes",
+      "source": "service:property-defs",
+      "target": "interface:topic-events-json",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:property-defs"
+      ]
+    },
+    {
+      "id": "rel:writes-cymbal--postgres",
+      "kind": "writes",
+      "source": "service:cymbal",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-cymbal--redis",
+      "kind": "writes",
+      "source": "service:cymbal",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-feature-flags--redis",
+      "kind": "writes",
+      "source": "service:feature-flags",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:writes-ingestion-general--objectstorage",
+      "kind": "writes",
+      "source": "service:ingestion-general",
+      "target": "store:objectstorage",
+      "basis": "supported",
+      "label": "AI blobs",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:writes-ingestion-general--postgres",
+      "kind": "writes",
+      "source": "service:ingestion-general",
+      "target": "store:postgres",
+      "basis": "supported",
+      "label": "persons",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-ingestion-general--redis",
+      "kind": "writes",
+      "source": "service:ingestion-general",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-ingestion-logs--redis",
+      "kind": "writes",
+      "source": "service:ingestion-logs",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-ingestion-sessionreplay--seaweedfs",
+      "kind": "writes",
+      "source": "service:ingestion-sessionreplay",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "label": "recording blobs",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-ingestion-traces--redis",
+      "kind": "writes",
+      "source": "service:ingestion-traces",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-plugins--objectstorage",
+      "kind": "writes",
+      "source": "service:plugins",
+      "target": "store:objectstorage",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-plugins--postgres",
+      "kind": "writes",
+      "source": "service:plugins",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-plugins--redis",
+      "kind": "writes",
+      "source": "service:plugins",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-plugins--valkey",
+      "kind": "writes",
+      "source": "service:plugins",
+      "target": "store:valkey",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-property-defs--postgres",
+      "kind": "writes",
+      "source": "service:property-defs",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:base"
+      ]
+    },
+    {
+      "id": "rel:writes-temporal--elasticsearch",
+      "kind": "writes",
+      "source": "service:temporal",
+      "target": "store:elasticsearch",
+      "basis": "inferred",
+      "label": "visibility",
+      "rationale": "ENABLE_ES=false is set for the hobby deployment, so use of Elasticsearch there is unconfirmed."
+    },
+    {
+      "id": "rel:writes-temporal--postgres",
+      "kind": "writes",
+      "source": "service:temporal",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-web--objectstorage",
+      "kind": "writes",
+      "source": "service:web",
+      "target": "store:objectstorage",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-web--postgres",
+      "kind": "writes",
+      "source": "service:web",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-web--redis",
+      "kind": "writes",
+      "source": "service:web",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-web--seaweedfs",
+      "kind": "writes",
+      "source": "service:web",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-worker--objectstorage",
+      "kind": "writes",
+      "source": "service:worker",
+      "target": "store:objectstorage",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-worker--postgres",
+      "kind": "writes",
+      "source": "service:worker",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-worker--redis",
+      "kind": "writes",
+      "source": "service:worker",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    },
+    {
+      "id": "rel:writes-worker--seaweedfs",
+      "kind": "writes",
+      "source": "service:worker",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:hobby"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence:base",
+      "description": "docker-compose.base.yml service definitions, env, Caddy routes and topics",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.base.yml"
+      }
+    },
+    {
+      "id": "evidence:capture-ai",
+      "description": "docker-compose.base.yml capture-ai publishes AI events",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.base.yml",
+        "start_line": 424,
+        "end_line": 425
+      }
+    },
+    {
+      "id": "evidence:capture-events",
+      "description": "docker-compose.base.yml capture publishes events and exceptions",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.base.yml",
+        "start_line": 381,
+        "end_line": 383
+      }
+    },
+    {
+      "id": "evidence:capture-logs",
+      "description": "docker-compose.base.yml capture-logs publishes logs",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.base.yml",
+        "start_line": 459,
+        "end_line": 459
+      }
+    },
+    {
+      "id": "evidence:capture-replay",
+      "description": "docker-compose.base.yml replay-capture publishes recording snapshots",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.base.yml",
+        "start_line": 409,
+        "end_line": 409
+      }
+    },
+    {
+      "id": "evidence:cdp",
+      "description": "nodejs/src/cdp/config.ts CDP consumes clickhouse_events_json",
+      "locator": {
+        "kind": "source",
+        "path": "nodejs/src/cdp/config.ts",
+        "start_line": 270,
+        "end_line": 270
+      }
+    },
+    {
+      "id": "evidence:clickhouse-kafka",
+      "description": "posthog/models/event/sql.py ClickHouse Kafka-engine table consumes clickhouse_events_json",
+      "locator": {
+        "kind": "source",
+        "path": "posthog/models/event/sql.py",
+        "start_line": 399,
+        "end_line": 399
+      }
+    },
+    {
+      "id": "evidence:django-kafka",
+      "description": "posthog/kafka_client/client.py Django Kafka producer",
+      "locator": {
+        "kind": "source",
+        "path": "posthog/kafka_client/client.py"
+      }
+    },
+    {
+      "id": "evidence:errortracking",
+      "description": "nodejs/src/ingestion/pipelines/errortracking/consumer.ts calls Cymbal over HTTP",
+      "locator": {
+        "kind": "source",
+        "path": "nodejs/src/ingestion/pipelines/errortracking/consumer.ts"
+      }
+    },
+    {
+      "id": "evidence:errortracking-topic",
+      "description": "nodejs/src/ingestion/pipelines/errortracking/config.ts error tracking consume topic",
+      "locator": {
+        "kind": "source",
+        "path": "nodejs/src/ingestion/pipelines/errortracking/config.ts",
+        "start_line": 61,
+        "end_line": 61
+      }
+    },
+    {
+      "id": "evidence:hobby",
+      "description": "docker-compose.hobby.yml self-hosted service set, env addresses and depends_on",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.hobby.yml"
+      }
+    },
+    {
+      "id": "evidence:ingestion-output",
+      "description": "nodejs/src/ingestion/config.ts ingestion output topic for events",
+      "locator": {
+        "kind": "source",
+        "path": "nodejs/src/ingestion/config.ts",
+        "start_line": 454,
+        "end_line": 454
+      }
+    },
+    {
+      "id": "evidence:ingestion-topics",
+      "description": "nodejs/src/ingestion/config.ts ingestion consumes events_plugin_ingestion and emits clickhouse_events_json",
+      "locator": {
+        "kind": "source",
+        "path": "nodejs/src/ingestion/config.ts",
+        "start_line": 338,
+        "end_line": 340
+      }
+    },
+    {
+      "id": "evidence:livestream",
+      "description": "docker/livestream/configs-hobby.yml consumes events and replay topics",
+      "locator": {
+        "kind": "source",
+        "path": "docker/livestream/configs-hobby.yml"
+      }
+    },
+    {
+      "id": "evidence:livestream-topics",
+      "description": "docker/livestream/configs-hobby.yml livestream consumes events and recordings",
+      "locator": {
+        "kind": "source",
+        "path": "docker/livestream/configs-hobby.yml",
+        "start_line": 3,
+        "end_line": 20
+      }
+    },
+    {
+      "id": "evidence:logs-topic",
+      "description": "nodejs/src/logs/config.ts logs ingestion consume topic",
+      "locator": {
+        "kind": "source",
+        "path": "nodejs/src/logs/config.ts",
+        "start_line": 100,
+        "end_line": 100
+      }
+    },
+    {
+      "id": "evidence:property-defs",
+      "description": "rust/property-defs-rs/src/config.rs consumes clickhouse_events_json",
+      "locator": {
+        "kind": "source",
+        "path": "rust/property-defs-rs/src/config.rs",
+        "start_line": 222,
+        "end_line": 224
+      }
+    },
+    {
+      "id": "evidence:replay-topic",
+      "description": "nodejs/src/ingestion/pipelines/sessionreplay/config.ts replay ingestion consume topic",
+      "locator": {
+        "kind": "source",
+        "path": "nodejs/src/ingestion/pipelines/sessionreplay/config.ts",
+        "start_line": 163,
+        "end_line": 163
+      }
+    },
+    {
+      "id": "evidence:topics",
+      "description": "docker/kafka/topics.txt Kafka topics created for the stack; ClickHouse Kafka tables consume them",
+      "locator": {
+        "kind": "source",
+        "path": "docker/kafka/topics.txt",
+        "start_line": 1,
+        "end_line": 12
+      }
+    }
+  ]
+}

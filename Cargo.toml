@@ -1,5 +1,5 @@
 [workspace]
-members = ["public/types/rust", "public/tools/rust-bundle", "private/layout", "private/runtime"]
+members = ["public/types/rust", "public/tools/rust-bundle", "public/mcp-server", "private/layout", "private/runtime"]
 default-members = ["private/runtime"]
 resolver = "3"
 

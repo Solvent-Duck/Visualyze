@@ -1,0 +1,3671 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "example-sentry-self-hosted",
+  "revision": 1,
+  "system_id": "scope:sentry",
+  "snapshot": {
+    "id": "sentry-001",
+    "source_revision": "7b07b5ebaae4f18ee1cd3c108c628d27a2a9a3b7",
+    "coverage": "partial",
+    "scope_description": "Sentry self-hosted docker-compose deployment with the feature-complete profile: ingest edge, app and task system, ingest consumers, Snuba and data stores.",
+    "omissions": [
+      "Install scripts, one-shot init containers, optional-modification overrides and test services are not modeled.",
+      "Individual Kafka topics and ClickHouse tables are not modeled; consumer-to-topic mappings are summarised as reads and writes on Kafka.",
+      "Topic interfaces are modeled only where Taskbroker's config names them; all other Kafka use goes to the broker. Which topic each consumer reads was not traced.",
+      "Postgres access from sentry-cleanup is modeled; per-task behaviour inside task workers is not."
+    ]
+  },
+  "entities": [
+    {
+      "id": "client:browser",
+      "kind": "client",
+      "label": "Sentry user's browser",
+      "boundary": "external",
+      "basis": "supported",
+      "subtype": "web",
+      "description": "People using the Sentry UI.",
+      "evidence_ids": [
+        "evidence:nginx"
+      ]
+    },
+    {
+      "id": "client:sdk",
+      "kind": "client",
+      "label": "Sentry SDKs",
+      "boundary": "external",
+      "basis": "supported",
+      "subtype": "web",
+      "description": "Client and server SDKs that send events.",
+      "evidence_ids": [
+        "evidence:nginx"
+      ]
+    },
+    {
+      "id": "interface:topic-events-subscription-results",
+      "kind": "interface",
+      "label": "events-subscription-results",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic events-subscription-results.",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-ingest-replay-recordings",
+      "kind": "interface",
+      "label": "ingest-replay-recordings",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic ingest-replay-recordings.",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-metrics-subscription-results",
+      "kind": "interface",
+      "label": "metrics-subscription-results",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic metrics-subscription-results.",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-profiles",
+      "kind": "interface",
+      "label": "profiles",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic profiles.",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-subscription-results-eap-items",
+      "kind": "interface",
+      "label": "subscription-results-eap-items",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic subscription-results-eap-items.",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-taskworker",
+      "kind": "interface",
+      "label": "taskworker",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic taskworker.",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-taskworker-dlq",
+      "kind": "interface",
+      "label": "taskworker-dlq",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic taskworker-dlq.",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "interface:topic-transactions-subscription-results",
+      "kind": "interface",
+      "label": "transactions-subscription-results",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "topic",
+      "description": "Kafka topic transactions-subscription-results.",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ],
+      "protocol": "kafka"
+    },
+    {
+      "id": "scope:app",
+      "kind": "scope",
+      "label": "Sentry app and task system",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Web UI and API, the task broker and its workers.",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "scope:data-stores",
+      "kind": "scope",
+      "label": "Data stores",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Postgres, Kafka, ClickHouse, Valkey, memcached and object storage.",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "scope:ingest-consumers",
+      "kind": "scope",
+      "label": "Ingest consumers",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Python consumers that turn Kafka messages into events, spans, monitors and feedback.",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "scope:ingest-edge",
+      "kind": "scope",
+      "label": "Ingest edge",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Public entry: nginx and Relay.",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "scope:post-process",
+      "kind": "scope",
+      "label": "Post-process forwarders",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Forward stored events to post-processing tasks.",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "scope:satellites",
+      "kind": "scope",
+      "label": "Satellite services",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Profiling, symbolication, uptime checks and mail.",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "scope:sentry",
+      "kind": "scope",
+      "label": "Sentry (self-hosted)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "system",
+      "description": "Error, performance, replay and profiling platform in its docker-compose self-hosted deployment, including the feature-complete profile.",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "scope:snuba",
+      "kind": "scope",
+      "label": "Snuba",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Query and ingestion layer over ClickHouse.",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "scope:snuba-consumers",
+      "kind": "scope",
+      "label": "Snuba storage consumers",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "One consumer per ClickHouse storage.",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "scope:snuba-subscriptions",
+      "kind": "scope",
+      "label": "Snuba subscription schedulers",
+      "boundary": "internal",
+      "basis": "inferred",
+      "subtype": "subsystem",
+      "description": "Run alert queries on a schedule against ClickHouse.",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "service:attachments-consumer",
+      "kind": "service",
+      "label": "Attachments consumer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes ingest-attachments from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:events-consumer",
+      "kind": "service",
+      "label": "Events consumer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes ingest-events from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:ingest-feedback-events",
+      "kind": "service",
+      "label": "Feedback consumer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes user feedback from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:ingest-monitors",
+      "kind": "service",
+      "label": "Monitors consumer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes cron monitor check-ins from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:ingest-occurrences",
+      "kind": "service",
+      "label": "Occurrences consumer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes issue occurrences from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:kafka",
+      "kind": "service",
+      "label": "Kafka",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "broker",
+      "description": "Event backbone between Relay, consumers, Snuba and the task system.",
+      "technology": [
+        "Apache Kafka"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:launchpad",
+      "kind": "service",
+      "label": "Launchpad worker",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Task worker for mobile build analysis (feature-complete profile).",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:metrics-consumer",
+      "kind": "service",
+      "label": "Metrics consumer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes ingest-metrics from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:monitored-sites",
+      "kind": "service",
+      "label": "Monitored endpoints",
+      "boundary": "external",
+      "basis": "inferred",
+      "subtype": "application",
+      "description": "URLs that uptime monitors check.",
+      "rationale": "The uptime checker probes customer URLs by design."
+    },
+    {
+      "id": "service:monitors-clock-tasks",
+      "kind": "service",
+      "label": "Monitors clock tasks",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes monitor tasks from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:monitors-clock-tick",
+      "kind": "service",
+      "label": "Monitors clock tick",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes clock ticks from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:nginx",
+      "kind": "service",
+      "label": "nginx",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "gateway",
+      "description": "Reverse proxy: ingest paths to Relay, everything else to web.",
+      "technology": [
+        "nginx"
+      ],
+      "evidence_ids": [
+        "evidence:nginx"
+      ]
+    },
+    {
+      "id": "service:pgbouncer",
+      "kind": "service",
+      "label": "PgBouncer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Connection pool in front of Postgres.",
+      "technology": [
+        "PgBouncer"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:post-process-forwarder-errors",
+      "kind": "service",
+      "label": "Post-process (errors)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Forwards committed events to post-processing.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:post-process-forwarder-issue-platform",
+      "kind": "service",
+      "label": "Post-process (issue platform)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Forwards committed events to post-processing.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:post-process-forwarder-transactions",
+      "kind": "service",
+      "label": "Post-process (transactions)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Forwards committed events to post-processing.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:process-spans",
+      "kind": "service",
+      "label": "Spans consumer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes spans from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:relay",
+      "kind": "service",
+      "label": "Relay",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "gateway",
+      "description": "Validates, rate-limits and enriches events, then writes them to Kafka.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:relay"
+      ]
+    },
+    {
+      "id": "service:sentry-cleanup",
+      "kind": "service",
+      "label": "Cleanup cron",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "scheduler",
+      "description": "Prunes old data on a schedule.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:smtp",
+      "kind": "service",
+      "label": "SMTP relay",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Outbound mail relay.",
+      "technology": [
+        "SMTP"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-api",
+      "kind": "service",
+      "label": "Snuba API",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Query API in front of ClickHouse.",
+      "technology": [
+        "Python",
+        "ClickHouse"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-eap-items-consumer",
+      "kind": "service",
+      "label": "Snuba EAP items",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes EAP items from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-errors-consumer",
+      "kind": "service",
+      "label": "Snuba errors",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes errors from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-group-attributes-consumer",
+      "kind": "service",
+      "label": "Snuba group attributes",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes group attributes from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-issue-occurrence-consumer",
+      "kind": "service",
+      "label": "Snuba issue occurrences",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes issue occurrences from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-metrics-consumer",
+      "kind": "service",
+      "label": "Snuba metrics",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes metrics from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-outcomes-accepted-consumer",
+      "kind": "service",
+      "label": "Snuba accepted outcomes",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes accepted outcomes from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-outcomes-billing-consumer",
+      "kind": "service",
+      "label": "Snuba billing outcomes",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes billing outcomes from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-outcomes-consumer",
+      "kind": "service",
+      "label": "Snuba outcomes",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes outcomes from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-profiling-functions-consumer",
+      "kind": "service",
+      "label": "Snuba profile functions",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes profile functions from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-profiling-profile-chunks-consumer",
+      "kind": "service",
+      "label": "Snuba profile chunks",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes profile chunks from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-profiling-profiles-consumer",
+      "kind": "service",
+      "label": "Snuba profiles",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes profiles from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-replacer",
+      "kind": "service",
+      "label": "Snuba error replacements",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes error replacements from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-replays-consumer",
+      "kind": "service",
+      "label": "Snuba replays",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes replays from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-subscription-eap-items",
+      "kind": "service",
+      "label": "Subscriptions (eap-items)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "scheduler",
+      "description": "Schedules and executes eap-items alert queries.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-subscription-events",
+      "kind": "service",
+      "label": "Subscriptions (events)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "scheduler",
+      "description": "Schedules and executes events alert queries.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-subscription-metrics",
+      "kind": "service",
+      "label": "Subscriptions (metrics)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "scheduler",
+      "description": "Schedules and executes metrics alert queries.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-subscription-transactions",
+      "kind": "service",
+      "label": "Subscriptions (transactions)",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "scheduler",
+      "description": "Schedules and executes transactions alert queries.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:snuba-transactions-consumer",
+      "kind": "service",
+      "label": "Snuba transactions",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Writes transactions from Kafka into ClickHouse.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:symbol-sources",
+      "kind": "service",
+      "label": "Symbol and source map hosts",
+      "boundary": "external",
+      "basis": "inferred",
+      "subtype": "application",
+      "description": "Customer or vendor hosts that symbolication fetches from.",
+      "rationale": "Symbolicator exists to fetch debug files and source maps from outside the deployment."
+    },
+    {
+      "id": "service:symbolicator",
+      "kind": "service",
+      "label": "Symbolicator",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Symbolicates native stack traces and applies source maps.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:symbolicator-cleanup",
+      "kind": "service",
+      "label": "Symbolicator cleanup",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "scheduler",
+      "description": "Prunes symbolicator's cache.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:taskbroker",
+      "kind": "service",
+      "label": "Task broker",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Holds task activations from Kafka and hands them to workers over gRPC.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:compose",
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "service:taskscheduler",
+      "kind": "service",
+      "label": "Task scheduler",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "scheduler",
+      "description": "Emits scheduled tasks.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:taskworker",
+      "kind": "service",
+      "label": "Task worker",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Runs Sentry tasks: processing, alerts, notifications.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:transactions-consumer",
+      "kind": "service",
+      "label": "Transactions consumer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes ingest-transactions from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:uptime-checker",
+      "kind": "service",
+      "label": "Uptime checker",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Runs uptime probes and reports results through Kafka.",
+      "technology": [
+        "Rust"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:uptime-results",
+      "kind": "service",
+      "label": "Uptime results consumer",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "worker",
+      "description": "Consumes uptime results from Kafka.",
+      "technology": [
+        "Python"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:vroom",
+      "kind": "service",
+      "label": "Vroom",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Profile processing and flamegraph service.",
+      "technology": [
+        "Go"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "service:web",
+      "kind": "service",
+      "label": "Web and API",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "application",
+      "description": "Sentry UI and API.",
+      "technology": [
+        "Python",
+        "Django"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "store:clickhouse",
+      "kind": "datastore",
+      "label": "ClickHouse",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "columnar",
+      "description": "Columnar store for events, spans, outcomes and replays.",
+      "technology": [
+        "ClickHouse"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "store:memcached",
+      "kind": "datastore",
+      "label": "Memcached",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "key_value",
+      "description": "Application cache.",
+      "roles": [
+        "cache"
+      ],
+      "technology": [
+        "Memcached"
+      ],
+      "evidence_ids": [
+        "evidence:compose",
+        "evidence:sentry-conf"
+      ]
+    },
+    {
+      "id": "store:postgres",
+      "kind": "datastore",
+      "label": "Postgres",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "relational",
+      "description": "Primary application database.",
+      "technology": [
+        "PostgreSQL"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "store:redis",
+      "kind": "datastore",
+      "label": "Valkey",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "key_value",
+      "description": "Buffers, caches, rate limits and config.",
+      "roles": [
+        "cache"
+      ],
+      "technology": [
+        "Valkey"
+      ],
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "store:seaweedfs",
+      "kind": "datastore",
+      "label": "SeaweedFS",
+      "boundary": "internal",
+      "basis": "supported",
+      "subtype": "object",
+      "description": "S3-compatible blob store: attachments, profiles and files.",
+      "technology": [
+        "SeaweedFS",
+        "S3"
+      ],
+      "evidence_ids": [
+        "evidence:compose",
+        "evidence:sentry-conf"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel:contains-app--launchpad",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:launchpad",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-app--sentry-cleanup",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:sentry-cleanup",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-app--taskbroker",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:taskbroker",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose",
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:contains-app--taskscheduler",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:taskscheduler",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-app--taskworker",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:taskworker",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-app--web",
+      "kind": "contains",
+      "source": "scope:app",
+      "target": "service:web",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-data-stores--clickhouse",
+      "kind": "contains",
+      "source": "scope:data-stores",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-data-stores--kafka",
+      "kind": "contains",
+      "source": "scope:data-stores",
+      "target": "service:kafka",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-data-stores--memcached",
+      "kind": "contains",
+      "source": "scope:data-stores",
+      "target": "store:memcached",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose",
+        "evidence:sentry-conf"
+      ]
+    },
+    {
+      "id": "rel:contains-data-stores--pgbouncer",
+      "kind": "contains",
+      "source": "scope:data-stores",
+      "target": "service:pgbouncer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-data-stores--postgres",
+      "kind": "contains",
+      "source": "scope:data-stores",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-data-stores--redis",
+      "kind": "contains",
+      "source": "scope:data-stores",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-data-stores--seaweedfs",
+      "kind": "contains",
+      "source": "scope:data-stores",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose",
+        "evidence:sentry-conf"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--attachments-consumer",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:attachments-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--events-consumer",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:events-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--ingest-feedback-events",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:ingest-feedback-events",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--ingest-monitors",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:ingest-monitors",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--ingest-occurrences",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:ingest-occurrences",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--metrics-consumer",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:metrics-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--monitors-clock-tasks",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:monitors-clock-tasks",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--monitors-clock-tick",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:monitors-clock-tick",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--process-spans",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:process-spans",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--transactions-consumer",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:transactions-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-consumers--uptime-results",
+      "kind": "contains",
+      "source": "scope:ingest-consumers",
+      "target": "service:uptime-results",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-edge--nginx",
+      "kind": "contains",
+      "source": "scope:ingest-edge",
+      "target": "service:nginx",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:nginx"
+      ]
+    },
+    {
+      "id": "rel:contains-ingest-edge--relay",
+      "kind": "contains",
+      "source": "scope:ingest-edge",
+      "target": "service:relay",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:relay"
+      ]
+    },
+    {
+      "id": "rel:contains-post-process--post-process-forwarder-errors",
+      "kind": "contains",
+      "source": "scope:post-process",
+      "target": "service:post-process-forwarder-errors",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-post-process--post-process-forwarder-issue-platform",
+      "kind": "contains",
+      "source": "scope:post-process",
+      "target": "service:post-process-forwarder-issue-platform",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-post-process--post-process-forwarder-transactions",
+      "kind": "contains",
+      "source": "scope:post-process",
+      "target": "service:post-process-forwarder-transactions",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-satellites--smtp",
+      "kind": "contains",
+      "source": "scope:satellites",
+      "target": "service:smtp",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-satellites--symbolicator",
+      "kind": "contains",
+      "source": "scope:satellites",
+      "target": "service:symbolicator",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-satellites--symbolicator-cleanup",
+      "kind": "contains",
+      "source": "scope:satellites",
+      "target": "service:symbolicator-cleanup",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-satellites--uptime-checker",
+      "kind": "contains",
+      "source": "scope:satellites",
+      "target": "service:uptime-checker",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-satellites--vroom",
+      "kind": "contains",
+      "source": "scope:satellites",
+      "target": "service:vroom",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-sentry--app",
+      "kind": "contains",
+      "source": "scope:sentry",
+      "target": "scope:app",
+      "basis": "inferred",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "rel:contains-sentry--data-stores",
+      "kind": "contains",
+      "source": "scope:sentry",
+      "target": "scope:data-stores",
+      "basis": "inferred",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "rel:contains-sentry--ingest-consumers",
+      "kind": "contains",
+      "source": "scope:sentry",
+      "target": "scope:ingest-consumers",
+      "basis": "inferred",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "rel:contains-sentry--ingest-edge",
+      "kind": "contains",
+      "source": "scope:sentry",
+      "target": "scope:ingest-edge",
+      "basis": "inferred",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "rel:contains-sentry--post-process",
+      "kind": "contains",
+      "source": "scope:sentry",
+      "target": "scope:post-process",
+      "basis": "inferred",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "rel:contains-sentry--satellites",
+      "kind": "contains",
+      "source": "scope:sentry",
+      "target": "scope:satellites",
+      "basis": "inferred",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "rel:contains-sentry--snuba",
+      "kind": "contains",
+      "source": "scope:sentry",
+      "target": "scope:snuba",
+      "basis": "inferred",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "rel:contains-snuba--snuba-api",
+      "kind": "contains",
+      "source": "scope:snuba",
+      "target": "service:snuba-api",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba--snuba-consumers",
+      "kind": "contains",
+      "source": "scope:snuba",
+      "target": "scope:snuba-consumers",
+      "basis": "inferred",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "rel:contains-snuba--snuba-subscriptions",
+      "kind": "contains",
+      "source": "scope:snuba",
+      "target": "scope:snuba-subscriptions",
+      "basis": "inferred",
+      "rationale": "Grouped by role; the repository does not name this group, but its members run the same command family or serve the same function."
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-eap-items-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-eap-items-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-errors-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-errors-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-group-attributes-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-group-attributes-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-issue-occurrence-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-issue-occurrence-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-metrics-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-metrics-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-outcomes-accepted-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-outcomes-accepted-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-outcomes-billing-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-outcomes-billing-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-outcomes-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-outcomes-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-profiling-functions-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-profiling-functions-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-profiling-profile-chunks-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-profiling-profile-chunks-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-profiling-profiles-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-profiling-profiles-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-replacer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-replacer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-replays-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-replays-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-consumers--snuba-transactions-consumer",
+      "kind": "contains",
+      "source": "scope:snuba-consumers",
+      "target": "service:snuba-transactions-consumer",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-subscriptions--snuba-subscription-eap-items",
+      "kind": "contains",
+      "source": "scope:snuba-subscriptions",
+      "target": "service:snuba-subscription-eap-items",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-subscriptions--snuba-subscription-events",
+      "kind": "contains",
+      "source": "scope:snuba-subscriptions",
+      "target": "service:snuba-subscription-events",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-subscriptions--snuba-subscription-metrics",
+      "kind": "contains",
+      "source": "scope:snuba-subscriptions",
+      "target": "service:snuba-subscription-metrics",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:contains-snuba-subscriptions--snuba-subscription-transactions",
+      "kind": "contains",
+      "source": "scope:snuba-subscriptions",
+      "target": "service:snuba-subscription-transactions",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-events-subscription-results",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-events-subscription-results",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-ingest-replay-recordings",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-ingest-replay-recordings",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-metrics-subscription-results",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-metrics-subscription-results",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-profiles",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-profiles",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-subscription-results-eap-items",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-subscription-results-eap-items",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-taskworker",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-taskworker",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-taskworker-dlq",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-taskworker-dlq",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:exposes-kafka--topic-transactions-subscription-results",
+      "kind": "exposes",
+      "source": "service:kafka",
+      "target": "interface:topic-transactions-subscription-results",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:publishes-launchpad--kafka",
+      "kind": "publishes",
+      "source": "service:launchpad",
+      "target": "service:kafka",
+      "basis": "inferred",
+      "label": "produce",
+      "rationale": "KAFKA_BOOTSTRAP_SERVERS is set; what it produces was not read."
+    },
+    {
+      "id": "rel:publishes-relay--kafka",
+      "kind": "publishes",
+      "source": "service:relay",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "ingest topics",
+      "evidence_ids": [
+        "evidence:relay"
+      ]
+    },
+    {
+      "id": "rel:publishes-snuba-subscription-eap-items--kafka",
+      "kind": "publishes",
+      "source": "service:snuba-subscription-eap-items",
+      "target": "service:kafka",
+      "basis": "inferred",
+      "label": "subscription results",
+      "rationale": "Taskbroker consumes the subscription-results topics; Snuba's subscription executor is the producer by name, but Snuba's code was not read."
+    },
+    {
+      "id": "rel:publishes-snuba-subscription-events--kafka",
+      "kind": "publishes",
+      "source": "service:snuba-subscription-events",
+      "target": "service:kafka",
+      "basis": "inferred",
+      "label": "subscription results",
+      "rationale": "Taskbroker consumes the subscription-results topics; Snuba's subscription executor is the producer by name, but Snuba's code was not read."
+    },
+    {
+      "id": "rel:publishes-snuba-subscription-metrics--kafka",
+      "kind": "publishes",
+      "source": "service:snuba-subscription-metrics",
+      "target": "service:kafka",
+      "basis": "inferred",
+      "label": "subscription results",
+      "rationale": "Taskbroker consumes the subscription-results topics; Snuba's subscription executor is the producer by name, but Snuba's code was not read."
+    },
+    {
+      "id": "rel:publishes-snuba-subscription-transactions--kafka",
+      "kind": "publishes",
+      "source": "service:snuba-subscription-transactions",
+      "target": "service:kafka",
+      "basis": "inferred",
+      "label": "subscription results",
+      "rationale": "Taskbroker consumes the subscription-results topics; Snuba's subscription executor is the producer by name, but Snuba's code was not read."
+    },
+    {
+      "id": "rel:publishes-taskbroker--topic-taskworker",
+      "kind": "publishes",
+      "source": "service:taskbroker",
+      "target": "interface:topic-taskworker",
+      "basis": "supported",
+      "label": "retries",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:publishes-taskbroker--topic-taskworker-dlq",
+      "kind": "publishes",
+      "source": "service:taskbroker",
+      "target": "interface:topic-taskworker-dlq",
+      "basis": "supported",
+      "label": "dead letters",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:publishes-taskscheduler--kafka",
+      "kind": "publishes",
+      "source": "service:taskscheduler",
+      "target": "service:kafka",
+      "basis": "inferred",
+      "label": "schedules",
+      "rationale": "The scheduler schedules tasks through Kafka; the compose file does not show its producer settings."
+    },
+    {
+      "id": "rel:publishes-uptime-checker--kafka",
+      "kind": "publishes",
+      "source": "service:uptime-checker",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "results",
+      "evidence_ids": [
+        "evidence:uptime-kafka"
+      ]
+    },
+    {
+      "id": "rel:publishes-vroom--kafka",
+      "kind": "publishes",
+      "source": "service:vroom",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "occurrences",
+      "evidence_ids": [
+        "evidence:vroom-kafka"
+      ]
+    },
+    {
+      "id": "rel:publishes-web--kafka",
+      "kind": "publishes",
+      "source": "service:web",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "events",
+      "evidence_ids": [
+        "evidence:eventstream"
+      ]
+    },
+    {
+      "id": "rel:reads-attachments-consumer--redis",
+      "kind": "reads",
+      "source": "service:attachments-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-events-consumer--redis",
+      "kind": "reads",
+      "source": "service:events-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-ingest-feedback-events--redis",
+      "kind": "reads",
+      "source": "service:ingest-feedback-events",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-ingest-monitors--redis",
+      "kind": "reads",
+      "source": "service:ingest-monitors",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-ingest-occurrences--redis",
+      "kind": "reads",
+      "source": "service:ingest-occurrences",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-metrics-consumer--redis",
+      "kind": "reads",
+      "source": "service:metrics-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-monitors-clock-tasks--redis",
+      "kind": "reads",
+      "source": "service:monitors-clock-tasks",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-monitors-clock-tick--redis",
+      "kind": "reads",
+      "source": "service:monitors-clock-tick",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-pgbouncer--postgres",
+      "kind": "reads",
+      "source": "service:pgbouncer",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-post-process-forwarder-errors--redis",
+      "kind": "reads",
+      "source": "service:post-process-forwarder-errors",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-post-process-forwarder-issue-platform--redis",
+      "kind": "reads",
+      "source": "service:post-process-forwarder-issue-platform",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-post-process-forwarder-transactions--redis",
+      "kind": "reads",
+      "source": "service:post-process-forwarder-transactions",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-process-spans--redis",
+      "kind": "reads",
+      "source": "service:process-spans",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-relay--redis",
+      "kind": "reads",
+      "source": "service:relay",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-api--clickhouse",
+      "kind": "reads",
+      "source": "service:snuba-api",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "SQL",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-api--redis",
+      "kind": "reads",
+      "source": "service:snuba-api",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-eap-items-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-eap-items-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-errors-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-errors-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-group-attributes-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-group-attributes-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-issue-occurrence-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-issue-occurrence-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-metrics-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-metrics-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-outcomes-accepted-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-outcomes-accepted-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-outcomes-billing-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-outcomes-billing-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-outcomes-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-outcomes-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-profiling-functions-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-profiling-functions-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-profiling-profile-chunks-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-profiling-profile-chunks-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-profiling-profiles-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-profiling-profiles-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-replacer--redis",
+      "kind": "reads",
+      "source": "service:snuba-replacer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-replays-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-replays-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-subscription-eap-items--clickhouse",
+      "kind": "reads",
+      "source": "service:snuba-subscription-eap-items",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "alert queries",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-subscription-eap-items--redis",
+      "kind": "reads",
+      "source": "service:snuba-subscription-eap-items",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-subscription-events--clickhouse",
+      "kind": "reads",
+      "source": "service:snuba-subscription-events",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "alert queries",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-subscription-events--redis",
+      "kind": "reads",
+      "source": "service:snuba-subscription-events",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-subscription-metrics--clickhouse",
+      "kind": "reads",
+      "source": "service:snuba-subscription-metrics",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "alert queries",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-subscription-metrics--redis",
+      "kind": "reads",
+      "source": "service:snuba-subscription-metrics",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-subscription-transactions--clickhouse",
+      "kind": "reads",
+      "source": "service:snuba-subscription-transactions",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "alert queries",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-subscription-transactions--redis",
+      "kind": "reads",
+      "source": "service:snuba-subscription-transactions",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-snuba-transactions-consumer--redis",
+      "kind": "reads",
+      "source": "service:snuba-transactions-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-taskscheduler--redis",
+      "kind": "reads",
+      "source": "service:taskscheduler",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-taskworker--memcached",
+      "kind": "reads",
+      "source": "service:taskworker",
+      "target": "store:memcached",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-taskworker--redis",
+      "kind": "reads",
+      "source": "service:taskworker",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-taskworker--seaweedfs",
+      "kind": "reads",
+      "source": "service:taskworker",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-transactions-consumer--redis",
+      "kind": "reads",
+      "source": "service:transactions-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-uptime-checker--redis",
+      "kind": "reads",
+      "source": "service:uptime-checker",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-uptime-results--redis",
+      "kind": "reads",
+      "source": "service:uptime-results",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-vroom--seaweedfs",
+      "kind": "reads",
+      "source": "service:vroom",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "label": "profiles bucket",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:reads-web--memcached",
+      "kind": "reads",
+      "source": "service:web",
+      "target": "store:memcached",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:sentry-conf"
+      ]
+    },
+    {
+      "id": "rel:reads-web--redis",
+      "kind": "reads",
+      "source": "service:web",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:sentry-conf"
+      ]
+    },
+    {
+      "id": "rel:reads-web--seaweedfs",
+      "kind": "reads",
+      "source": "service:web",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:sentry-conf"
+      ]
+    },
+    {
+      "id": "rel:requests-attachments-consumer--pgbouncer",
+      "kind": "requests",
+      "source": "service:attachments-consumer",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-browser--nginx",
+      "kind": "requests",
+      "source": "client:browser",
+      "target": "service:nginx",
+      "basis": "supported",
+      "label": "UI",
+      "evidence_ids": [
+        "evidence:nginx"
+      ]
+    },
+    {
+      "id": "rel:requests-events-consumer--pgbouncer",
+      "kind": "requests",
+      "source": "service:events-consumer",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-events-consumer--snuba-api",
+      "kind": "requests",
+      "source": "service:events-consumer",
+      "target": "service:snuba-api",
+      "basis": "inferred",
+      "label": "queries",
+      "rationale": "Compose gives every Sentry container the SNUBA address."
+    },
+    {
+      "id": "rel:requests-ingest-feedback-events--pgbouncer",
+      "kind": "requests",
+      "source": "service:ingest-feedback-events",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-ingest-monitors--pgbouncer",
+      "kind": "requests",
+      "source": "service:ingest-monitors",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-ingest-occurrences--pgbouncer",
+      "kind": "requests",
+      "source": "service:ingest-occurrences",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-launchpad--taskbroker",
+      "kind": "requests",
+      "source": "service:launchpad",
+      "target": "service:taskbroker",
+      "basis": "supported",
+      "label": "gRPC fetch tasks",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-launchpad--web",
+      "kind": "requests",
+      "source": "service:launchpad",
+      "target": "service:web",
+      "basis": "supported",
+      "label": "HTTP API",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-metrics-consumer--pgbouncer",
+      "kind": "requests",
+      "source": "service:metrics-consumer",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-monitors-clock-tasks--pgbouncer",
+      "kind": "requests",
+      "source": "service:monitors-clock-tasks",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-monitors-clock-tick--pgbouncer",
+      "kind": "requests",
+      "source": "service:monitors-clock-tick",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-nginx--relay",
+      "kind": "requests",
+      "source": "service:nginx",
+      "target": "service:relay",
+      "basis": "supported",
+      "label": "/api/N/",
+      "evidence_ids": [
+        "evidence:nginx"
+      ]
+    },
+    {
+      "id": "rel:requests-nginx--web",
+      "kind": "requests",
+      "source": "service:nginx",
+      "target": "service:web",
+      "basis": "supported",
+      "label": "everything else",
+      "evidence_ids": [
+        "evidence:nginx"
+      ]
+    },
+    {
+      "id": "rel:requests-process-spans--pgbouncer",
+      "kind": "requests",
+      "source": "service:process-spans",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-relay--web",
+      "kind": "requests",
+      "source": "service:relay",
+      "target": "service:web",
+      "basis": "supported",
+      "label": "project configs",
+      "evidence_ids": [
+        "evidence:relay"
+      ]
+    },
+    {
+      "id": "rel:requests-sdk--nginx",
+      "kind": "requests",
+      "source": "client:sdk",
+      "target": "service:nginx",
+      "basis": "supported",
+      "label": "events",
+      "evidence_ids": [
+        "evidence:nginx"
+      ]
+    },
+    {
+      "id": "rel:requests-sentry-cleanup--pgbouncer",
+      "kind": "requests",
+      "source": "service:sentry-cleanup",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-symbolicator--symbol-sources",
+      "kind": "requests",
+      "source": "service:symbolicator",
+      "target": "service:symbol-sources",
+      "basis": "inferred",
+      "label": "fetch symbols",
+      "rationale": "Symbolicator's job is fetching debug files and source maps from configured external sources."
+    },
+    {
+      "id": "rel:requests-taskworker--pgbouncer",
+      "kind": "requests",
+      "source": "service:taskworker",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-taskworker--smtp",
+      "kind": "requests",
+      "source": "service:taskworker",
+      "target": "service:smtp",
+      "basis": "inferred",
+      "label": "mail",
+      "rationale": "Notification tasks send mail through the configured SMTP host."
+    },
+    {
+      "id": "rel:requests-taskworker--snuba-api",
+      "kind": "requests",
+      "source": "service:taskworker",
+      "target": "service:snuba-api",
+      "basis": "supported",
+      "label": "queries",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-taskworker--symbolicator",
+      "kind": "requests",
+      "source": "service:taskworker",
+      "target": "service:symbolicator",
+      "basis": "inferred",
+      "label": "symbolication",
+      "rationale": "See web: symbolication is driven from task workers."
+    },
+    {
+      "id": "rel:requests-taskworker--taskbroker",
+      "kind": "requests",
+      "source": "service:taskworker",
+      "target": "service:taskbroker",
+      "basis": "supported",
+      "label": "gRPC fetch tasks",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-taskworker--vroom",
+      "kind": "requests",
+      "source": "service:taskworker",
+      "target": "service:vroom",
+      "basis": "inferred",
+      "label": "profiles",
+      "rationale": "Compose gives every Sentry container the VROOM address."
+    },
+    {
+      "id": "rel:requests-transactions-consumer--pgbouncer",
+      "kind": "requests",
+      "source": "service:transactions-consumer",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-transactions-consumer--snuba-api",
+      "kind": "requests",
+      "source": "service:transactions-consumer",
+      "target": "service:snuba-api",
+      "basis": "inferred",
+      "label": "queries",
+      "rationale": "Compose gives every Sentry container the SNUBA address."
+    },
+    {
+      "id": "rel:requests-uptime-checker--monitored-sites",
+      "kind": "requests",
+      "source": "service:uptime-checker",
+      "target": "service:monitored-sites",
+      "basis": "inferred",
+      "label": "probe",
+      "rationale": "The uptime checker probes customer URLs by design."
+    },
+    {
+      "id": "rel:requests-uptime-results--pgbouncer",
+      "kind": "requests",
+      "source": "service:uptime-results",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-vroom--snuba-api",
+      "kind": "requests",
+      "source": "service:vroom",
+      "target": "service:snuba-api",
+      "basis": "supported",
+      "label": "queries",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-web--pgbouncer",
+      "kind": "requests",
+      "source": "service:web",
+      "target": "service:pgbouncer",
+      "basis": "inferred",
+      "label": "SQL",
+      "rationale": "Compose makes every Sentry container wait for pgbouncer; the pool is how they reach Postgres."
+    },
+    {
+      "id": "rel:requests-web--smtp",
+      "kind": "requests",
+      "source": "service:web",
+      "target": "service:smtp",
+      "basis": "inferred",
+      "label": "mail",
+      "rationale": "Web depends on smtp and SENTRY_MAIL_HOST is configured; web may enqueue mail via tasks instead."
+    },
+    {
+      "id": "rel:requests-web--snuba-api",
+      "kind": "requests",
+      "source": "service:web",
+      "target": "service:snuba-api",
+      "basis": "supported",
+      "label": "queries",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:requests-web--symbolicator",
+      "kind": "requests",
+      "source": "service:web",
+      "target": "service:symbolicator",
+      "basis": "inferred",
+      "label": "symbolication",
+      "rationale": "All Sentry containers depend on symbolicator in compose; the caller is likely the task worker and web for source map lookups."
+    },
+    {
+      "id": "rel:requests-web--vroom",
+      "kind": "requests",
+      "source": "service:web",
+      "target": "service:vroom",
+      "basis": "supported",
+      "label": "profiles",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:subscribes-attachments-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:attachments-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-events-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:events-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-ingest-feedback-events--kafka",
+      "kind": "subscribes",
+      "source": "service:ingest-feedback-events",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-ingest-monitors--kafka",
+      "kind": "subscribes",
+      "source": "service:ingest-monitors",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-ingest-occurrences--kafka",
+      "kind": "subscribes",
+      "source": "service:ingest-occurrences",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-metrics-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:metrics-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-monitors-clock-tasks--kafka",
+      "kind": "subscribes",
+      "source": "service:monitors-clock-tasks",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-monitors-clock-tick--kafka",
+      "kind": "subscribes",
+      "source": "service:monitors-clock-tick",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-post-process-forwarder-errors--kafka",
+      "kind": "subscribes",
+      "source": "service:post-process-forwarder-errors",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume + commit log",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-post-process-forwarder-issue-platform--kafka",
+      "kind": "subscribes",
+      "source": "service:post-process-forwarder-issue-platform",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume + commit log",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-post-process-forwarder-transactions--kafka",
+      "kind": "subscribes",
+      "source": "service:post-process-forwarder-transactions",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume + commit log",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-process-spans--kafka",
+      "kind": "subscribes",
+      "source": "service:process-spans",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-eap-items-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-eap-items-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-errors-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-errors-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-group-attributes-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-group-attributes-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-issue-occurrence-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-issue-occurrence-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-metrics-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-metrics-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-outcomes-accepted-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-outcomes-accepted-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-outcomes-billing-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-outcomes-billing-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-outcomes-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-outcomes-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-profiling-functions-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-profiling-functions-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-profiling-profile-chunks-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-profiling-profile-chunks-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-profiling-profiles-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-profiling-profiles-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-replacer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-replacer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-replays-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-replays-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-subscription-eap-items--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-subscription-eap-items",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "commit log",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-subscription-events--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-subscription-events",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "commit log",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-subscription-metrics--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-subscription-metrics",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "commit log",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-subscription-transactions--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-subscription-transactions",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "commit log",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-snuba-transactions-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:snuba-transactions-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-taskbroker--topic-events-subscription-results",
+      "kind": "subscribes",
+      "source": "service:taskbroker",
+      "target": "interface:topic-events-subscription-results",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:subscribes-taskbroker--topic-ingest-replay-recordings",
+      "kind": "subscribes",
+      "source": "service:taskbroker",
+      "target": "interface:topic-ingest-replay-recordings",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:subscribes-taskbroker--topic-metrics-subscription-results",
+      "kind": "subscribes",
+      "source": "service:taskbroker",
+      "target": "interface:topic-metrics-subscription-results",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:subscribes-taskbroker--topic-profiles",
+      "kind": "subscribes",
+      "source": "service:taskbroker",
+      "target": "interface:topic-profiles",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:subscribes-taskbroker--topic-subscription-results-eap-items",
+      "kind": "subscribes",
+      "source": "service:taskbroker",
+      "target": "interface:topic-subscription-results-eap-items",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:subscribes-taskbroker--topic-taskworker",
+      "kind": "subscribes",
+      "source": "service:taskbroker",
+      "target": "interface:topic-taskworker",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:subscribes-taskbroker--topic-transactions-subscription-results",
+      "kind": "subscribes",
+      "source": "service:taskbroker",
+      "target": "interface:topic-transactions-subscription-results",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:taskbroker"
+      ]
+    },
+    {
+      "id": "rel:subscribes-transactions-consumer--kafka",
+      "kind": "subscribes",
+      "source": "service:transactions-consumer",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-uptime-results--kafka",
+      "kind": "subscribes",
+      "source": "service:uptime-results",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "consume",
+      "evidence_ids": [
+        "evidence:ingest-consumers"
+      ]
+    },
+    {
+      "id": "rel:subscribes-vroom--kafka",
+      "kind": "subscribes",
+      "source": "service:vroom",
+      "target": "service:kafka",
+      "basis": "supported",
+      "label": "profiling",
+      "evidence_ids": [
+        "evidence:vroom-kafka"
+      ]
+    },
+    {
+      "id": "rel:writes-attachments-consumer--redis",
+      "kind": "writes",
+      "source": "service:attachments-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-attachments-consumer--seaweedfs",
+      "kind": "writes",
+      "source": "service:attachments-consumer",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "label": "attachments",
+      "evidence_ids": [
+        "evidence:sentry-conf"
+      ]
+    },
+    {
+      "id": "rel:writes-events-consumer--redis",
+      "kind": "writes",
+      "source": "service:events-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-ingest-feedback-events--redis",
+      "kind": "writes",
+      "source": "service:ingest-feedback-events",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-ingest-monitors--redis",
+      "kind": "writes",
+      "source": "service:ingest-monitors",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-ingest-occurrences--redis",
+      "kind": "writes",
+      "source": "service:ingest-occurrences",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-metrics-consumer--redis",
+      "kind": "writes",
+      "source": "service:metrics-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-monitors-clock-tasks--redis",
+      "kind": "writes",
+      "source": "service:monitors-clock-tasks",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-monitors-clock-tick--redis",
+      "kind": "writes",
+      "source": "service:monitors-clock-tick",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-pgbouncer--postgres",
+      "kind": "writes",
+      "source": "service:pgbouncer",
+      "target": "store:postgres",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-post-process-forwarder-errors--redis",
+      "kind": "writes",
+      "source": "service:post-process-forwarder-errors",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-post-process-forwarder-issue-platform--redis",
+      "kind": "writes",
+      "source": "service:post-process-forwarder-issue-platform",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-post-process-forwarder-transactions--redis",
+      "kind": "writes",
+      "source": "service:post-process-forwarder-transactions",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-process-spans--redis",
+      "kind": "writes",
+      "source": "service:process-spans",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-relay--redis",
+      "kind": "writes",
+      "source": "service:relay",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-eap-items-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-eap-items-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-errors-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-errors-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-group-attributes-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-group-attributes-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-issue-occurrence-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-issue-occurrence-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-metrics-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-metrics-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-outcomes-accepted-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-outcomes-accepted-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-outcomes-billing-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-outcomes-billing-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-outcomes-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-outcomes-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-profiling-functions-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-profiling-functions-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-profiling-profile-chunks-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-profiling-profile-chunks-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-profiling-profiles-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-profiling-profiles-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-replacer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-replacer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-replays-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-replays-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-snuba-transactions-consumer--clickhouse",
+      "kind": "writes",
+      "source": "service:snuba-transactions-consumer",
+      "target": "store:clickhouse",
+      "basis": "supported",
+      "label": "insert",
+      "evidence_ids": [
+        "evidence:snuba-consumers"
+      ]
+    },
+    {
+      "id": "rel:writes-taskscheduler--redis",
+      "kind": "writes",
+      "source": "service:taskscheduler",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-taskworker--memcached",
+      "kind": "writes",
+      "source": "service:taskworker",
+      "target": "store:memcached",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-taskworker--redis",
+      "kind": "writes",
+      "source": "service:taskworker",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-taskworker--seaweedfs",
+      "kind": "writes",
+      "source": "service:taskworker",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-transactions-consumer--redis",
+      "kind": "writes",
+      "source": "service:transactions-consumer",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-uptime-checker--redis",
+      "kind": "writes",
+      "source": "service:uptime-checker",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-uptime-results--redis",
+      "kind": "writes",
+      "source": "service:uptime-results",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-vroom--seaweedfs",
+      "kind": "writes",
+      "source": "service:vroom",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "label": "profiles bucket",
+      "evidence_ids": [
+        "evidence:compose"
+      ]
+    },
+    {
+      "id": "rel:writes-web--memcached",
+      "kind": "writes",
+      "source": "service:web",
+      "target": "store:memcached",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:sentry-conf"
+      ]
+    },
+    {
+      "id": "rel:writes-web--redis",
+      "kind": "writes",
+      "source": "service:web",
+      "target": "store:redis",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:sentry-conf"
+      ]
+    },
+    {
+      "id": "rel:writes-web--seaweedfs",
+      "kind": "writes",
+      "source": "service:web",
+      "target": "store:seaweedfs",
+      "basis": "supported",
+      "evidence_ids": [
+        "evidence:sentry-conf"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence:compose",
+      "description": "docker-compose.yml services, commands, env addresses and profiles",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.yml"
+      }
+    },
+    {
+      "id": "evidence:eventstream",
+      "description": "sentry/sentry.conf.example.py Kafka event stream producer",
+      "locator": {
+        "kind": "source",
+        "path": "sentry/sentry.conf.example.py",
+        "start_line": 227,
+        "end_line": 228
+      }
+    },
+    {
+      "id": "evidence:ingest-consumers",
+      "description": "docker-compose.yml Kafka consumer commands for ingest and post-process containers",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.yml",
+        "start_line": 471,
+        "end_line": 559
+      }
+    },
+    {
+      "id": "evidence:nginx",
+      "description": "nginx.conf routes /api/ to relay and everything else to web",
+      "locator": {
+        "kind": "source",
+        "path": "nginx.conf"
+      }
+    },
+    {
+      "id": "evidence:relay",
+      "description": "relay/config.example.yml relay upstream, Kafka and Redis processing config",
+      "locator": {
+        "kind": "source",
+        "path": "relay/config.example.yml",
+        "start_line": 1,
+        "end_line": 13
+      }
+    },
+    {
+      "id": "evidence:sentry-conf",
+      "description": "sentry/sentry.conf.example.py Kafka eventstream, Redis, memcached and S3 filestore",
+      "locator": {
+        "kind": "source",
+        "path": "sentry/sentry.conf.example.py"
+      }
+    },
+    {
+      "id": "evidence:snuba-consumers",
+      "description": "docker-compose.yml Snuba consumer and subscription commands",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.yml",
+        "start_line": 317,
+        "end_line": 429
+      }
+    },
+    {
+      "id": "evidence:taskbroker",
+      "description": "taskbroker/config.yml Kafka topics and task routing",
+      "locator": {
+        "kind": "source",
+        "path": "taskbroker/config.yml",
+        "start_line": 6,
+        "end_line": 64
+      }
+    },
+    {
+      "id": "evidence:uptime-kafka",
+      "description": "docker-compose.yml uptime checker results Kafka cluster",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.yml",
+        "start_line": 701,
+        "end_line": 701
+      }
+    },
+    {
+      "id": "evidence:vroom-kafka",
+      "description": "docker-compose.yml vroom Kafka brokers for profiling and occurrences",
+      "locator": {
+        "kind": "source",
+        "path": "docker-compose.yml",
+        "start_line": 675,
+        "end_line": 676
+      }
+    }
+  ]
+}

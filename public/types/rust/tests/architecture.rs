@@ -26,6 +26,9 @@ fn shared_contract_conformance() {
         let fixture = match case.base.as_str() {
             "objects.json" => OBJECTS_FIXTURE,
             "architecture.json" => include_str!("../../../examples/architecture.json"),
+            "architecture-messaging.json" => {
+                include_str!("../../../examples/architecture-messaging.json")
+            }
             "architecture-minimal.json" => {
                 include_str!("../../../examples/architecture-minimal.json")
             }
@@ -163,7 +166,14 @@ fn retains_claims_and_warns_for_generic_forms_and_duplicate_claims() {
         value["relations"].as_array_mut().unwrap().push(json!({"id":id,"kind":"reads","source":"service:api","target":"store:users","basis":"declared"}));
     }
     let model = Architecture::from_json(value.to_string().as_bytes()).unwrap();
-    let codes: Vec<_> = model.warnings().iter().map(|d| d.code).collect();
+    // Adding flows makes the gallery's other objects unconnected; that advice is
+    // tested on its own.
+    let codes: Vec<_> = model
+        .warnings()
+        .iter()
+        .map(|d| d.code)
+        .filter(|c| *c != "unconnected_entity")
+        .collect();
     assert_eq!(
         codes,
         ["generic_subtype", "descriptive_role", "duplicate_claim"]
@@ -225,4 +235,77 @@ fn notes_crud_design_keeps_one_service_and_explicit_policy_coverage() {
             .filter(|r| r.kind == Link::ImplementedBy)
             .all(|r| r.target == "service:notes")
     );
+}
+
+const MESSAGING: &str = include_str!("../../../examples/architecture-messaging.json");
+
+#[test]
+fn messaging_vocabulary_is_recognized_without_warnings() {
+    let model = Architecture::from_json(MESSAGING.as_bytes()).unwrap();
+    assert!(model.warnings().is_empty(), "{:?}", model.warnings());
+    let unknown = MESSAGING.replace("\"broker\"", "\"mailbox\"");
+    let model = Architecture::from_json(unknown.as_bytes()).unwrap();
+    assert!(model.warnings().iter().any(|w| w.code == "generic_subtype"));
+}
+
+#[test]
+fn supported_claims_without_a_line_range_are_flagged() {
+    let mut value: Value = serde_json::from_str(MESSAGING).unwrap();
+    value["evidence"] = json!([
+        {"id": "ev:file", "description": "whole file", "locator": {"kind": "source", "path": "compose.yaml"}},
+        {"id": "ev:ref", "description": "opaque", "locator": {"kind": "reference", "value": "wiki"}},
+        {"id": "ev:lines", "description": "ranged", "locator": {"kind": "source", "path": "compose.yaml", "start_line": 3, "end_line": 9}},
+        {"id": "ev:declared", "description": "cited by a declared claim", "locator": {"kind": "reference", "value": "wiki"}}
+    ]);
+    for (i, evidence) in [(7, "ev:file"), (8, "ev:ref"), (9, "ev:lines")] {
+        let relation = &mut value["relations"][i];
+        relation["basis"] = json!("supported");
+        relation["evidence_ids"] = json!([evidence]);
+    }
+    value["relations"][10]["evidence_ids"] = json!(["ev:declared"]);
+    let model = Architecture::from_json(value.to_string().as_bytes()).unwrap();
+    let flagged: Vec<_> = model
+        .warnings()
+        .iter()
+        .filter(|w| w.code == "coarse_evidence")
+        .map(|w| w.path.as_str())
+        .collect();
+    assert_eq!(flagged, ["/evidence/0", "/evidence/1"]);
+}
+
+#[test]
+fn warns_about_objects_that_take_part_in_no_flow() {
+    // The gallery draws no flows at all, so it is exempt.
+    let gallery = Architecture::from_json(OBJECTS_FIXTURE.as_bytes()).unwrap();
+    assert!(
+        gallery
+            .warnings()
+            .iter()
+            .all(|d| d.code != "unconnected_entity")
+    );
+
+    let mut value: Value =
+        serde_json::from_str(include_str!("../../../examples/notes-crud.json")).unwrap();
+    let model = Architecture::from_json(value.to_string().as_bytes()).unwrap();
+    assert!(model.warnings().is_empty());
+    value["entities"].as_array_mut().unwrap().push(json!({
+        "id": "store:audit", "kind": "datastore", "label": "Audit log",
+        "boundary": "internal", "basis": "declared"}));
+    value["relations"].as_array_mut().unwrap().push(json!({
+        "id": "rel:contains-audit", "kind": "contains", "source": "scope:notes",
+        "target": "store:audit", "basis": "declared"}));
+    let model = Architecture::from_json(value.to_string().as_bytes()).unwrap();
+    let flagged: Vec<_> = model
+        .warnings()
+        .iter()
+        .filter(|d| d.code == "unconnected_entity")
+        .map(|d| d.path.as_str())
+        .collect();
+    let index = model
+        .snapshot()
+        .entities
+        .iter()
+        .position(|e| e.id == "store:audit")
+        .unwrap();
+    assert_eq!(flagged, [format!("/entities/{index}")]);
 }

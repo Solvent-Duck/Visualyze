@@ -18,7 +18,7 @@ These are experimental Phase 0 fixture types and remain separate from the propos
 
 ## Draft architecture contract
 
-The proposed `0.1.0-draft.1` format is a typed graph with seven entity kinds and nine relation kinds. The agent supplies semantics; the renderer owns construction and positioning.
+The proposed `0.1.0-draft.1` format is a typed graph with seven entity kinds and eleven relation kinds. The agent supplies semantics; the renderer owns construction and positioning.
 
 - [Format and graph rules](schema/architecture-format.md)
 - [JSON Schema](schema/architecture.schema.json)
@@ -30,7 +30,7 @@ The proposed `0.1.0-draft.1` format is a typed graph with seven entity kinds and
 
 [objects.json](examples/objects.json) supplies one of each kind for the simulator. It contains only the containment and interface-ownership records required to make that model valid; the gallery draws no relationships. [Shared conformance cases](conformance/architecture-cases.json) run as part of `cargo test -p visualyze-model --locked`.
 
-TypeScript bindings/validation, cross-language conformance, live publication and revision checks, command/view schemas, and the agent bridge remain separate implementation slices. The original database-only type and fixture remain historical examples; they are not accepted as full snapshots by the new loader.
+The walkthrough format ([walkthrough-format.md](schema/walkthrough-format.md)), the MCP bridge ([mcp-server](mcp-server/README.md)), and the agent skills are implemented (ADR 0008). The bridge is Rust and reuses the Rust validator, so TypeScript bindings are no longer on the bridge's path. The original database-only type and fixture remain historical examples; they are not accepted as full snapshots by the new loader.
 
 ## Versioned local bundles
 

@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1.0-draft.1",
+  "model_id": "visualyze-waiting",
+  "revision": 1,
+  "system_id": "scope:waiting",
+  "snapshot": {
+    "id": "visualyze-waiting-1",
+    "source_revision": null,
+    "coverage": "partial",
+    "scope_description": "Placeholder shown until an agent publishes a model.",
+    "omissions": []
+  },
+  "entities": [
+    {
+      "id": "scope:waiting",
+      "kind": "scope",
+      "label": "Waiting for your agent",
+      "boundary": "internal",
+      "subtype": "system",
+      "basis": "declared"
+    }
+  ],
+  "relations": [],
+  "evidence": []
+}

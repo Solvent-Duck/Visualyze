@@ -198,13 +198,21 @@ pub(super) fn validate(model: &Snapshot) -> Result<Vec<Diagnostic>, ValidationEr
                     );
                 }
             }
-            RelationKind::Requests | RelationKind::Reads | RelationKind::Writes => {}
+            RelationKind::Requests
+            | RelationKind::Reads
+            | RelationKind::Writes
+            | RelationKind::Publishes
+            | RelationKind::Subscribes => {}
         }
     }
     for (i, relation) in model.relations.iter().enumerate() {
         if matches!(
             relation.kind,
-            RelationKind::Requests | RelationKind::Reads | RelationKind::Writes
+            RelationKind::Requests
+                | RelationKind::Reads
+                | RelationKind::Writes
+                | RelationKind::Publishes
+                | RelationKind::Subscribes
         ) {
             let source = entities[relation.source.as_str()];
             let target = entities[relation.target.as_str()];
@@ -213,15 +221,17 @@ pub(super) fn validate(model: &Snapshot) -> Result<Vec<Diagnostic>, ValidationEr
             } else {
                 Some(target)
             };
-            let target_valid = effective_target.is_some_and(|e| {
-                if relation.kind == RelationKind::Requests {
-                    e.kind.is_caller()
-                } else {
-                    e.kind == EntityKind::Datastore
-                }
+            let target_valid = effective_target.is_some_and(|e| match relation.kind {
+                RelationKind::Requests => e.kind.is_caller(),
+                RelationKind::Publishes | RelationKind::Subscribes => e.kind == EntityKind::Service,
+                _ => e.kind == EntityKind::Datastore,
             });
-            if !source.kind.is_caller() || !target_valid {
-                errors.push("invalid_relation_endpoint", format!("/relations/{i}"), "requests target a caller; reads/writes target storage (directly or through its interface); source must be a client/service");
+            let source_valid = match relation.kind {
+                RelationKind::Subscribes => source.kind.is_component(),
+                _ => source.kind.is_caller(),
+            };
+            if !source_valid || !target_valid {
+                errors.push("invalid_relation_endpoint", format!("/relations/{i}"), "requests target a caller; reads/writes target storage (directly or through its interface); publishes/subscribes target a message broker service (directly or through a topic interface); sources are clients/services, except that any component may subscribe");
             }
         }
     }
@@ -295,6 +305,41 @@ pub(super) fn validate(model: &Snapshot) -> Result<Vec<Diagnostic>, ValidationEr
             }
         }
     }
+    // In a model that draws flows, a box that takes part in none is usually a modelling
+    // slip: a path that was never connected. Structure and coverage do not count. A
+    // structure-only model (the object gallery) is a deliberate choice and is exempt.
+    let mut connected = HashSet::new();
+    for relation in &model.relations {
+        if matches!(
+            relation.kind,
+            RelationKind::Requests
+                | RelationKind::Reads
+                | RelationKind::Writes
+                | RelationKind::DependsOn
+                | RelationKind::Publishes
+                | RelationKind::Subscribes
+        ) {
+            connected.insert(relation.source.as_str());
+            connected.insert(relation.target.as_str());
+        }
+    }
+    for (i, entity) in model.entities.iter().enumerate() {
+        if matches!(
+            entity.kind,
+            EntityKind::Client
+                | EntityKind::Service
+                | EntityKind::Datastore
+                | EntityKind::Interface
+        ) && !connected.is_empty()
+            && !connected.contains(entity.id.as_str())
+        {
+            warnings.push(
+                "unconnected_entity",
+                format!("/entities/{i}"),
+                "nothing requests, reads, writes, depends on, publishes to, or subscribes to this object; connect it with evidence, or leave it out and list it in omissions",
+            );
+        }
+    }
     for (i, record) in model.evidence.iter().enumerate() {
         if let Some(Locator::Source {
             path,
@@ -320,6 +365,37 @@ pub(super) fn validate(model: &Snapshot) -> Result<Vec<Diagnostic>, ValidationEr
                     "end_line must be at least start_line",
                 );
             }
+        }
+    }
+    // A supported claim should point at something checkable: a line range in a source file.
+    let cited: HashSet<&str> = model
+        .entities
+        .iter()
+        .filter(|e| e.basis == Basis::Supported)
+        .flat_map(|e| &e.evidence_ids)
+        .chain(
+            model
+                .relations
+                .iter()
+                .filter(|r| r.basis == Basis::Supported)
+                .flat_map(|r| &r.evidence_ids),
+        )
+        .map(String::as_str)
+        .collect();
+    for (i, record) in model.evidence.iter().enumerate() {
+        let located = matches!(
+            record.locator,
+            Some(Locator::Source {
+                start_line: Some(_),
+                ..
+            })
+        );
+        if cited.contains(record.id.as_str()) && !located {
+            warnings.push(
+                "coarse_evidence",
+                format!("/evidence/{i}"),
+                "supports a supported claim but has no source line range; cite path, start_line and end_line",
+            );
         }
     }
     let mut claims = HashSet::new();
@@ -377,9 +453,19 @@ fn known_subtypes(kind: EntityKind) -> &'static [&'static str] {
     match kind {
         EntityKind::Scope => &["system", "subsystem", "domain"],
         EntityKind::Client => &["web", "mobile", "desktop", "cli"],
-        EntityKind::Service => &["application", "gateway", "worker", "scheduler"],
-        EntityKind::Datastore => &["relational", "graph", "document", "key_value", "object"],
-        EntityKind::Interface => &["api", "storage", "user_interface"],
+        EntityKind::Service => &["application", "gateway", "worker", "scheduler", "broker"],
+        EntityKind::Datastore => &[
+            "relational",
+            "graph",
+            "document",
+            "key_value",
+            "object",
+            "columnar",
+            "time_series",
+            "search",
+            "log",
+        ],
+        EntityKind::Interface => &["api", "storage", "user_interface", "topic", "queue"],
         EntityKind::Concern => &[
             "authentication",
             "authorization",

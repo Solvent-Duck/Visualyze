@@ -60,6 +60,8 @@ impl LayoutEngine {
         }
     }
 }
+use crate::transition::{Choreography, Held, SceneTransition, Track};
+
 /// Semantic identity remains independent of the geometry/color vocabulary.
 #[derive(Component, Debug)]
 pub struct PlacedObject {
@@ -67,6 +69,93 @@ pub struct PlacedObject {
     pub semantic_ids: Vec<String>,
     pub kind: String,
     pub basis: Basis,
+    /// Half extents of the drawn box, for framing.
+    pub half: Vec3,
+}
+
+/// A displayed object or connector drawn faded because a staged scene puts it
+/// in context rather than in focus.
+#[derive(Component, Debug)]
+pub struct Dimmed;
+
+/// Which supplied IDs a staged scene is about. Everything else is context.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Spotlight {
+    pub lit: BTreeSet<String>,
+    pub relations: BTreeSet<String>,
+    pub context: SpotContext,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SpotContext {
+    Dim,
+    Hide,
+    Show,
+}
+
+/// A view an agent asks for: where to stand, what to open, what to light.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct StagedScene {
+    /// None shows the system root.
+    pub root: Option<String>,
+    pub expand: Vec<String>,
+    pub spotlight: Option<Spotlight>,
+    pub explode: bool,
+    /// Lay the scene out in a temporary flattened teaching view (ADR 0010) instead of
+    /// the published model.
+    pub(crate) teaching: Option<TeachingStage>,
+    /// How the scene replaces the one on screen; None cuts.
+    pub(crate) transition: Option<Choreography>,
+}
+
+/// The temporary layout source for one teaching view. It shares the published model's
+/// ID and revision and is never saved; equality is identity of the derived source.
+#[derive(Clone)]
+pub(crate) struct TeachingStage {
+    pub input: LayoutInput,
+    pub policy: layout::projection::LayoutPolicy,
+}
+impl PartialEq for TeachingStage {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.input.0, &other.input.0) && self.policy == other.policy
+    }
+}
+impl Eq for TeachingStage {}
+impl std::fmt::Debug for TeachingStage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "TeachingStage({:?})", self.policy)
+    }
+}
+
+/// What a teaching view replaced, restored when the explanation leaves it.
+struct TeachingReturn {
+    input: LayoutInput,
+    view: ViewState,
+    constraints: ConstraintRegistry,
+}
+
+/// A validated model supplied by a local agent, replacing the current one.
+#[derive(Clone)]
+pub struct Published(pub(crate) LayoutInput, pub(crate) String);
+impl Published {
+    pub(crate) fn new(
+        model: visualyze_model::architecture::Architecture,
+        path: Option<std::path::PathBuf>,
+    ) -> Self {
+        let id = model.snapshot().model_id.clone();
+        Self(
+            match path {
+                Some(path) => LayoutInput::snapshot_file(model, path),
+                None => LayoutInput::snapshot(model),
+            },
+            id,
+        )
+    }
+}
+impl std::fmt::Debug for Published {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Published({})", self.1)
+    }
 }
 #[derive(Component, Debug)]
 pub struct PlacedRelation {
@@ -436,6 +525,12 @@ pub enum ViewerAction {
     PreviousPage,
     Search(String),
     Reload,
+    /// Replace the model with an agent-supplied one, which may be a different model.
+    Publish(Published),
+    /// Show a scene an agent asked for, replacing navigation and emphasis.
+    Stage(Box<StagedScene>),
+    /// Return from a teaching view to the published model, if one is showing.
+    LeaveTeaching,
     NextClaims,
     PreviousClaims,
     NextRelations,
@@ -482,7 +577,11 @@ pub struct ViewerActions {
 
 impl ViewerActions {
     pub fn submit(&mut self, action: ViewerAction) -> Result<u64, &'static str> {
-        if self.queue.len() >= 64 && !matches!(action, ViewerAction::Cancel | ViewerAction::Reload)
+        if self.queue.len() >= 64
+            && !matches!(
+                action,
+                ViewerAction::Cancel | ViewerAction::Reload | ViewerAction::Publish(_)
+            )
         {
             return Err("viewer action queue is full");
         }
@@ -491,7 +590,10 @@ impl ViewerActions {
             .checked_add(1)
             .ok_or("viewer action sequence exhausted")?;
         let id = self.next_id;
-        if matches!(action, ViewerAction::Cancel | ViewerAction::Reload) {
+        if matches!(
+            action,
+            ViewerAction::Cancel | ViewerAction::Reload | ViewerAction::Publish(_)
+        ) {
             self.queue.clear();
             self.queue.push_front((id, action));
         } else {
@@ -509,6 +611,9 @@ pub struct ViewerSearchResult {
 }
 #[derive(Component)]
 struct LayoutOwned;
+/// The ground grid, which a transition replaces at once.
+#[derive(Component)]
+struct Ground;
 #[derive(Component)]
 struct LayoutText;
 #[derive(Component)]
@@ -525,6 +630,10 @@ const MARK_COLOR: Color = Color::srgb(0.95, 0.74, 0.3);
 struct Inspector;
 #[derive(Component)]
 struct InspectorPanel;
+/// Exploration HUD: status, trail, hints, and Details. Hidden while an agent's
+/// walkthrough presents, so the frame shows only the explanation.
+#[derive(Component)]
+pub(crate) struct DevChrome;
 #[derive(Component)]
 struct InspectorDisclosure;
 #[derive(Component, Default)]
@@ -628,13 +737,31 @@ struct Viewer {
     canonical_cache: Arc<layout::composed::CanonicalPlacementCache>,
     composed_constraints: ConstraintRegistry,
     accepted_composed_constraints: Arc<ConstraintRegistry>,
+    spotlight: Option<Spotlight>,
+    /// The next job replaces the model with a different one: no identity check
+    /// against the accepted model and no reuse of its layout.
+    switching_model: bool,
+    /// Set while a teaching view stands in for the published model. Nothing is saved
+    /// while it is set.
+    teaching: Option<TeachingReturn>,
+    /// The transition for the latest job's scene, and then for the next rebuild once
+    /// that job is accepted. Any other job clears it.
+    job_transition: Option<Choreography>,
+    pending_transition: Option<Choreography>,
 }
 type ConstraintRegistry = BTreeMap<(SemanticLens, String), ComposedConstraints>;
+
+/// Action processing through status publication. Readers of `LayoutStatus`
+/// that must see a finished action's effects run after this set.
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub(crate) struct LayoutUpdate;
 
 pub(crate) struct LayoutScenePlugin;
 impl Plugin for LayoutScenePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Viewer>()
+        app.add_plugins(crate::transition::TransitionPlugin)
+            .init_resource::<Viewer>()
+            .init_resource::<crate::icons::IconAtlas>()
             .init_resource::<LayoutStorage>()
             .init_resource::<LayoutStatus>()
             .init_resource::<ViewerActions>()
@@ -643,12 +770,14 @@ impl Plugin for LayoutScenePlugin {
                 Update,
                 (process_actions, controls, poll, navigation_status)
                     .chain()
+                    .in_set(LayoutUpdate)
                     .before(crate::camera::CameraControls),
             )
             .add_systems(
                 PostUpdate,
                 (labels, semantic_zoom).after(CameraUpdateSystems),
-            );
+            )
+            .add_systems(PostUpdate, dim_context);
     }
 }
 fn setup(
@@ -689,11 +818,13 @@ fn setup(
             ..default()
         },
         LayoutText,
+        DevChrome,
     ));
     spawn_inspector(&mut commands);
-    commands.spawn((Text::new("Click: select and isolate | click empty space: clear | double-click: enter | Enter: enter | Backspace: back\n/: find | E: expand | I: isolate | Drag: orbit | Wheel: zoom | J/K: path | P: pin | F5: reload | F1: Details and controls"),TextFont{font_size:11.0,..default()},TextLayout::default().with_no_wrap(),TextColor(Color::srgb_u8(145,165,181)),Node{position_type:PositionType::Absolute,left:px(24),bottom:px(16),right:px(24),height:px(32),overflow:Overflow::clip(),..default()}));
+    commands.spawn((DevChrome, Text::new("Click: select and isolate | click empty space: clear | double-click: enter | Enter: enter | Backspace: back\n/: find | E: expand | I: isolate | Drag: orbit | Wheel: zoom | J/K: path | P: pin | F5: reload | F1: Details and controls"),TextFont{font_size:11.0,..default()},TextLayout::default().with_no_wrap(),TextColor(Color::srgb_u8(145,165,181)),Node{position_type:PositionType::Absolute,left:px(24),bottom:px(16),right:px(24),height:px(32),overflow:Overflow::clip(),..default()}));
     commands.spawn((
         NavigationText,
+        DevChrome,
         Text::new("/ Find component | PageUp / PageDown: browse children"),
         TextFont {
             font_size: 13.0,
@@ -750,6 +881,7 @@ fn spawn_inspector(commands: &mut Commands) {
     commands
         .spawn((
             InspectorPanel,
+            DevChrome,
             GlobalZIndex(10),
             BackgroundColor(Color::srgba(0.055, 0.07, 0.09, 0.97)),
             Node {
@@ -1022,10 +1154,9 @@ fn process_actions(
         .queue
         .front()
         .is_some_and(|(_, action)| matches!(action, ViewerAction::Cancel));
-    let reload = actions
-        .queue
-        .front()
-        .is_some_and(|(_, action)| matches!(action, ViewerAction::Reload));
+    let reload = actions.queue.front().is_some_and(|(_, action)| {
+        matches!(action, ViewerAction::Reload | ViewerAction::Publish(_))
+    });
     // Automatic reorganization is speculative. A user navigation, search or
     // constraint edit supersedes it immediately, including a result already in
     // its channel. Dropping the job cancels work and makes late results inert.
@@ -1107,6 +1238,11 @@ fn apply_action(
     };
     match action {
         ViewerAction::Reload => {
+            if v.teaching.is_some() {
+                return Err(
+                    "A teaching view is showing; stop the walkthrough before reloading".into(),
+                );
+            }
             v.search_job.take();
             v.search_results.clear();
             abandon_pending(v);
@@ -1123,6 +1259,128 @@ fn apply_action(
                 Some(candidate.clone()),
                 Some(model.clone()),
             );
+            return Ok(true);
+        }
+        ViewerAction::Publish(published) => {
+            if let Some(back) = v.teaching.take() {
+                v.view = back.view;
+                v.composed_constraints = back.constraints;
+            }
+            v.search_job.take();
+            v.search_results.clear();
+            abandon_pending(v);
+            v.view.reset_relation_pages();
+            v.search_open = false;
+            let same = v
+                .accepted
+                .as_ref()
+                .is_some_and(|(p, _)| p.model_id == published.1);
+            if !same {
+                let policy = v.view.policy;
+                v.view = ViewState::default();
+                v.view.policy = policy;
+                v.switching_model = true;
+                v.restore_attempted = false;
+                v.selected = None;
+                v.isolate = false;
+                v.explode = false;
+                v.spotlight = None;
+                v.group_marks.clear();
+            }
+            start_job(
+                &published.0,
+                engine,
+                v,
+                false,
+                Some(published.0.clone()),
+                same.then(|| model.clone()),
+            );
+            return Ok(true);
+        }
+        ViewerAction::Stage(scene) => {
+            let scene = *scene;
+            let transition = scene.transition;
+            // Entering, changing, or leaving a teaching view swaps the layout source.
+            // The published model's view and constraints wait aside until it returns.
+            let source = match &scene.teaching {
+                Some(stage) if Arc::ptr_eq(&stage.input.0, &model.0) => None,
+                Some(stage) => {
+                    if v.teaching.is_none() {
+                        v.teaching = Some(TeachingReturn {
+                            input: model.clone(),
+                            view: v.view.clone(),
+                            constraints: std::mem::take(&mut v.composed_constraints),
+                        });
+                    }
+                    v.view = ViewState::default();
+                    v.view.policy = stage.policy;
+                    Some(stage.input.clone())
+                }
+                None => v.teaching.take().map(|back| {
+                    v.view = back.view;
+                    v.composed_constraints = back.constraints;
+                    back.input
+                }),
+            };
+            v.view.reset_focus();
+            if let Some(root) = scene.root {
+                v.view.enter(root);
+            }
+            v.view.expanded.clear();
+            v.view.collapsed.clear();
+            for id in scene.expand {
+                v.view.set_expanded(id, true);
+            }
+            v.explode = scene.explode;
+            v.isolate = false;
+            v.selected = None;
+            v.selected_relation = None;
+            v.spotlight = scene.spotlight;
+            v.dirty = true;
+            match source {
+                Some(input) => {
+                    v.switching_model = true;
+                    start_job(
+                        &input,
+                        engine,
+                        v,
+                        false,
+                        Some(input.clone()),
+                        Some(model.clone()),
+                    );
+                }
+                None => start(model, engine, v, false),
+            }
+            // A transition starts from the scene on screen, so the old layout is not
+            // redrawn under the new emphasis first.
+            if transition.is_some() {
+                v.job_transition = transition;
+                v.dirty = false;
+            }
+            return Ok(true);
+        }
+        ViewerAction::LeaveTeaching => {
+            let Some(back) = v.teaching.take() else {
+                return Ok(false);
+            };
+            v.view = back.view;
+            v.composed_constraints = back.constraints;
+            v.selected = None;
+            v.selected_relation = None;
+            // The rest of the model returns around the part, dimmed rather than hidden.
+            if let Some(spotlight) = &mut v.spotlight {
+                spotlight.context = SpotContext::Dim;
+            }
+            v.switching_model = true;
+            start_job(
+                &back.input,
+                engine,
+                v,
+                false,
+                Some(back.input.clone()),
+                Some(model.clone()),
+            );
+            v.job_transition = Some(Choreography::put_back());
             return Ok(true);
         }
         ViewerAction::Enter(id) | ViewerAction::Jump(id) => {
@@ -1876,6 +2134,7 @@ fn start_job(
         return;
     }
     retire_job(v);
+    v.job_transition = None;
     v.pending_expansion = None;
     v.pending_path_expansion = None;
     clear_preview(v);
@@ -1884,9 +2143,11 @@ fn start_job(
     }
     let input = model.clone();
     let reload = replacement_input.is_some();
+    let switching = std::mem::take(&mut v.switching_model);
     let accepted_identity = v
         .accepted
         .as_ref()
+        .filter(|_| !switching)
         .map(|(p, _)| (p.model_id.clone(), p.revision));
     let mut view = v.view.clone();
     let storage = v.storage.clone();
@@ -1895,7 +2156,7 @@ fn start_job(
     let cached_order = v.cache_order.clone();
     let canonical_cache = v.canonical_cache.clone();
     let composed_constraints = v.composed_constraints.clone();
-    let previous = v.accepted.as_ref().map(|(p, s)| {
+    let previous = v.accepted.as_ref().filter(|_| !switching).map(|(p, s)| {
         v.cache
             .get(&s.projection_key)
             .cloned()
@@ -2482,6 +2743,7 @@ fn abandon_pending(v: &mut Viewer) {
         }
     }
     retire_job(v);
+    v.job_transition = None;
     v.pending_expansion = None;
     v.pending_path_expansion = None;
     clear_preview(v);
@@ -2868,6 +3130,71 @@ fn visible_edge(v: &Viewer, p: &DesktopProjection, edge: &layout::Edge) -> bool 
 }
 /// Makes a drawn connector read as the selected path: its private materials
 /// become the selection colour. Arrow/dash geometry is unchanged.
+const DIMMED_ALPHA: f32 = 0.14;
+
+/// Display IDs a spotlight lights, plus the containers that frame them.
+struct Spotlit {
+    focus: BTreeSet<String>,
+    frames: BTreeSet<String>,
+    relations: BTreeSet<String>,
+    context: SpotContext,
+}
+
+fn spotlit(
+    spotlight: &Spotlight,
+    p: &DesktopProjection,
+    parents: &BTreeMap<&str, &str>,
+) -> Spotlit {
+    let mut focus = BTreeSet::new();
+    for id in &spotlight.lit {
+        let display = if p.nodes.iter().any(|n| n.id == *id) {
+            Some(id.clone())
+        } else {
+            p.semantic_to_display.get(id).cloned()
+        };
+        focus.extend(display);
+    }
+    let mut frames = BTreeSet::new();
+    for id in &focus {
+        let mut at = id.as_str();
+        while let Some(parent) = parents.get(at) {
+            if !frames.insert((*parent).to_owned()) {
+                break;
+            }
+            at = parent;
+        }
+    }
+    Spotlit {
+        focus,
+        frames,
+        relations: spotlight.relations.clone(),
+        context: spotlight.context,
+    }
+}
+
+/// Fade every standard material under a dimmed root, after it is spawned.
+fn dim_context(
+    added: Query<Entity, Added<Dimmed>>,
+    children: Query<&Children>,
+    handles: Query<&MeshMaterial3d<StandardMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    for root in &added {
+        for entity in std::iter::once(root).chain(children.iter_descendants(root)) {
+            let Ok(handle) = handles.get(entity) else {
+                continue;
+            };
+            if let Some(material) = materials.get_mut(&handle.0)
+                && material.alpha_mode != AlphaMode::Blend
+            {
+                material.base_color = material.base_color.with_alpha(DIMMED_ALPHA);
+                material.emissive *= 0.15;
+                material.alpha_mode = AlphaMode::Blend;
+            }
+        }
+    }
+}
+
 fn highlight_path(commands: &mut Commands, root: Entity) {
     commands.queue(move |world: &mut World| {
         let handles: Vec<_> = world
@@ -3457,7 +3784,7 @@ fn display_point(p: Point, s: &LayoutSolution, explode: bool, center: Vec3) -> V
     p - center
 }
 
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn poll(
     mut commands: Commands,
     mut viewer: ResMut<Viewer>,
@@ -3467,7 +3794,21 @@ fn poll(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut glasses: ResMut<Assets<GlassMaterial>>,
-    owned: Query<Entity, With<LayoutOwned>>,
+    // Absent in headless scenes, which draw no icons.
+    mut images: Option<ResMut<Assets<Image>>>,
+    mut icons: Option<ResMut<crate::icons::IconAtlas>>,
+    owned: Query<
+        (
+            Entity,
+            Option<&PlacedObject>,
+            Option<&Transform>,
+            Has<Label>,
+            Has<Ground>,
+        ),
+        (With<LayoutOwned>, Without<Camera3d>),
+    >,
+    // Absent in headless scenes that play no transitions.
+    mut transition: Option<ResMut<SceneTransition>>,
     mut camera: Query<(&mut OrbitCamera, &mut Transform), With<Camera3d>>,
     mut text: Query<&mut Text, With<LayoutText>>,
     mut inspector: Query<&mut Text, (With<Inspector>, Without<LayoutText>)>,
@@ -3592,6 +3933,7 @@ fn poll(
                             }
                         } else {
                             timing.outcome = "accepted";
+                            viewer.pending_transition = viewer.job_transition.take();
                             if let Some(cache) = job.canonical_cache.lock().unwrap().take() {
                                 viewer.canonical_cache = Arc::new(cache);
                             }
@@ -3709,10 +4051,50 @@ fn poll(
     let scene_started = Instant::now();
     if viewer.dirty {
         viewer.dirty = false;
+        let choreography = viewer.pending_transition.take();
         if let Some((p, _)) = &viewer.accepted {
             let s = displayed_solution(&viewer).unwrap();
-            for entity in &owned {
-                commands.entity(entity).despawn();
+            // With a transition, outgoing objects and connectors stay to play their
+            // part; everything else is replaced at once.
+            let staging = match (choreography, transition.as_deref_mut()) {
+                (Some(c), Some(t)) => Some((t.begin(c), c)),
+                (_, Some(t)) => {
+                    t.cut();
+                    None
+                }
+                _ => None,
+            };
+            let mut outgoing: BTreeMap<String, (Entity, Vec3, Vec3)> = BTreeMap::new();
+            let mut leaving: BTreeMap<Entity, Vec3> = BTreeMap::new();
+            for (entity, object, transform, label, ground) in &owned {
+                match (staging, object, transform) {
+                    (Some(_), Some(object), Some(transform)) if !label => {
+                        let at = transform.translation;
+                        for key in std::iter::once(&object.id).chain(&object.semantic_ids) {
+                            outgoing
+                                .entry(key.clone())
+                                .or_insert((entity, at, object.half));
+                        }
+                        leaving.insert(entity, at);
+                        commands
+                            .entity(entity)
+                            .remove::<(LayoutOwned, PlacedObject)>();
+                    }
+                    (Some((generation, c)), None, Some(transform)) if !label && !ground => {
+                        commands
+                            .entity(entity)
+                            .remove::<(LayoutOwned, PlacedRelation)>()
+                            .insert(Track::fade(
+                                generation,
+                                c.connectors_out,
+                                transform.translation,
+                                (1.0, 0.0),
+                            ));
+                    }
+                    _ => {
+                        commands.entity(entity).despawn();
+                    }
+                }
             }
             let center = viewer.origin;
             let mut scene_bounds = Vec3::ONE;
@@ -3722,6 +4104,10 @@ fn poll(
                 .iter()
                 .filter_map(|n| Some((n.id.as_str(), n.parent.as_deref()?)))
                 .collect();
+            let spot = viewer
+                .spotlight
+                .as_ref()
+                .map(|spotlight| spotlit(spotlight, p, &parents));
             for n in &p.nodes {
                 let b = &s.geometry.boxes[&n.id];
                 let lo = s.geometry.display(b.min, viewer.explode, center);
@@ -3732,6 +4118,18 @@ fn poll(
                 if !visible_id(&viewer, p, &n.id) {
                     continue;
                 }
+                let (lit, dimmed) = match &spot {
+                    None => (false, false),
+                    Some(spot) => {
+                        let lit = spot.focus.contains(&n.id);
+                        let framed = lit || spot.frames.contains(&n.id);
+                        match spot.context {
+                            SpotContext::Hide if !framed && n.id != p.root => continue,
+                            SpotContext::Dim => (lit, !framed && n.id != p.root),
+                            _ => (lit, false),
+                        }
+                    }
+                };
                 let display = p.labels.get(&n.id);
                 let k = match display.map(|d| d.original_kind.as_str()) {
                     Some("table" | "column") => EntityKind::Datastore,
@@ -3755,16 +4153,51 @@ fn poll(
                             kind: display
                                 .map_or_else(|| "unknown".into(), |d| d.original_kind.clone()),
                             basis,
+                            half,
                         },
                         Transform::from_translation(position),
                         Visibility::default(),
                     ))
                     .id();
+                if let Some((generation, c)) = staging {
+                    // Travel from the matching outgoing object, or arrive fresh.
+                    let matched = std::iter::once(&n.id)
+                        .chain(&n.semantic_ids)
+                        .find_map(|key| outgoing.get(key))
+                        .copied()
+                        .filter(|(entity, ..)| leaving.contains_key(entity));
+                    let track = match matched {
+                        Some((old, from, from_half)) => {
+                            leaving.remove(&old);
+                            commands.entity(old).despawn();
+                            Track::travel(generation, c.travel, from, position)
+                                .resizing(from_half, half)
+                                .glowing(c.highlight)
+                        }
+                        None => Track::arrive(generation, c.arrive, position),
+                    };
+                    commands.entity(root).insert((
+                        Transform::from_translation(track.from).with_scale(track.scale.0),
+                        track,
+                    ));
+                }
                 let color = object_color(display.map(|label| label.original_kind.as_str()), k);
                 let marked = viewer.group_marks.contains_key(&n.id);
+                if dimmed {
+                    commands.entity(root).insert(Dimmed);
+                }
                 if b.solid {
                     let material = materials.add(StandardMaterial {
-                        base_color: color,
+                        base_color: if dimmed {
+                            color.with_alpha(DIMMED_ALPHA)
+                        } else {
+                            color
+                        },
+                        alpha_mode: if dimmed {
+                            AlphaMode::Blend
+                        } else {
+                            AlphaMode::Opaque
+                        },
                         perceptual_roughness: 0.6,
                         // Curved corners must not flash to white under the key light.
                         reflectance: 0.25,
@@ -3773,6 +4206,8 @@ fn poll(
                         } else if focus == Some(&n.id) {
                             // Glow in the object's own hue so selection never washes it grey.
                             color.to_linear() * 0.3
+                        } else if lit {
+                            color.to_linear() * 0.18
                         } else {
                             LinearRgba::BLACK
                         },
@@ -3786,14 +4221,42 @@ fn poll(
                             ChildOf(root),
                         ));
                     }
+                    if let (Some(images), Some(icons), Some(display)) =
+                        (images.as_deref_mut(), icons.as_deref_mut(), display)
+                        && let Some(icon) =
+                            crate::icons::icon_for(&display.technology, display.subtype.as_deref())
+                    {
+                        let side = crate::icons::decal_half(half) * 2.0;
+                        let inlay = crate::icons::tint(color);
+                        commands.spawn((
+                            Mesh3d(meshes.add(Plane3d::default().mesh().size(side, side))),
+                            MeshMaterial3d(materials.add(StandardMaterial {
+                                base_color: if dimmed {
+                                    inlay.with_alpha(DIMMED_ALPHA)
+                                } else {
+                                    inlay
+                                },
+                                base_color_texture: Some(icons.handle(icon, images)),
+                                unlit: true,
+                                alpha_mode: AlphaMode::Blend,
+                                depth_bias: 4.0,
+                                ..default()
+                            })),
+                            // Just proud of the top face, so it never fights the box.
+                            Transform::from_translation(Vec3::Y * (half.y + 0.004)),
+                            ChildOf(root),
+                        ));
+                    }
                 } else if n.id != p.root {
                     // The focused root encloses the whole view and is named by
                     // the navigation trail; drawing its walls adds nothing.
                     let depth = nesting_depth(&parents, &p.root, &n.id);
                     let (tint, emphasis) = if marked {
                         (MARK_COLOR, 1.6)
-                    } else if focus == Some(&n.id) {
+                    } else if focus == Some(&n.id) || lit {
                         (color, 1.7)
+                    } else if dimmed {
+                        (color, 0.3)
                     } else {
                         (color, 1.0)
                     };
@@ -3810,13 +4273,13 @@ fn poll(
                         ));
                     }
                 }
-                if b.solid || focus == Some(&n.id) {
+                if (b.solid && !dimmed) || focus == Some(&n.id) || lit {
                     let caption = label_caption(&if marked {
                         format!("[marked] {title}")
                     } else {
                         title
                     });
-                    spawn_label(
+                    let label = spawn_label(
                         &mut commands,
                         Label {
                             point: position + Vec3::Y * half.y,
@@ -3826,6 +4289,19 @@ fn poll(
                         display.is_some(),
                         if marked { MARK_COLOR } else { color },
                     );
+                    if let Some((generation, c)) = staging {
+                        commands.entity(label).insert(Held {
+                            generation,
+                            at: c.labels_in,
+                        });
+                    }
+                }
+            }
+            if let Some((generation, c)) = staging {
+                for (entity, at) in std::mem::take(&mut leaving) {
+                    commands
+                        .entity(entity)
+                        .insert(Track::leave(generation, c.leave, at));
                 }
             }
             // Filter by isolation first, then merge coincident segments, so an
@@ -3836,6 +4312,21 @@ fn poll(
                 if !visible_edge(&viewer, p, edge) {
                     continue;
                 }
+                let edge_lit = spot.as_ref().is_none_or(|spot| {
+                    r.semantic_ids.iter().any(|id| spot.relations.contains(id))
+                        || (spot.focus.contains(&edge.source) && spot.focus.contains(&edge.target))
+                });
+                if !edge_lit
+                    && spot
+                        .as_ref()
+                        .is_some_and(|spot| spot.context == SpotContext::Hide)
+                {
+                    continue;
+                }
+                let edge_dimmed = !edge_lit
+                    && spot
+                        .as_ref()
+                        .is_some_and(|spot| spot.context == SpotContext::Dim);
                 let selected = viewer
                     .selected_relation
                     .as_ref()
@@ -3849,11 +4340,11 @@ fn poll(
                 for point in &points {
                     scene_bounds = scene_bounds.max(point.abs() + Vec3::splat(0.5));
                 }
-                visible.push((r, relation, selected.is_some(), points));
+                visible.push((r, relation, selected.is_some(), points, edge_dimmed));
             }
             let sources: Vec<_> = visible
                 .iter()
-                .map(|(r, relation, _, points)| connections::SegmentSource {
+                .map(|(r, relation, _, points, _)| connections::SegmentSource {
                     kind: relation.visual_kind,
                     basis: relation.basis,
                     points,
@@ -3879,9 +4370,20 @@ fn poll(
                 if selected {
                     highlight_path(&mut commands, root);
                 }
+                if segment.members.iter().all(|&(route, _)| visible[route].4) {
+                    commands.entity(root).insert(Dimmed);
+                }
                 commands.entity(root).insert(LayoutOwned);
+                if let Some((generation, c)) = staging {
+                    commands.entity(root).insert(Track::fade(
+                        generation,
+                        c.connectors_in,
+                        Vec3::ZERO,
+                        (0.0, 1.0),
+                    ));
+                }
             }
-            for ((r, relation, selected, points), skip) in visible.into_iter().zip(&skips) {
+            for ((r, relation, selected, points, dimmed), skip) in visible.into_iter().zip(&skips) {
                 let route = connections::Route {
                     relation: connections::RenderedRelation {
                         id: relation.id.clone(),
@@ -3908,6 +4410,9 @@ fn poll(
                     // Only the private route material becomes more prominent.
                     highlight_path(&mut commands, root);
                 }
+                if dimmed {
+                    commands.entity(root).insert(Dimmed);
+                }
                 commands
                     .entity(root)
                     .remove::<connections::RenderedRelation>()
@@ -3923,11 +4428,20 @@ fn poll(
                             points,
                         },
                     ));
+                if let Some((generation, c)) = staging {
+                    commands.entity(root).insert(Track::fade(
+                        generation,
+                        c.connectors_in,
+                        Vec3::ZERO,
+                        (0.0, 1.0),
+                    ));
+                }
             }
             // A faint ground grid just below the lowest content seats the view.
             let reach = scene_bounds.x.max(scene_bounds.z) * 1.6;
             commands.spawn((
                 LayoutOwned,
+                Ground,
                 Mesh3d(meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(reach)))),
                 MeshMaterial3d(glasses.add(GlassMaterial::grid(
                     style::grid_spacing(scene_bounds.x.max(scene_bounds.z) * 2.0),
@@ -3964,7 +4478,10 @@ fn poll(
     }
     if viewer.save_needed {
         viewer.save_needed = false;
-        if let (Some(base), Some((_, accepted))) = (&viewer.storage, &viewer.accepted) {
+        // A teaching view is temporary: it never overwrites the model's saved layout.
+        if viewer.teaching.is_none()
+            && let (Some(base), Some((_, accepted))) = (&viewer.storage, &viewer.accepted)
+        {
             let save_started = std::time::Instant::now();
             let saved = std::fs::create_dir_all(base)
                 .map_err(|e| e.to_string())
@@ -4793,7 +5310,13 @@ fn label_rect(point: Vec2, viewport: Vec2, occupied: &[Rect]) -> Option<Rect> {
 
 /// A rounded caption pill edged in the object's colour: kind above, name
 /// below. The fixed outer box is what `labels` packs; the pill shrinks to fit.
-fn spawn_label(commands: &mut Commands, label: Label, caption: &str, kinded: bool, accent: Color) {
+fn spawn_label(
+    commands: &mut Commands,
+    label: Label,
+    caption: &str,
+    kinded: bool,
+    accent: Color,
+) -> Entity {
     let (header, name) = match caption.split_once('\n') {
         Some((kind, name)) if kinded => (kind, Some(name)),
         _ => (caption, None),
@@ -4860,7 +5383,8 @@ fn spawn_label(commands: &mut Commands, label: Label, caption: &str, kinded: boo
                 },
                 BackgroundColor(accent.with_alpha(0.75)),
             ));
-        });
+        })
+        .id()
 }
 
 /// Containers below the focused root: 0 for its direct children.
@@ -4881,7 +5405,7 @@ fn nesting_depth(parents: &BTreeMap<&str, &str>, root: &str, id: &str) -> usize 
 fn labels(
     camera: Single<(&Camera, &GlobalTransform), With<Camera3d>>,
     viewer: Res<Viewer>,
-    mut labels: Query<(&Label, &mut Node)>,
+    mut labels: Query<(&Label, &mut Node), Without<Held>>,
     panels: Query<
         (&ComputedNode, &Node),
         (
@@ -4958,6 +5482,7 @@ mod tests {
     include!("aggregated_path_tests.rs");
     include!("planned_detail_tests.rs");
     include!("click_isolation_tests.rs");
+    include!("teaching_view_tests.rs");
 
     // These regressions exercise the flat engine. Mutations must rebuild both
     // authoritative solver data and the renderer geometry, just as acceptance does.

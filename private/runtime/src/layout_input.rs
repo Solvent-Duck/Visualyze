@@ -59,6 +59,9 @@ pub(crate) struct DisplayLabel {
     pub kind_label: String,
     pub basis: Basis,
     pub original_kind: String,
+    /// Producer-named technologies, in order. Decoration only: the top-face icon.
+    pub technology: Vec<String>,
+    pub subtype: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -889,6 +892,8 @@ fn project_snapshot(
                 kind_label: entity.kind.as_str().into(),
                 basis: entity.basis,
                 original_kind: entity.kind.as_str().into(),
+                technology: entity.technology.clone(),
+                subtype: entity.subtype.clone(),
             }
         } else {
             let group = graph
@@ -908,6 +913,8 @@ fn project_snapshot(
                 kind_label: "visual group".into(),
                 basis: Basis::Inferred,
                 original_kind: "visual_group".into(),
+                technology: vec![],
+                subtype: None,
             }
         };
         labels.insert(node.id.clone(), label);
@@ -996,6 +1003,8 @@ fn project_bundle(
                         Basis::Declared
                     },
                     original_kind: "visual_group".into(),
+                    technology: vec![],
+                    subtype: None,
                 },
             );
             continue;
@@ -1020,6 +1029,10 @@ fn project_bundle(
                 kind_label: kind.into(),
                 basis: basis(summary.claim.basis),
                 original_kind: kind.into(),
+                // Bundle summaries carry no technology; column types in
+                // details are not products, so bundles draw no icon.
+                technology: vec![],
+                subtype: None,
             }
         } else {
             DisplayLabel {
@@ -1027,6 +1040,8 @@ fn project_bundle(
                 kind_label: "reference".into(),
                 basis: Basis::Unknown,
                 original_kind: "unloaded_reference".into(),
+                technology: vec![],
+                subtype: None,
             }
         };
         labels.insert(node.id.clone(), label);
@@ -1239,6 +1254,8 @@ fn architecture_relation_name(kind: RelationKind) -> &'static str {
         RelationKind::AppliesTo => "applies to",
         RelationKind::ImplementedBy => "implemented by",
         RelationKind::DeployedIn => "deployed in",
+        RelationKind::Publishes => "publishes",
+        RelationKind::Subscribes => "subscribes",
     }
 }
 

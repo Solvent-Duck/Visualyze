@@ -1144,5 +1144,119 @@
         }
       }
     ]
+  },
+  {
+    "name": "messaging fixture",
+    "base": "architecture-messaging.json",
+    "expected_error": null,
+    "changes": []
+  },
+  {
+    "name": "publish directly to the broker",
+    "base": "architecture-messaging.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/7/target",
+        "value": "service:broker"
+      }
+    ]
+  },
+  {
+    "name": "publish with a condition",
+    "base": "architecture-messaging.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/7/condition",
+        "value": "Only for paid orders."
+      }
+    ]
+  },
+  {
+    "name": "datastore publishes",
+    "base": "architecture-messaging.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/7/source",
+        "value": "store:ledger"
+      }
+    ]
+  },
+  {
+    "name": "publish to a datastore",
+    "base": "architecture-messaging.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/7/target",
+        "value": "store:ledger"
+      }
+    ]
+  },
+  {
+    "name": "subscribe to a datastore",
+    "base": "architecture-messaging.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/8/target",
+        "value": "store:ledger"
+      }
+    ]
+  },
+  {
+    "name": "subscribe to a scope",
+    "base": "architecture-messaging.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/8/target",
+        "value": "scope:orders"
+      }
+    ]
+  },
+  {
+    "name": "read from the broker",
+    "base": "architecture-messaging.json",
+    "expected_error": "invalid_relation_endpoint",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/11/target",
+        "value": "service:broker"
+      }
+    ]
+  },
+  {
+    "name": "aspect on publishes",
+    "base": "architecture-messaging.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/7/aspect",
+        "value": "order_events"
+      }
+    ]
+  },
+  {
+    "name": "dependency phase on subscribes",
+    "base": "architecture-messaging.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/relations/8/dependency_phase",
+        "value": "runtime"
+      }
+    ]
   }
 ]

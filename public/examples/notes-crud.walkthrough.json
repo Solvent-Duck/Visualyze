@@ -1,0 +1,47 @@
+{
+  "schema_version": "walkthrough.0.1.0-draft.1",
+  "id": "walk:notes-sign-in",
+  "model_id": "example-notes-crud",
+  "expected_revision": 1,
+  "title": "How signing in works",
+  "steps": [
+    {
+      "id": "overview",
+      "title": "The notes system",
+      "focus": ["scope:notes"],
+      "context": "show",
+      "camera": "overview"
+    },
+    {
+      "id": "entry",
+      "title": "The browser asks for a session",
+      "focus": ["client:web", "interface:sessions"],
+      "trace": [{ "relation": "rel:request-sessions" }],
+      "labels": [{ "target": "interface:sessions", "text": "Sign-in endpoint" }],
+      "camera": "follow_trace"
+    },
+    {
+      "id": "lookup",
+      "title": "The service checks the user",
+      "root": "scope:notes",
+      "focus": ["service:notes", "store:notes"],
+      "reveal": "cumulative",
+      "trace": [
+        { "relation": "rel:request-sessions" },
+        { "relation": "rel:read-database" },
+        { "relation": "rel:read-database", "return": true },
+        { "relation": "rel:request-sessions", "return": true }
+      ],
+      "camera": "follow_trace"
+    },
+    {
+      "id": "coverage",
+      "title": "Where authentication applies",
+      "focus": ["concern:authentication", "client:web", "interface:notes"],
+      "labels": [
+        { "target": "rel:auth-session", "text": "Session required" }
+      ],
+      "camera": "frame_focus"
+    }
+  ]
+}

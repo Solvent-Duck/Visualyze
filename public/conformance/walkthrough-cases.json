@@ -1,0 +1,874 @@
+[
+  {
+    "name": "notes-crud.walkthrough.json",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": null,
+    "changes": []
+  },
+  {
+    "name": "minimal single step",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps",
+        "value": [
+          {
+            "id": "s",
+            "title": "Everything",
+            "focus": [
+              "scope:notes"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject wrong schema_version",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/schema_version",
+        "value": "walkthrough.0.1.0"
+      }
+    ]
+  },
+  {
+    "name": "reject unknown field",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/0/camera_pose",
+        "value": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject empty steps",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps",
+        "value": []
+      }
+    ]
+  },
+  {
+    "name": "reject empty focus",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/0/focus",
+        "value": []
+      }
+    ]
+  },
+  {
+    "name": "reject long title",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/0/title",
+        "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    ]
+  },
+  {
+    "name": "reject multi-line label",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/labels/0/text",
+        "value": "one\ntwo"
+      }
+    ]
+  },
+  {
+    "name": "reject seven labels",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/labels",
+        "value": [
+          {
+            "target": "client:web",
+            "text": "a"
+          },
+          {
+            "target": "client:web",
+            "text": "a"
+          },
+          {
+            "target": "client:web",
+            "text": "a"
+          },
+          {
+            "target": "client:web",
+            "text": "a"
+          },
+          {
+            "target": "client:web",
+            "text": "a"
+          },
+          {
+            "target": "client:web",
+            "text": "a"
+          },
+          {
+            "target": "client:web",
+            "text": "a"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject unknown camera intent",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/0/camera",
+        "value": "orbit_fast"
+      }
+    ]
+  },
+  {
+    "name": "reject blank title",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "blank_text",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/0/title",
+        "value": "   "
+      }
+    ]
+  },
+  {
+    "name": "reject other model",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "model_mismatch",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/model_id",
+        "value": "example-other"
+      }
+    ]
+  },
+  {
+    "name": "reject stale revision",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "stale_revision",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/expected_revision",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "name": "reject duplicate step id",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "duplicate_step_id",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/id",
+        "value": "overview"
+      }
+    ]
+  },
+  {
+    "name": "reject dangling focus",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "missing_reference",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/focus/-",
+        "value": "service:billing"
+      }
+    ]
+  },
+  {
+    "name": "reject relation as focus",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "invalid_reference_kind",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/focus/-",
+        "value": "rel:read-database"
+      }
+    ]
+  },
+  {
+    "name": "reject dangling root",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "missing_reference",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/2/root",
+        "value": "scope:billing"
+      }
+    ]
+  },
+  {
+    "name": "reject focus outside root",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "focus_outside_root",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/2/root",
+        "value": "service:notes"
+      }
+    ]
+  },
+  {
+    "name": "reject dangling trace",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "missing_reference",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/trace/0/relation",
+        "value": "rel:missing"
+      }
+    ]
+  },
+  {
+    "name": "reject entity in trace",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "invalid_reference_kind",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/trace/0/relation",
+        "value": "client:web"
+      }
+    ]
+  },
+  {
+    "name": "reject containment in trace",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "invalid_trace_relation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/trace/0/relation",
+        "value": "rel:contains-store-notes"
+      }
+    ]
+  },
+  {
+    "name": "reject coverage in trace",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "invalid_trace_relation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/trace/0/relation",
+        "value": "rel:auth-session"
+      }
+    ]
+  },
+  {
+    "name": "reject return on writes",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "invalid_return",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/trace",
+        "value": [
+          {
+            "relation": "rel:write-database",
+            "return": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject gap between hops",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "trace_gap",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/trace",
+        "value": [
+          {
+            "relation": "rel:request-sessions"
+          },
+          {
+            "relation": "rel:request-notes"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject skipped return",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "trace_gap",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/trace",
+        "value": [
+          {
+            "relation": "rel:read-database"
+          },
+          {
+            "relation": "rel:write-database"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "accept interface then owner",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/trace",
+        "value": [
+          {
+            "relation": "rel:request-notes"
+          },
+          {
+            "relation": "rel:write-database"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "accept closed loop",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/2/repeat_trace",
+        "value": true
+      }
+    ]
+  },
+  {
+    "name": "reject open loop",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "open_loop",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/repeat_trace",
+        "value": true
+      }
+    ]
+  },
+  {
+    "name": "reject loop without trace",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "open_loop",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/0/repeat_trace",
+        "value": true
+      }
+    ]
+  },
+  {
+    "name": "reject dangling label target",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "missing_reference",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/labels/0/target",
+        "value": "interface:missing"
+      }
+    ]
+  },
+  {
+    "name": "reject blank label",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "blank_text",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/1/labels/0/text",
+        "value": "  "
+      }
+    ]
+  },
+  {
+    "name": "reject a response without its request",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "unpaired_return",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/2/trace",
+        "value": [
+          {
+            "relation": "rel:read-database",
+            "return": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject a response before its request",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "unpaired_return",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/steps/2/trace",
+        "value": [
+          {
+            "relation": "rel:read-database",
+            "return": true
+          },
+          {
+            "relation": "rel:read-database"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "teaching view step",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "teaching view step may focus an exposed interface",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "interface:sessions"
+          ],
+          "trace": [
+            {
+              "relation": "rel:request-sessions"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject teaching view with one member",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "service:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject unknown teaching view layout",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ],
+            "layout": "grid"
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject interface as teaching member",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "teaching_member_interface",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "interface:sessions"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject system as teaching member",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "teaching_member_system",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "scope:notes",
+              "client:web"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject step in unknown teaching view",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "missing_reference",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:other",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject root in teaching view step",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "root_in_teaching_view",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ],
+          "root": "scope:notes"
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject focus outside teaching view",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "outside_teaching_view",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "concern:authentication"
+          ],
+          "trace": []
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject trace outside teaching view",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "outside_teaching_view",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "client:web"
+          ],
+          "trace": [
+            {
+              "relation": "rel:request-sessions"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject duplicate teaching view id",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "duplicate_teaching_view_id",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          },
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
