@@ -28,6 +28,21 @@ pub struct QualityProfile {
     /// Zero disables this compatibility fallback for controlled comparisons.
     pub size_candidates: usize,
     pub movement_weight: f64,
+    /// Weight of the bounding-box shape term that ranks initial placements
+    /// toward a cube. Zero for pipelines, whose height is fixed by rank: there
+    /// the term only rewards pushing boxes out sideways or in depth.
+    pub shape_weight: f64,
+}
+impl QualityProfile {
+    pub fn for_policy(policy: crate::projection::LayoutPolicy) -> Self {
+        Self {
+            shape_weight: match policy {
+                crate::projection::LayoutPolicy::Pipeline => 0.0,
+                _ => Self::default().shape_weight,
+            },
+            ..Self::default()
+        }
+    }
 }
 impl Default for QualityProfile {
     fn default() -> Self {
@@ -38,6 +53,7 @@ impl Default for QualityProfile {
             feedback_candidates: 4,
             size_candidates: 28,
             movement_weight: 0.08,
+            shape_weight: 2.0,
         }
     }
 }
@@ -532,7 +548,7 @@ fn solve_sizes(
             req.pins,
             req.previous.is_some(),
         );
-        let estimate = estimate(req.projection, &boxes);
+        let estimate = estimate(req.projection, &boxes, req.quality.shape_weight);
         seeds.push((estimate, iteration, boxes));
     }
     seeds.sort_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
@@ -865,6 +881,8 @@ fn validate_request(req: &LayoutRequest<'_>) -> Result<(), LayoutError> {
         || req.quality.size_candidates > 28
         || !req.quality.movement_weight.is_finite()
         || req.quality.movement_weight < 0.0
+        || !req.quality.shape_weight.is_finite()
+        || req.quality.shape_weight < 0.0
         || req.work_budget == 0
     {
         return Err(LayoutError::Invalid(
@@ -1474,6 +1492,7 @@ fn pack_tree(
         if matches!(algorithm, Algorithm::Floorplan | Algorithm::Layered) {
             reserve_passages(&bands, projection, boxes, gap);
         }
+        snap_bands(&bands, projection, boxes, gap);
     }
     let bounds = children
         .iter()
@@ -2027,17 +2046,14 @@ fn align_bands(
     gap: i64,
 ) {
     // The dense middle band anchors the assembly. Adjacent bands follow their
-    // connected neighbors, with deterministic collision rejection.
-    let anchor = bands
-        .iter()
-        .max_by_key(|(band, m)| (m.len(), -**band))
-        .map(|(b, _)| *b)
-        .unwrap_or(0);
-    let mut order: Vec<_> = bands.keys().copied().filter(|b| *b != anchor).collect();
-    order.sort_by_key(|b| ((b - anchor).abs(), *b));
+    // connected neighbors, with deterministic collision rejection. A box follows
+    // only neighbors already settled (the anchor and bands aligned before it),
+    // so a chain lines up instead of averaging toward unaligned seed positions.
+    let (anchor, order) = band_order(bands);
+    let mut settled = BTreeSet::from([anchor]);
     for band in order {
         for id in &bands[&band] {
-            let related: Vec<_> = projection
+            let neighbors: Vec<_> = projection
                 .edges
                 .iter()
                 .filter_map(|e| {
@@ -2048,12 +2064,20 @@ fn align_bands(
                     } else {
                         return None;
                     };
-                    if bands[&band].contains(neighbor) {
-                        None
-                    } else {
-                        boxes.get(neighbor).map(|b| b.bounds.center())
+                    // Endpoints outside this level's bands are not moved here.
+                    match bands.iter().find(|(_, m)| m.contains(neighbor)) {
+                        Some((rank, _)) => {
+                            (*rank != band).then_some((neighbor, settled.contains(rank)))
+                        }
+                        None => Some((neighbor, true)),
                     }
                 })
+                .collect();
+            let any_settled = neighbors.iter().any(|(_, s)| *s);
+            let related: Vec<_> = neighbors
+                .iter()
+                .filter(|(_, s)| *s || !any_settled)
+                .filter_map(|(neighbor, _)| boxes.get(*neighbor).map(|b| b.bounds.center()))
                 .collect();
             if related.is_empty() {
                 continue;
@@ -2074,6 +2098,97 @@ fn align_bands(
                 translate_tree(id, shift, boxes);
             }
         }
+        settled.insert(band);
+    }
+}
+/// The densest band anchors the assembly; the others follow nearest first.
+fn band_order(bands: &BTreeMap<i32, Vec<String>>) -> (i32, Vec<i32>) {
+    let anchor = bands
+        .iter()
+        .max_by_key(|(band, m)| (m.len(), -**band))
+        .map(|(b, _)| *b)
+        .unwrap_or(0);
+    let mut order: Vec<_> = bands.keys().copied().filter(|b| *b != anchor).collect();
+    order.sort_by_key(|b| ((b - anchor).abs(), *b));
+    (anchor, order)
+}
+/// Snap a box onto its nearest settled neighbor in another band when it is off
+/// by at most a quarter of a box on x or z. A box already in line with one
+/// neighbor, or between neighbors on both sides, is placed that way for a
+/// reason and stays.
+fn snap_bands(
+    bands: &BTreeMap<i32, Vec<String>>,
+    projection: &Projection,
+    boxes: &mut BTreeMap<String, LayoutBox>,
+    gap: i64,
+) {
+    let (anchor, order) = band_order(bands);
+    let mut settled = BTreeSet::from([anchor]);
+    for band in order {
+        for id in &bands[&band] {
+            let neighbors: Vec<_> = projection
+                .edges
+                .iter()
+                .filter_map(|e| {
+                    let neighbor = if e.source == *id {
+                        &e.target
+                    } else if e.target == *id {
+                        &e.source
+                    } else {
+                        return None;
+                    };
+                    let (rank, _) = bands.iter().find(|(_, m)| m.contains(neighbor))?;
+                    settled
+                        .contains(rank)
+                        .then(|| subtree_bounds(neighbor, boxes))
+                })
+                .collect();
+            if neighbors.is_empty() {
+                continue;
+            }
+            let own = subtree_bounds(id, boxes);
+            let center = own.center();
+            let axis = |p: Point, x: bool| if x { p.x } else { p.z };
+            for x in [true, false] {
+                let offsets: Vec<_> = neighbors
+                    .iter()
+                    .map(|n| axis(n.center(), x) - axis(center, x))
+                    .collect();
+                // Already in line with one, or split between neighbors on both
+                // sides: the offset is deliberate.
+                if offsets.contains(&0)
+                    || (offsets.iter().any(|o| *o < 0) && offsets.iter().any(|o| *o > 0))
+                {
+                    continue;
+                }
+                let Some((offset, limit)) = neighbors
+                    .iter()
+                    .zip(&offsets)
+                    .map(|(n, o)| (*o, axis(n.size(), x).min(axis(own.size(), x)) / 4))
+                    .min_by_key(|(o, _)| o.abs())
+                else {
+                    continue;
+                };
+                if offset.abs() > limit {
+                    continue;
+                }
+                let shift = if x {
+                    Point::new(offset, 0, 0)
+                } else {
+                    Point::new(0, 0, offset)
+                };
+                let candidate = subtree_bounds(id, boxes)
+                    .translated(shift)
+                    .inflated(gap / 2);
+                if bands[&band].iter().all(|other| {
+                    other == id
+                        || !candidate.overlaps(subtree_bounds(other, boxes).inflated(gap / 2))
+                }) {
+                    translate_tree(id, shift, boxes);
+                }
+            }
+        }
+        settled.insert(band);
     }
 }
 // A single-purpose endpoint in another band or physical shelf gets a vertical
@@ -2290,7 +2405,11 @@ fn refit_frames(
         }
     }
 }
-fn estimate(projection: &Projection, boxes: &BTreeMap<String, LayoutBox>) -> f64 {
+fn estimate(
+    projection: &Projection,
+    boxes: &BTreeMap<String, LayoutBox>,
+    shape_weight: f64,
+) -> f64 {
     let wires = projection
         .edges
         .iter()
@@ -2312,7 +2431,7 @@ fn estimate(projection: &Projection, boxes: &BTreeMap<String, LayoutBox>) -> f64
     let s = b.size();
     wires
         + 0.1 * (s.x as f64 * s.y as f64 * s.z as f64).cbrt()
-        + 2.0 * (s.x.max(s.y).max(s.z) - s.x.min(s.y).min(s.z)) as f64
+        + shape_weight * (s.x.max(s.y).max(s.z) - s.x.min(s.y).min(s.z)) as f64
 }
 
 #[cfg(test)]
@@ -2362,6 +2481,52 @@ mod layered_tests {
             target: target.into(),
             semantic_ids: vec![id.into()],
         });
+    }
+
+    fn placed(id: &str, x: i64, y: i64) -> (String, LayoutBox) {
+        let min = Point::new(x, y, 0);
+        (
+            id.into(),
+            LayoutBox {
+                id: id.into(),
+                semantic_ids: vec![id.into()],
+                parent: Some("root".into()),
+                bounds: Bounds {
+                    min,
+                    max: min + Point::new(24, 12, 24),
+                },
+                solid: true,
+            },
+        )
+    }
+
+    #[test]
+    fn snap_lines_up_small_accidental_offsets_but_keeps_deliberate_ones() {
+        let center_x = |boxes: &BTreeMap<String, LayoutBox>, id: &str| boxes[id].bounds.center().x;
+        // A box 4 off (under a quarter of 24) its only neighbor below snaps onto it.
+        let mut p = projection();
+        edge(&mut p, "e1", "top", "bottom");
+        let bands = BTreeMap::from([(0, vec!["bottom".into()]), (1, vec!["top".into()])]);
+        let mut boxes = BTreeMap::from([placed("bottom", 0, 0), placed("top", 4, 24)]);
+        snap_bands(&bands, &p, &mut boxes, 12);
+        assert_eq!(center_x(&boxes, "top"), center_x(&boxes, "bottom"));
+        // An offset past a quarter of a box is left alone.
+        let mut boxes = BTreeMap::from([placed("bottom", 0, 0), placed("top", 7, 24)]);
+        snap_bands(&bands, &p, &mut boxes, 12);
+        assert_eq!(center_x(&boxes, "top") - center_x(&boxes, "bottom"), 7);
+        // Centered over two neighbors, the box splits the difference and stays.
+        edge(&mut p, "e2", "top", "right");
+        let bands = BTreeMap::from([
+            (0, vec!["bottom".into(), "right".into()]),
+            (1, vec!["top".into()]),
+        ]);
+        let mut boxes = BTreeMap::from([
+            placed("bottom", 0, 0),
+            placed("right", 8, 0),
+            placed("top", 4, 24),
+        ]);
+        snap_bands(&bands, &p, &mut boxes, 12);
+        assert_eq!(center_x(&boxes, "top"), 16);
     }
 
     fn solve_layered(
