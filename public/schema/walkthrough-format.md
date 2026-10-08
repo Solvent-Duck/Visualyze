@@ -19,6 +19,7 @@ MCP bridge and the viewer use it. Conformance cases are in
 | `id` | Stable ID for this walkthrough, using the model ID syntax |
 | `model_id`, `expected_revision` | The model and the exact revision the IDs refer to. A mismatch is rejected (`model_mismatch`, `stale_revision`). |
 | `title` | On-screen title, 60 characters at most |
+| `teaching_views` | Optional, up to 4. Temporary flattened views over a subset of the model; see §5. |
 | `steps` | 1 to 24 steps. More than 12 produces the `long_walkthrough` advice warning. |
 
 ## 2. Steps
@@ -28,6 +29,7 @@ MCP bridge and the viewer use it. Conformance cases are in
 | `id` | | Unique within the walkthrough |
 | `title` | | On-screen caption, 60 characters at most, one line of plain text |
 | `root` | closest common owner of `focus` | The entity whose interior the scene shows. Every focus entity must be inside it. |
+| `view` | | A `teaching_views` ID. The step plays in that view (§5). |
 | `focus` | | 1 to 64 entities the step is about. More than 12 produces the `busy_step` advice warning. |
 | `context` | `hide` with a `trace`, else `dim` | Everything else is `dim`med, `hide`den, or `show`n normally |
 | `reveal` | `step` | `cumulative` keeps earlier steps' focus lit, for build-ups and recaps |
@@ -69,7 +71,38 @@ A trace animates travel along relations the model already states (spec §4.5):
   order, not a live trace". A walkthrough makes no claim about timing,
   frequency, success, or concurrency.
 
-## 5. Diagnostics
+## 5. Teaching views
+
+A teaching view lifts part of the model out and lays it out on its own, for steps
+that explain that part. The agent chooses the members; the viewer derives the
+rest from the model and adds no facts.
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `id` | | Unique within the walkthrough |
+| `title` | | On-screen name, 60 characters at most |
+| `members` | | 2 to 32 existing entities. More than 16 produces `busy_teaching_view`. |
+| `layout` | `pipeline` | `pipeline` arranges along the flow; `peers` arranges as equals |
+
+- **Shown:** the members, directly inside the system, plus the interfaces each
+  member exposes, and every relation other than `contains` between them.
+- **Members:** each must be an entity (`missing_reference`), not the system
+  (`teaching_member_system`), not an interface, which comes with its owner
+  (`teaching_member_interface`), and not inside another member
+  (`nested_teaching_member`).
+- **Steps in a view** (`"view": "<id>"`) stand at the view's root and take no
+  `root` (`root_in_teaching_view`). Their focus, trace hops, and label targets
+  must be shown in the view (`outside_teaching_view`). All trace rules in §4
+  still apply.
+- **Leaving out:** flow relations with one end in the view are not drawn. The
+  viewer says how many, beside the view's name and how many objects it shows.
+- **Temporary:** the derived layout keeps the model's ID and revision, lives only
+  in the viewer while steps play in it, and is never saved. The viewer returns to
+  the published model at the next step without a `view`, and when playback stops.
+  The flattening is recorded in the derived layout only as `contains` relations
+  from the system whose rationale says they are a teaching view placement.
+
+## 6. Diagnostics
 
 Diagnostics use the architecture format's `{code, path, message}` shape, where
 `path` is a JSON Pointer into the walkthrough. Readability problems are warnings
@@ -80,9 +113,11 @@ and never reject a walkthrough:
 | `busy_step` | A step has more than 12 focus objects |
 | `long_walkthrough` | More than 12 steps |
 | `numbered_title` | A step title starts with its own number ("1. ", "Step 2:"); the viewer shows progress |
-| `never_opens` | 5 or more steps, and every step's root is the whole system while a scope has at least 2 objects inside it |
+| `never_opens` | 5 or more steps, every step's root is the whole system, no step plays in a teaching view, and a scope has at least 2 objects inside it |
+| `busy_teaching_view` | A teaching view has more than 16 members |
+| `unused_teaching_view` | No step plays in a teaching view |
 
-## 6. Publication and revisions
+## 7. Publication and revisions
 
 The MCP bridge reads models from the repository, normally
 `.visualyze/model.json`, which is shared through git. The viewer accepts a

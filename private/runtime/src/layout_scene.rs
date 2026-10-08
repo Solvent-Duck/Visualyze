@@ -99,6 +99,35 @@ pub struct StagedScene {
     pub expand: Vec<String>,
     pub spotlight: Option<Spotlight>,
     pub explode: bool,
+    /// Lay the scene out in a temporary flattened teaching view (ADR 0010) instead of
+    /// the published model.
+    pub(crate) teaching: Option<TeachingStage>,
+}
+
+/// The temporary layout source for one teaching view. It shares the published model's
+/// ID and revision and is never saved; equality is identity of the derived source.
+#[derive(Clone)]
+pub(crate) struct TeachingStage {
+    pub input: LayoutInput,
+    pub policy: layout::projection::LayoutPolicy,
+}
+impl PartialEq for TeachingStage {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.input.0, &other.input.0) && self.policy == other.policy
+    }
+}
+impl Eq for TeachingStage {}
+impl std::fmt::Debug for TeachingStage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "TeachingStage({:?})", self.policy)
+    }
+}
+
+/// What a teaching view replaced, restored when the explanation leaves it.
+struct TeachingReturn {
+    input: LayoutInput,
+    view: ViewState,
+    constraints: ConstraintRegistry,
 }
 
 /// A validated model supplied by a local agent, replacing the current one.
@@ -496,6 +525,8 @@ pub enum ViewerAction {
     Publish(Published),
     /// Show a scene an agent asked for, replacing navigation and emphasis.
     Stage(Box<StagedScene>),
+    /// Return from a teaching view to the published model, if one is showing.
+    LeaveTeaching,
     NextClaims,
     PreviousClaims,
     NextRelations,
@@ -703,6 +734,9 @@ struct Viewer {
     /// The next job replaces the model with a different one: no identity check
     /// against the accepted model and no reuse of its layout.
     switching_model: bool,
+    /// Set while a teaching view stands in for the published model. Nothing is saved
+    /// while it is set.
+    teaching: Option<TeachingReturn>,
 }
 type ConstraintRegistry = BTreeMap<(SemanticLens, String), ComposedConstraints>;
 
@@ -1192,6 +1226,11 @@ fn apply_action(
     };
     match action {
         ViewerAction::Reload => {
+            if v.teaching.is_some() {
+                return Err(
+                    "A teaching view is showing; stop the walkthrough before reloading".into(),
+                );
+            }
             v.search_job.take();
             v.search_results.clear();
             abandon_pending(v);
@@ -1211,6 +1250,10 @@ fn apply_action(
             return Ok(true);
         }
         ViewerAction::Publish(published) => {
+            if let Some(back) = v.teaching.take() {
+                v.view = back.view;
+                v.composed_constraints = back.constraints;
+            }
             v.search_job.take();
             v.search_results.clear();
             abandon_pending(v);
@@ -1244,6 +1287,28 @@ fn apply_action(
         }
         ViewerAction::Stage(scene) => {
             let scene = *scene;
+            // Entering, changing, or leaving a teaching view swaps the layout source.
+            // The published model's view and constraints wait aside until it returns.
+            let source = match &scene.teaching {
+                Some(stage) if Arc::ptr_eq(&stage.input.0, &model.0) => None,
+                Some(stage) => {
+                    if v.teaching.is_none() {
+                        v.teaching = Some(TeachingReturn {
+                            input: model.clone(),
+                            view: v.view.clone(),
+                            constraints: std::mem::take(&mut v.composed_constraints),
+                        });
+                    }
+                    v.view = ViewState::default();
+                    v.view.policy = stage.policy;
+                    Some(stage.input.clone())
+                }
+                None => v.teaching.take().map(|back| {
+                    v.view = back.view;
+                    v.composed_constraints = back.constraints;
+                    back.input
+                }),
+            };
             v.view.reset_focus();
             if let Some(root) = scene.root {
                 v.view.enter(root);
@@ -1259,7 +1324,39 @@ fn apply_action(
             v.selected_relation = None;
             v.spotlight = scene.spotlight;
             v.dirty = true;
-            start(model, engine, v, false);
+            match source {
+                Some(input) => {
+                    v.switching_model = true;
+                    start_job(
+                        &input,
+                        engine,
+                        v,
+                        false,
+                        Some(input.clone()),
+                        Some(model.clone()),
+                    );
+                }
+                None => start(model, engine, v, false),
+            }
+            return Ok(true);
+        }
+        ViewerAction::LeaveTeaching => {
+            let Some(back) = v.teaching.take() else {
+                return Ok(false);
+            };
+            v.view = back.view;
+            v.composed_constraints = back.constraints;
+            v.selected = None;
+            v.selected_relation = None;
+            v.switching_model = true;
+            start_job(
+                &back.input,
+                engine,
+                v,
+                false,
+                Some(back.input.clone()),
+                Some(model.clone()),
+            );
             return Ok(true);
         }
         ViewerAction::Enter(id) | ViewerAction::Jump(id) => {
@@ -4251,7 +4348,10 @@ fn poll(
     }
     if viewer.save_needed {
         viewer.save_needed = false;
-        if let (Some(base), Some((_, accepted))) = (&viewer.storage, &viewer.accepted) {
+        // A teaching view is temporary: it never overwrites the model's saved layout.
+        if viewer.teaching.is_none()
+            && let (Some(base), Some((_, accepted))) = (&viewer.storage, &viewer.accepted)
+        {
             let save_started = std::time::Instant::now();
             let saved = std::fs::create_dir_all(base)
                 .map_err(|e| e.to_string())
@@ -5245,6 +5345,7 @@ mod tests {
     include!("aggregated_path_tests.rs");
     include!("planned_detail_tests.rs");
     include!("click_isolation_tests.rs");
+    include!("teaching_view_tests.rs");
 
     // These regressions exercise the flat engine. Mutations must rebuild both
     // authoritative solver data and the renderer geometry, just as acceptance does.

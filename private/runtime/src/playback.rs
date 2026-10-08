@@ -8,16 +8,21 @@ use std::{
 
 use bevy::prelude::*;
 use serde_json::{Value, json};
+use visualyze_layout::projection::LayoutPolicy;
 use visualyze_model::{
     architecture::{Architecture, EntityKind},
-    walkthrough::{CameraIntent, Context, Ownership, Presentation, Reveal, Walkthrough},
+    walkthrough::{
+        CameraIntent, Context, Ownership, Presentation, Reveal, TeachingLayout, Walkthrough,
+        teaching_model,
+    },
 };
 
 use crate::{
     camera::{CameraDirector, CameraInputLock, OrbitCamera},
+    layout_input::LayoutInput,
     layout_scene::{
         DevChrome, LayoutStatus, PlacedObject, PlacedRelation, SpotContext, Spotlight, StagedScene,
-        ViewerAction, ViewerActions,
+        TeachingStage, ViewerAction, ViewerActions,
     },
 };
 
@@ -68,6 +73,9 @@ struct Active {
     /// Step chrome (progress, hints) for walkthroughs; single views go without.
     chrome: bool,
     error: Option<String>,
+    /// One temporary layout source per teaching view, parallel to the script's
+    /// `teaching_views`, built once so every step in a view reuses its layout.
+    teaching: Vec<Result<TeachingStage, String>>,
 }
 
 #[derive(Resource, Default)]
@@ -75,6 +83,30 @@ pub(crate) struct Playback {
     active: Option<Active>,
     /// Bumped whenever the shown step changes, so overlays rebuild once.
     generation: u64,
+    /// The last staged step was in a teaching view; stopping must return the viewer
+    /// to the published model.
+    in_teaching: bool,
+}
+
+fn teaching_stages(
+    walkthrough: &Walkthrough,
+    model: &Architecture,
+) -> Vec<Result<TeachingStage, String>> {
+    walkthrough
+        .script()
+        .teaching_views
+        .iter()
+        .map(|view| {
+            let flat = teaching_model(model, view).map_err(|e| e.to_string())?;
+            Ok(TeachingStage {
+                input: LayoutInput::snapshot(flat),
+                policy: match view.layout {
+                    TeachingLayout::Pipeline => LayoutPolicy::Pipeline,
+                    TeachingLayout::Peers => LayoutPolicy::Peers,
+                },
+            })
+        })
+        .collect()
 }
 
 impl Playback {
@@ -87,7 +119,9 @@ impl Playback {
         chrome: bool,
     ) {
         let last = walkthrough.script().steps.len() - 1;
+        let teaching = teaching_stages(&walkthrough, &model);
         self.active = Some(Active {
+            teaching,
             walkthrough,
             model,
             step: step.min(last),
@@ -168,6 +202,7 @@ impl Playback {
             "step_id": script.steps[active.step].id,
             "step_title": script.steps[active.step].title,
             "total": script.steps.len(),
+            "teaching_view": script.steps[active.step].view,
             "autoplay": active.autoplay,
             "error": active.error,
         })
@@ -175,7 +210,7 @@ impl Playback {
 }
 
 /// The viewer scene for one step: where to stand, what to open, what to light.
-fn scene(active: &Active) -> StagedScene {
+fn scene(active: &Active) -> Result<StagedScene, String> {
     let model = active.model.snapshot();
     let own = Ownership::new(model);
     let script = active.walkthrough.script();
@@ -192,15 +227,25 @@ fn scene(active: &Active) -> StagedScene {
         }
     }
     let root = resolved.root.as_str();
+    let teaching = match resolved.view {
+        Some(v) => Some(active.teaching[v].clone()?),
+        None => None,
+    };
     // Open only the scopes between the root and what the step is about; a
-    // component's own interfaces show without opening it.
+    // component's own interfaces show without opening it. A teaching view is flat,
+    // so it has nothing to open.
     let mut expand = BTreeSet::new();
     let labelled = step
         .labels
         .iter()
         .filter(|l| own.entity(&l.target).is_some())
         .map(|l| l.target.as_str());
-    for id in lit.iter().map(String::as_str).chain(labelled) {
+    for id in lit
+        .iter()
+        .map(String::as_str)
+        .chain(labelled)
+        .filter(|_| teaching.is_none())
+    {
         let lineage = own.lineage(id);
         let Some(at_root) = lineage.iter().position(|o| *o == root) else {
             continue;
@@ -212,7 +257,8 @@ fn scene(active: &Active) -> StagedScene {
             }
         }
     }
-    StagedScene {
+    Ok(StagedScene {
+        teaching,
         root: (root != model.system_id).then(|| root.to_owned()),
         expand: expand.into_iter().collect(),
         spotlight: Some(Spotlight {
@@ -225,7 +271,26 @@ fn scene(active: &Active) -> StagedScene {
             },
         }),
         explode: step.presentation == Presentation::Exploded,
+    })
+}
+
+/// "Teaching view · AI assistant · 6 of 42 objects · 5 outside connections not shown"
+fn teaching_badge(active: &Active) -> Option<String> {
+    let v = active.walkthrough.resolved()[active.step].view?;
+    let view = &active.walkthrough.script().teaching_views[v];
+    let shown = &active.walkthrough.teaching_views()[v];
+    let mut badge = format!(
+        "Teaching view · {} · {} of {} objects",
+        view.title,
+        shown.entities.len(),
+        shown.model_entities
+    );
+    match shown.outside_connections {
+        0 => {}
+        1 => badge.push_str(" · 1 outside connection not shown"),
+        n => badge.push_str(&format!(" · {n} outside connections not shown")),
     }
+    Some(badge)
 }
 
 /// Owned overlays and tokens for the current step.
@@ -322,16 +387,25 @@ fn advance(
     }
     let now = time.elapsed_secs();
     let Some(active) = playback.active.as_mut() else {
+        if playback.in_teaching && actions.submit(ViewerAction::LeaveTeaching).is_ok() {
+            playback.in_teaching = false;
+        }
         return;
     };
     match active.phase {
-        Phase::Stage => {
-            let scene = scene(active);
-            match actions.submit(ViewerAction::Stage(Box::new(scene))) {
-                Ok(ticket) => active.phase = Phase::Staging(ticket),
-                Err(error) => active.error = Some(error.into()),
+        Phase::Stage => match scene(active) {
+            Ok(scene) => {
+                let teaching = scene.teaching.is_some();
+                match actions.submit(ViewerAction::Stage(Box::new(scene))) {
+                    Ok(ticket) => {
+                        active.phase = Phase::Staging(ticket);
+                        playback.in_teaching = teaching;
+                    }
+                    Err(error) => active.error = Some(error.into()),
+                }
             }
-        }
+            Err(error) => active.error = Some(error),
+        },
         Phase::Staging(ticket) => {
             if status.action_finished(ticket) && !status.loading {
                 active.error = status.action_error.clone();
@@ -374,7 +448,10 @@ fn advance(
                 active.step,
                 total,
                 active.chrome,
-                !resolved.hops.is_empty(),
+                teaching_badge(active)
+                    .into_iter()
+                    .chain((!resolved.hops.is_empty()).then(|| HONESTY.to_owned()))
+                    .collect(),
             );
             for label in &step.labels {
                 if let Some(anchor) = anchor(&label.target, &positions, &relations) {
@@ -669,7 +746,7 @@ fn spawn_caption(
     index: usize,
     total: usize,
     chrome: bool,
-    traced: bool,
+    badges: Vec<String>,
 ) {
     let accent = Color::srgb(0.45, 0.85, 1.0);
     commands
@@ -753,26 +830,41 @@ fn spawn_caption(
                     });
             }
         });
-    if traced {
-        commands.spawn((
+    // Honesty badges, top right: what the scene leaves out and what its order means.
+    if badges.is_empty() {
+        return;
+    }
+    commands
+        .spawn((
             StepOwned,
             GlobalZIndex(15),
-            Text::new(HONESTY),
-            TextFont {
-                font_size: 12.0,
-                ..default()
-            },
-            TextColor(Color::srgb_u8(210, 196, 160)),
-            BackgroundColor(Color::srgba(0.12, 0.1, 0.05, 0.75)),
             Node {
                 position_type: PositionType::Absolute,
                 right: px(24),
                 top: px(24),
-                padding: UiRect::axes(px(10), px(5)),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::End,
+                row_gap: px(6),
                 ..default()
             },
-        ));
-    }
+        ))
+        .with_children(|column| {
+            for badge in badges {
+                column.spawn((
+                    Text::new(badge),
+                    TextFont {
+                        font_size: 12.0,
+                        ..default()
+                    },
+                    TextColor(Color::srgb_u8(210, 196, 160)),
+                    BackgroundColor(Color::srgba(0.12, 0.1, 0.05, 0.75)),
+                    Node {
+                        padding: UiRect::axes(px(10), px(5)),
+                        ..default()
+                    },
+                ));
+            }
+        });
 }
 
 fn spawn_callout(commands: &mut Commands, text: &str, anchor: Vec3) {
@@ -844,9 +936,14 @@ mod tests {
     const WALKTHROUGH: &str = include_str!("../../../public/examples/notes-crud.walkthrough.json");
 
     fn active(step: usize) -> Active {
-        let model = Arc::new(Architecture::from_json(MODEL.as_bytes()).unwrap());
-        let walkthrough = Walkthrough::from_json(WALKTHROUGH.as_bytes(), &model).unwrap();
+        active_with(MODEL, WALKTHROUGH, step)
+    }
+
+    fn active_with(model: &str, walkthrough: &str, step: usize) -> Active {
+        let model = Arc::new(Architecture::from_json(model.as_bytes()).unwrap());
+        let walkthrough = Walkthrough::from_json(walkthrough.as_bytes(), &model).unwrap();
         Active {
+            teaching: teaching_stages(&walkthrough, &model),
             walkthrough,
             model,
             step,
@@ -861,7 +958,7 @@ mod tests {
 
     #[test]
     fn a_step_lights_its_focus_and_trace_and_stands_at_its_root() {
-        let scene = scene(&active(2));
+        let scene = scene(&active(2)).unwrap();
         // scope:notes is the system, so the scene stands at the system root.
         assert_eq!(scene.root, None);
         let spot = scene.spotlight.unwrap();
@@ -881,9 +978,65 @@ mod tests {
 
     #[test]
     fn a_step_only_lights_its_own_focus_unless_cumulative() {
-        let spot = scene(&active(3)).spotlight.unwrap();
+        let spot = scene(&active(3)).unwrap().spotlight.unwrap();
         assert!(!spot.lit.contains("store:notes"));
         assert!(spot.lit.contains("concern:authentication"));
+    }
+
+    #[test]
+    fn a_teaching_step_stages_its_flattened_source_and_says_what_it_leaves_out() {
+        let walkthrough = serde_json::json!({
+            "schema_version": visualyze_model::walkthrough::SCHEMA_VERSION,
+            "id": "walk:assistant",
+            "model_id": "otel-demo",
+            "expected_revision": 1,
+            "title": "The assistant loop",
+            "teaching_views": [{
+                "id": "tv:assistant",
+                "title": "AI assistant",
+                "members": ["service:chatbot", "service:agent", "service:mcp", "service:llm"],
+                "layout": "peers",
+            }],
+            "steps": [
+                {"id": "whole", "title": "Where it sits", "focus": ["scope:ai-assistant"]},
+                {"id": "loop", "title": "The agent calls its tools", "view": "tv:assistant",
+                 "focus": ["service:agent"],
+                 "trace": [{"relation": "rel:requests-chatbot--agent"},
+                           {"relation": "rel:requests-agent--mcp"}]},
+                {"id": "again", "title": "And the model", "view": "tv:assistant",
+                 "focus": ["service:llm"]},
+            ],
+        });
+        let model = include_str!("../../../public/examples/otel-demo.json");
+        let snapshot: serde_json::Value = serde_json::from_str(model).unwrap();
+        let mut walkthrough = walkthrough;
+        walkthrough["model_id"] = snapshot["model_id"].clone();
+        walkthrough["expected_revision"] = snapshot["revision"].clone();
+        let text = walkthrough.to_string();
+
+        let outside = scene(&active_with(model, &text, 0)).unwrap();
+        assert!(outside.teaching.is_none());
+
+        let mut active = active_with(model, &text, 1);
+        let inside = scene(&active).unwrap();
+        let stage = inside.teaching.clone().expect("teaching source");
+        assert_eq!(stage.policy, LayoutPolicy::Peers);
+        // Flat: the scene stands at the system and opens nothing.
+        assert_eq!(inside.root, None);
+        assert!(inside.expand.is_empty());
+        assert!(inside.spotlight.unwrap().lit.contains("service:mcp"));
+        // Steps in the same view reuse one source, so the viewer keeps its layout.
+        active.step = 2;
+        assert_eq!(scene(&active).unwrap().teaching, Some(stage));
+
+        let badge = teaching_badge(&active).unwrap();
+        assert!(
+            badge.starts_with("Teaching view · AI assistant · "),
+            "{badge}"
+        );
+        assert!(badge.contains("outside connections not shown"), "{badge}");
+        active.step = 0;
+        assert_eq!(teaching_badge(&active), None);
     }
 
     #[test]

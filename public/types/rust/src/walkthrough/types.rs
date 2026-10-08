@@ -9,7 +9,29 @@ pub struct Script {
     pub model_id: String,
     pub expected_revision: u64,
     pub title: String,
+    /// Temporary flattened views over a subset of the model (ADR 0010).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub teaching_views: Vec<TeachingView>,
     pub steps: Vec<Step>,
+}
+
+/// An agent-chosen subset of the model, laid out on its own for explanation. It cites
+/// existing entity IDs only; the viewer derives everything else from the model.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TeachingView {
+    pub id: String,
+    pub title: String,
+    pub members: Vec<String>,
+    #[serde(default)]
+    pub layout: TeachingLayout,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TeachingLayout {
+    #[default]
+    Pipeline,
+    Peers,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -17,6 +39,9 @@ pub struct Step {
     pub id: String,
     pub title: String,
     pub root: Option<String>,
+    /// A teaching view ID from [`Script::teaching_views`]; the step plays inside it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub view: Option<String>,
     pub focus: Vec<String>,
     /// None means `hide` for a traced step and `dim` otherwise; see [`Step::context`].
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -111,4 +136,20 @@ pub struct ResolvedStep {
     /// The supplied root, or the closest common owner of the focus.
     pub root: String,
     pub hops: Vec<ResolvedHop>,
+    /// Index into [`super::Walkthrough::teaching_views`] when the step plays in one.
+    pub view: Option<usize>,
+}
+
+/// What validation derived for one teaching view, against the full model.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct ResolvedTeachingView {
+    pub id: String,
+    /// Members plus the interfaces they expose.
+    pub entities: std::collections::BTreeSet<String>,
+    /// Relations between shown entities, other than containment.
+    pub relations: std::collections::BTreeSet<String>,
+    /// Flow relations with exactly one end in the view; they are not drawn.
+    pub outside_connections: usize,
+    /// Entities in the full model, for the honesty badge.
+    pub model_entities: usize,
 }

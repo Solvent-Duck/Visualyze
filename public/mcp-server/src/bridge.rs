@@ -301,6 +301,9 @@ impl Bridge {
                 if let Some(revision) = args.get("expected_revision") {
                     params["expected_revision"] = revision.clone();
                 }
+                if let Some(view) = args.get("teaching_view") {
+                    params["teaching_view"] = view.clone();
+                }
                 self.call("view", params).await
             }
             "get_scene_state" => self.call("state", json!({})).await,
@@ -379,6 +382,8 @@ fn tools() -> Vec<Tool> {
     }
     let mut scene = defs["step"].clone();
     scene["properties"].as_object_mut().unwrap().remove("id");
+    // A single view names its teaching view inline, so it has no ID to refer to.
+    scene["properties"].as_object_mut().unwrap().remove("view");
     scene["required"] = json!(["title", "focus"]);
     let path = json!({"type": "string", "description": "Path relative to the project directory."});
     let read_only = |tool: Tool| {
@@ -415,7 +420,7 @@ fn tools() -> Vec<Tool> {
         ),
         Tool::new(
             "present_walkthrough",
-            "Play a walkthrough over the published model: scenes that frame, light, and trace model IDs, with your short step titles and labels. You narrate in chat; use headings that match the step titles. Returns the step list.",
+            "Play a walkthrough over the published model: scenes that frame, light, and trace model IDs, with your short step titles and labels. To explain one part on its own, list its objects in a teaching view and play steps in it: the viewer lays them out flat and temporarily. You narrate in chat; use headings that match the step titles. Returns the step list.",
             object(json!({
                 "type": "object",
                 "properties": {
@@ -429,11 +434,12 @@ fn tools() -> Vec<Tool> {
         ),
         Tool::new(
             "set_view",
-            "Show one scene over the published model, for a quick follow-up such as 'show me the refresh path'.",
+            "Show one scene over the published model, for a quick follow-up such as 'show me the refresh path'. With teaching_view, the scene plays in that temporary flattened view.",
             object(json!({
                 "type": "object",
                 "properties": {
                     "scene": scene,
+                    "teaching_view": {"$ref": "#/$defs/teaching_view"},
                     "expected_revision": {"type": "integer", "minimum": 1},
                 },
                 "required": ["scene"],
@@ -659,6 +665,13 @@ mod tests {
                 .get("id")
                 .is_none()
         );
+        assert!(
+            view["properties"]["scene"]["properties"]
+                .get("view")
+                .is_none()
+        );
+        assert!(view["$defs"]["teaching_view"].is_object());
+        assert!(present["$defs"]["step"]["properties"]["view"].is_object());
         // The tool schemas are themselves valid JSON Schema.
         for tool in &tools {
             jsonschema_ok(&Value::Object((*tool.input_schema).clone()));

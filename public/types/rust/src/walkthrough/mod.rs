@@ -1,7 +1,9 @@
 //! Validated walkthroughs: explanatory scene sequences over one revision of an architecture
 //! model. A walkthrough references existing IDs only; it cannot add structure or connections.
+mod teaching;
 mod types;
 
+pub use teaching::{ADVISED_MEMBERS, teaching_model};
 pub use types::*;
 
 use std::{
@@ -33,6 +35,7 @@ static VALIDATOR: LazyLock<jsonschema::Validator> = LazyLock::new(|| {
 pub struct Walkthrough {
     script: Script,
     resolved: Vec<ResolvedStep>,
+    teaching: Vec<ResolvedTeachingView>,
     warnings: Vec<Diagnostic>,
 }
 
@@ -63,10 +66,15 @@ impl Walkthrough {
         }
         let script: Script = serde_json::from_value(value)
             .map_err(|e| ValidationError::one("typed_decode", "", e.to_string()))?;
-        let (resolved, warnings) = check(&script, model.snapshot())?;
+        let Checked {
+            resolved,
+            teaching,
+            warnings,
+        } = check(&script, model.snapshot())?;
         Ok(Self {
             script,
             resolved,
+            teaching,
             warnings,
         })
     }
@@ -77,6 +85,10 @@ impl Walkthrough {
     /// Derived roots and hop directions, parallel to `script().steps`.
     pub fn resolved(&self) -> &[ResolvedStep] {
         &self.resolved
+    }
+    /// What each teaching view shows, parallel to `script().teaching_views`.
+    pub fn teaching_views(&self) -> &[ResolvedTeachingView] {
+        &self.teaching
     }
     pub fn warnings(&self) -> &[Diagnostic] {
         &self.warnings
@@ -193,7 +205,11 @@ impl<'a> Ownership<'a> {
     }
 }
 
-type Checked = (Vec<ResolvedStep>, Vec<Diagnostic>);
+struct Checked {
+    resolved: Vec<ResolvedStep>,
+    teaching: Vec<ResolvedTeachingView>,
+    warnings: Vec<Diagnostic>,
+}
 
 fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> {
     let mut errors = Vec::new();
@@ -228,6 +244,27 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
     }
 
     let own = Ownership::new(model);
+    let mut view_ids = HashMap::new();
+    let mut teaching = Vec::with_capacity(script.teaching_views.len());
+    for (v, view) in script.teaching_views.iter().enumerate() {
+        if view_ids.insert(view.id.as_str(), v).is_some() {
+            push(
+                &mut errors,
+                "duplicate_teaching_view_id",
+                format!("/teaching_views/{v}/id"),
+                format!("teaching view ID {} is used twice", view.id),
+            );
+        }
+        teaching.push(teaching::resolve(
+            v,
+            view,
+            model,
+            &own,
+            &mut errors,
+            &mut warnings,
+        ));
+    }
+    let mut used_views = HashSet::new();
     let mut step_ids = HashSet::new();
     let mut resolved = Vec::with_capacity(script.steps.len());
     for (s, step) in script.steps.iter().enumerate() {
@@ -257,9 +294,46 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
             );
         }
 
+        let view = match &step.view {
+            None => None,
+            Some(id) => match view_ids.get(id.as_str()) {
+                Some(&v) => {
+                    used_views.insert(v);
+                    Some(v)
+                }
+                None => {
+                    push(
+                        &mut errors,
+                        "missing_reference",
+                        at("/view"),
+                        format!("view {id} is not one of this walkthrough's teaching_views"),
+                    );
+                    None
+                }
+            },
+        };
+        // A step inside a teaching view can only use what that view shows.
+        let shown = view.map(|v| &teaching[v]);
+        let outside = |errors: &mut Vec<Diagnostic>, path: String, what: &str, id: &str| {
+            if let Some(shown) = shown {
+                push(
+                    errors,
+                    "outside_teaching_view",
+                    path,
+                    format!(
+                        "{what} {id} is not in teaching view {}; add the object that holds it to the view's members, or play this step outside the view",
+                        shown.id
+                    ),
+                );
+            }
+        };
+
         let mut focus = Vec::new();
         for (i, id) in step.focus.iter().enumerate() {
             match own.entity(id) {
+                Some(_) if shown.is_some_and(|v| !v.entities.contains(id)) => {
+                    outside(&mut errors, at(&format!("/focus/{i}")), "focus", id)
+                }
                 Some(_) => focus.push(id.as_str()),
                 None => push(
                     &mut errors,
@@ -282,6 +356,16 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
         }
 
         let root = match &step.root {
+            Some(_) if shown.is_some() => {
+                push(
+                    &mut errors,
+                    "root_in_teaching_view",
+                    at("/root"),
+                    "a teaching view is shown whole; drop root from steps that play in it".into(),
+                );
+                None
+            }
+            _ if shown.is_some() => Some(own.system.to_owned()),
             Some(root) if own.entity(root).is_none() => {
                 push(
                     &mut errors,
@@ -322,6 +406,9 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
                 previous = None;
                 continue;
             };
+            if shown.is_some_and(|v| !v.relations.contains(&hop.relation)) {
+                outside(&mut errors, path.clone(), "trace relation", &hop.relation);
+            }
             if !is_flow(kind) {
                 push(
                     &mut errors,
@@ -421,6 +508,15 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
                     at(&format!("/labels/{i}/target")),
                     format!("label target {} is not in this model", label.target),
                 );
+            } else if shown.is_some_and(|v| {
+                !v.entities.contains(&label.target) && !v.relations.contains(&label.target)
+            }) {
+                outside(
+                    &mut errors,
+                    at(&format!("/labels/{i}/target")),
+                    "label target",
+                    &label.target,
+                );
             }
             if label.text.trim().is_empty() {
                 push(
@@ -435,11 +531,26 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
         resolved.push(ResolvedStep {
             root: root.unwrap_or_default(),
             hops,
+            view,
         });
+    }
+    for (v, view) in script.teaching_views.iter().enumerate() {
+        if !used_views.contains(&v) {
+            push(
+                &mut warnings,
+                "unused_teaching_view",
+                format!("/teaching_views/{v}"),
+                format!("no step plays in teaching view {}", view.id),
+            );
+        }
     }
     // A tour that never leaves the whole-system view shows every scene with the rest of the
     // system dimmed around it. Advise opening the busiest real subsystem.
-    if script.steps.len() >= OPENING_STEPS && resolved.iter().all(|r| r.root == own.system) {
+    if script.steps.len() >= OPENING_STEPS
+        && resolved
+            .iter()
+            .all(|r| r.root == own.system && r.view.is_none())
+    {
         let mut children: HashMap<&str, usize> = HashMap::new();
         for entity in &model.entities {
             if let Some(parent) = own.parent(&entity.id)
@@ -477,7 +588,11 @@ fn check(script: &Script, model: &Snapshot) -> Result<Checked, ValidationError> 
     }
 
     if errors.is_empty() {
-        Ok((resolved, warnings))
+        Ok(Checked {
+            resolved,
+            teaching,
+            warnings,
+        })
     } else {
         Err(ValidationError {
             diagnostics: errors,

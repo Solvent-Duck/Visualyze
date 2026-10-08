@@ -111,6 +111,43 @@ Guidelines:
 - Trace order is explanatory, not a recorded execution, and the viewer says so on
   screen.
 
+**Teaching views: explain one part on its own.** When the question is about a
+loop or path whose pieces live in different scopes (for example "walk me through
+our research loop"), opening the whole system only lights a jagged path across
+it. List those objects in a teaching view instead, and play the steps about them
+in it:
+
+```json
+"teaching_views": [{
+  "id": "tv:research",
+  "title": "Research loop",
+  "members": ["service:planner", "service:agent", "service:search", "store:notes"],
+  "layout": "pipeline"
+}],
+"steps": [
+  { "id": "where", "title": "Where the loop lives", "focus": ["service:agent"], "camera": "overview" },
+  { "id": "loop", "title": "Plan, search, take notes", "view": "tv:research",
+    "focus": ["service:agent"], "trace": [...], "repeat_trace": true }
+]
+```
+
+- The viewer lifts the members out and lays them out flat for those steps, then
+  returns to the full model when a step has no `view` or the walkthrough stops.
+  It is temporary: nothing is saved and the model file is unchanged.
+- You choose the members; Visualyze adds nothing. List only objects that exist
+  in the model. An interface comes with the component that exposes it, so list
+  the component (`teaching_member_interface`). Do not list a scope together with
+  something inside it (`nested_teaching_member`). If the part needs an object the
+  model lacks, add it to the model with evidence first.
+- Every step in a view must stay inside it: its focus, trace, and labels
+  (`outside_teaching_view`), and it takes no `root`. Relations to objects outside
+  the view are not drawn. The viewer shows how many it left out.
+- Keep a view to the objects your explanation visits, ideally 16 or fewer
+  (`busy_teaching_view`). Use `"layout": "pipeline"` for flows and loops and
+  `"peers"` for a set of equals.
+- Show the part in place first (a step without `view`), then lift it out. The
+  person sees where it lives before it is isolated.
+
 Call `present_walkthrough`. Repair any diagnostics it
 returns, then call it again. Warnings never reject a walkthrough, but read them:
 each names something the viewer will show badly. To repair a `trace_gap`, add the missing relation
@@ -145,6 +182,7 @@ through the viewer at their own pace with `.` (next), `,` (back), and `?`
 - "What's this?" or "explain the selected thing": call `get_scene_state` to see
   what the person selected and which step they are on, then answer about that.
 - "Show me the refresh path": use `set_view` for a single scene, or present a
-  short new walkthrough.
+  short new walkthrough. `set_view` also takes an inline `teaching_view`, to show
+  one part on its own.
 - If the person moved the camera, playback pauses (`"state": "interrupted"`).
   That is expected.

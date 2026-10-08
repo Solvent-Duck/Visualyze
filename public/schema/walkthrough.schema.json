@@ -24,6 +24,15 @@
     "title": {
       "$ref": "#/$defs/title"
     },
+    "teaching_views": {
+      "description": "Temporary flattened views over a subset of the model, for steps that explain one part on its own. They cite existing entity IDs only.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/teaching_view"
+      },
+      "minItems": 0,
+      "maxItems": 4
+    },
     "steps": {
       "type": "array",
       "items": {
@@ -64,7 +73,11 @@
           "$ref": "#/$defs/title"
         },
         "root": {
-          "description": "The entity whose interior the scene shows. Defaults to the closest common owner of the focus.",
+          "description": "The entity whose interior the scene shows. Defaults to the closest common owner of the focus. Not allowed with view.",
+          "$ref": "#/$defs/id"
+        },
+        "view": {
+          "description": "A teaching_views ID. The step plays in that flattened view, and its focus, trace, and labels must be inside it.",
           "$ref": "#/$defs/id"
         },
         "focus": {
@@ -116,6 +129,34 @@
         "presentation": {
           "enum": ["assembled", "exploded"],
           "default": "assembled"
+        }
+      }
+    },
+    "teaching_view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "members"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "title": {
+          "$ref": "#/$defs/title"
+        },
+        "members": {
+          "description": "The entities to lift out and lay out on their own. Interfaces come with the component that exposes them. Do not list an entity together with something that contains it.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "minItems": 2,
+          "maxItems": 32,
+          "uniqueItems": true
+        },
+        "layout": {
+          "description": "pipeline: arrange along the flow, for loops and request paths. peers: arrange as equals.",
+          "enum": ["pipeline", "peers"],
+          "default": "pipeline"
         }
       }
     },

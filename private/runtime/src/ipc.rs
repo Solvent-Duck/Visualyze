@@ -422,14 +422,19 @@ fn present(
             return Err(Response::err(0, "invalid_request", "scene is required"));
         }
         step["id"] = "view".into();
-        json!({
+        let mut script = json!({
             "schema_version": visualyze_model::walkthrough::SCHEMA_VERSION,
             "id": "view",
             "model_id": params.get("model_id").cloned().unwrap_or_else(|| snapshot.model_id.clone().into()),
             "expected_revision": params.get("expected_revision").cloned().unwrap_or_else(|| snapshot.revision.into()),
             "title": step["title"].clone(),
-            "steps": [step],
-        })
+        });
+        if let Some(view) = params.get("teaching_view").filter(|v| !v.is_null()) {
+            step["view"] = view["id"].clone();
+            script["teaching_views"] = json!([view]);
+        }
+        script["steps"] = json!([step]);
+        script
     } else {
         params["walkthrough"].clone()
     };

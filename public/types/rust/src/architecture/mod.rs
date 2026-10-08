@@ -132,6 +132,13 @@ impl Architecture {
         Ok(Self { snapshot, warnings })
     }
 
+    /// For snapshots derived from an already validated model, such as teaching views. The
+    /// graph rules still run, so a derivation cannot produce an invalid model.
+    pub(crate) fn from_snapshot(snapshot: Snapshot) -> Result<Self, ValidationError> {
+        let warnings = graph::validate(&snapshot)?;
+        Ok(Self { snapshot, warnings })
+    }
+
     pub fn snapshot(&self) -> &Snapshot {
         &self.snapshot
     }

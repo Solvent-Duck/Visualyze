@@ -468,5 +468,407 @@
         ]
       }
     ]
+  },
+  {
+    "name": "teaching view step",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "teaching view step may focus an exposed interface",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": null,
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "interface:sessions"
+          ],
+          "trace": [
+            {
+              "relation": "rel:request-sessions"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject teaching view with one member",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "service:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject unknown teaching view layout",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "schema_violation",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ],
+            "layout": "grid"
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject interface as teaching member",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "teaching_member_interface",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "interface:sessions"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject system as teaching member",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "teaching_member_system",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "scope:notes",
+              "client:web"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reject step in unknown teaching view",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "missing_reference",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:other",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject root in teaching view step",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "root_in_teaching_view",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ],
+          "root": "scope:notes"
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject focus outside teaching view",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "outside_teaching_view",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "concern:authentication"
+          ],
+          "trace": []
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject trace outside teaching view",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "outside_teaching_view",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "store:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "client:web"
+          ],
+          "trace": [
+            {
+              "relation": "rel:request-sessions"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "reject duplicate teaching view id",
+    "base": "notes-crud.walkthrough.json",
+    "expected_error": "duplicate_teaching_view_id",
+    "changes": [
+      {
+        "op": "add",
+        "path": "/teaching_views",
+        "value": [
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes",
+              "store:notes"
+            ]
+          },
+          {
+            "id": "tv:read",
+            "title": "The read path",
+            "members": [
+              "client:web",
+              "service:notes"
+            ]
+          }
+        ]
+      },
+      {
+        "op": "add",
+        "path": "/steps/-",
+        "value": {
+          "id": "t",
+          "title": "Reading notes",
+          "view": "tv:read",
+          "focus": [
+            "service:notes",
+            "store:notes"
+          ],
+          "trace": [
+            {
+              "relation": "rel:read-database"
+            }
+          ]
+        }
+      }
+    ]
   }
 ]

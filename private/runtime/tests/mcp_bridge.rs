@@ -195,6 +195,12 @@ fn the_handshake_lists_the_tools_resources_and_prompt_an_agent_needs() {
     assert!(
         by_name("set_view")["inputSchema"]["properties"]["scene"]["properties"]["id"].is_null()
     );
+    // Teaching views (ADR 0010): named by a walkthrough step, or inline on a single view.
+    assert!(by_name("present_walkthrough")["inputSchema"]["$defs"]["teaching_view"].is_object());
+    assert_eq!(
+        by_name("set_view")["inputSchema"]["properties"]["teaching_view"]["$ref"],
+        "#/$defs/teaching_view"
+    );
 
     let resources = s.request("resources/list", json!({}))["result"]["resources"].clone();
     let uris: Vec<_> = resources
