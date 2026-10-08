@@ -109,7 +109,9 @@ pub(crate) fn spawn_backdrop(commands: &mut Commands) {
 #[derive(ShaderType, Debug, Clone, Copy)]
 pub(crate) struct GlassUniform {
     color: LinearRgba,
-    shape: Vec4,
+    /// x: face intensity, y: edge intensity. The glass is additive, so scaling
+    /// both fades it (scene transitions do).
+    pub(crate) shape: Vec4,
     grid: Vec4,
 }
 

@@ -236,6 +236,7 @@ pub(crate) fn serve_requests(
     mut actions: ResMut<ViewerActions>,
     status: Res<LayoutStatus>,
     mut playback: ResMut<Playback>,
+    transition: Option<Res<crate::transition::SceneTransition>>,
 ) {
     let mut finished = Vec::new();
     for (i, pending) in served.pending.iter().enumerate() {
@@ -286,7 +287,15 @@ pub(crate) fn serve_requests(
                     }
                 })
             }
-            "state" => Ok(Some(Response::ok(id, state(&served, &status, &playback)))),
+            "state" => Ok(Some(Response::ok(
+                id,
+                state(
+                    &served,
+                    &status,
+                    &playback,
+                    transition.as_ref().and_then(|t| t.name()),
+                ),
+            ))),
             "present" | "view" => present(
                 request.method == "view",
                 &request.params,
@@ -473,7 +482,12 @@ fn control(params: &Value, playback: &mut Playback) -> Result<(), Response> {
         .map_err(|e| Response::err(0, "no_walkthrough", e))
 }
 
-fn state(served: &Served, status: &LayoutStatus, playback: &Playback) -> Value {
+fn state(
+    served: &Served,
+    status: &LayoutStatus,
+    playback: &Playback,
+    transition: Option<&str>,
+) -> Value {
     let model = served.current(status);
     let label = |id: &str| {
         model.and_then(|m| {
@@ -497,5 +511,6 @@ fn state(served: &Served, status: &LayoutStatus, playback: &Playback) -> Value {
         "visible": {"objects": status.object_count, "connectors": status.relation_count},
         "error": status.action_error.as_ref().or(status.error.as_ref()),
         "playback": playback.state(),
+        "transition": transition,
     })
 }

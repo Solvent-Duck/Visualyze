@@ -15,6 +15,7 @@ pub mod report;
 mod scene;
 mod shutdown;
 mod style;
+mod transition;
 
 use bevy::{prelude::*, window::WindowResolution};
 use visualyze_model::architecture::{Architecture, OBJECTS_FIXTURE};

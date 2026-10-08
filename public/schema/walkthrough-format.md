@@ -101,6 +101,11 @@ rest from the model and adds no facts.
   the published model at the next step without a `view`, and when playback stops.
   The flattening is recorded in the derived layout only as `contains` relations
   from the system whose rationale says they are a teaching view placement.
+- **Motion:** entering a view, the viewer lights the members where they stand
+  while the rest falls away, then lifts them out; leaving the view puts them
+  back. Show the part in place in the step before, so the person sees where it
+  lives. The motion is the
+  viewer's choice; a walkthrough never specifies it.
 
 ## 6. Diagnostics
 

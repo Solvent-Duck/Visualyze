@@ -60,19 +60,48 @@ smaller one, and a way for the viewer to show it without treating it as a model.
 7. **`set_view` takes an inline `teaching_view`**, so a quick follow-up can show
    one part on its own without a full walkthrough.
 
-## First slice and later work
+## Transitions
 
-The first slice cuts between layouts: the full model, then the flat view. The
-intended motion is to light the members in place, let everything else fall
-away, then move the members to their flat positions. Members keep their
-semantic IDs across both layouts, so this needs per-ID interpolation between two
-accepted layouts. That is a narrow case of the retained reconciliation listed
-in ADR 0008, and is the next step.
+Entering and leaving a teaching view animates; it does not cut.
 
-Later work:
+1. **Transitions are data.** A `Choreography` (`private/runtime/src/transition.rs`)
+   gives each role an object can play between two scenes a motion and a time
+   window:
+   - *leaving*: drawn only in the outgoing scene;
+   - *travelling*: drawn in both, matched by display or semantic ID, moving from
+     its old place to its new one;
+   - *arriving*: drawn only in the incoming scene;
+
+   plus windows for outgoing and incoming connectors and for labels. A motion is
+   an offset, a scale, and whether it fades, each with an easing.
+2. **One player.** The scene rebuild assigns the roles: outgoing objects and
+   connectors stay on screen, and every entity gets a `Track` (position, scale,
+   opacity over a window). One system plays all tracks, removes what has left,
+   and releases labels once their objects have landed. A new transition settles
+   any that is still playing. A rebuild without a choreography cuts, as before.
+3. **Presets.** `pull_out`: the part lights up where it stands while the rest
+   falls away, then the part flies to its flat layout (3.45 s). `put_back`: the
+   part flies home, then the rest rises around it. `morph`: what stays moves and
+   the rest cross-fades. Travelling objects grow or shrink to their new size as
+   they move. Adding an animation means adding a preset (or a channel on
+   `Track`, as the highlight's glow and the resize are), not a system.
+4. **When they play.** Entering a teaching view plays `pull_out` straight from
+   the scene on screen; leaving it, or stopping, plays `put_back`; moving between
+   two teaching views morphs. Other step changes still cut. A member the
+   previous step did not draw (inside a closed scope, or hidden context) arrives
+   rather than travels, so the step before a teaching view should show the part
+   in place.
+5. **Playback waits for the scene.** The camera holds while the part lights up,
+   then moves toward where the objects will rest once they start to travel. The
+   trace, labels, and autoplay hold start when the transition ends.
+   `get_scene_state` reports the playing transition and the step's phase
+   (`transition` or `shown`).
+
+## Later work
 
 - Keeping a listed container as a frame instead of rejecting nested members.
 - Stubs at the view's edge for the outside connections, instead of only a count.
+- Using `morph` for ordinary step changes, which still cut.
 
 ## Consequences
 

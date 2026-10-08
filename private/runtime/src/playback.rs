@@ -24,6 +24,7 @@ use crate::{
         DevChrome, LayoutStatus, PlacedObject, PlacedRelation, SpotContext, Spotlight, StagedScene,
         TeachingStage, ViewerAction, ViewerActions,
     },
+    transition::{Choreography, SceneTransition, Track},
 };
 
 /// Seconds a step holds in autoplay before its own motion and labels are added.
@@ -55,6 +56,8 @@ enum Phase {
     Stage,
     /// Wait for the viewer to accept the scene.
     Staging(u64),
+    /// Wait for the scene transition to finish.
+    Settling,
     /// Scene shown: frame the camera, place labels, start the trace.
     Present,
     /// Holding on the step; autoplay advances when the hold elapses.
@@ -73,6 +76,8 @@ struct Active {
     /// Step chrome (progress, hints) for walkthroughs; single views go without.
     chrome: bool,
     error: Option<String>,
+    /// The camera already moved toward this step while its transition played.
+    framed: bool,
     /// One temporary layout source per teaching view, parallel to the script's
     /// `teaching_views`, built once so every step in a view reuses its layout.
     teaching: Vec<Result<TeachingStage, String>>,
@@ -83,9 +88,23 @@ pub(crate) struct Playback {
     active: Option<Active>,
     /// Bumped whenever the shown step changes, so overlays rebuild once.
     generation: u64,
-    /// The last staged step was in a teaching view; stopping must return the viewer
-    /// to the published model.
-    in_teaching: bool,
+    /// The teaching view the viewer was last asked to show. Stopping returns the
+    /// viewer to the published model, and the next scene's transition depends on it.
+    shown_teaching: Option<TeachingStage>,
+}
+
+/// How the viewer gets from what it shows to the next scene: lifting a part out,
+/// putting it back, or moving between two teaching views. Other changes cut.
+fn choreography(
+    shown: Option<&TeachingStage>,
+    next: Option<&TeachingStage>,
+) -> Option<Choreography> {
+    match (shown, next) {
+        (None, Some(_)) => Some(Choreography::pull_out()),
+        (Some(shown), Some(next)) if shown != next => Some(Choreography::morph()),
+        (Some(_), None) => Some(Choreography::put_back()),
+        _ => None,
+    }
 }
 
 fn teaching_stages(
@@ -131,6 +150,7 @@ impl Playback {
             interrupted: false,
             chrome,
             error: None,
+            framed: false,
         });
         self.generation += 1;
     }
@@ -151,6 +171,7 @@ impl Playback {
         active.phase = Phase::Stage;
         active.interrupted = false;
         active.error = None;
+        active.framed = false;
         self.generation += 1;
         Ok(())
     }
@@ -203,6 +224,11 @@ impl Playback {
             "step_title": script.steps[active.step].title,
             "total": script.steps.len(),
             "teaching_view": script.steps[active.step].view,
+            "phase": match active.phase {
+                Phase::Stage | Phase::Staging(_) => "staging",
+                Phase::Settling => "transition",
+                Phase::Present | Phase::Showing { .. } => "shown",
+            },
             "autoplay": active.autoplay,
             "error": active.error,
         })
@@ -259,6 +285,7 @@ fn scene(active: &Active) -> Result<StagedScene, String> {
     }
     Ok(StagedScene {
         teaching,
+        transition: None,
         root: (root != model.system_id).then(|| root.to_owned()),
         expand: expand.into_iter().collect(),
         spotlight: Some(Spotlight {
@@ -369,8 +396,9 @@ fn advance(
     status: Res<LayoutStatus>,
     time: Res<Time>,
     mut director: ResMut<CameraDirector>,
+    transition: Option<Res<SceneTransition>>,
     mut camera: Query<&mut OrbitCamera>,
-    objects: Query<(&PlacedObject, &Transform)>,
+    objects: Query<(&PlacedObject, &Transform, Option<&Track>)>,
     relations: Query<&PlacedRelation>,
     owned: Query<Entity, With<StepOwned>>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -386,20 +414,23 @@ fn advance(
         *shown = generation;
     }
     let now = time.elapsed_secs();
+    let playback = &mut *playback;
     let Some(active) = playback.active.as_mut() else {
-        if playback.in_teaching && actions.submit(ViewerAction::LeaveTeaching).is_ok() {
-            playback.in_teaching = false;
+        if playback.shown_teaching.is_some() && actions.submit(ViewerAction::LeaveTeaching).is_ok()
+        {
+            playback.shown_teaching = None;
         }
         return;
     };
     match active.phase {
         Phase::Stage => match scene(active) {
-            Ok(scene) => {
-                let teaching = scene.teaching.is_some();
+            Ok(mut scene) => {
+                let next = scene.teaching.clone();
+                scene.transition = choreography(playback.shown_teaching.as_ref(), next.as_ref());
                 match actions.submit(ViewerAction::Stage(Box::new(scene))) {
                     Ok(ticket) => {
                         active.phase = Phase::Staging(ticket);
-                        playback.in_teaching = teaching;
+                        playback.shown_teaching = next;
                     }
                     Err(error) => active.error = Some(error.into()),
                 }
@@ -409,6 +440,37 @@ fn advance(
         Phase::Staging(ticket) => {
             if status.action_finished(ticket) && !status.loading {
                 active.error = status.action_error.clone();
+                active.phase = if transition.is_some_and(|t| t.active()) {
+                    Phase::Settling
+                } else {
+                    Phase::Present
+                };
+            }
+        }
+        Phase::Settling => {
+            let transition = transition.as_deref();
+            // The camera holds while the scene changes in place, and moves with the
+            // objects once they travel, toward where they will rest.
+            if !active.framed
+                && transition.is_some_and(|t| t.travelling(now))
+                && let Ok(mut orbit) = camera.single_mut()
+            {
+                let step = &active.walkthrough.script().steps[active.step];
+                let resolved = &active.walkthrough.resolved()[active.step];
+                let positions = object_positions(&objects);
+                let legs = trace_legs(resolved, &positions, &relations);
+                frame(
+                    step.camera,
+                    step,
+                    &legs,
+                    &positions,
+                    &mut orbit,
+                    &mut director,
+                );
+                director.interrupted = false;
+                active.framed = true;
+            }
+            if !transition.is_some_and(|t| t.active()) {
                 active.phase = Phase::Present;
             }
         }
@@ -422,14 +484,16 @@ fn advance(
             let resolved = &active.walkthrough.resolved()[active.step];
             let positions = object_positions(&objects);
             let legs = trace_legs(resolved, &positions, &relations);
-            frame(
-                step.camera,
-                step,
-                &legs,
-                &positions,
-                &mut orbit,
-                &mut director,
-            );
+            if !std::mem::take(&mut active.framed) {
+                frame(
+                    step.camera,
+                    step,
+                    &legs,
+                    &positions,
+                    &mut orbit,
+                    &mut director,
+                );
+            }
             if !legs.is_empty() {
                 spawn_token(
                     &mut commands,
@@ -483,13 +547,15 @@ fn advance(
     }
 }
 
-/// Each displayed object's box, keyed by every semantic ID it stands for.
+/// Each displayed object's box, keyed by every semantic ID it stands for. An object
+/// still moving into place counts where it will rest.
 fn object_positions(
-    objects: &Query<(&PlacedObject, &Transform)>,
+    objects: &Query<(&PlacedObject, &Transform, Option<&Track>)>,
 ) -> BTreeMap<String, (Vec3, Vec3)> {
     let mut out = BTreeMap::new();
-    for (object, transform) in objects {
-        let entry = (transform.translation, object.half);
+    for (object, transform, track) in objects {
+        let at = track.map_or(transform.translation, |track| track.to);
+        let entry = (at, object.half);
         out.insert(object.id.clone(), entry);
         for id in &object.semantic_ids {
             out.entry(id.clone()).or_insert(entry);
@@ -953,6 +1019,7 @@ mod tests {
             interrupted: false,
             chrome: true,
             error: None,
+            framed: false,
         }
     }
 
@@ -1037,6 +1104,35 @@ mod tests {
         assert!(badge.contains("outside connections not shown"), "{badge}");
         active.step = 0;
         assert_eq!(teaching_badge(&active), None);
+    }
+
+    #[test]
+    fn lifting_out_putting_back_and_switching_views_each_have_a_choreography() {
+        let model = Architecture::from_json(MODEL.as_bytes()).unwrap();
+        let stage = |members: &[&str]| TeachingStage {
+            input: LayoutInput::snapshot(
+                teaching_model(
+                    &model,
+                    &visualyze_model::walkthrough::TeachingView {
+                        id: "tv".into(),
+                        title: "t".into(),
+                        members: members.iter().map(|m| m.to_string()).collect(),
+                        layout: TeachingLayout::Pipeline,
+                    },
+                )
+                .unwrap(),
+            ),
+            policy: LayoutPolicy::Pipeline,
+        };
+        let a = stage(&["client:web", "service:notes"]);
+        let b = stage(&["service:notes", "store:notes"]);
+        let name = |c: Option<Choreography>| c.map(|c| c.name);
+        assert_eq!(name(choreography(None, Some(&a))), Some("pull_out"));
+        assert_eq!(name(choreography(Some(&a), None)), Some("put_back"));
+        assert_eq!(name(choreography(Some(&a), Some(&b))), Some("morph"));
+        // Staying in the same view, or outside any, keeps today's cut.
+        assert_eq!(name(choreography(Some(&a), Some(&a.clone()))), None);
+        assert_eq!(name(choreography(None, None)), None);
     }
 
     #[test]

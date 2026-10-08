@@ -60,6 +60,8 @@ impl LayoutEngine {
         }
     }
 }
+use crate::transition::{Choreography, Held, SceneTransition, Track};
+
 /// Semantic identity remains independent of the geometry/color vocabulary.
 #[derive(Component, Debug)]
 pub struct PlacedObject {
@@ -92,7 +94,7 @@ pub enum SpotContext {
 }
 
 /// A view an agent asks for: where to stand, what to open, what to light.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct StagedScene {
     /// None shows the system root.
     pub root: Option<String>,
@@ -102,6 +104,8 @@ pub struct StagedScene {
     /// Lay the scene out in a temporary flattened teaching view (ADR 0010) instead of
     /// the published model.
     pub(crate) teaching: Option<TeachingStage>,
+    /// How the scene replaces the one on screen; None cuts.
+    pub(crate) transition: Option<Choreography>,
 }
 
 /// The temporary layout source for one teaching view. It shares the published model's
@@ -607,6 +611,9 @@ pub struct ViewerSearchResult {
 }
 #[derive(Component)]
 struct LayoutOwned;
+/// The ground grid, which a transition replaces at once.
+#[derive(Component)]
+struct Ground;
 #[derive(Component)]
 struct LayoutText;
 #[derive(Component)]
@@ -737,6 +744,10 @@ struct Viewer {
     /// Set while a teaching view stands in for the published model. Nothing is saved
     /// while it is set.
     teaching: Option<TeachingReturn>,
+    /// The transition for the latest job's scene, and then for the next rebuild once
+    /// that job is accepted. Any other job clears it.
+    job_transition: Option<Choreography>,
+    pending_transition: Option<Choreography>,
 }
 type ConstraintRegistry = BTreeMap<(SemanticLens, String), ComposedConstraints>;
 
@@ -748,7 +759,8 @@ pub(crate) struct LayoutUpdate;
 pub(crate) struct LayoutScenePlugin;
 impl Plugin for LayoutScenePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Viewer>()
+        app.add_plugins(crate::transition::TransitionPlugin)
+            .init_resource::<Viewer>()
             .init_resource::<crate::icons::IconAtlas>()
             .init_resource::<LayoutStorage>()
             .init_resource::<LayoutStatus>()
@@ -1287,6 +1299,7 @@ fn apply_action(
         }
         ViewerAction::Stage(scene) => {
             let scene = *scene;
+            let transition = scene.transition;
             // Entering, changing, or leaving a teaching view swaps the layout source.
             // The published model's view and constraints wait aside until it returns.
             let source = match &scene.teaching {
@@ -1338,6 +1351,12 @@ fn apply_action(
                 }
                 None => start(model, engine, v, false),
             }
+            // A transition starts from the scene on screen, so the old layout is not
+            // redrawn under the new emphasis first.
+            if transition.is_some() {
+                v.job_transition = transition;
+                v.dirty = false;
+            }
             return Ok(true);
         }
         ViewerAction::LeaveTeaching => {
@@ -1348,6 +1367,10 @@ fn apply_action(
             v.composed_constraints = back.constraints;
             v.selected = None;
             v.selected_relation = None;
+            // The rest of the model returns around the part, dimmed rather than hidden.
+            if let Some(spotlight) = &mut v.spotlight {
+                spotlight.context = SpotContext::Dim;
+            }
             v.switching_model = true;
             start_job(
                 &back.input,
@@ -1357,6 +1380,7 @@ fn apply_action(
                 Some(back.input.clone()),
                 Some(model.clone()),
             );
+            v.job_transition = Some(Choreography::put_back());
             return Ok(true);
         }
         ViewerAction::Enter(id) | ViewerAction::Jump(id) => {
@@ -2110,6 +2134,7 @@ fn start_job(
         return;
     }
     retire_job(v);
+    v.job_transition = None;
     v.pending_expansion = None;
     v.pending_path_expansion = None;
     clear_preview(v);
@@ -2718,6 +2743,7 @@ fn abandon_pending(v: &mut Viewer) {
         }
     }
     retire_job(v);
+    v.job_transition = None;
     v.pending_expansion = None;
     v.pending_path_expansion = None;
     clear_preview(v);
@@ -3758,7 +3784,7 @@ fn display_point(p: Point, s: &LayoutSolution, explode: bool, center: Vec3) -> V
     p - center
 }
 
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn poll(
     mut commands: Commands,
     mut viewer: ResMut<Viewer>,
@@ -3771,7 +3797,18 @@ fn poll(
     // Absent in headless scenes, which draw no icons.
     mut images: Option<ResMut<Assets<Image>>>,
     mut icons: Option<ResMut<crate::icons::IconAtlas>>,
-    owned: Query<Entity, With<LayoutOwned>>,
+    owned: Query<
+        (
+            Entity,
+            Option<&PlacedObject>,
+            Option<&Transform>,
+            Has<Label>,
+            Has<Ground>,
+        ),
+        (With<LayoutOwned>, Without<Camera3d>),
+    >,
+    // Absent in headless scenes that play no transitions.
+    mut transition: Option<ResMut<SceneTransition>>,
     mut camera: Query<(&mut OrbitCamera, &mut Transform), With<Camera3d>>,
     mut text: Query<&mut Text, With<LayoutText>>,
     mut inspector: Query<&mut Text, (With<Inspector>, Without<LayoutText>)>,
@@ -3896,6 +3933,7 @@ fn poll(
                             }
                         } else {
                             timing.outcome = "accepted";
+                            viewer.pending_transition = viewer.job_transition.take();
                             if let Some(cache) = job.canonical_cache.lock().unwrap().take() {
                                 viewer.canonical_cache = Arc::new(cache);
                             }
@@ -4013,10 +4051,50 @@ fn poll(
     let scene_started = Instant::now();
     if viewer.dirty {
         viewer.dirty = false;
+        let choreography = viewer.pending_transition.take();
         if let Some((p, _)) = &viewer.accepted {
             let s = displayed_solution(&viewer).unwrap();
-            for entity in &owned {
-                commands.entity(entity).despawn();
+            // With a transition, outgoing objects and connectors stay to play their
+            // part; everything else is replaced at once.
+            let staging = match (choreography, transition.as_deref_mut()) {
+                (Some(c), Some(t)) => Some((t.begin(c), c)),
+                (_, Some(t)) => {
+                    t.cut();
+                    None
+                }
+                _ => None,
+            };
+            let mut outgoing: BTreeMap<String, (Entity, Vec3, Vec3)> = BTreeMap::new();
+            let mut leaving: BTreeMap<Entity, Vec3> = BTreeMap::new();
+            for (entity, object, transform, label, ground) in &owned {
+                match (staging, object, transform) {
+                    (Some(_), Some(object), Some(transform)) if !label => {
+                        let at = transform.translation;
+                        for key in std::iter::once(&object.id).chain(&object.semantic_ids) {
+                            outgoing
+                                .entry(key.clone())
+                                .or_insert((entity, at, object.half));
+                        }
+                        leaving.insert(entity, at);
+                        commands
+                            .entity(entity)
+                            .remove::<(LayoutOwned, PlacedObject)>();
+                    }
+                    (Some((generation, c)), None, Some(transform)) if !label && !ground => {
+                        commands
+                            .entity(entity)
+                            .remove::<(LayoutOwned, PlacedRelation)>()
+                            .insert(Track::fade(
+                                generation,
+                                c.connectors_out,
+                                transform.translation,
+                                (1.0, 0.0),
+                            ));
+                    }
+                    _ => {
+                        commands.entity(entity).despawn();
+                    }
+                }
             }
             let center = viewer.origin;
             let mut scene_bounds = Vec3::ONE;
@@ -4081,6 +4159,28 @@ fn poll(
                         Visibility::default(),
                     ))
                     .id();
+                if let Some((generation, c)) = staging {
+                    // Travel from the matching outgoing object, or arrive fresh.
+                    let matched = std::iter::once(&n.id)
+                        .chain(&n.semantic_ids)
+                        .find_map(|key| outgoing.get(key))
+                        .copied()
+                        .filter(|(entity, ..)| leaving.contains_key(entity));
+                    let track = match matched {
+                        Some((old, from, from_half)) => {
+                            leaving.remove(&old);
+                            commands.entity(old).despawn();
+                            Track::travel(generation, c.travel, from, position)
+                                .resizing(from_half, half)
+                                .glowing(c.highlight)
+                        }
+                        None => Track::arrive(generation, c.arrive, position),
+                    };
+                    commands.entity(root).insert((
+                        Transform::from_translation(track.from).with_scale(track.scale.0),
+                        track,
+                    ));
+                }
                 let color = object_color(display.map(|label| label.original_kind.as_str()), k);
                 let marked = viewer.group_marks.contains_key(&n.id);
                 if dimmed {
@@ -4179,7 +4279,7 @@ fn poll(
                     } else {
                         title
                     });
-                    spawn_label(
+                    let label = spawn_label(
                         &mut commands,
                         Label {
                             point: position + Vec3::Y * half.y,
@@ -4189,6 +4289,19 @@ fn poll(
                         display.is_some(),
                         if marked { MARK_COLOR } else { color },
                     );
+                    if let Some((generation, c)) = staging {
+                        commands.entity(label).insert(Held {
+                            generation,
+                            at: c.labels_in,
+                        });
+                    }
+                }
+            }
+            if let Some((generation, c)) = staging {
+                for (entity, at) in std::mem::take(&mut leaving) {
+                    commands
+                        .entity(entity)
+                        .insert(Track::leave(generation, c.leave, at));
                 }
             }
             // Filter by isolation first, then merge coincident segments, so an
@@ -4261,6 +4374,14 @@ fn poll(
                     commands.entity(root).insert(Dimmed);
                 }
                 commands.entity(root).insert(LayoutOwned);
+                if let Some((generation, c)) = staging {
+                    commands.entity(root).insert(Track::fade(
+                        generation,
+                        c.connectors_in,
+                        Vec3::ZERO,
+                        (0.0, 1.0),
+                    ));
+                }
             }
             for ((r, relation, selected, points, dimmed), skip) in visible.into_iter().zip(&skips) {
                 let route = connections::Route {
@@ -4307,11 +4428,20 @@ fn poll(
                             points,
                         },
                     ));
+                if let Some((generation, c)) = staging {
+                    commands.entity(root).insert(Track::fade(
+                        generation,
+                        c.connectors_in,
+                        Vec3::ZERO,
+                        (0.0, 1.0),
+                    ));
+                }
             }
             // A faint ground grid just below the lowest content seats the view.
             let reach = scene_bounds.x.max(scene_bounds.z) * 1.6;
             commands.spawn((
                 LayoutOwned,
+                Ground,
                 Mesh3d(meshes.add(Plane3d::new(Vec3::Y, Vec2::splat(reach)))),
                 MeshMaterial3d(glasses.add(GlassMaterial::grid(
                     style::grid_spacing(scene_bounds.x.max(scene_bounds.z) * 2.0),
@@ -5180,7 +5310,13 @@ fn label_rect(point: Vec2, viewport: Vec2, occupied: &[Rect]) -> Option<Rect> {
 
 /// A rounded caption pill edged in the object's colour: kind above, name
 /// below. The fixed outer box is what `labels` packs; the pill shrinks to fit.
-fn spawn_label(commands: &mut Commands, label: Label, caption: &str, kinded: bool, accent: Color) {
+fn spawn_label(
+    commands: &mut Commands,
+    label: Label,
+    caption: &str,
+    kinded: bool,
+    accent: Color,
+) -> Entity {
     let (header, name) = match caption.split_once('\n') {
         Some((kind, name)) if kinded => (kind, Some(name)),
         _ => (caption, None),
@@ -5247,7 +5383,8 @@ fn spawn_label(commands: &mut Commands, label: Label, caption: &str, kinded: boo
                 },
                 BackgroundColor(accent.with_alpha(0.75)),
             ));
-        });
+        })
+        .id()
 }
 
 /// Containers below the focused root: 0 for its direct children.
@@ -5268,7 +5405,7 @@ fn nesting_depth(parents: &BTreeMap<&str, &str>, root: &str, id: &str) -> usize 
 fn labels(
     camera: Single<(&Camera, &GlobalTransform), With<Camera3d>>,
     viewer: Res<Viewer>,
-    mut labels: Query<(&Label, &mut Node)>,
+    mut labels: Query<(&Label, &mut Node), Without<Held>>,
     panels: Query<
         (&ComputedNode, &Node),
         (
