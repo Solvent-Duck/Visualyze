@@ -29,7 +29,7 @@ MCP bridge and the viewer use it. Conformance cases are in
 | `title` | | On-screen caption, 60 characters at most, one line of plain text |
 | `root` | closest common owner of `focus` | The entity whose interior the scene shows. Every focus entity must be inside it. |
 | `focus` | | 1 to 64 entities the step is about. More than 12 produces the `busy_step` advice warning. |
-| `context` | `dim` | Everything else is `dim`med, `hide`den, or `show`n normally |
+| `context` | `hide` with a `trace`, else `dim` | Everything else is `dim`med, `hide`den, or `show`n normally |
 | `reveal` | `step` | `cumulative` keeps earlier steps' focus lit, for build-ups and recaps |
 | `trace` | `[]` | Ordered hops over existing relations, animated in that order |
 | `repeat_trace` | `false` | Loop the trace. Allowed only when it ends where it starts. |

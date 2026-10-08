@@ -80,7 +80,7 @@
         "context": {
           "description": "How everything outside the focus and trace is shown.",
           "enum": ["dim", "hide", "show"],
-          "default": "dim"
+          "default": "hide for a step with a trace, otherwise dim"
         },
         "reveal": {
           "description": "step: light only this step's focus and trace. cumulative: also keep the focus of earlier steps lit, building the picture up.",

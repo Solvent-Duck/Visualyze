@@ -18,8 +18,9 @@ pub struct Step {
     pub title: String,
     pub root: Option<String>,
     pub focus: Vec<String>,
-    #[serde(default)]
-    pub context: Context,
+    /// None means `hide` for a traced step and `dim` otherwise; see [`Step::context`].
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context: Option<Context>,
     #[serde(default)]
     pub reveal: Reveal,
     #[serde(default)]
@@ -32,6 +33,18 @@ pub struct Step {
     pub camera: CameraIntent,
     #[serde(default)]
     pub presentation: Presentation,
+}
+
+impl Step {
+    /// The context treatment this step plays with. A traced step defaults to
+    /// `hide` so the path reads on its own; other steps default to `dim`.
+    pub fn context(&self) -> Context {
+        self.context.unwrap_or(if self.trace.is_empty() {
+            Context::Dim
+        } else {
+            Context::Hide
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]

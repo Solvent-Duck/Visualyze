@@ -218,7 +218,7 @@ fn scene(active: &Active) -> StagedScene {
         spotlight: Some(Spotlight {
             lit,
             relations: resolved.hops.iter().map(|h| h.relation.clone()).collect(),
-            context: match step.context {
+            context: match step.context() {
                 Context::Dim => SpotContext::Dim,
                 Context::Hide => SpotContext::Hide,
                 Context::Show => SpotContext::Show,
@@ -875,7 +875,7 @@ mod tests {
             assert!(spot.lit.contains(id), "{id} not lit");
         }
         assert!(spot.relations.contains("rel:read-database"));
-        assert_eq!(spot.context, SpotContext::Dim);
+        assert_eq!(spot.context, SpotContext::Hide);
         // Cumulative: the previous step's focus stays lit.
         assert!(spot.lit.contains("scope:notes"));
     }

@@ -76,7 +76,7 @@ fn applies_defaults_and_resolves_roots_and_travel() {
     let script = walkthrough.script();
     assert_eq!(script.steps.len(), walkthrough.resolved().len());
     let entry = &script.steps[1];
-    assert_eq!(entry.context, Context::Dim);
+    assert_eq!(entry.context(), Context::Hide);
     assert_eq!(entry.reveal, Reveal::Step);
     assert_eq!(entry.camera, CameraIntent::FollowTrace);
     assert!(walkthrough.warnings().is_empty());
