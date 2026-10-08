@@ -2410,7 +2410,7 @@ fn start_job(
                                     ComposedRequest {
                                         projection: &p,
                                         algorithm: engine.algorithm(),
-                                        quality: QualityProfile::default(),
+                                        quality: QualityProfile::for_policy(saved.context.policy),
                                         pins: &saved.canonical_pins,
                                         work_budget: 192,
                                         cancelled: &signal,
@@ -2521,7 +2521,7 @@ fn start_job(
                     let request = ComposedRequest {
                         projection: &p,
                         algorithm: engine.algorithm(),
-                        quality: QualityProfile::default(),
+                        quality: QualityProfile::for_policy(context.policy),
                         pins: &pins,
                         work_budget: 192,
                         cancelled: &signal,
@@ -2650,7 +2650,7 @@ fn start_job(
                     algorithm: engine.algorithm(),
                     pins: &pins,
                     previous,
-                    quality: QualityProfile::default(),
+                    quality: QualityProfile::for_policy(view.policy),
                     work_budget: if reorganize { 192 } else { 48 },
                     cancelled: &signal,
                 })
@@ -2913,7 +2913,7 @@ fn accepted_canonical_cache(
         layout::composed::ComposedRequest {
             projection: p,
             algorithm: engine.algorithm(),
-            quality: QualityProfile::default(),
+            quality: QualityProfile::for_policy(context.policy),
             pins,
             work_budget: 192,
             cancelled: &AtomicBool::new(false),

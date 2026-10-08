@@ -159,7 +159,7 @@ struct PlacementKey {
     policy: LayoutPolicy,
     geometry: FrameCacheKey,
     algorithm: Algorithm,
-    settings: [u64; 9],
+    settings: [u64; 10],
     pins: BTreeMap<String, Point>,
     domain_lock: Option<AnchorPinLink>,
     host_locks: BTreeMap<String, Bounds>,
@@ -306,6 +306,8 @@ fn validate_cache_request(
         || quality.size_candidates > 28
         || !quality.movement_weight.is_finite()
         || quality.movement_weight < 0.0
+        || !quality.shape_weight.is_finite()
+        || quality.shape_weight < 0.0
     {
         return Err(invalid("invalid canonical cache quality profile"));
     }
@@ -624,6 +626,7 @@ fn key_for(
             req.quality.routed_candidates as u64,
             ((req.quality.feedback_candidates as u64) << 32) | req.quality.size_candidates as u64,
             req.quality.movement_weight.to_bits(),
+            req.quality.shape_weight.to_bits(),
             2, // Boundary alignment and blocked-corridor recovery revision.
         ],
         pins: req

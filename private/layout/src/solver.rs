@@ -28,6 +28,21 @@ pub struct QualityProfile {
     /// Zero disables this compatibility fallback for controlled comparisons.
     pub size_candidates: usize,
     pub movement_weight: f64,
+    /// Weight of the bounding-box shape term that ranks initial placements
+    /// toward a cube. Zero for pipelines, whose height is fixed by rank: there
+    /// the term only rewards pushing boxes out sideways or in depth.
+    pub shape_weight: f64,
+}
+impl QualityProfile {
+    pub fn for_policy(policy: crate::projection::LayoutPolicy) -> Self {
+        Self {
+            shape_weight: match policy {
+                crate::projection::LayoutPolicy::Pipeline => 0.0,
+                _ => Self::default().shape_weight,
+            },
+            ..Self::default()
+        }
+    }
 }
 impl Default for QualityProfile {
     fn default() -> Self {
@@ -38,6 +53,7 @@ impl Default for QualityProfile {
             feedback_candidates: 4,
             size_candidates: 28,
             movement_weight: 0.08,
+            shape_weight: 2.0,
         }
     }
 }
@@ -532,7 +548,7 @@ fn solve_sizes(
             req.pins,
             req.previous.is_some(),
         );
-        let estimate = estimate(req.projection, &boxes);
+        let estimate = estimate(req.projection, &boxes, req.quality.shape_weight);
         seeds.push((estimate, iteration, boxes));
     }
     seeds.sort_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
@@ -865,6 +881,8 @@ fn validate_request(req: &LayoutRequest<'_>) -> Result<(), LayoutError> {
         || req.quality.size_candidates > 28
         || !req.quality.movement_weight.is_finite()
         || req.quality.movement_weight < 0.0
+        || !req.quality.shape_weight.is_finite()
+        || req.quality.shape_weight < 0.0
         || req.work_budget == 0
     {
         return Err(LayoutError::Invalid(
@@ -2027,7 +2045,9 @@ fn align_bands(
     gap: i64,
 ) {
     // The dense middle band anchors the assembly. Adjacent bands follow their
-    // connected neighbors, with deterministic collision rejection.
+    // connected neighbors, with deterministic collision rejection. A box follows
+    // only neighbors already settled (the anchor and bands aligned before it),
+    // so a chain lines up instead of averaging toward unaligned seed positions.
     let anchor = bands
         .iter()
         .max_by_key(|(band, m)| (m.len(), -**band))
@@ -2035,9 +2055,10 @@ fn align_bands(
         .unwrap_or(0);
     let mut order: Vec<_> = bands.keys().copied().filter(|b| *b != anchor).collect();
     order.sort_by_key(|b| ((b - anchor).abs(), *b));
+    let mut settled = BTreeSet::from([anchor]);
     for band in order {
         for id in &bands[&band] {
-            let related: Vec<_> = projection
+            let neighbors: Vec<_> = projection
                 .edges
                 .iter()
                 .filter_map(|e| {
@@ -2048,12 +2069,20 @@ fn align_bands(
                     } else {
                         return None;
                     };
-                    if bands[&band].contains(neighbor) {
-                        None
-                    } else {
-                        boxes.get(neighbor).map(|b| b.bounds.center())
+                    // Endpoints outside this level's bands are not moved here.
+                    match bands.iter().find(|(_, m)| m.contains(neighbor)) {
+                        Some((rank, _)) => {
+                            (*rank != band).then_some((neighbor, settled.contains(rank)))
+                        }
+                        None => Some((neighbor, true)),
                     }
                 })
+                .collect();
+            let any_settled = neighbors.iter().any(|(_, s)| *s);
+            let related: Vec<_> = neighbors
+                .iter()
+                .filter(|(_, s)| *s || !any_settled)
+                .filter_map(|(neighbor, _)| boxes.get(*neighbor).map(|b| b.bounds.center()))
                 .collect();
             if related.is_empty() {
                 continue;
@@ -2074,6 +2103,7 @@ fn align_bands(
                 translate_tree(id, shift, boxes);
             }
         }
+        settled.insert(band);
     }
 }
 // A single-purpose endpoint in another band or physical shelf gets a vertical
@@ -2290,7 +2320,11 @@ fn refit_frames(
         }
     }
 }
-fn estimate(projection: &Projection, boxes: &BTreeMap<String, LayoutBox>) -> f64 {
+fn estimate(
+    projection: &Projection,
+    boxes: &BTreeMap<String, LayoutBox>,
+    shape_weight: f64,
+) -> f64 {
     let wires = projection
         .edges
         .iter()
@@ -2312,7 +2346,7 @@ fn estimate(projection: &Projection, boxes: &BTreeMap<String, LayoutBox>) -> f64
     let s = b.size();
     wires
         + 0.1 * (s.x as f64 * s.y as f64 * s.z as f64).cbrt()
-        + 2.0 * (s.x.max(s.y).max(s.z) - s.x.min(s.y).min(s.z)) as f64
+        + shape_weight * (s.x.max(s.y).max(s.z) - s.x.min(s.y).min(s.z)) as f64
 }
 
 #[cfg(test)]
