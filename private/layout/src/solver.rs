@@ -1492,6 +1492,7 @@ fn pack_tree(
         if matches!(algorithm, Algorithm::Floorplan | Algorithm::Layered) {
             reserve_passages(&bands, projection, boxes, gap);
         }
+        snap_bands(&bands, projection, boxes, gap);
     }
     let bounds = children
         .iter()
@@ -2048,13 +2049,7 @@ fn align_bands(
     // connected neighbors, with deterministic collision rejection. A box follows
     // only neighbors already settled (the anchor and bands aligned before it),
     // so a chain lines up instead of averaging toward unaligned seed positions.
-    let anchor = bands
-        .iter()
-        .max_by_key(|(band, m)| (m.len(), -**band))
-        .map(|(b, _)| *b)
-        .unwrap_or(0);
-    let mut order: Vec<_> = bands.keys().copied().filter(|b| *b != anchor).collect();
-    order.sort_by_key(|b| ((b - anchor).abs(), *b));
+    let (anchor, order) = band_order(bands);
     let mut settled = BTreeSet::from([anchor]);
     for band in order {
         for id in &bands[&band] {
@@ -2101,6 +2096,96 @@ fn align_bands(
                 other == id || !candidate.overlaps(subtree_bounds(other, boxes).inflated(gap / 2))
             }) {
                 translate_tree(id, shift, boxes);
+            }
+        }
+        settled.insert(band);
+    }
+}
+/// The densest band anchors the assembly; the others follow nearest first.
+fn band_order(bands: &BTreeMap<i32, Vec<String>>) -> (i32, Vec<i32>) {
+    let anchor = bands
+        .iter()
+        .max_by_key(|(band, m)| (m.len(), -**band))
+        .map(|(b, _)| *b)
+        .unwrap_or(0);
+    let mut order: Vec<_> = bands.keys().copied().filter(|b| *b != anchor).collect();
+    order.sort_by_key(|b| ((b - anchor).abs(), *b));
+    (anchor, order)
+}
+/// Snap a box onto its nearest settled neighbor in another band when it is off
+/// by at most a quarter of a box on x or z. A box already in line with one
+/// neighbor, or between neighbors on both sides, is placed that way for a
+/// reason and stays.
+fn snap_bands(
+    bands: &BTreeMap<i32, Vec<String>>,
+    projection: &Projection,
+    boxes: &mut BTreeMap<String, LayoutBox>,
+    gap: i64,
+) {
+    let (anchor, order) = band_order(bands);
+    let mut settled = BTreeSet::from([anchor]);
+    for band in order {
+        for id in &bands[&band] {
+            let neighbors: Vec<_> = projection
+                .edges
+                .iter()
+                .filter_map(|e| {
+                    let neighbor = if e.source == *id {
+                        &e.target
+                    } else if e.target == *id {
+                        &e.source
+                    } else {
+                        return None;
+                    };
+                    let (rank, _) = bands.iter().find(|(_, m)| m.contains(neighbor))?;
+                    settled
+                        .contains(rank)
+                        .then(|| subtree_bounds(neighbor, boxes))
+                })
+                .collect();
+            if neighbors.is_empty() {
+                continue;
+            }
+            let own = subtree_bounds(id, boxes);
+            let center = own.center();
+            let axis = |p: Point, x: bool| if x { p.x } else { p.z };
+            for x in [true, false] {
+                let offsets: Vec<_> = neighbors
+                    .iter()
+                    .map(|n| axis(n.center(), x) - axis(center, x))
+                    .collect();
+                // Already in line with one, or split between neighbors on both
+                // sides: the offset is deliberate.
+                if offsets.contains(&0)
+                    || (offsets.iter().any(|o| *o < 0) && offsets.iter().any(|o| *o > 0))
+                {
+                    continue;
+                }
+                let Some((offset, limit)) = neighbors
+                    .iter()
+                    .zip(&offsets)
+                    .map(|(n, o)| (*o, axis(n.size(), x).min(axis(own.size(), x)) / 4))
+                    .min_by_key(|(o, _)| o.abs())
+                else {
+                    continue;
+                };
+                if offset.abs() > limit {
+                    continue;
+                }
+                let shift = if x {
+                    Point::new(offset, 0, 0)
+                } else {
+                    Point::new(0, 0, offset)
+                };
+                let candidate = subtree_bounds(id, boxes)
+                    .translated(shift)
+                    .inflated(gap / 2);
+                if bands[&band].iter().all(|other| {
+                    other == id
+                        || !candidate.overlaps(subtree_bounds(other, boxes).inflated(gap / 2))
+                }) {
+                    translate_tree(id, shift, boxes);
+                }
             }
         }
         settled.insert(band);
@@ -2396,6 +2481,52 @@ mod layered_tests {
             target: target.into(),
             semantic_ids: vec![id.into()],
         });
+    }
+
+    fn placed(id: &str, x: i64, y: i64) -> (String, LayoutBox) {
+        let min = Point::new(x, y, 0);
+        (
+            id.into(),
+            LayoutBox {
+                id: id.into(),
+                semantic_ids: vec![id.into()],
+                parent: Some("root".into()),
+                bounds: Bounds {
+                    min,
+                    max: min + Point::new(24, 12, 24),
+                },
+                solid: true,
+            },
+        )
+    }
+
+    #[test]
+    fn snap_lines_up_small_accidental_offsets_but_keeps_deliberate_ones() {
+        let center_x = |boxes: &BTreeMap<String, LayoutBox>, id: &str| boxes[id].bounds.center().x;
+        // A box 4 off (under a quarter of 24) its only neighbor below snaps onto it.
+        let mut p = projection();
+        edge(&mut p, "e1", "top", "bottom");
+        let bands = BTreeMap::from([(0, vec!["bottom".into()]), (1, vec!["top".into()])]);
+        let mut boxes = BTreeMap::from([placed("bottom", 0, 0), placed("top", 4, 24)]);
+        snap_bands(&bands, &p, &mut boxes, 12);
+        assert_eq!(center_x(&boxes, "top"), center_x(&boxes, "bottom"));
+        // An offset past a quarter of a box is left alone.
+        let mut boxes = BTreeMap::from([placed("bottom", 0, 0), placed("top", 7, 24)]);
+        snap_bands(&bands, &p, &mut boxes, 12);
+        assert_eq!(center_x(&boxes, "top") - center_x(&boxes, "bottom"), 7);
+        // Centered over two neighbors, the box splits the difference and stays.
+        edge(&mut p, "e2", "top", "right");
+        let bands = BTreeMap::from([
+            (0, vec!["bottom".into(), "right".into()]),
+            (1, vec!["top".into()]),
+        ]);
+        let mut boxes = BTreeMap::from([
+            placed("bottom", 0, 0),
+            placed("right", 8, 0),
+            placed("top", 4, 24),
+        ]);
+        snap_bands(&bands, &p, &mut boxes, 12);
+        assert_eq!(center_x(&boxes, "top"), 16);
     }
 
     fn solve_layered(
