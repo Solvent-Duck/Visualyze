@@ -598,7 +598,7 @@ fn spawn_token(
     legs: Vec<(Vec<Vec3>, Color)>,
     repeat: bool,
 ) {
-    let mesh = meshes.add(Cuboid::from_length(0.42));
+    let mesh = meshes.add(Sphere::new(0.2).mesh().ico(3).unwrap());
     for i in 0..=TRAIL {
         let fade = 1.0 - i as f32 / (TRAIL + 1) as f32;
         let material = materials.add(StandardMaterial {
@@ -623,7 +623,7 @@ fn spawn_token(
             },
             Mesh3d(mesh.clone()),
             MeshMaterial3d(material),
-            Transform::from_scale(Vec3::splat(1.0 - 0.1 * i as f32)),
+            Transform::from_scale(Vec3::splat(1.0 - 0.12 * i as f32)),
             Visibility::Hidden,
         ));
     }
@@ -649,7 +649,6 @@ fn move_tokens(
         match token_at(&token.legs, token.repeat, token.clock - token.lag) {
             Some((point, color)) => {
                 transform.translation = point;
-                transform.rotation = Quat::from_rotation_y(token.clock * 2.0);
                 *visibility = Visibility::Visible;
                 if let Some(material) = materials.get_mut(&material.0) {
                     let alpha = material.base_color.alpha();
